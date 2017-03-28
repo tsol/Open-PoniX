@@ -1,0 +1,129 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(configure.in)
+
+PACKAGE=Xdialog
+VERSION=2.3.1
+AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})
+
+AM_CONFIG_HEADER(config.h)
+
+dnl Initialize libtool
+dnl AM_PROG_LIBTOOL
+
+AC_ISC_POSIX
+AC_PROG_CC
+AM_PROG_CC_STDC
+AC_PROG_RANLIB
+AC_HEADER_STDC
+AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(errno.h)
+AC_CHECK_HEADERS(fcntl.h)
+AC_CHECK_FUNCS(strcasecmp strstr getopt_long_only memchr memmove setlocale)
+
+rm -f ./intl/libintl.h
+ALL_LINGUAS="fr de ru es hu pt_BR no_NO id nl it pl ca sv_SE"
+AM_GNU_GETTEXT([external])
+
+compile_for="gtk1"
+AC_ARG_WITH(gtk2,
+  [  --with-gtk2             Compiles for GTK2],[
+  compile_for="gtk2"
+  CPPFLAGS="$CPPFLAGS -DUSE_GTK2"
+  AC_MSG_RESULT(Compiling for GTK2)
+  ])
+if test "$compile_for" = "gtk2" ; then
+  AM_PATH_GTK_2_0(2.2.0, ,
+            AC_MSG_ERROR(Cannot find GTK2.))
+else
+  AM_PATH_GTK(1.2.0, ,
+            AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
+fi
+
+dnl Set PACKAGE_DATA_DIR in config.h.
+if test "x${datadir}" = 'x${prefix}/share'; then
+  if test "x${prefix}" = "xNONE"; then
+    AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${ac_default_prefix}/share/${PACKAGE}", [ ])
+  else
+    AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${prefix}/share/${PACKAGE}", [ ])
+  fi
+else
+  AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${datadir}/${PACKAGE}", [ ])
+fi
+
+dnl Set PACKAGE_SOURCE_DIR in config.h.
+packagesrcdir=`cd $srcdir && pwd`
+AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}", [ ])
+
+dnl Use -Wall if we have gcc.
+if test "x$GCC" = "xyes"; then
+  case " $CFLAGS " in
+  *[[\ \	]-Wall[\ \	]]*) ;;
+  *) CFLAGS="$CFLAGS -Wall" ;;
+  esac
+  case " $CFLAGS " in
+  *[[\ \	]-s[\ \	]]*) ;;
+  *) CFLAGS="$CFLAGS -s" ;;
+  esac
+  case `gcc --version` in
+  2.95*|2.96*|2.97*)
+  case " $CFLAGS " in
+  *[[\ \	]-fno-omit-frame-pointer[\ \	]]*) ;;
+  *) CFLAGS="$CFLAGS -fno-omit-frame-pointer" ;;
+  esac
+  AC_MSG_RESULT(Buggy GCC version: compiling with -fno-omit-frame-pointer)
+  ;;
+  *) ;;
+  esac
+fi
+
+AC_ARG_WITH(french-labels,
+  [  --with-french-labels    Enables french labels in menus],[
+  CPPFLAGS="$CPPFLAGS -DFRENCH"
+  AC_MSG_RESULT(Compiling with french labels)
+  ])
+
+AC_ARG_WITH(fixed-font,
+  [  --with-fixed-font=font_name
+                          Sets the fixed font to be used],[
+  if test x$withval = xyes; then
+    AC_MSG_ERROR([Usage is: --with-fixed-font=font_name])
+  else
+    CPPFLAGS="$CPPFLAGS -DFIXED_FONT=\\\"$withval\\\""
+    AC_MSG_RESULT(Using \"$withval\" fixed font)
+  fi
+  ])
+
+AC_ARG_WITH(scanf-calls,
+  [  --with-scanf-calls      Use scanf calls instead of non-blocking reads],[
+  CPPFLAGS="$CPPFLAGS -DUSE_SCANF"
+  AC_MSG_RESULT(Using scanf calls instead of non-blocking read calls)
+  ])
+
+AC_ARG_WITH(print-command,
+  [  --with-print-command=cmd
+                          Sets the printer command to be used],[
+  if test x$withval = xyes; then
+    AC_MSG_ERROR([Usage is: --with-printer-command=cmd])
+  else
+    CPPFLAGS="$CPPFLAGS -DPRINTER_CMD=\\\"$withval\\\""
+    AC_MSG_RESULT(Compiling with printer command: \"$withval\")
+  fi
+  ])
+
+AC_ARG_WITH(print-option,
+  [  --with-print-option=option
+                          Sets the printer command option to be used],[
+  if test x$withval = xyes; then
+    AC_MSG_ERROR([Usage is: --with-printer-option=option])
+  else
+    CPPFLAGS="$CPPFLAGS -DPRINTER_CMD_OPTION=\\\"$withval\\\""
+    AC_MSG_RESULT(Compiling with printer command option: \"$withval\")
+  fi
+  ])
+
+AC_OUTPUT(Makefile lib/Makefile src/Makefile po/Makefile.in doc/Makefile m4/Makefile )

@@ -1,0 +1,434 @@
+'\" t
+.\"     Title: stalonetray
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 11/06/2010
+.\"    Manual: User Commands
+.\"    Source: stalonetray 0.8
+.\"  Language: English
+.\"
+.TH "STALONETRAY" "1" "11/06/2010" "stalonetray 0\&.8" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+stalonetray \- \fIsta\fRnd\-\fIalone\fR system tray (notification area) implementation\&. This document covers 0\&.8 version of stalonetray\&.
+.SH "SYNOPSIS"
+.HP \w'\fBstalonetray\fR\ 'u
+\fBstalonetray\fR [\fIoption\fR...]
+.SH "DESCRIPTION"
+.PP
+Stalonetray is a stand\-alone system tray (notification area) for X Window System/X11 (e\&.g\&. XOrg or XFree86)\&. It has minimal build and run\-time dependencies: an X11 lib only\&. Complete
+XEMBED
+support is under development\&. Stalonetray works with virtually any
+EWMH\-compliant window manager\&.
+.PP
+The behaviour and the look of stalonetray can be configured either via command line options or via configuration file\&. As usual, command\-line options have precedence over options that are specified in the configuration file\&.
+.PP
+Names of command line parameter may have two variants: short (\fB\-o\fR) and long (\fB\-\-option\fR)\&. Write
+\fB\-o\fR\fIvalue\fR
+or
+\fB\-o\fR
+\fIvalue\fR
+to pass a value using the short name of a parameter; to pass a value using a long name, write
+\fB\-\-option\fR
+\fIvalue\fR
+or
+\fB\-\-option\fR=\fIvalue\fR\&. All flag\-like parameters have optional boolean value that when ommited is assumed to be "true"\&. Write "true", "yes", "1", for positive boolean values, and "false", "no", "0" for negative ones\&.
+.PP
+Default configuration file is
+$HOME/\&.stalonetrayrc\&. A configuration file contains case\-insensetive keyword\-argument pairs, one per line\&. Lines starting with \'#\' and empty lines are ignored\&. Alternatively, confiuration file can specified via
+\fB\-c\fR
+or
+\fB\-\-config\fR
+command\-line options\&.
+.PP
+Below is the list of possible command line/configuration file options\&. Options starting with hyphens are command\-line parameters others are configuration file keywords\&. Options that are new in 0\&.8 version are marked with "NEW in 0\&.8"\&.
+.SH "OPTIONS"
+.PP
+\fB\-bg\fR \fIcolor\fR, \fB\-\-background\fR \fIcolor\fR, \fBbackground\fR \fIcolor\fR
+.RS 4
+Use
+\fIcolor\fR
+for tray`s background\&.
+\fIcolor\fR
+can be specified as an
+HTML
+hex triplet or as a name from rgb\&.txt (note that \'#\' must be quoted)\&. Default value:
+\fB#777777\fR\&.
+.RE
+.PP
+\fB\-c\fR \fIfilename\fR, \fB\-\-config\fR \fIfilename\fR
+.RS 4
+Read configuration from
+\fIfilename\fR
+instead of default
+$HOME/\&.stalonetrayrc\&.
+.RE
+.PP
+\fB\-d\fR \fIdecspec\fR, \fB\-\-decorations\fR \fIdecspec\fR, \fBdecorations\fR \fIdecspec\fR
+.RS 4
+Specify visiblie tray window decorations\&. Possible values for
+\fIdecspec\fR
+are:
+\fBall\fR,
+\fBtitle\fR,
+\fBborder\fR,
+\fBnone\fR
+(default)\&.
+.RE
+.PP
+\fB\-display\fR \fIdisplay\fR, \fBdisplay\fR \fIdisplay\fR
+.RS 4
+Use X display
+\fIdisplay\fR\&.
+.RE
+.PP
+\fB\-\-dockapp\-mode\fR [\fImode\fR], \fBdockapp_mode\fR [\fImode\fR]
+.RS 4
+Set dockapp mode, which can be either
+\fBsimple\fR
+for e\&.g\&. OpenBox,
+\fBwmaker\fR
+for WindowMaker, or
+\fBnone\fR
+(default)\&.
+.RE
+.PP
+\fB\-f\fR [\fIlevel\fR], \fB\-\-fuzzy\-edges\fR [\fIlevel\fR], \fBfuzzy_edges\fR [\fIlevel\fR]
+.RS 4
+Enable fuzzy edges of tray window and set fuzziness level which can range from
+\fB0\fR
+(disabled, default) to
+\fB3\fR\&. When ommited, the value of
+\fIlevel\fR
+defaults to 2\&.
+.RE
+.PP
+\fB\-\-geometry\fR \fIgeometry_spec\fR, \fBgeometry\fR \fIgeometry_spec\fR
+.RS 4
+Set tray`s initial geometry to
+\fIgeometry_spec\fR, specified in standard X notation:
+\fIwidth\fRx\fIheight\fR[+\fIx\fR[+\fIy\fR]], where width and height are specified in icon slot multiples\&. Default value:
+\fB1x1+0\-0\fR\&.
+.RE
+.PP
+\fB\-\-grow\-gravity\fR \fIgravity\fR, \fBgrow_gravity\fR \fIgravity\fR
+.RS 4
+Specify icon positioning gravity (eigher
+\fBN\fR,
+\fBS\fR,
+\fBW\fR,
+\fBE\fR,
+\fBNW\fR,
+\fBNE\fR,
+\fBSW\fR,
+\fBSE\fR)\&. Grow gravity specifies directions in which the tray\'s window may grow\&. For instance, if you specify
+\fBNW\fR
+the tray\'s window will grow down vertically and to the right horizontally (these are sides that are opposite to upper\-left or North\-West corner of the window); with
+\fBW\fR
+the tray\'s window will grow horizontally to the left side only, and it will vertically grow both upwards and downwards maintaining position of its center\&. Please note that the latter behaviour is new in 0\&.8\&. Default value:
+\fBNW\fR\&.
+.RE
+.PP
+\fB\-\-icon\-gravity\fR \fIgravity\fR, \fBicon_gravity\fR \fIgravity\fR
+.RS 4
+Specify icon positioning gravity (either
+\fBNW\fR,
+\fBNE\fR,
+\fBSW\fR,
+\fBSE\fR)\&. If you specify, e\&.g
+\fBSW\fR, then icons will appear starting from the lower\-left corner of the tray\'s window\&. Default value:
+\fBNW\fR\&.
+.RE
+.PP
+\fB\-i\fR \fIn\fR, \fB\-\-icon\-size\fR \fIn\fR, \fBicon_size\fR \fIn\fR
+.RS 4
+Set default icon size to
+\fIn\fR\&. Default value:
+\fB24\fR\&. Minimum:
+\fB16\fR\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Show help message\&.
+.RE
+.PP
+\fB\-\-log\-level\fR \fIlevel\fR, \fBlog_level\fR \fIlevel\fR
+.RS 4
+Set the amount of info to be output by stalonetray\&. Possible values for
+\fIlevel\fR:
+\fBerr\fR
+(default),
+\fBinfo\fR, and
+\fBtrace\fR\&. For the
+\fBtrace\fR
+option to be available, stalonetray must be configured with
+\fB\-\-enable\-debug\fR
+at build\-time\&.
+.RE
+.PP
+\fB\-\-kludges\fR \fIkludge\fR [,\fIkludge\fR...]
+.RS 4
+Enable specific kludges to work around non\-conforming WMs and/or stalonetray bugs\&. Argument is a comma\-separated list of:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBfix_window_pos\fR
+\(em fix tray window position on erroneous moves by WM
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBforce_icons_size\fR
+\(em ignore resize events on all icons; force their size to be equal to
+\fBicon_size\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBuse_icons_hints\fR
+\(em use icon window hints to determine icon size
+.RE
+.RE
+.PP
+\fB\-\-max\-geometry\fR \fIgeometry_spec\fR, \fBmax_geometry\fR \fIgeometry_spec\fR
+.RS 4
+Set tray`s maximal geometry to
+\fIgeometry_spec\fR
+Default value:
+\fB0x0\fR, no limit\&.
+.RE
+.PP
+\fB\-\-no\-shrink\fR, \fBno_shrink\fR [\fIbool\fR]
+.RS 4
+Do not shrink tray window back after icon removal\&. Useful when tray is swallowed by another window like FvwmButtons\&. Default value:
+\fBfalse\fR\&.
+.RE
+.PP
+\fB\-p\fR, \fB\-\-parent\-bg\fR, \fBparent_bg\fR [\fIbool\fR]
+.RS 4
+Use the parent\'s window as a background of the tray\'s window\&. Default value:
+\fBfalse\fR\&.
+.RE
+.PP
+\fB\-\-pixmap\-bg \fR\fB\fIpath_to_xpm\fR\fR, \fBpixmap_bg\fR \fIpath_to_xpm\fR
+.RS 4
+Use the pixmap from an XPM file specified by
+\fIpath_to_xpm\fR
+for the tray`s window background (pixmap will be tiled to fill the entire window)\&.
+.RE
+.PP
+\fB\-r\fR \fIname\fR, \fB\-\-remote\-click\-icon\fR \fIname\fR
+.RS 4
+Remote control/click\&. When this option is specified, stalonetray sends a fake click to the icon with a window named
+\fIname\fR
+and exits\&. The icon is searched for in the currently active tray for the current screen\&. By default, stalonetray sends a single click with the 1st mouse button to the center of the icon\&. See the options below for additional information on how to alter the defaults\&.
+.RE
+.PP
+\fB\-\-remote\-click\-button\fR \fIn\fR
+.RS 4
+Sets the remote click\'s button number to
+\fIn\fR
+(in the X11 numbering order)\&.
+.RE
+.PP
+\fB\-\-remote\-click\-position\fR \fIx\fRx\fIy\fR
+.RS 4
+Sets the remote click\'s position\&.
+.RE
+.PP
+\fB\-\-remote\-click\-type\fR \fItype\fR
+.RS 4
+Sets the remote click\'s type\&. Possible values:
+\fBsingle\fR
+and
+\fBdouble\fR\&.
+.RE
+.PP
+\fB\-s\fR \fIn\fR, \fB\-\-slot\-size\fR \fIn\fR, \fBslot_size\fR \fIn\fR
+.RS 4
+Set grid slot size to
+\fIn\fR, which cannot be less then
+\fBicon_size\fR\&. By default, the slot size is the same as the icon size\&.
+.RE
+.PP
+\fB\-\-scrollbars\fR \fImode\fR, \fBscrollbars\fR \fImode\fR
+.RS 4
+Set scrollbar mode\&. Possible values:
+\fBvertical\fR,
+\fBhorizontal\fR,
+\fBall\fR, or
+\fBnone\fR
+(default)\&. Scrollbars appear as additional space at tray borders that can be clicked to scroll icon area\&. Mouse wheel also works\&.
+.RE
+.PP
+\fB\-\-scrollbars\-highlight\fR \fImode\fR, \fBscrollbars_highlight\fR \fImode\fR
+.RS 4
+Set scrollbars highlight mode\&. Possible values: a color spec, or
+\fBdisable\fR\&.
+.RE
+.PP
+\fB\-\-scrollbars\-size\fR \fIn\fR, \fBscrollbars_size\fR \fIn\fR
+.RS 4
+Set scrollbar size to
+\fBn\fR
+pixels\&. By default, the size is 1/4 of
+\fBslot_size\fR\&.
+.RE
+.PP
+\fB\-\-scrollbars\-step\fR \fIn\fR, \fBscrollbars_step\fR \fIn\fR
+.RS 4
+Set scrollbar step to
+\fBn\fR
+pixels\&. Default is 1/2 of
+\fBslot_size\fR\&.
+.RE
+.PP
+\fB\-\-skip\-taskbar\fR, \fBskip_taskbar\fR [\fIbool\fR]
+.RS 4
+Hide tray`s window from the taskbar\&. Default value:
+\fBfalse\fR\&.
+.RE
+.PP
+\fB\-\-sticky\fR, \fBsticky\fR [\fIbool\fR]
+.RS 4
+Make tray`s window sticky across multiple desktops/pages\&. Default value:
+\fBfalse\fR\&.
+.RE
+.PP
+\fB\-\-tint\-color\fR, \fBtint_color\fR [\fIbool\fR]
+.RS 4
+Set tinting color\&. Default value:
+\fBwhite\fR\&.
+.RE
+.PP
+\fB\-\-tint\-level\fR, \fBtint_level\fR [\fIlevel\fR]
+.RS 4
+Set tinting level\&. Default value:
+\fB0\fR
+(tinting disabled)\&.
+.RE
+.PP
+\fB\-t\fR, \fB\-\-transparent\fR, \fBtransparent\fR [\fIbool\fR]
+.RS 4
+Enable root transparency\&. Default value:
+\fBfalse\fR\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-vertical\fR, \fBvertical\fR [\fIbool\fR]
+.RS 4
+Use vertical layout of icons (horizontal is used by default)\&.
+.RE
+.PP
+\fB\-\-window\-layer\fR \fIlayer\fR, \fBwindow_layer\fR \fIlayer\fR
+.RS 4
+Sets the
+EWMH\-compliant layer of tray`s window\&. Possible values for
+\fIlayer\fR:
+\fBbottom\fR,
+\fBnormal\fR,
+\fBtop\fR\&. Default value:
+\fBnormal\fR\&.
+.RE
+.PP
+\fB\-\-window\-strut\fR \fImode\fR, \fBwindow_strut\fR \fImode\fR
+.RS 4
+Enable window struts for tray window (to avoid covering of tray window by maximized windows)\&. Mode defines to which screen border tray window will be attached\&. It can be either
+\fBtop\fR,
+\fBbottom\fR,
+\fBleft\fR,
+\fBright\fR,
+\fBnone\fR, or
+\fBauto\fR
+(default)\&.
+.RE
+.PP
+\fB\-\-window\-type\fR \fItype\fR, \fBwindow_type\fR \fItype\fR
+.RS 4
+Sets the
+EWMH\-compliant type of tray`s window\&. Possible values for
+\fItype\fR:
+\fBdesktop\fR,
+\fBdock\fR,
+\fBnormal\fR,
+\fBtoolbar\fR,
+\fButility\fR\&. Default value:
+\fBdock\fR\&.
+.RE
+.PP
+\fB\-\-xsync\fR, \fBxsync\fR [\fIbool\fR]
+.RS 4
+Operate on X server synchronously (\fISLOW\fR, turned off by default)\&.
+.RE
+.SH "DEPRICATIONS"
+.PP
+As of stalonetray 0\&.8, the following command line and configuration file parameters are depricated:
+.PP
+\fB\-\-dbg\-level\fR, \fBdbg_level\fR
+.RS 4
+Please use
+\fB\-\-log\-level\fR
+instead\&.
+.RE
+.PP
+\fB\-\-max\-tray\-width\fR, \fB\-\-max\-tray\-height\fR, \fBmax_tray_width\fR, \fBmax_tray_height\fR
+.RS 4
+Please use
+\fB\-\-max\-geometry\fR
+instead\&.
+.RE
+.PP
+\fB\-w\fR, \fB\-\-withdrawn\fR, \fBwithdrawn\fR
+.RS 4
+Please use
+\fB\-\-dockapp\-mode\fR
+instead\&.
+.RE
+.PP
+\fB\-\-respect\-icon\-hints\fR, \fBrespect_icon_hints\fR
+.RS 4
+Please use
+\fB\-\-kludges\fR
+with
+\fBuse_icon_hints\fR
+parameter instead\&.
+.RE
+.SH "FILES"
+.PP
+$HOME/\&.stalonetrayrc
+\(em default configuration file\&.
+.SH "BUGS"
+.PP
+There are some, definetly\&.
+.PP
+If you have found a bug, please try to reproduce it with the log level set to
+\fBtrace\fR
+and send the log file to me:
+busa_ru@users\&.sourceforge\&.net\&. If you need support, the best way to get it is also to e\-mail me directly\&. If you have installed stalonetray from a distribution repository, you can also file a bug in the respective bug tracking database\&.

@@ -1,0 +1,719 @@
+#!/bin/sh
+#!/bin/sh
+###############################################################################
+#
+#	Name:		util_tr.sh
+#
+#
+#	Created:	May 1995
+#
+#	Version:	$Id: //icaclient/unix13.0/client/unix/installer/scripts/util_tr.sh#1 $
+#
+#	Purpose:	Provides functions to translate character strings
+#			to upper and lower case.  This is done using functions
+#			because 'tr' is not portable, and cannot always
+#			be guaranteed to be available.
+#
+#			This file contains versions using 'tr' in its
+#			simplest form.
+#
+#	Copyright 1996-1998 Citrix Systems, Inc. All rights reserved.
+#
+###############################################################################
+
+
+###############################################################################
+#
+#  toupper() copies the standard input to the output, translating any lower
+#  case letters to upper case.
+#
+###############################################################################
+toupper(){
+	<&0 tr $lowercase_letters $uppercase_letters >&1
+}
+
+###############################################################################
+#
+#  tolower() copies the standard input to the output, translating any upper
+#  case letters to lower case.
+#
+###############################################################################
+tolower(){
+	<&0 tr $uppercase_letters $lowercase_letters >&1
+}
+
+#!/bin/sh
+###############################################################################
+#
+#	Name:		map.sh
+#
+#	Version:	$Id: //icaclient/unix13.0/client/unix/installer/scripts/map.sh#1 $
+#
+#	Purpose:	To map a file name from its original name to whatever
+#			will be present on the CD ROM.  A file name may start
+#			out as something like "install", but when put on a 
+#			CD ROM and mounted, it may be changed to upper case,
+#			may have a dot at the end, and may have a semi colon 1
+#			at the end, so ending up as INSTALL, install., 
+#			install.;1, or INSTALL.;1
+#
+#			To use these functions, you should include this source
+#			in your shell script by concatenating it with your
+#			source at build time, i.e. 
+#				cat map.sh myscript.sh > myscript
+#
+#			To use the functions, you should first call get_tr_key
+#			to set up the mapping keys, and then call tr_file for
+#			each file you want to access.
+#			E.g., 
+#				get_tr_key $0
+#				tr_file $TR_FILE_KEY /dir1/dir2/filename
+#
+#			The file name that is passed to get_tr_key should not
+#			have any extensions in it. It should also have mixed
+#			case.
+#
+#	Copyright 1996-1998, 2008-2009  Citrix Systems, Inc. All rights reserved.
+#
+###############################################################################
+
+
+###############################################################################
+#
+#	get_tr_key <path/file>
+#
+#	Examines the given filename, and generates a key suitable for use in
+#	tr_file().  The key is returned in $TR_FILE_KEY and $TR_DIR_KEY.
+#	TR_FILE_KEY is to be used when mapping a file name, TR_DIR_KEY when
+#	mapping a directory name only. TR_DIR_KEY always has the dot and semi
+#	colon parts set to NN.
+#
+#	The input filename is in 8.3 format, but the given filename must not
+#	have any extension, otherwise we cannot tell whether a dot is needed
+#	at the end in the no-extension case.  There may be a path, but this
+#	is ignored in the generation of the key. 
+#	The given filename must be in mixed case to allow distinction between
+#	upper case, lower case and mixed case filesystems.
+#
+#	The key generated consists of three characters:
+#       Character       File system has
+#       ---------       ---------------
+#       L|U|M           Lower, Upper or Mixed case
+#       D|N             Dot at end of a file with no extension or No dot.
+#       S|N             Semicolon-one at end of filename or No semicolon-one.
+#
+###############################################################################
+
+get_tr_key(){
+	trkey_filename=`basename "$1"`
+	TR_FILE_KEY=""
+	TR_DIR_KEY=""
+
+	# See if it's in upper or lower case.
+	trkey_lower_filename=`echo $trkey_filename | tolower`
+	if [ "$trkey_lower_filename" = "$trkey_filename" ]
+	then
+		# It is lower case
+		TR_FILE_KEY=L
+	else
+		trkey_upper_filename=`echo $trkey_filename | toupper`
+		if [ "$trkey_upper_filename" = "$trkey_filename" ]
+		then
+			# It is upper case
+			TR_FILE_KEY=U
+		else
+			# It must be mixed case.
+			TR_FILE_KEY=M
+		fi
+	fi
+
+	# Only the case mapping is relevant for a directory, so set up the
+	# directory mapping key now using the file case mapping, and NN for
+	# dots and semi colons.
+	TR_DIR_KEY=${TR_FILE_KEY}NN
+
+	# See if it has a dot.
+	echo $trkey_filename | grep '\.' > /dev/null 2>&1
+	if [ "$?" = "0" ]
+	then
+		# Input filename has a dot
+		TR_FILE_KEY=${TR_FILE_KEY}D
+	else
+		# No dot
+		TR_FILE_KEY=${TR_FILE_KEY}N
+	fi
+
+	# See if it has a semi-colon-one
+	echo $trkey_filename | grep ';1' > /dev/null 2>&1
+	if [ "$?" = "0" ]
+	then
+		# Input filename has a semi-colon-one
+		TR_FILE_KEY=${TR_FILE_KEY}S
+	else
+		# No semi-colon-one
+		TR_FILE_KEY=${TR_FILE_KEY}N
+	fi
+}
+
+###############################################################################
+#
+#	tr_file key <path/file>
+#
+#	Translates a filename to correspond to the format indicated.
+#
+#	The first parameter is the format to be used, and is a sequence of
+#	three letters as follows:
+#	U, L or M - Upper case, Lower case or Mixed case
+#	D or N - Dot or No Dot (if there is no ".3" type suffix)
+#	S or N - Semi-colon-One (;1) or Not
+#	
+#	The second parameter is the filename, and may have a leading path,
+#	which will be converted to upper or lower case as necessary.
+#	The filename is assumed to be in 8.3 format.
+#
+#	The translated filename is returned in $TR_FILE
+#
+###############################################################################
+
+tr_file(){
+	# Extract 1st, 2nd and 3rd characters.
+	# sed is more generally available than cut.
+	U_or_L=`echo $1 | sed -e 's/^\(.\).*/\1/'`
+	D_or_N=`echo $1 | sed -e 's/^.\(.\).*/\1/'`
+	S_or_N=`echo $1 | sed -e 's/^..\(.\).*/\1/'`
+
+	TR_FILE=$2
+
+	case $U_or_L in
+	U)
+		# Translate to upper case.
+		TR_FILE=`echo $TR_FILE | toupper`
+		;;
+	M)
+		# Mixed Case - do no translation
+		;;
+	*)
+		# Translate to lower case (default).
+		TR_FILE=`echo $TR_FILE | tolower`
+		;;
+	esac
+
+	case $D_or_N in
+	D)
+		# Add a dot at the end, but only if there isn't already one.
+		( basename $TR_FILE | grep '\.' > /dev/null ) || TR_FILE=${TR_FILE}'.'
+		;;
+	*)
+		# Do not add a dot
+		;;
+	esac
+
+	case $S_or_N in
+	S)
+		# Add a semi-colon-one (;1) at the end.
+		TR_FILE=${TR_FILE}\;1
+		;;
+	*)
+		# Do not add a semi-colon-one
+		;;
+	esac
+}
+
+###############################################################################
+#
+#	setCDidfile CDROOT
+#
+#	Tries to find a product ID file (pkgid) file in the given directory.
+#
+#	As a result of this, TR_FILE_KEY and TR_DIR_KEY will be set to values
+#	suitable for the directory being examined.  This serves two purposes.
+#	Firstly, it allows TR_XXXX_KEY to be set, with no previous information,
+#	and secondly, it provides a translated filename (CDidfile) which contains
+#	package and version information strings.
+#
+###############################################################################
+
+setCDidfile()
+{
+	trialDIR=$1
+	tr_file_key_list="UDS UDN UNS UNN LDS LDN LNS LNN MDS MDN MNS MNN"
+	
+
+	for key in $tr_file_key_list
+	do
+		tr_file $key "PkgId"
+		if [ -r "$trialDIR/$TR_FILE" ]
+		then
+			# Make sure both file and directory keys are set.
+			get_tr_key "$trialDIR/$TR_FILE"
+			CDidfile=$trialDIR/$TR_FILE
+			return
+		fi
+	done
+	CDidfile=""
+}
+
+#!/bin/sh
+#
+# =============================================================================
+#
+#       Name:           findconv.sh
+#
+#       Purpose:        To find the CHAR[I]CONV DLLs which are part of the
+#                       installation package.
+#
+#       Version:        $Id: //icaclient/unix13.0/client/unix/installer/scripts/findconv.sh#1 $
+#
+#       Copyright 2005, 2009 Citrix Systems, Inc. All Rights Reserved.
+#
+# =============================================================================
+
+find_CHARCONV_DLL(){
+
+# The location of the package installation directory
+
+	LOCATION=$1
+
+# This variable will be given the value of $en by the package build
+# mechanism; it is used by the echo_cmd program to deduce the encoding of the
+# language-specific message files and EULA.
+
+	PACKAGE_LANGUAGE="en"
+	export PACKAGE_LANGUAGE
+
+# This variable is set to enable the echo_cmd program to find the installation
+# package directory which contains the CHAR[I]CONV character set encoding
+# conversion DLLs; note that both are searched for, in case the package has been
+# built with one or the other but not both - and if neither is found, the
+# variable's value is null.
+
+	CONV_DIR=`find "$LOCATION" -name "CHAR*CONV.DLL" | head -n 1`
+	PACKAGE_DIRECTORY=`dirname "$CONV_DIR" 2> /dev/null`
+	export PACKAGE_DIRECTORY
+}
+
+##################################################################################
+#!/bin/sh
+###############################################################################
+#
+#	Name:		locale.sh
+#
+#	$Id: //icaclient/unix13.0/client/unix/installer/scripts/locale.sh#1 $
+#
+#	Purpose:	Use the locale to apply the correct message file.
+#
+#	Copyright 2009 Citrix Systems, Inc. All rights reserved.
+#
+###############################################################################
+
+find_tr_file()
+{
+    if [ -n "$TR_FILE" -a -f "$TR_FILE" ]
+    then
+        if [ -n "$VERBOSE_FIND" ]
+        then
+            echo Found "$TR_FILE"
+        fi
+        true
+        return
+    fi
+    false
+}
+
+###############################################################################
+#
+#       find_locale_file
+#
+#	Finds the file given as a parameter, by searching under the 
+#       directory given as a parameter for the best fit to the LANG variable.
+#       The file found is returned as the value of TR_FILE.
+#
+###############################################################################
+find_locale_file()
+{
+    FIND_TOP_DIR=$1
+    TARGET=$2
+
+    if [ -z "$TR_DIR_KEY" ] 
+    then
+        echo TR_DIR_KEY is empty
+        exit 1
+    fi
+
+    # Find components
+    if [ -n "$VERBOSE_FIND" ]
+    then
+        echo LANG=$LANG
+    fi
+    if [ -z "$LANG" ]
+    then
+        LANG="en"
+        # echo LANG missing, using en
+    fi
+    Lang=`echo $LANG | sed -n -e 's/[_\.].*//' -e 'p'`
+    Territory=`echo $LANG | sed -n -e 's/\(.*\)\..*/\1/' -e 's/.*_\(.*\)/\1/p'`
+    CodeSet=`echo $LANG | sed -n -e 's/.*\.\(.*\)/\1/p'`
+    # echo Lang = $Lang
+    # echo Territory = $Territory
+    # echo CodeSet = $CodeSet
+    if [ "$Lang" = "POSIX" -o "$Lang" = "C" ]
+    then
+        Lang="en"
+        # echo new Lang = $Lang
+    fi
+    if [ "$CodeSet" = "utf8" -o "$CodeSet" = "UTF8" -o "$CodeSet" = "utf-8" ]
+    then
+        CodeSet="UTF-8"
+        # echo new CodeSet = $CodeSet
+    fi
+    if [ -n "$CodeSet" ]
+    then
+        if [ -n "$Territory" ]
+        then
+            # echo Try ${Lang}/$Territory/$CodeSet
+            tr_file "$TR_DIR_KEY" "$FIND_TOP_DIR/nls/${Lang}_$Territory.$CodeSet/$TARGET"
+            if find_tr_file
+            then
+                return
+            fi
+        fi
+        # echo Try ${Lang}.$CodeSet
+        tr_file "$TR_DIR_KEY" "$FIND_TOP_DIR/nls/${Lang}.$CodeSet/$TARGET"
+        if find_tr_file
+        then
+            return
+        fi
+    fi
+    if [ -n "$Territory" ]
+    then
+        # echo Try ${Lang}_$Territory
+        tr_file "$TR_DIR_KEY" "$FIND_TOP_DIR/nls/${Lang}_$Territory/$TARGET"
+        if find_tr_file
+        then
+            return
+        fi
+    fi
+    # echo Try $Lang
+    tr_file "$TR_DIR_KEY" "$FIND_TOP_DIR/nls/${Lang}/$TARGET"
+    if find_tr_file
+    then
+        return
+    fi
+    if [ -z "$FIND_TARGET_MAY_BE_ABSENT" ]
+    then
+        echo No target "$TARGET" found under "$FIND_TOP_DIR" for $LANG 
+        if [ ! "$Lang" = "en" ]
+        then
+            echo Trying English...
+        fi
+    fi
+    if [ "$Lang" = "en" ]
+    then
+        false
+        return
+    fi
+    if [ -n "$CodeSet" ]
+    then
+        # echo Try en.$CodeSet
+        tr_file "$TR_DIR_KEY" "$FIND_TOP_DIR/nls/en.$CodeSet/$TARGET"
+        if find_tr_file
+        then
+            return
+        fi
+    fi
+    # echo Try en
+    tr_file "$TR_DIR_KEY" "$FIND_TOP_DIR/nls/en/$TARGET"
+    if find_tr_file
+    then
+        return
+    fi
+    if [ -z "$FIND_TARGET_MAY_BE_ABSENT" ]
+    then
+        echo Could not find "$TARGET" under "$FIND_TOP_DIR" for en
+    fi
+    echo
+
+    false
+}
+
+###############################################################################
+#
+#       load_locale_messages
+#
+#	Loads the .msg file given as a parameter, by searching under the 
+#       directory given as a parameter for the best fit to the LANG variable.
+#
+###############################################################################
+load_locale_messages()
+{
+    LOAD_TOP_DIR=$1
+    TARGET=$2
+
+    if find_locale_file "$LOAD_TOP_DIR" "$TARGET"
+    then
+        . "$TR_FILE"
+        true
+        return
+    else
+        false
+        return
+    fi
+}
+
+#!/bin/sh
+#
+# =============================================================================
+#
+#       Name:           setup.sh
+#
+#       Purpose:        To invoke a host-specific hinst script for installing
+#                       or removing Citrix ICA Client for Unix
+#
+#                       Note: This part of the file must be preceded by the
+#                       functions tr_file and get_tr_key.
+#
+#       Version:        $Id: //icaclient/unix13.0/client/unix/installer/scripts/setup.sh#1 $
+#
+#       Copyright 1996-2013 Citrix Systems, Inc. All rights reserved.
+#
+# =============================================================================
+
+
+# =============================================================================
+#
+#       get_OS()
+#
+#       Determines the Operating System we are running on, and sets up some
+#       OS-specific variables, to ensure that some non-portable commands are
+#       used, correctly.  If we cannot identify the operatin system the
+#       shell is exited.
+#
+#       Outputs:        PLATFORM:       A platform-specific name for the host.
+#                       LNKTST:         The letter to use to `test' for a
+#                                       sybbolic link.
+#
+# =============================================================================
+
+get_OS(){
+
+	opsys=`uname -s`
+	case $opsys in
+	OSF1)
+		PLATFORM=dec
+		DISP_PLATFORM="DIGITAL UNIX"
+		;;
+	SunOS)
+		case `uname -r` in
+		4*|3*|2*|1*)
+			PLATFORM=sunos
+			DISP_PLATFORM="SunOS 4"
+			;;
+		*)
+			case `uname -p` in
+			sparc)
+				PLATFORM=solaris
+				DISP_PLATFORM="Solaris 2 (SunOS 5, sparc)"
+				;;
+			i386)
+				PLATFORM=solx86
+				DISP_PLATFORM="Solaris 2 (SunOS 5, x86)"
+				;;
+			esac
+			;;
+		esac
+		;;
+	IRIX*)
+		PLATFORM=sgi
+		DISP_PLATFORM="Silicon Graphics (IRIX)"
+		;;
+	AIX)
+		PLATFORM=ibm
+		DISP_PLATFORM="IBM (AIX)"
+		;;
+	HP-UX)
+		PLATFORM=hp
+		DISP_PLATFORM="Hewlett-Packard (HP-UX)"
+		;;
+	Linux)
+               # We assume that an Intel-based linux system will have an x86
+               # processor. We also assume that this is reported by uname -m
+               # "ix86" where x is some number.
+               if uname -m | grep 86 2>&1 >/dev/null ;then
+		   if grep uClibc /etc/issue 2>&1 > /dev/null ;then
+                   	PLATFORM=uclibc
+                   	DISP_PLATFORM="Linux (uClibc)"
+		   else
+                   	PLATFORM=linuxx86
+                   	DISP_PLATFORM="Linux (x86)"
+		   fi
+               elif uname -m | grep -i arm 2>&1 >/dev/null  ;then
+                   # Both armel and armhf have the same sort of kernel
+
+                   # Check the maps of the current process to see if there
+                   # is any mention of "gnueabihf" or "armhf"
+                   if [ -f /proc/self/maps ]; then
+                       if grep "gnueabihf\|armhf" /proc/self/maps 2>&1 > /dev/null ;then
+                           PLATFORM=linuxarmhf
+                           DISP_PLATFORM="Linux (armhf)"
+                       elif ls /lib/ld-linux* | grep armhf 2>&1 > /dev/null ;then
+                           PLATFORM=linuxarmhf
+                           DISP_PLATFORM="Linux (armhf)"
+                       else
+                           PLATFORM=linuxarm
+                           DISP_PLATFORM="Linux (Arm)"
+                       fi
+                   else
+                       # Assume armel for the moment
+                       PLATFORM=linuxarm
+                       DISP_PLATFORM="Linux (Arm)"
+                   fi
+               else
+                   echo
+                   echo $setup1
+                   echo
+                   exit 1
+               fi
+               ;;
+	*BSD)
+               # Assume Free/Net/Open BSD on an X86 with Linux emulation.
+
+               if uname -m | grep 86 2>&1 >/dev/null ; then
+                   PLATFORM=linuxx86
+                   DISP_PLATFORM="Linux (x86)"
+		   echo
+		   echo $setup4a $opsys $setup4b
+		   echo
+               else
+                   echo
+                   echo $setup1
+                   echo
+                   exit 1
+               fi
+               ;;
+        UnixWare)
+                # SCO UnixWare 7
+                PLATFORM=sco
+                DISP_PLATFORM="SCO Systems"
+                ;;
+        SCO_SV)
+                # OpenServer 5
+                PLATFORM=sco
+                DISP_PLATFORM="SCO Systems"
+                ;;
+        UNIX_SV)
+                # UnixWare 2.1
+                PLATFORM=sco
+                DISP_PLATFORM="SCO Systems"
+                ;;
+        *)
+                echo
+                echo $setup1
+                echo
+                exit 1
+                ;;
+        esac
+}
+
+# =============================================================================
+#
+#       Online Help Script
+#
+# =============================================================================
+
+
+# Save the invocation arguments for future use.
+MYNAME=$0
+
+# Find the directory where this script is located.  This may be in an installation
+# or on a distribution CD.
+case "$MYNAME" in
+/*)
+        MyLocation="`dirname \"$MYNAME\"`"
+        ;;
+*)
+        MyLocation="`pwd`/`dirname \"$MYNAME\"`"
+        ;;
+esac
+
+MyFullName="${MyLocation}"/`basename "$MYNAME"`
+
+# Use plain ascii values for lowercase and uppercase.
+# These are just to allow get_tr_key to use this executable's name to find the
+# key for this file system. 
+# These values will be overwritten when the language specific file is read.
+lowercase_letters=abcdefghijklmnopqrstuvwxyz
+uppercase_letters=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+# Work out the type of filenames we see on the CD
+setCDidfile "${MyLocation}"
+if [ "$CDidfile" = "" ]
+then
+        # Not running in an installation package. 
+        # Assume installed on normal filesystem.
+        TR_DIR_KEY="MNN"
+        TR_FILE_KEY="MNN"
+fi
+
+# Set the string variables.
+load_locale_messages "${MyLocation}" `basename "$MYNAME"`.msg
+
+# Check that we got location right...
+
+if [ ! -r "$MyFullName" ]
+then
+        echo
+        echo $setup2a `basename "$MYNAME"` $setup2b
+        echo
+        exit 1
+fi
+
+# Identify the platform type.
+get_OS
+
+# Find the character set encoding conversion DLL (needed by echo_cmd)
+find_CHARCONV_DLL "${MyLocation}"
+
+# Find out if this script is running from a distribution or from an installation
+tr_file $TR_FILE_KEY "PkgId"
+if [ -r "${MyLocation}/$TR_FILE" ]
+then
+        # See if there is a package for this platform on the CD.
+
+        tr_file $TR_DIR_KEY $PLATFORM
+        PLATFORM_PACKAGE_DIR="${MyLocation}"/$TR_FILE
+
+        if [ ! -d "$PLATFORM_PACKAGE_DIR" ]
+        then
+                echo
+                echo $setup1
+                echo
+                exit 1
+        fi
+
+        # Setup our generic ECHO_CMD  - same syntax across all platforms
+        tr_file $TR_FILE_KEY echo_cmd
+        ECHO_CMD="${PLATFORM_PACKAGE_DIR}/$TR_FILE" export ECHO_CMD
+
+        # Run the installer proper
+        tr_file $TR_FILE_KEY hinst
+        PlatformInstaller="${PLATFORM_PACKAGE_DIR}/$TR_FILE"
+        exec "${PlatformInstaller}" CDROM "${MyLocation}"
+else
+        # Check we're on the correct platform
+        cat "${MyLocation}"/pkginf/V* | grep "^PORT=$PLATFORM" >/dev/null 2>&1
+        if [ "$?" != "0" ]
+        then
+                echo
+                echo $setup3a $DISP_PLATFORM $setup3b
+                echo
+                exit 1
+        fi
+
+        # Setup our generic ECHO_CMD  - same syntax across all platforms
+        ECHO_CMD="${MyLocation}"/util/echo_cmd export ECHO_CMD
+
+        # And run the installer proper.
+        exec "${MyLocation}"/util/hinst INSTALLED "${MyLocation}"
+fi
+##################################################################################
+

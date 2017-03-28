@@ -1,0 +1,58 @@
+#!/bin/sh
+
+#echo "fbpanel configuration script"
+
+help () {
+    echo "supported options are:"
+    echo "--help - print this help and exit"
+    echo "--prefix=<path> specify install path. "
+    echo "       <path>/bin - will hold all binaries"
+    echo "       <path>/share/fbpanel - config files, pixmaps etc"
+    echo "       default <path> is /usr"
+    echo "--devel - enable devel mode: no optimization + debug symbols"
+    echo "--cpu=[on|off] - enable linux cpu monitor plugin"
+}
+
+PREFIX="/usr"
+PLUGIN_CPU="on"
+while [ $# -gt 0 ]; do
+    case $1 in
+        --help)
+            help
+            exit 0
+            ;;
+        --prefix=*)
+            PREFIX=`echo $1 | sed 's/--prefix=//'`
+            ;;
+	--devel)
+	    DEVEL=1
+	    ;;
+	--cpu=*)
+	    PLUGIN_CPU=`echo $1 | sed 's/--cpu=//'`
+	    ;;
+        *)
+            echo "unknwon option $1"
+            help
+            exit 1
+            ;;
+    esac
+    shift
+done
+echo "Installation prefix is $PREFIX"
+echo "checking for installed devel packages"
+if ! (pkg-config --libs glib-2.0 gmodule-2.0 gthread-2.0 gtk+-2.0 \
+          gdk-pixbuf-2.0 gdk-pixbuf-xlib-2.0 > /dev/null \
+      && \
+      pkg-config --cflags glib-2.0 gmodule-2.0 gthread-2.0 gtk+-2.0 \
+          gdk-pixbuf-2.0 gdk-pixbuf-xlib-2.0 > /dev/null ); then
+    exit 1
+fi
+echo "creating config.h"
+echo "//created by ./configure script" > config.h
+echo "#define PREFIX \"$PREFIX\"" >> config.h
+
+
+echo "creating Makefile.config"
+echo "PREFIX:=$PREFIX" > Makefile.config
+echo "DEVEL:=$DEVEL" >> Makefile.config
+echo "PLUGIN_CPU:=$PLUGIN_CPU" >> Makefile.config

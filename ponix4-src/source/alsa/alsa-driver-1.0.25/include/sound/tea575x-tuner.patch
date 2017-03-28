@@ -1,0 +1,24 @@
+--- ../../alsa-kernel/include/tea575x-tuner.h	2011-08-04 17:11:26.256908335 +0200
++++ tea575x-tuner.h	2011-08-05 11:57:51.640509875 +0200
+@@ -24,6 +24,9 @@
+ 
+ #include <linux/videodev2.h>
+ #include <media/v4l2-ctrls.h>
++#ifndef CONFIG_HAVE_V4L2_CTRLS
++#include <media/v4l2-ioctl.h>
++#endif
+ #include <media/v4l2-dev.h>
+ 
+ #define TEA575X_FMIF	10700
+@@ -54,7 +57,11 @@
+ 	void *private_data;
+ 	u8 card[32];
+ 	u8 bus_info[32];
++#ifdef CONFIG_HAVE_V4L2_CTRLS
+ 	struct v4l2_ctrl_handler ctrl_handler;
++#else
++	unsigned long in_use;		/* set if the device is in use */
++#endif
+ 	int (*ext_init)(struct snd_tea575x *tea);
+ };
+ 

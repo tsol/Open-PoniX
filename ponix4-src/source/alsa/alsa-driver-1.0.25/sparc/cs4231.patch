@@ -1,0 +1,528 @@
+--- ../alsa-kernel/sparc/cs4231.c	2008-09-01 11:20:14.000000000 +0200
++++ cs4231.c	2008-09-01 11:57:09.000000000 +0200
+@@ -1,3 +1,4 @@
++#include "adriver.h"
+ /*
+  * Driver for CS4231 sound chips found on Sparcs.
+  * Copyright (C) 2002, 2008 David S. Miller <davem@davemloft.net>
+@@ -17,8 +18,10 @@
+ #include <linux/moduleparam.h>
+ #include <linux/irq.h>
+ #include <linux/io.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#endif
+ 
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+@@ -30,12 +33,19 @@
+ 
+ #ifdef CONFIG_SBUS
+ #define SBUS_SUPPORT
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++#include <asm/sbus.h>
++#endif
+ #endif
+ 
+ #if defined(CONFIG_PCI) && defined(CONFIG_SPARC64)
+ #define EBUS_SUPPORT
+ #include <linux/pci.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ #include <asm/ebus_dma.h>
++#else
++#include <asm/ebus.h>
++#endif
+ #endif
+ 
+ static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
+@@ -70,6 +80,10 @@
+ 	int		(*request)(struct cs4231_dma_control *dma_cont,
+ 				   dma_addr_t bus_addr, size_t len);
+ 	unsigned int	(*address)(struct cs4231_dma_control *dma_cont);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	void		(*preallocate)(struct snd_cs4231 *chip,
++				       struct snd_pcm *pcm);
++#endif
+ #ifdef EBUS_SUPPORT
+ 	struct		ebus_dma_info	ebus_info;
+ #endif
+@@ -113,11 +127,25 @@
+ 	struct mutex		open_mutex;	/* mutex for ALSA open/close */
+ 
+ 	struct of_device	*op;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	union {
++#ifdef SBUS_SUPPORT
++		struct sbus_dev		*sdev;
++#endif
++#ifdef EBUS_SUPPORT
++		struct pci_dev		*pdev;
++#endif
++	} dev_u;
++#endif
+ 	unsigned int		irq[2];
+ 	unsigned int		regs_size;
+ 	struct snd_cs4231	*next;
+ };
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++static struct snd_cs4231 *cs4231_list;
++#endif
++
+ /* Eventually we can use sound/isa/cs423x/cs4231_lib.c directly, but for
+  * now....  -DaveM
+  */
+@@ -256,19 +284,41 @@
+ 
+ static u8 __cs4231_readb(struct snd_cs4231 *cp, void __iomem *reg_addr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	if (cp->flags & CS4231_FLAG_EBUS)
+ 		return readb(reg_addr);
+ 	else
+ 		return sbus_readb(reg_addr);
++#else /* 2.6.28 */
++#ifdef EBUS_SUPPORT
++	if (cp->flags & CS4231_FLAG_EBUS)
++		return readb(reg_addr);
++	else
++#endif
++#ifdef SBUS_SUPPORT
++		return sbus_readb(reg_addr);
++#endif
++#endif /* 2.6.28 */
+ }
+ 
+ static void __cs4231_writeb(struct snd_cs4231 *cp, u8 val,
+ 			    void __iomem *reg_addr)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
++	if (cp->flags & CS4231_FLAG_EBUS)
++		return writeb(val, reg_addr);
++	else
++		return sbus_writeb(val, reg_addr);
++#else /* 2.6.28 */
++#ifdef EBUS_SUPPORT
+ 	if (cp->flags & CS4231_FLAG_EBUS)
+ 		return writeb(val, reg_addr);
+ 	else
++#endif
++#ifdef SBUS_SUPPORT
+ 		return sbus_writeb(val, reg_addr);
++#endif
++#endif /* 2.6.28 */
+ }
+ 
+ /*
+@@ -1239,10 +1289,13 @@
+ 	pcm->info_flags = SNDRV_PCM_INFO_JOINT_DUPLEX;
+ 	strcpy(pcm->name, "CS4231");
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
+ 					      &chip->op->dev,
+ 					      64 * 1024, 128 * 1024);
+-
++#else
++	chip->p_dma.preallocate(chip, pcm);
++#endif
+ 	chip->pcm = pcm;
+ 
+ 	return 0;
+@@ -1610,8 +1663,12 @@
+ 	if (err < 0)
+ 		goto out_err;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	dev_set_drvdata(&chip->op->dev, chip);
+-
++#else
++	chip->next = cs4231_list;
++	cs4231_list = chip;
++#endif
+ 	dev++;
+ 	return 0;
+ 
+@@ -1765,20 +1822,33 @@
+ 	return sbus_readl(base->regs + base->dir + APCVA);
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++static void sbus_dma_preallocate(struct snd_cs4231 *chip, struct snd_pcm *pcm)
++{
++	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_SBUS,
++					snd_dma_sbus_data(chip->dev_u.sdev),
++					64 * 1024, 128 * 1024);
++}
++#endif
++
+ /*
+  * Init and exit routines
+  */
+ 
+ static int snd_cs4231_sbus_free(struct snd_cs4231 *chip)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	struct of_device *op = chip->op;
+-
++#endif
+ 	if (chip->irq[0])
+ 		free_irq(chip->irq[0], chip);
+ 
+ 	if (chip->port)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		of_iounmap(&op->resource[0], chip->port, chip->regs_size);
+-
++#else
++		sbus_iounmap(chip->port, chip->regs_size);
++#endif
+ 	return 0;
+ }
+ 
+@@ -1794,7 +1864,11 @@
+ };
+ 
+ static int __init snd_cs4231_sbus_create(struct snd_card *card,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 					 struct of_device *op,
++#else
++					 struct sbus_dev *sdev,
++#endif
+ 					 int dev)
+ {
+ 	struct snd_cs4231 *chip = card->private_data;
+@@ -1805,13 +1879,23 @@
+ 	spin_lock_init(&chip->p_dma.sbus_info.lock);
+ 	mutex_init(&chip->mce_mutex);
+ 	mutex_init(&chip->open_mutex);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	chip->op = op;
+ 	chip->regs_size = resource_size(&op->resource[0]);
++#else
++	chip->dev_u.sdev = sdev;
++	chip->regs_size = sdev->reg_addrs[0].reg_size;
++#endif
+ 	memcpy(&chip->image, &snd_cs4231_original_image,
+ 	       sizeof(snd_cs4231_original_image));
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	chip->port = of_ioremap(&op->resource[0], 0,
+ 				chip->regs_size, "cs4231");
++#else
++	chip->port = sbus_ioremap(&sdev->resource[0], 0,
++				  chip->regs_size, "cs4231");
++#endif
+ 	if (!chip->port) {
+ 		snd_printdd("cs4231-%d: Unable to map chip registers.\n", dev);
+ 		return -EIO;
+@@ -1826,12 +1910,19 @@
+ 	chip->p_dma.enable = sbus_dma_enable;
+ 	chip->p_dma.request = sbus_dma_request;
+ 	chip->p_dma.address = sbus_dma_addr;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	chip->p_dma.preallocate = sbus_dma_preallocate;
++#endif
+ 
+ 	chip->c_dma.prepare = sbus_dma_prepare;
+ 	chip->c_dma.enable = sbus_dma_enable;
+ 	chip->c_dma.request = sbus_dma_request;
+ 	chip->c_dma.address = sbus_dma_addr;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	chip->c_dma.preallocate = sbus_dma_preallocate;
++#endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	if (request_irq(op->irqs[0], snd_cs4231_sbus_interrupt,
+ 			IRQF_SHARED, "cs4231", chip)) {
+ 		snd_printdd("cs4231-%d: Unable to grab SBUS IRQ %d\n",
+@@ -1840,7 +1931,16 @@
+ 		return -EBUSY;
+ 	}
+ 	chip->irq[0] = op->irqs[0];
+-
++#else
++	if (request_irq(sdev->irqs[0], snd_cs4231_sbus_interrupt,
++			IRQF_SHARED, "cs4231", chip)) {
++		snd_printdd("cs4231-%d: Unable to grab SBUS IRQ %d\n",
++			    dev, sdev->irqs[0]);
++		snd_cs4231_sbus_free(chip);
++		return -EBUSY;
++	}
++	chip->irq[0] = sdev->irqs[0];
++#endif 
+ 	if (snd_cs4231_probe(chip) < 0) {
+ 		snd_cs4231_sbus_free(chip);
+ 		return -ENODEV;
+@@ -1856,9 +1956,17 @@
+ 	return 0;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ static int __devinit cs4231_sbus_probe(struct of_device *op, const struct of_device_id *match)
++#else
++static int __init cs4231_sbus_attach(struct sbus_dev *sdev)
++#endif
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	struct resource *rp = &op->resource[0];
++#else
++	struct resource *rp = &sdev->resource[0];
++#endif
+ 	struct snd_card *card;
+ 	int err;
+ 
+@@ -1866,13 +1974,21 @@
+ 	if (err)
+ 		return err;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	sprintf(card->longname, "%s at 0x%02lx:0x%016Lx, irq %d",
+ 		card->shortname,
+ 		rp->flags & 0xffL,
+ 		(unsigned long long)rp->start,
+ 		op->irqs[0]);
+-
+ 	err = snd_cs4231_sbus_create(card, op, dev);
++#else
++	sprintf(card->longname, "%s at 0x%02lx:0x%016Lx, irq %d",
++		card->shortname,
++		rp->flags & 0xffL,
++		(unsigned long long)rp->start,
++		sdev->irqs[0]);
++	err = snd_cs4231_sbus_create(card, sdev, dev);
++#endif
+ 	if (err < 0) {
+ 		snd_card_free(card);
+ 		return err;
+@@ -1925,26 +2041,48 @@
+ 	return ebus_dma_addr(&dma_cont->ebus_info);
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++static void _ebus_dma_preallocate(struct snd_cs4231 *chip, struct snd_pcm *pcm)
++{
++	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
++				      snd_dma_pci_data(chip->dev_u.pdev),
++				      64*1024, 128*1024);
++}
++#endif
++
+ /*
+  * Init and exit routines
+  */
+ 
+ static int snd_cs4231_ebus_free(struct snd_cs4231 *chip)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	struct of_device *op = chip->op;
+-
++#endif
+ 	if (chip->c_dma.ebus_info.regs) {
+ 		ebus_dma_unregister(&chip->c_dma.ebus_info);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		of_iounmap(&op->resource[2], chip->c_dma.ebus_info.regs, 0x10);
++#else
++		iounmap(chip->c_dma.ebus_info.regs);
++#endif
++
+ 	}
+ 	if (chip->p_dma.ebus_info.regs) {
+ 		ebus_dma_unregister(&chip->p_dma.ebus_info);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		of_iounmap(&op->resource[1], chip->p_dma.ebus_info.regs, 0x10);
++#else
++		iounmap(chip->p_dma.ebus_info.regs);
++#endif
+ 	}
+ 
+ 	if (chip->port)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		of_iounmap(&op->resource[0], chip->port, 0x10);
+-
++#else
++		iounmap(chip->port);
++#endif
+ 	return 0;
+ }
+ 
+@@ -1960,7 +2098,11 @@
+ };
+ 
+ static int __init snd_cs4231_ebus_create(struct snd_card *card,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 					 struct of_device *op,
++#else
++					 struct linux_ebus_device *edev,
++#endif
+ 					 int dev)
+ {
+ 	struct snd_cs4231 *chip = card->private_data;
+@@ -1972,35 +2114,57 @@
+ 	mutex_init(&chip->mce_mutex);
+ 	mutex_init(&chip->open_mutex);
+ 	chip->flags |= CS4231_FLAG_EBUS;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	chip->op = op;
++#else
++	chip->dev_u.pdev = edev->bus->self;
++#endif
+ 	memcpy(&chip->image, &snd_cs4231_original_image,
+ 	       sizeof(snd_cs4231_original_image));
+ 	strcpy(chip->c_dma.ebus_info.name, "cs4231(capture)");
+ 	chip->c_dma.ebus_info.flags = EBUS_DMA_FLAG_USE_EBDMA_HANDLER;
+ 	chip->c_dma.ebus_info.callback = snd_cs4231_ebus_capture_callback;
+ 	chip->c_dma.ebus_info.client_cookie = chip;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	chip->c_dma.ebus_info.irq = op->irqs[0];
++#else
++	chip->c_dma.ebus_info.irq = edev->irqs[0];
++#endif
+ 	strcpy(chip->p_dma.ebus_info.name, "cs4231(play)");
+ 	chip->p_dma.ebus_info.flags = EBUS_DMA_FLAG_USE_EBDMA_HANDLER;
+ 	chip->p_dma.ebus_info.callback = snd_cs4231_ebus_play_callback;
+ 	chip->p_dma.ebus_info.client_cookie = chip;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	chip->p_dma.ebus_info.irq = op->irqs[1];
+-
++#else
++	chip->p_dma.ebus_info.irq = edev->irqs[1];
++#endif
+ 	chip->p_dma.prepare = _ebus_dma_prepare;
+ 	chip->p_dma.enable = _ebus_dma_enable;
+ 	chip->p_dma.request = _ebus_dma_request;
+ 	chip->p_dma.address = _ebus_dma_addr;
+-
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	chip->p_dma.preallocate = _ebus_dma_preallocate;
++#endif
+ 	chip->c_dma.prepare = _ebus_dma_prepare;
+ 	chip->c_dma.enable = _ebus_dma_enable;
+ 	chip->c_dma.request = _ebus_dma_request;
+ 	chip->c_dma.address = _ebus_dma_addr;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	chip->c_dma.preallocate = _ebus_dma_preallocate;
++#endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	chip->port = of_ioremap(&op->resource[0], 0, 0x10, "cs4231");
+ 	chip->p_dma.ebus_info.regs =
+ 		of_ioremap(&op->resource[1], 0, 0x10, "cs4231_pdma");
+ 	chip->c_dma.ebus_info.regs =
+ 		of_ioremap(&op->resource[2], 0, 0x10, "cs4231_cdma");
++#else
++	chip->port = ioremap(edev->resource[0].start, 0x10);
++	chip->p_dma.ebus_info.regs = ioremap(edev->resource[1].start, 0x10);
++	chip->c_dma.ebus_info.regs = ioremap(edev->resource[2].start, 0x10);
++#endif
+ 	if (!chip->port || !chip->p_dma.ebus_info.regs ||
+ 	    !chip->c_dma.ebus_info.regs) {
+ 		snd_cs4231_ebus_free(chip);
+@@ -2048,7 +2212,11 @@
+ 	return 0;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ static int __devinit cs4231_ebus_probe(struct of_device *op, const struct of_device_id *match)
++#else
++static int __init cs4231_ebus_attach(struct linux_ebus_device *edev)
++#endif
+ {
+ 	struct snd_card *card;
+ 	int err;
+@@ -2063,6 +2231,14 @@
+ 		op->irqs[0]);
+ 
+ 	err = snd_cs4231_ebus_create(card, op, dev);
++#else
++ 	sprintf(card->longname, "%s at 0x%lx, irq %d",
++ 		card->shortname,
++		edev->resource[0].start,
++		edev->irqs[0]);
++
++	err = snd_cs4231_ebus_create(card, edev, dev);
++#endif
+ 	if (err < 0) {
+ 		snd_card_free(card);
+ 		return err;
+@@ -2072,6 +2248,7 @@
+ }
+ #endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ static int __devinit cs4231_probe(struct of_device *op, const struct of_device_id *match)
+ {
+ #ifdef EBUS_SUPPORT
+@@ -2125,5 +2302,72 @@
+ 	of_unregister_driver(&cs4231_driver);
+ }
+ 
++#else /* 2.6.28 */
++static int __init cs4231_init(void)
++{
++#ifdef SBUS_SUPPORT
++	struct sbus_bus *sbus;
++	struct sbus_dev *sdev;
++#endif
++#ifdef EBUS_SUPPORT
++	struct linux_ebus *ebus;
++	struct linux_ebus_device *edev;
++#endif
++	int found;
++
++	found = 0;
++
++#ifdef SBUS_SUPPORT
++	for_all_sbusdev(sdev, sbus) {
++		if (!strcmp(sdev->prom_name, "SUNW,CS4231")) {
++			if (cs4231_sbus_attach(sdev) == 0)
++				found++;
++		}
++	}
++#endif
++#ifdef EBUS_SUPPORT
++	for_each_ebus(ebus) {
++		for_each_ebusdev(edev, ebus) {
++			int match = 0;
++
++			if (!strcmp(edev->prom_node->name, "SUNW,CS4231")) {
++				match = 1;
++			} else if (!strcmp(edev->prom_node->name, "audio")) {
++				const char *compat;
++
++				compat = of_get_property(edev->prom_node,
++							 "compatible", NULL);
++				if (compat && !strcmp(compat, "SUNW,CS4231"))
++					match = 1;
++			}
++
++			if (match &&
++			    cs4231_ebus_attach(edev) == 0)
++				found++;
++		}
++	}
++#endif
++
++
++	return (found > 0) ? 0 : -EIO;
++}
++
++static void __exit cs4231_exit(void)
++{
++	struct snd_cs4231 *p = cs4231_list;
++
++	while (p != NULL) {
++		struct snd_cs4231 *next = p->next;
++
++		snd_card_free(p->card);
++
++		p = next;
++	}
++
++	cs4231_list = NULL;
++}
++#endif /* 2.6.28 */
++
+ module_init(cs4231_init);
+ module_exit(cs4231_exit);
++EXPORT_NO_SYMBOLS;

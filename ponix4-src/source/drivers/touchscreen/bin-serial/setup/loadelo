@@ -1,0 +1,26 @@
+module="elok_s"
+mode="776"
+elorspfifo="elo-ser/rsp_fifo"
+elocmdfifo="elo-ser/cmd_fifo"
+elodata="input/elo_ser"
+
+rm -f /dev/${elodata}
+rm -f /dev/${elocmdfifo}
+rm -f /dev/${elorspfifo}
+
+mkdir -p /dev/elo-ser
+
+/sbin/modprobe $module
+
+mkfifo /dev/$elorspfifo 
+mkfifo /dev/$elocmdfifo 
+
+major=`grep $elodata /proc/devices | awk "{print \\$1}"`
+
+if [ $major ] ; then 
+ mknod /dev/$elodata c $major 0
+ chmod $mode /dev/${elodata}
+ chmod $mode /dev/${elocmdfifo}
+ chmod $mode /dev/${elorspfifo}
+fi
+

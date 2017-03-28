@@ -1,0 +1,34 @@
+From c771b518199eb329c3a38e479b36b36553e25b2d Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Fri, 10 Aug 2012 16:47:30 +0530
+Subject: [PATCH] ath9k: tune rc_stats to display only valid rates
+
+This could make rc_stats more simpler and ease the debugging.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/rc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/rc.c
++++ b/drivers/net/wireless/ath/ath9k/rc.c
+@@ -1355,7 +1355,7 @@ static ssize_t read_file_rcstat(struct f
+ 	struct ath_rate_priv *rc = file->private_data;
+ 	char *buf;
+ 	unsigned int len = 0, max;
+-	int i = 0;
++	int rix;
+ 	ssize_t retval;
+ 
+ 	if (rc->rate_table == NULL)
+@@ -1371,7 +1371,8 @@ static ssize_t read_file_rcstat(struct f
+ 		       "HT", "MCS", "Rate",
+ 		       "Success", "Retries", "XRetries", "PER");
+ 
+-	for (i = 0; i < rc->rate_table_size; i++) {
++	for (rix = 0; rix < rc->max_valid_rate; rix++) {
++		u8 i = rc->valid_rate_index[rix];
+ 		u32 ratekbps = rc->rate_table->info[i].ratekbps;
+ 		struct ath_rc_stats *stats = &rc->rcstats[i];
+ 		char mcs[5];

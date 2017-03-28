@@ -1,0 +1,41 @@
+make hidden a state instead of a mode,
+support its usage from EWMH as well.
+make the window menu simply restore a window.
+make drop frame indicate whether it could do it or not.
+Plan
+
+change the usage of hidden to set the frame state to minimized.
+in main change what happens when a window is selected.  If it's tiling it will still need to be dropped.
+change the saved state stuff to include the state
+
+grep the usage of the term hidden - it's used a lot!
+
+
+focus.c:55: Remove focus if any window is hidden - because giving focus shouldn't have to raise a window.
+frame-actions.c:121:    if(frame->mode == hidden) XMapWindow(display, frame->widgets[frame_parent].widget);
+frame-actions.c:132:  if(mode == hidden) {
+frame-actions.c:134:    frame->mode = hidden;
+frame-actions.c:255:    frame->mode = hidden;
+frame-actions.c:713:  if(replacement->mode != hidden && (target->min_width > replacement->w
+frame-actions.c:731:  if(mode != hidden) {
+frame.c:177:  get_frame_wm_hints(display, frame);  //this might need to change the focus, it's mode (to hidden) and so on
+main.c:390:            if(frames->list[i]->mode != hidden ) {
+main.c:697:          else if(event.xcrossing.window == mode_menu.items[hidden].item &&  clicked_frame != -1) {
+main.c:698:            if(frames->list[clicked_frame]->mode == hidden) {
+main.c:699:              if(event.type == EnterNotify) xcheck_raisewin(display, mode_menu.items[hidden].state[active_hover]);
+main.c:700:              else /* type == LeaveNotify*/ xcheck_raisewin(display, mode_menu.items[hidden].state[active]);
+main.c:703:              if(event.type == EnterNotify) xcheck_raisewin(display, mode_menu.items[hidden].state[normal_hover]);
+main.c:704:              else /* type == LeaveNotify*/ xcheck_raisewin(display, mode_menu.items[hidden].state[normal]);
+main.c:800:                else if(event.xbutton.window == mode_menu.items[hidden].item) {
+main.c:801:                  change_frame_mode(display, frames->list[i], hidden, themes); //Redrawing mode pulldown
+main.c:1091:              if(frame->mode == hidden  &&  frames) change_frame_mode(display, frame, floating, themes);
+menus.c:218:  mode_menu->menu.inner_height = themes->popup_menu[menu_item_mid].h * (hidden + 1);
+menus.c:223:  for(int i = 0; i <= hidden; i++) {
+menus.c:243:          case hidden: label = Hidden;
+menus.c:400:  xcheck_raisewin(display, mode_menu->items[hidden].state[normal]);
+workspace.c:365:  save->mode = hidden;
+workspace.c:490:      change_frame_mode(display, workspaces->list[new_w].list[frame_ref_index], hidden, themes);
+workspace.c:496:    if(workspaces->frame_list[true_frame_index].mode != hidden) XMapWindow(display, workspaces->list[new_w].list[frame_ref_index]->widgets[frame_parent].widget);
+workspace.c:512:      if(workspace_index != new_w  ||  starting_mode == tiling) change_frame_mode(display, &workspaces->frame_list[true_frame_index], hidden, themes);
+workspace.c:631:      if(frames->list[ref_index]->mode != hidden) XMapWindow(display, frames->list[ref_index]->widgets[frame_parent].widget); 
+

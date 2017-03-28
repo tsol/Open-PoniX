@@ -1,0 +1,92 @@
+From 313eb87f1e2f93d83836de7f5c1947b75d7752c8 Mon Sep 17 00:00:00 2001
+From: Sven Eckelmann <sven@narfation.org>
+Date: Mon, 25 Jun 2012 07:15:22 +0200
+Subject: [PATCH 76/90] ath9k: raise aggregation limit to 64k for HT IBSS
+
+mac80211 adds stations in HT IBSS as soon as a frame comes by,
+even if the HT capabilities are not known yet (they are often
+received later, e.g. in beacons). So far, ampdu factor/density
+are only calculated when the station is initially added.
+
+This patch changes this to update ampdu factor/density settings
+when starting a blockack session.
+
+Using this patch, we had performance boosts from 60 to 150 MBit/s
+between two 2x2 Atheros devices in 5 GHz HT IBSS mode.
+
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <siwu@hrz.tu-chemnitz.de>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ath9k.h |  1 +
+ drivers/net/wireless/ath/ath9k/main.c  |  6 ++++--
+ drivers/net/wireless/ath/ath9k/xmit.c  | 12 ++++++++++++
+ 3 files changed, 17 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -722,6 +722,7 @@ extern int ath9k_modparam_nohwcrypt;
+ extern int led_blink;
+ extern bool is_ath9k_unloaded;
+ 
++u8 ath9k_parse_mpdudensity(u8 mpdudensity);
+ irqreturn_t ath_isr(int irq, void *dev);
+ int ath9k_init_device(u16 devid, struct ath_softc *sc,
+ 		    const struct ath_bus_ops *bus_ops);
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -19,7 +19,7 @@
+ #include "ath9k.h"
+ #include "btcoex.h"
+ 
+-static u8 parse_mpdudensity(u8 mpdudensity)
++u8 ath9k_parse_mpdudensity(u8 mpdudensity)
+ {
+ 	/*
+ 	 * 802.11n D2.0 defined values for "Minimum MPDU Start Spacing":
+@@ -320,6 +320,7 @@ static void ath_node_attach(struct ath_s
+ 			    struct ieee80211_vif *vif)
+ {
+ 	struct ath_node *an;
++	u8 density;
+ 	an = (struct ath_node *)sta->drv_priv;
+ 
+ #ifdef CONFIG_ATH9K_DEBUGFS
+@@ -334,7 +335,8 @@ static void ath_node_attach(struct ath_s
+ 		ath_tx_node_init(sc, an);
+ 		an->maxampdu = 1 << (IEEE80211_HT_MAX_AMPDU_FACTOR +
+ 				     sta->ht_cap.ampdu_factor);
+-		an->mpdudensity = parse_mpdudensity(sta->ht_cap.ampdu_density);
++		density = ath9k_parse_mpdudensity(sta->ht_cap.ampdu_density);
++		an->mpdudensity = density;
+ 	}
+ }
+ 
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -1165,6 +1165,7 @@ int ath_tx_aggr_start(struct ath_softc *
+ {
+ 	struct ath_atx_tid *txtid;
+ 	struct ath_node *an;
++	u8 density;
+ 
+ 	an = (struct ath_node *)sta->drv_priv;
+ 	txtid = ATH_AN_2_TID(an, tid);
+@@ -1172,6 +1173,17 @@ int ath_tx_aggr_start(struct ath_softc *
+ 	if (txtid->state & (AGGR_CLEANUP | AGGR_ADDBA_COMPLETE))
+ 		return -EAGAIN;
+ 
++	/* update ampdu factor/density, they may have changed. This may happen
++	 * in HT IBSS when a beacon with HT-info is received after the station
++	 * has already been added.
++	 */
++	if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_HT) {
++		an->maxampdu = 1 << (IEEE80211_HT_MAX_AMPDU_FACTOR +
++				     sta->ht_cap.ampdu_factor);
++		density = ath9k_parse_mpdudensity(sta->ht_cap.ampdu_density);
++		an->mpdudensity = density;
++	}
++
+ 	txtid->state |= AGGR_ADDBA_PROGRESS;
+ 	txtid->paused = true;
+ 	*ssn = txtid->seq_start = txtid->seq_next;

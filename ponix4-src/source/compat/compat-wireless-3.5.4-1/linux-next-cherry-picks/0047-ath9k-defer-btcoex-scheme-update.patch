@@ -1,0 +1,89 @@
+From 3c7992e33ab8d0c625a45ded11cc10d5b622bcd4 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Tue, 12 Jun 2012 10:13:53 +0530
+Subject: [PATCH 47/57] ath9k: defer btcoex scheme update
+
+As btcoex scheme updation might sleep, remove the function call
+from tasklet context and queue it up as a separate work.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ath9k.h |    1 +
+ drivers/net/wireless/ath/ath9k/main.c  |    3 +++
+ drivers/net/wireless/ath/ath9k/mci.c   |   14 +++++++++++---
+ 3 files changed, 15 insertions(+), 3 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -699,6 +699,7 @@ struct ath_softc {
+ #ifdef CONFIG_ATH9K_BTCOEX_SUPPORT
+ 	struct ath_btcoex btcoex;
+ 	struct ath_mci_coex mci_coex;
++	struct work_struct mci_work;
+ #endif
+ 
+ 	struct ath_descdma txsdma;
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -150,6 +150,9 @@ static void __ath_cancel_work(struct ath
+ 	cancel_work_sync(&sc->hw_check_work);
+ 	cancel_delayed_work_sync(&sc->tx_complete_work);
+ 	cancel_delayed_work_sync(&sc->hw_pll_work);
++#ifdef CONFIG_ATH9K_BTCOEX_SUPPORT
++	cancel_work_sync(&sc->mci_work);
++#endif
+ }
+ 
+ static void ath_cancel_work(struct ath_softc *sc)
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -52,7 +52,7 @@ static bool ath_mci_add_profile(struct a
+ 	    (info->type != MCI_GPM_COEX_PROFILE_VOICE))
+ 		return false;
+ 
+-	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
++	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
+ 	if (!entry)
+ 		return false;
+ 
+@@ -219,6 +219,13 @@ static void ath_mci_cal_msg(struct ath_s
+ 	}
+ }
+ 
++static void ath9k_mci_work(struct work_struct *work)
++{
++	struct ath_softc *sc = container_of(work, struct ath_softc, mci_work);
++
++	ath_mci_update_scheme(sc);
++}
++
+ static void ath_mci_process_profile(struct ath_softc *sc,
+ 				    struct ath_mci_profile_info *info)
+ {
+@@ -249,7 +256,7 @@ static void ath_mci_process_profile(stru
+ 		btcoex->duty_cycle = ATH_BTCOEX_DEF_DUTY_CYCLE;
+ 	}
+ 
+-	ath_mci_update_scheme(sc);
++	ieee80211_queue_work(sc->hw, &sc->mci_work);
+ }
+ 
+ static void ath_mci_process_status(struct ath_softc *sc,
+@@ -283,7 +290,7 @@ static void ath_mci_process_status(struc
+ 	} while (++i < ATH_MCI_MAX_PROFILE);
+ 
+ 	if (old_num_mgmt != mci->num_mgmt)
+-		ath_mci_update_scheme(sc);
++		ieee80211_queue_work(sc->hw, &sc->mci_work);
+ }
+ 
+ static void ath_mci_msg(struct ath_softc *sc, u8 opcode, u8 *rx_payload)
+@@ -377,6 +384,7 @@ int ath_mci_setup(struct ath_softc *sc)
+ 			 mci->gpm_buf.bf_addr, (mci->gpm_buf.bf_len >> 4),
+ 			 mci->sched_buf.bf_paddr);
+ 
++	INIT_WORK(&sc->mci_work, ath9k_mci_work);
+ 	ath_dbg(common, MCI, "MCI Initialized\n");
+ 
+ 	return 0;

@@ -1,0 +1,333 @@
+<refentry id="gdk-pixbuf-animation" revision="27 Aug 2000">
+<refmeta>
+<refentrytitle>Animations</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Animations</refname><refpurpose>Animations as multi-frame structures.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+enum        <link linkend="GdkPixbufFrameAction">GdkPixbufFrameAction</link>;
+<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link>* <link linkend="gdk-pixbuf-animation-new-from-file">gdk_pixbuf_animation_new_from_file</link>
+                                            (const char *filename);
+<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link>* <link linkend="gdk-pixbuf-animation-ref">gdk_pixbuf_animation_ref</link>
+                                            (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);
+void        <link linkend="gdk-pixbuf-animation-unref">gdk_pixbuf_animation_unref</link>      (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);
+<link linkend="GList">GList</link>*      <link linkend="gdk-pixbuf-animation-get-frames">gdk_pixbuf_animation_get_frames</link> (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);
+int         <link linkend="gdk-pixbuf-animation-get-width">gdk_pixbuf_animation_get_width</link>  (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);
+int         <link linkend="gdk-pixbuf-animation-get-num-frames">gdk_pixbuf_animation_get_num_frames</link>
+                                            (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);
+int         <link linkend="gdk-pixbuf-animation-get-height">gdk_pixbuf_animation_get_height</link> (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-frame-get-pixbuf">gdk_pixbuf_frame_get_pixbuf</link>     (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);
+<link linkend="GdkPixbufFrameAction">GdkPixbufFrameAction</link> <link linkend="gdk-pixbuf-frame-get-action">gdk_pixbuf_frame_get_action</link>
+                                            (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);
+int         <link linkend="gdk-pixbuf-frame-get-y-offset">gdk_pixbuf_frame_get_y_offset</link>   (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);
+int         <link linkend="gdk-pixbuf-frame-get-delay-time">gdk_pixbuf_frame_get_delay_time</link> (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);
+int         <link linkend="gdk-pixbuf-frame-get-x-offset">gdk_pixbuf_frame_get_x_offset</link>   (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    The &gdk-pixbuf; library provides a simple mechanism to load and
+    represent animations, primarily animated GIF files.  Animations
+    are represented as lists of <link linkend="GdkPixbufFrame">GdkPixbufFrame</link> structures.  Each
+    frame structure contains a <link linkend="GdkPixbuf">GdkPixbuf</link> structure and information
+    about the frame's overlay mode and duration.
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkPixbufFrameAction">enum GdkPixbufFrameAction</title>
+<programlisting>typedef enum {
+	GDK_PIXBUF_FRAME_RETAIN,
+	GDK_PIXBUF_FRAME_DISPOSE,
+	GDK_PIXBUF_FRAME_REVERT
+} GdkPixbufFrameAction;
+</programlisting>
+  <para>
+    Each animation frame can have several things happen to it when the
+    next frame is displayed.  The <link linkend="GdkPixbufFrameAction">GdkPixbufFrameAction</link> determines
+    this.  These are essentially the overlay modes supported by GIF
+    animations.
+  </para><informaltable pgwide=1 frame="none" role="enum">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row>
+<entry><literal>GDK_PIXBUF_FRAME_RETAIN</literal></entry>
+<entry>The previous image should remain displayed,
+and will potentially be occluded by the new frame.
+</entry>
+</row>
+<row>
+<entry><literal>GDK_PIXBUF_FRAME_DISPOSE</literal></entry>
+<entry>The animation will be reverted to the state
+before the frame was shown.
+</entry>
+</row>
+<row>
+<entry><literal>GDK_PIXBUF_FRAME_REVERT</literal></entry>
+<entry>The animation will be reverted to the first
+frame.
+
+</entry>
+</row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-new-from-file">gdk_pixbuf_animation_new_from_file ()</title>
+<programlisting><link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link>* gdk_pixbuf_animation_new_from_file
+                                            (const char *filename);</programlisting>
+<para>
+Creates a new animation by loading it from a file.  The file format is
+detected automatically.  If the file's format does not support multi-frame
+images, then an animation with a single frame will be created.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>filename</parameter>&nbsp;:</entry>
+<entry> Name of file to load.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> A newly created animation with a reference count of 1, or NULL
+if any of several error conditions ocurred:  the file could not be opened,
+there was no loader for the file's format, there was not enough memory to
+allocate the image buffer, or the image file contained invalid data.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-ref">gdk_pixbuf_animation_ref ()</title>
+<programlisting><link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link>* gdk_pixbuf_animation_ref
+                                            (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);</programlisting>
+<para>
+Adds a reference to an animation.  It must be released afterwards using
+<link linkend="gdk-pixbuf-animation-unref">gdk_pixbuf_animation_unref</link>().</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>animation</parameter>&nbsp;:</entry>
+<entry> An animation.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> The same as the <parameter>animation</parameter> argument.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-unref">gdk_pixbuf_animation_unref ()</title>
+<programlisting>void        gdk_pixbuf_animation_unref      (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);</programlisting>
+<para>
+Removes a reference from an animation.  It will be destroyed when the
+reference count drops to zero.  At that point, all the frames in the
+animation will be freed and their corresponding pixbufs will be unreferenced.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>animation</parameter>&nbsp;:</entry>
+<entry> An animation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-get-frames">gdk_pixbuf_animation_get_frames ()</title>
+<programlisting><link linkend="GList">GList</link>*      gdk_pixbuf_animation_get_frames (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);</programlisting>
+<para>
+Queries the list of frames of an animation.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>animation</parameter>&nbsp;:</entry>
+<entry> An animation.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> List of frames in the animation; this is a <link linkend="GList">GList</link> of
+<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> structures.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-get-width">gdk_pixbuf_animation_get_width ()</title>
+<programlisting>int         gdk_pixbuf_animation_get_width  (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);</programlisting>
+<para>
+Queries the width of the bounding box of a pixbuf animation.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>animation</parameter>&nbsp;:</entry>
+<entry> An animation.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> Width of the bounding box of the animation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-get-num-frames">gdk_pixbuf_animation_get_num_frames ()</title>
+<programlisting>int         gdk_pixbuf_animation_get_num_frames
+                                            (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);</programlisting>
+<para>
+Queries the number of frames in a pixbuf animation.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>animation</parameter>&nbsp;:</entry>
+<entry> An animation.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> Number of frames in the animation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-animation-get-height">gdk_pixbuf_animation_get_height ()</title>
+<programlisting>int         gdk_pixbuf_animation_get_height (<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> *animation);</programlisting>
+<para>
+Queries the height of the bounding box of a pixbuf animation.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>animation</parameter>&nbsp;:</entry>
+<entry> An animation.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> Height of the bounding box of the animation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-frame-get-pixbuf">gdk_pixbuf_frame_get_pixbuf ()</title>
+<programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_frame_get_pixbuf     (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);</programlisting>
+<para>
+Queries the pixbuf of an animation frame.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>frame</parameter>&nbsp;:</entry>
+<entry> A pixbuf animation frame.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> A pixbuf.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-frame-get-action">gdk_pixbuf_frame_get_action ()</title>
+<programlisting><link linkend="GdkPixbufFrameAction">GdkPixbufFrameAction</link> gdk_pixbuf_frame_get_action
+                                            (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);</programlisting>
+<para>
+Queries the overlay action of an animation frame.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>frame</parameter>&nbsp;:</entry>
+<entry> A pixbuf animation frame.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> Overlay action for this frame.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-frame-get-y-offset">gdk_pixbuf_frame_get_y_offset ()</title>
+<programlisting>int         gdk_pixbuf_frame_get_y_offset   (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);</programlisting>
+<para>
+Queries the Y offset of an animation frame.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>frame</parameter>&nbsp;:</entry>
+<entry> A pixbuf animation frame.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> Y offset from the top left corner of the animation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-frame-get-delay-time">gdk_pixbuf_frame_get_delay_time ()</title>
+<programlisting>int         gdk_pixbuf_frame_get_delay_time (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);</programlisting>
+<para>
+Queries the delay time in milliseconds of an animation frame.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>frame</parameter>&nbsp;:</entry>
+<entry> A pixbuf animation frame.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> Delay time in milliseconds.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-frame-get-x-offset">gdk_pixbuf_frame_get_x_offset ()</title>
+<programlisting>int         gdk_pixbuf_frame_get_x_offset   (<link linkend="GdkPixbufFrame">GdkPixbufFrame</link> *frame);</programlisting>
+<para>
+Queries the X offset of an animation frame.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>frame</parameter>&nbsp;:</entry>
+<entry> A pixbuf animation frame.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> X offset from the top left corner of the animation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="GdkPixbufLoader">GdkPixbufLoader</link>
+  </para>
+</refsect1>
+
+</refentry>

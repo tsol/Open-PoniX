@@ -1,0 +1,21 @@
+SUBDIRS = man
+bin_PROGRAMS = xhost
+
+xhost_SOURCES = xhost.c
+
+AM_CFLAGS = $(CWARNFLAGS) $(XHOST_CFLAGS) $(XAU_CFLAGS)
+xhost_LDADD = $(XHOST_LIBS)
+
+MAINTAINERCLEANFILES = ChangeLog INSTALL
+
+.PHONY: ChangeLog INSTALL
+
+INSTALL:
+	$(INSTALL_CMD)
+
+ChangeLog:
+	$(CHANGELOG_CMD)
+
+dist-hook: ChangeLog INSTALL
+
+

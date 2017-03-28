@@ -1,0 +1,481 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: GLib</TITLE>
+ <LINK HREF="gtk_tut-21.html" REL=next>
+ <LINK HREF="gtk_tut-19.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc20" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-21.html">Next</A>
+<A HREF="gtk_tut-19.html">Previous</A>
+<A HREF="gtk_tut.html#toc20">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="sec_glib"></A> <A NAME="s20">20. GLib</A></H2>
+
+<P>GLib is a lower-level library that provides many useful definitions
+and functions available for use when creating GDK and GTK
+applications. These include definitions for basic types and their
+limits, standard macros, type conversions, byte order, memory
+allocation, warnings and assertions, message logging, timers, string
+utilities, hook functions, a lexical scanner, dynamic loading of
+modules, and automatic string completion. A number of data structures
+(and their related operations) are also defined, including memory
+chunks, doubly-linked lists, singly-linked lists, hash tables, strings
+(which can grow dynamically), string chunks (groups of strings),
+arrays (which can grow in size as elements are added), balanced binary
+trees, N-ary trees, quarks (a two-way association of a string and a
+unique integer identifier), keyed data lists (lists of data elements
+accessible by a string or integer id), relations and tuples (tables of
+data which can be indexed on any number of fields), and caches.
+<P>A summary of some of GLib's capabilities follows; not every function,
+data structure, or operation is covered here.  For more complete
+information about the GLib routines, see the GLib documentation. One
+source of GLib documentation is 
+<A HREF="http://www.gtk.org/">http://www.gtk.org/</A>.
+<P>If you are using a language other than C, you should consult your
+language's binding documentation. In some cases your language may
+have equivalent functionality built-in, while in other cases it may
+not.
+<P>
+<H2><A NAME="ss20.1">20.1 Definitions</A>
+</H2>
+
+<P>Definitions for the extremes of many of the standard types are:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+G_MINFLOAT
+G_MAXFLOAT
+G_MINDOUBLE
+G_MAXDOUBLE
+G_MINSHORT
+G_MAXSHORT
+G_MININT
+G_MAXINT
+G_MINLONG
+G_MAXLONG
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Also, the following typedefs. The ones left unspecified are dynamically set
+depending on the architecture. Remember to avoid counting on the size of a
+pointer if you want to be portable! E.g., a pointer on an Alpha is 8
+bytes, but 4 on Intel 80x86 family CPUs.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+char   gchar;
+short  gshort;
+long   glong;
+int    gint;
+char   gboolean;
+
+unsigned char   guchar;
+unsigned short  gushort;
+unsigned long   gulong;
+unsigned int    guint;
+
+float   gfloat;
+double  gdouble;
+long double gldouble;
+
+void* gpointer;
+
+gint8
+guint8
+gint16
+guint16
+gint32
+guint32
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss20.2">20.2 Doubly Linked Lists</A>
+</H2>
+
+<P>The following functions are used to create, manage, and destroy
+standard doubly linked lists. Each element in the list contains a
+piece of data, together with pointers which link to the previous and
+next elements in the list. This enables easy movement in either
+direction through the list. The data item is of type "gpointer",
+which means the data can be a pointer to your real data or (through
+casting) a numeric value (but do not assume that int and gpointer have
+the same size!). These routines internally allocate list elements in
+blocks, which is more efficient than allocating elements individually.
+<P>There is no function to specifically create a list. Instead, simply
+create a variable of type GList* and set its value to NULL; NULL is
+considered to be the empty list.
+<P>To add elements to a list, use the g_list_append(), g_list_prepend(),
+g_list_insert(), or g_list_insert_sorted() routines. In all cases
+they accept a pointer to the beginning of the list, and return the
+(possibly changed) pointer to the beginning of the list. Thus, for
+all of the operations that add or remove elements, be sure to save the
+returned value!
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GList *g_list_append( GList    *list,
+                      gpointer  data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This adds a new element (with value <CODE>data</CODE>) onto the end of the
+list.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+           
+GList *g_list_prepend( GList    *list,
+                       gpointer  data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This adds a new element (with value <CODE>data</CODE>) to the beginning of the
+list.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+                
+GList *g_list_insert( GList    *list,
+                      gpointer  data,
+                      gint      position );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This inserts a new element (with value data) into the list at the
+given position. If position is 0, this is just like g_list_prepend();
+if position is less than 0, this is just like g_list_append().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GList *g_list_remove( GList    *list,
+                      gpointer  data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This removes the element in the list with the value <CODE>data</CODE>;
+if the element isn't there, the list is unchanged.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_list_free( GList *list );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This frees all of the memory used by a GList. If the list elements
+refer to dynamically-allocated memory, then they should be freed
+first.
+<P>There are many other GLib functions that support doubly linked lists;
+see the glib documentation for more information.  Here are a few of
+the more useful functions' signatures:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+                   
+GList *g_list_remove_link( GList *list,
+                           GList *link );
+
+GList *g_list_reverse( GList *list );
+
+GList *g_list_nth( GList *list,
+                   gint   n );
+                           
+GList *g_list_find( GList    *list,
+                    gpointer  data );
+
+GList *g_list_last( GList *list );
+
+GList *g_list_first( GList *list );
+
+gint g_list_length( GList *list );
+
+void g_list_foreach( GList    *list,
+                     GFunc     func,
+                     gpointer  user_data );
+</PRE>
+</CODE></BLOCKQUOTE>
+                                              
+<P>
+<H2><A NAME="ss20.3">20.3 Singly Linked Lists</A>
+</H2>
+
+<P>Many of the above functions for singly linked lists are identical to the
+above. Here is a list of some of their operations:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GSList *g_slist_append( GSList   *list,
+                        gpointer  data );
+                
+GSList *g_slist_prepend( GSList   *list,
+                         gpointer  data );
+                             
+GSList *g_slist_insert( GSList   *list,
+                        gpointer  data,
+                        gint      position );
+                             
+GSList *g_slist_remove( GSList   *list,
+                        gpointer  data );
+                             
+GSList *g_slist_remove_link( GSList *list,
+                             GSList *link );
+                             
+GSList *g_slist_reverse( GSList *list );
+
+GSList *g_slist_nth( GSList *list,
+                     gint    n );
+                             
+GSList *g_slist_find( GSList   *list,
+                      gpointer  data );
+                             
+GSList *g_slist_last( GSList *list );
+
+gint g_slist_length( GSList *list );
+
+void g_slist_foreach( GSList   *list,
+                      GFunc     func,
+                      gpointer  user_data );
+        
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss20.4">20.4 Memory Management</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gpointer g_malloc( gulong size );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is a replacement for malloc(). You do not need to check the return
+value as it is done for you in this function. If the memory allocation
+fails for whatever reasons, your applications will be terminated.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gpointer g_malloc0( gulong size );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Same as above, but zeroes the memory before returning a pointer to it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gpointer g_realloc( gpointer mem,
+                    gulong   size );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Relocates "size" bytes of memory starting at "mem".  Obviously, the
+memory should have been previously allocated.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_free( gpointer mem );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Frees memory. Easy one. If <CODE>mem</CODE> is NULL it simply returns.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_mem_profile( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Dumps a profile of used memory, but requires that you add <CODE>#define
+MEM_PROFILE</CODE> to the top of glib/gmem.c and re-make and make install.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_mem_check( gpointer mem );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Checks that a memory location is valid. Requires you add <CODE>#define
+MEM_CHECK</CODE> to the top of gmem.c and re-make and make install.
+<P>
+<H2><A NAME="ss20.5">20.5 Timers</A>
+</H2>
+
+<P>Timer functions can be used to time operations (e.g., to see how much
+time has elapsed). First, you create a new timer with g_timer_new().
+You can then use g_timer_start() to start timing an operation,
+g_timer_stop() to stop timing an operation, and g_timer_elapsed() to
+determine the elapsed time.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GTimer *g_timer_new( void );
+
+void g_timer_destroy( GTimer *timer );
+
+void g_timer_start( GTimer  *timer );
+
+void g_timer_stop( GTimer  *timer );
+
+void g_timer_reset( GTimer  *timer );
+
+gdouble g_timer_elapsed( GTimer *timer,
+                         gulong *microseconds );
+</PRE>
+</CODE></BLOCKQUOTE>
+                         
+<P>
+<H2><A NAME="ss20.6">20.6 String Handling</A>
+</H2>
+
+<P>GLib defines a new type called a GString, which is similar to a
+standard C string but one that grows automatically. Its string data
+is null-terminated. What this gives you is protection from buffer
+overflow programming errors within your program. This is a very
+important feature, and hence I recommend that you make use of
+GStrings. GString itself has a simple public definition:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct GString 
+{
+  gchar *str; /* Points to the string's current \0-terminated value. */
+  gint len; /* Current length */
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you might expect, there are a number of operations you can do with
+a GString.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GString *g_string_new( gchar *init );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This constructs a GString, copying the string value of <CODE>init</CODE>
+into the GString and returning a pointer to it. NULL may be given as
+the argument for an initially empty GString.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+void g_string_free( GString *string,
+                    gint     free_segment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This frees the memory for the given GString. If <CODE>free_segment</CODE> is
+TRUE, then this also frees its character data.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+                             
+GString *g_string_assign( GString     *lval,
+                          const gchar *rval );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This copies the characters from rval into lval, destroying the
+previous contents of lval. Note that lval will be lengthened as
+necessary to hold the string's contents, unlike the standard strcpy()
+function.
+<P>The rest of these functions should be relatively obvious (the _c
+versions accept a character instead of a string):
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+                     
+GString *g_string_truncate( GString *string,
+                            gint     len );
+                             
+GString *g_string_append( GString *string,
+                          gchar   *val );
+                            
+GString *g_string_append_c( GString *string,
+                            gchar    c );
+        
+GString *g_string_prepend( GString *string,
+                           gchar   *val );
+                             
+GString *g_string_prepend_c( GString *string,
+                             gchar    c );
+        
+void g_string_sprintf( GString *string,
+                       gchar   *fmt,
+                       ...);
+        
+void g_string_sprintfa ( GString *string,
+                         gchar   *fmt,
+                         ... );
+</PRE>
+</CODE></BLOCKQUOTE>
+                                                          
+<P>
+<H2><A NAME="ss20.7">20.7 Utility and Error Functions</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *g_strdup( const gchar *str );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Replacement strdup function.  Copies the original strings contents to
+newly allocated memory, and returns a pointer to it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *g_strerror( gint errnum );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>I recommend using this for all error messages.  It's much nicer, and more
+portable than perror() or others.  The output is usually of the form:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+program name:function that failed:file or further description:strerror
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here's an example of one such call used in our hello_world program:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+g_print("hello_world:open:%s:%s\n", filename, g_strerror(errno));
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_error( gchar *format, ... );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Prints an error message. The format is just like printf, but it
+prepends "** ERROR **: " to your message, and exits the program.  
+Use only for fatal errors.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_warning( gchar *format, ... );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Same as above, but prepends "** WARNING **: ", and does not exit the
+program.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_message( gchar *format, ... );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Prints "message: " prepended to the string you pass in.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_print( gchar *format, ... );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Replacement for printf().
+<P>And our last function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *g_strsignal( gint signum );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Prints out the name of the Unix system signal given the signal number.
+Useful in generic signal handling functions.
+<P>All of the above are more or less just stolen from glib.h.  If anyone cares
+to document any function, just send me an email!
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-21.html">Next</A>
+<A HREF="gtk_tut-19.html">Previous</A>
+<A HREF="gtk_tut.html#toc20">Contents</A>
+</BODY>
+</HTML>

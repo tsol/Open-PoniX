@@ -1,0 +1,33 @@
+From 3552913d3a1c2d3c4ce158e91dc18cd12b522cb2 Mon Sep 17 00:00:00 2001
+From: Yakui Zhao <yakui.zhao@intel.com>
+Date: Tue, 7 Feb 2012 15:33:13 -0500
+Subject: [PATCH] Clear the ttm page allocated from high memory zone correctly
+
+The TTM page can be allocated from high memory. In such case it is
+wrong to use the page_address(page) as the virtual address for the high memory
+page.
+
+Signed-off-by: Zhao Yakui <yakui.zhao@intel.com>
+---
+ drivers/gpu/drm/ttm/ttm_page_alloc.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/gpu/drm/ttm/ttm_page_alloc.c b/drivers/gpu/drm/ttm/ttm_page_alloc.c
+index d948575..df976d9 100644
+--- a/drivers/gpu/drm/ttm/ttm_page_alloc.c
++++ b/drivers/gpu/drm/ttm/ttm_page_alloc.c
+@@ -708,7 +708,10 @@ int ttm_get_pages(struct list_head *pages, int flags,
+ 	/* clear the pages coming from the pool if requested */
+ 	if (flags & TTM_PAGE_FLAG_ZERO_ALLOC) {
+ 		list_for_each_entry(p, pages, lru) {
+-			clear_page(page_address(p));
++			if (PageHighMem(p))
++				clear_highpage(p);
++			else
++				clear_page(page_address(p));
+ 		}
+ 	}
+ 
+-- 
+1.7.7.6
+

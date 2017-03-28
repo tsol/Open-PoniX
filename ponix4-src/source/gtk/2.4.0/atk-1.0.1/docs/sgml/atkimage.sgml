@@ -1,0 +1,193 @@
+<refentry id="atk-AtkImage">
+<refmeta>
+<refentrytitle>AtkImage</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkImage</refname><refpurpose>ATK Interface implemented by components which expose image or pixmap
+content on-screen.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+
+
+struct      <link linkend="AtkImage">AtkImage</link>;
+struct      <link linkend="AtkImageIface">AtkImageIface</link>;
+void        <link linkend="atk-image-get-image-position">atk_image_get_image_position</link>    (<link linkend="AtkImage">AtkImage</link> *image,
+                                             <link linkend="gint">gint</link> *x,
+                                             <link linkend="gint">gint</link> *y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+G_CONST_RETURN <link linkend="gchar">gchar</link>* <link linkend="atk-image-get-image-description">atk_image_get_image_description</link>
+                                            (<link linkend="AtkImage">AtkImage</link> *image);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-image-set-image-description">atk_image_set_image_description</link> (<link linkend="AtkImage">AtkImage</link> *image,
+                                             const <link linkend="gchar">gchar</link> *description);
+void        <link linkend="atk-image-get-image-size">atk_image_get_image_size</link>        (<link linkend="AtkImage">AtkImage</link> *image,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="AtkImage">AtkImage</link> should be implemented by <link linkend="AtkObject">AtkObject</link> subtypes on behalf of
+components which display image/pixmap information onscreen, and which
+provide information (other than just widget borders, etc.) via that
+image content.  For instance, icons, buttons with icons, toolbar
+elements, and image viewing panes typically should implement <link linkend="AtkImage">AtkImage</link>.
+</para>
+<para>
+<link linkend="AtkImage">AtkImage</link> primarily provides two types of information: coordinate
+information (useful for screen review mode of screenreaders, and for use
+by onscreen magnifiers), and descriptive information.  The descriptive
+information is provided for alternative, text-only presentation of the
+most significant information present in the image.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="AtkImage">struct AtkImage</title>
+<programlisting>struct AtkImage;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="AtkImageIface">struct AtkImageIface</title>
+<programlisting>struct AtkImageIface
+{
+  GTypeInterface parent;
+  void          	( *get_image_position)    (AtkImage		 *image,
+                                                   gint                  *x,
+				                   gint	                 *y,
+    			                           AtkCoordType	         coord_type);
+  G_CONST_RETURN gchar* ( *get_image_description) (AtkImage              *image);
+  void                  ( *get_image_size)        (AtkImage              *image,
+                                                   gint                  *width,
+                                                   gint                  *height);
+  gboolean              ( *set_image_description) (AtkImage              *image,
+                                                   const gchar           *description);
+
+  AtkFunction           pad1;
+  AtkFunction           pad2;
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="atk-image-get-image-position">atk_image_get_image_position ()</title>
+<programlisting>void        atk_image_get_image_position    (<link linkend="AtkImage">AtkImage</link> *image,
+                                             <link linkend="gint">gint</link> *x,
+                                             <link linkend="gint">gint</link> *y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Gets the position of the image in the form of a point specifying the
+images top-left corner.  The values of <parameter>x</parameter> and <parameter>y</parameter> are returned as -1
+if the values cannot be obtained.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>image</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkImageIface
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put x coordinate position
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put y coordinate position
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-image-get-image-description">atk_image_get_image_description ()</title>
+<programlisting>G_CONST_RETURN <link linkend="gchar">gchar</link>* atk_image_get_image_description
+                                            (<link linkend="AtkImage">AtkImage</link> *image);</programlisting>
+<para>
+Get a textual description of this image.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>image</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkImageIface
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a string representing the image description
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-image-set-image-description">atk_image_set_image_description ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_image_set_image_description (<link linkend="AtkImage">AtkImage</link> *image,
+                                             const <link linkend="gchar">gchar</link> *description);</programlisting>
+<para>
+Sets the textual description for this image.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>image</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkImageIface
+</entry></row>
+<row><entry align="right"><parameter>description</parameter>&nbsp;:</entry>
+<entry> a string description to set for <parameter>image</parameter>
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> boolean TRUE, or FALSE if operation could
+not be completed.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-image-get-image-size">atk_image_get_image_size ()</title>
+<programlisting>void        atk_image_get_image_size        (<link linkend="AtkImage">AtkImage</link> *image,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height);</programlisting>
+<para>
+Get the width and height in pixels for the specified image.
+The values of <parameter>width</parameter> and <parameter>height</parameter> are returned as -1 if the
+values cannot be obtained.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>image</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkImageIface
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry> filled with the image width
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry> filled with the image height
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

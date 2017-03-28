@@ -1,0 +1,94 @@
+.TH xcb_query_tree 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_query_tree \- query the window tree
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_query_tree_cookie_t \fBxcb_query_tree\fP(xcb_connection_t\ *\fIconn\fP, xcb_window_t\ \fIwindow\fP);
+.PP
+.SS Reply datastructure
+.nf
+.sp
+typedef struct xcb_query_tree_reply_t {
+    uint8_t      \fIresponse_type\fP;
+    uint8_t      \fIpad0\fP;
+    uint16_t     \fIsequence\fP;
+    uint32_t     \fIlength\fP;
+    xcb_window_t \fIroot\fP;
+    xcb_window_t \fIparent\fP;
+    uint16_t     \fIchildren_len\fP;
+    uint8_t      \fIpad1\fP[14];
+} \fBxcb_query_tree_reply_t\fP;
+.fi
+.SS Reply function
+.HP
+xcb_query_tree_reply_t *\fBxcb_query_tree_reply\fP(xcb_connection_t\ *\fIconn\fP, xcb_query_tree_cookie_t\ \fIcookie\fP, xcb_generic_error_t\ **\fIe\fP);
+.SS Reply accessors
+.HP
+xcb_window_t *\fBxcb_query_tree_children\fP(const xcb_query_tree_request_t *\fIreply\fP);
+.HP
+int \fBxcb_query_tree_children_length\fP(const xcb_query_tree_reply_t *\fIreply\fP);
+.HP
+xcb_generic_iterator_t \fBxcb_query_tree_children_end\fP(const xcb_query_tree_reply_t *\fIreply\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIwindow\fP 1i
+The \fIwindow\fP to query.
+.SH REPLY FIELDS
+.IP \fIresponse_type\fP 1i
+The type of this reply, in this case \fIXCB_QUERY_TREE\fP. This field is also present in the \fIxcb_generic_reply_t\fP and can be used to tell replies apart from each other.
+.IP \fIsequence\fP 1i
+The sequence number of the last request processed by the X11 server.
+.IP \fIlength\fP 1i
+The length of the reply, in words (a word is 4 bytes).
+.IP \fIroot\fP 1i
+The root window of \fIwindow\fP.
+.IP \fIparent\fP 1i
+The parent window of \fIwindow\fP.
+.IP \fIchildren_len\fP 1i
+The number of child windows.
+.SH DESCRIPTION
+Gets the root window ID, parent window ID and list of children windows for the
+specified \fIwindow\fP. The children are listed in bottom-to-top stacking order.
+.SH RETURN VALUE
+Returns an \fIxcb_query_tree_cookie_t\fP. Errors have to be handled when calling the reply function \fIxcb_query_tree_reply\fP.
+
+If you want to handle errors in the event loop instead, use \fIxcb_query_tree_unchecked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+This request does never generate any errors.
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Displays the root, parent and children of the specified window.
+ *
+ */
+void my_example(xcb_connection *conn, xcb_window_t window) {
+    xcb_query_tree_cookie_t cookie;
+    xcb_query_tree_reply_t *reply;
+
+    cookie = xcb_query_tree(conn, window);
+    if ((reply = xcb_query_tree_reply(conn, cookie, NULL))) {
+        printf("root = 0x%08x\\n", reply->root);
+        printf("parent = 0x%08x\\n", reply->parent);
+
+        xcb_window_t *children = xcb_query_tree_children(reply);
+        for (int i = 0; i < xcb_query_tree_children_length(reply); i++)
+            printf("child window = 0x%08x\\n", children[i]);
+
+        free(reply);
+    }
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3),
+.BR xwininfo (1)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

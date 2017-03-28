@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK+ FAQ: Development with GTK+: the begining</TITLE>
+ <LINK HREF="gtkfaq-5.html" REL=next>
+ <LINK HREF="gtkfaq-3.html" REL=previous>
+ <LINK HREF="gtkfaq.html#toc4" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtkfaq-5.html">Next</A>
+<A HREF="gtkfaq-3.html">Previous</A>
+<A HREF="gtkfaq.html#toc4">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s4">4. Development with GTK+: the begining</A></H2>
+
+<H2><A NAME="ss4.1">4.1 How do I get started?</A>
+</H2>
+
+<P>So, after you have installed GTK+ there are a couple of things that can
+ease you into developing applications with it. There is the
+GTK+ Tutorial 
+<A HREF="http://www.gtk.org/tutorial/">http://www.gtk.org/tutorial/</A>, which is undergoing 
+development. This will introduce you to writing applications using C.
+<P>The Tutorial doesn't (yet) contain information on all of the widgets
+that are in GTK+. For example code on how to use the basics of all the
+GTK+ widgets you should look at the file gtk/testgtk.c (and associated
+source files) within the GTK+ distribution. Looking at these examples will
+give you a good grounding on what the widgets can do.
+<P>
+<H2><A NAME="ss4.2">4.2 I tried to compile a small <CODE>Hello World</CODE> of mine, but it failed. Any clue?</A>
+</H2>
+
+<P>Since you are good at coding, we will not deal with compile time error here :).
+<P>The classic command line to compile a GTK+ based program is
+<P>
+<PRE>
+gcc -o myprg [c files list] `gtk-config --cflags --libs`
+</PRE>
+<P>You should notice the backquote character which is used in this command line.
+A common mistake when you start a GTK+ based development is to use quote 
+instead of backquotes. If you do so, the compiler will complain about an 
+unknown file called 'gtk-config --cflags --libs'. The text in
+backquotes is an instruction to your shell to substitute the output of
+executing this text into the command line.
+<P>The command line above ensure that:
+<UL>
+<LI>the correct C compiler flags will be used to compile the program
+(including the complete C header directory list)
+</LI>
+<LI>your program will be linked with the needed libraries.
+</LI>
+</UL>
+<P>
+<H2><A NAME="ss4.3">4.3 What about using the <CODE>make</CODE> utility?</A>
+</H2>
+
+<P>This is a sample makefile which compile a GTK+ based program:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# basic GTK+ app makefile
+SOURCES = myprg.c foo.c bar.c
+OBJS    = ${SOURCES:.c=.o}
+CFLAGS  = `gtk-config --cflags`
+LDADD   = `gtk-config --libs`
+CC      = gcc
+PACKAGE = myprg
+
+all : ${OBJS}
+        ${CC} -o ${PACKAGE} ${OBJS} ${LDADD}
+
+.c.o:
+        ${CC} ${CFLAGS} -c $&lt;
+
+# end of file
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>For more information about the <CODE>make</CODE> utility, you should read either the
+related man page or the relevant info file.
+<P>
+<H2><A NAME="ss4.4">4.4 I use the backquote stuff in my makefiles, but my make process failed.</A>
+</H2>
+
+<P>The backquote construction seems to not be accepted by some old <CODE>make</CODE>
+utilities. If you use one of these, the make process will probably fail.
+In order to have the backquote syntax working again, you should use the
+GNU make utility (get it on the GNU ftp server at
+<A HREF="ftp://ftp.gnu.org/">ftp://ftp.gnu.org/</A>).
+<P>
+<H2><A NAME="ss4.5">4.5 I want to add some configure stuff, how could I do this?</A>
+</H2>
+
+<P>To use autoconf/automake, you must first install the relevant packages. These
+are:
+<P>
+<UL>
+<LI>the m4 preprocessor v1.4 or better</LI>
+<LI>autoconf v2.13 or better</LI>
+<LI>automake v1.4 or better</LI>
+</UL>
+<P>You'll find these packages on the GNU main ftp server (
+<A HREF="ftp://ftp.gnu.org/">ftp://ftp.gnu.org/</A>) or on any GNU mirror.
+<P>In order to use the powerful autoconf/automake scheme, you must create
+a configure.in which may look like:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+dnl Process this file with autoconf to produce a configure script.
+dnl configure.in for a GTK+ based program
+
+AC_INIT(myprg.c)dnl
+AM_INIT_AUTOMAKE(mypkgname,0.0.1)dnl
+AM_CONFIG_HEADER(config.h)dnl
+
+dnl Checks for programs.
+AC_PROG_CC dnl check for the c compiler
+dnl you should add CFLAGS="" here, 'cos it is set to -g by PROG_CC
+
+dnl Checks for libraries.
+AM_PATH_GTK(1.2.0,,AC_MSG_ERROR(mypkgname 0.1 needs GTK))dnl
+
+AC_OUTPUT(
+        Makefile
+)dnl
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You must add a Makefile.am file:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+bin_PROGRAMS    = myprg
+myprg_SOURCES   = myprg.c foo.c bar.c
+INCLUDES        = @GTK_CFLAGS@
+LDADD           = @GTK_LIBS@
+CLEANFILES      = *~
+DISTCLEANFILES  = .deps/*.P
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If your project contains more than one subdirectory, you'll have to
+create one Makefile.am in each directory plus a master Makefile.am
+which will look like:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+SUBDIRS         = mydir1 mydir2 mydir3
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>then, to use these, simply type the following commands:
+<P>
+<PRE>
+aclocal
+autoheader
+autoconf
+automake --add-missing --include-deps --foreign 
+</PRE>
+<P>For further information, you should look at the autoconf and the
+automake documentation (the shipped info files are really easy to
+understand, and there are plenty of web resources that deal with
+autoconf and automake).
+<P>
+<H2><A NAME="ss4.6">4.6 I try to debug my GTK+ application with gdb, but it hangs my X server when I hit some breakpoint. Any Idea ?</A>
+</H2>
+
+<P>From Federico Mena Quintero:
+<BLOCKQUOTE>
+X is not locked up.  It is likely that you are hitting a breakpoint
+inside a callback that is called from a place in Gtk that has a mouse
+grab.
+<P>Run your program with the "--sync" option; it will make it easier to
+debug. Also, you may want to use the console for running the
+debugger, and just let the program run in another console with the X
+server.
+</BLOCKQUOTE>
+<P>Eric Mouw had another solution:
+<BLOCKQUOTE>
+An old terminal connected to an otherwise unused serial port is also great
+for debugging X programs. Old vt100/vt220 terminals are dirt cheap but a
+bit hard to get (here in The Netherlands, YMMV).
+</BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtkfaq-5.html">Next</A>
+<A HREF="gtkfaq-3.html">Previous</A>
+<A HREF="gtkfaq.html#toc4">Contents</A>
+</BODY>
+</HTML>

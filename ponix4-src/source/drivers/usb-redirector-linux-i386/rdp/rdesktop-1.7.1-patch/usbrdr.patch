@@ -1,0 +1,318 @@
+diff -u /tmp/rdesktop-1.7.1/channels.c /tmp/rdesktop-1.7.1-usbrdr/channels.c
+--- /tmp/rdesktop-1.7.1/channels.c	2011-09-28 12:36:59.000000000 +0300
++++ /tmp/rdesktop-1.7.1-usbrdr/channels.c	2014-06-16 19:55:14.642099128 +0300
+@@ -85,6 +85,7 @@
+ #ifdef WITH_SCARD
+ 	scard_lock(SCARD_LOCK_CHANNEL);
+ #endif
++	usbrdr_lock(USBRDR_LOCK_CHANNEL);
+ 
+ 	/* first fragment sent in-place */
+ 	s_pop_layer(s, channel_hdr);
+@@ -129,6 +130,7 @@
+ 		data += thislength;
+ 	}
+ 
++	usbrdr_unlock(USBRDR_LOCK_CHANNEL);
+ #ifdef WITH_SCARD
+ 	scard_unlock(SCARD_LOCK_CHANNEL);
+ #endif
+diff -u /tmp/rdesktop-1.7.1/constants.h /tmp/rdesktop-1.7.1-usbrdr/constants.h
+--- /tmp/rdesktop-1.7.1/constants.h	2010-12-27 14:11:35.000000000 +0200
++++ /tmp/rdesktop-1.7.1-usbrdr/constants.h	2014-06-16 19:55:14.642099128 +0300
+@@ -457,6 +457,12 @@
+ #define SCARD_LOCK_RDPDR	3
+ #define SCARD_LOCK_LAST		4
+ 
++/* USBRDR constants */
++#define USBRDR_LOCK_TCP		0
++#define USBRDR_LOCK_SEC		1
++#define USBRDR_LOCK_CHANNEL	2
++#define USBRDR_LOCK_RDPDR	3
++#define USBRDR_LOCK_LAST	4
+ 
+ /* redirect flags, from [MS-RDPBCGR] 2.2.13.1 */
+ enum RDP_PDU_REDIRECT_FLAGS
+diff -u /tmp/rdesktop-1.7.1/Makefile.in /tmp/rdesktop-1.7.1-usbrdr/Makefile.in
+--- /tmp/rdesktop-1.7.1/Makefile.in	2011-04-18 10:46:33.000000000 +0300
++++ /tmp/rdesktop-1.7.1-usbrdr/Makefile.in	2014-06-16 19:55:14.642099128 +0300
+@@ -16,7 +16,7 @@
+ 
+ CC          = @CC@
+ INSTALL     = @INSTALL@
+-CFLAGS      = @CFLAGS@ @X_CFLAGS@ @DEFS@ -DKEYMAP_PATH=\"$(KEYMAP_PATH)\"
++CFLAGS      = @CFLAGS@ @X_CFLAGS@ @DEFS@ -DKEYMAP_PATH=\"$(KEYMAP_PATH)\" -pthread
+ LDFLAGS     = @LDFLAGS@ @LIBS@ @X_LIBS@ @X_EXTRA_LIBS@
+ STRIP       = @STRIP@
+ 
+@@ -27,7 +27,7 @@
+ SOUNDOBJ    = @SOUNDOBJ@
+ SCARDOBJ    = @SCARDOBJ@
+ 
+-RDPOBJ   = tcp.o iso.o mcs.o secure.o licence.o rdp.o orders.o bitmap.o cache.o rdp5.o channels.o rdpdr.o serial.o printer.o disk.o parallel.o printercache.o mppc.o pstcache.o lspci.o seamless.o ssl.o
++RDPOBJ   = tcp.o iso.o mcs.o secure.o licence.o rdp.o orders.o bitmap.o cache.o rdp5.o channels.o rdpdr.o serial.o printer.o disk.o parallel.o printercache.o mppc.o pstcache.o lspci.o usbrdr.o seamless.o ssl.o
+ X11OBJ   = rdesktop.o xwin.o xkeymap.o ewmhints.o xclip.o cliprdr.o
+ VNCOBJ   = vnc/rdp2vnc.o vnc/vnc.o vnc/xkeymap.o vnc/x11stubs.o
+ 
+@@ -84,7 +84,7 @@
+ 	bitmap.c cache.c channels.c cliprdr.c disk.c mppc.c ewmhints.c	\
+ 	iso.c licence.c mcs.c orders.c parallel.c printer.c printercache.c \
+ 	pstcache.c rdesktop.c rdp5.c rdp.c rdpdr.c rdpsnd.c \
+-	secure.c serial.c tcp.c xclip.c xkeymap.c xwin.c lspci.c seamless.c \
++	secure.c serial.c tcp.c xclip.c xkeymap.c xwin.c lspci.c usbrdr.c seamless.c \
+ 	scard.c >> proto.h
+ 	cat proto.tail >> proto.h
+ 
+diff -u /tmp/rdesktop-1.7.1/parse.h /tmp/rdesktop-1.7.1-usbrdr/parse.h
+--- /tmp/rdesktop-1.7.1/parse.h	2010-01-12 10:31:06.000000000 +0200
++++ /tmp/rdesktop-1.7.1-usbrdr/parse.h	2014-06-16 19:55:14.646099129 +0300
+@@ -31,7 +31,7 @@
+ 	unsigned char *sec_hdr;
+ 	unsigned char *rdp_hdr;
+ 	unsigned char *channel_hdr;
+-
++	unsigned char occupied;	
+ }
+  *STREAM;
+ 
+diff -u /tmp/rdesktop-1.7.1/proto.h /tmp/rdesktop-1.7.1-usbrdr/proto.h
+--- /tmp/rdesktop-1.7.1/proto.h	2011-11-21 12:51:08.000000000 +0200
++++ /tmp/rdesktop-1.7.1-usbrdr/proto.h	2014-06-16 19:55:14.646099129 +0300
+@@ -302,6 +302,8 @@
+ void ui_seamless_ack(unsigned int serial);
+ /* lspci.c */
+ RD_BOOL lspci_init(void);
++/* usbrdr.c */
++RD_BOOL usbrdr_init(void);
+ /* seamless.c */
+ RD_BOOL seamless_init(void);
+ unsigned int seamless_send_sync(void);
+@@ -319,6 +321,9 @@
+ void scardSetInfo(uint32 device, uint32 id, uint32 bytes_out);
+ void scard_reset_state();
+ 
++void usbrdr_lock(int lock);
++void usbrdr_unlock(int lock);
++
+ /* *INDENT-OFF* */
+ #ifdef __cplusplus
+ }
+diff -u /tmp/rdesktop-1.7.1/rdesktop.c /tmp/rdesktop-1.7.1-usbrdr/rdesktop.c
+--- /tmp/rdesktop-1.7.1/rdesktop.c	2011-11-25 12:03:03.000000000 +0200
++++ /tmp/rdesktop-1.7.1-usbrdr/rdesktop.c	2014-06-16 19:55:14.646099129 +0300
+@@ -97,6 +97,7 @@
+ RD_BOOL g_console_session = False;
+ RD_BOOL g_numlock_sync = False;
+ RD_BOOL g_lspci_enabled = False;
++RD_BOOL g_usbrdr_enabled = False;
+ RD_BOOL g_owncolmap = False;
+ RD_BOOL g_ownbackstore = True;	/* We can't rely on external BackingStore */
+ RD_BOOL g_seamless_rdp = False;
+@@ -225,6 +226,8 @@
+ 	fprintf(stderr,
+ 		"                   \"AKS\"              -> Device vendor name                 \n");
+ #endif
++	fprintf(stderr,
++		"         '-r usbrdr': enable USB port redirection\n");
+ 	fprintf(stderr, "   -0: attach to console\n");
+ 	fprintf(stderr, "   -4: use RDP version 4\n");
+ 	fprintf(stderr, "   -5: use RDP version 5 (default)\n");
+@@ -790,6 +793,10 @@
+ 				{
+ 					g_lspci_enabled = True;
+ 				}
++				else if (str_startswith(optarg, "usbrdr"))
++				{
++					g_usbrdr_enabled = True;
++				}
+ 				else if (str_startswith(optarg, "lptport"))
+ 				{
+ 					parallel_enum_devices(&g_num_devices, optarg + 7);
+@@ -829,7 +836,7 @@
+ 				}
+ 				else
+ 				{
+-					warning("Unknown -r argument\n\n\tPossible arguments are: comport, disk, lptport, printer, sound, clipboard, scard\n");
++					warning("Unknown -r argument\n\n\tPossible arguments are: comport, disk, lptport, printer, sound, clipboard, scard, usbrdr\n");
+ 				}
+ 				break;
+ 
+@@ -985,6 +992,9 @@
+ 	if (g_lspci_enabled)
+ 		lspci_init();
+ 
++	if (g_usbrdr_enabled)
++		usbrdr_init();
++
+ 	rdpdr_init();
+ 
+ 	while (1)
+diff -u /tmp/rdesktop-1.7.1/rdpdr.c /tmp/rdesktop-1.7.1-usbrdr/rdpdr.c
+--- /tmp/rdesktop-1.7.1/rdpdr.c	2011-04-13 14:13:04.000000000 +0300
++++ /tmp/rdesktop-1.7.1-usbrdr/rdpdr.c	2014-06-16 19:55:14.650099129 +0300
+@@ -263,6 +263,8 @@
+ 	STREAM s;
+ 	PRINTER *printerinfo;
+ 
++	usbrdr_lock(USBRDR_LOCK_RDPDR);
++
+ 	s = channel_init(rdpdr_channel, announcedata_size());
+ 	out_uint8a(s, magic, 4);
+ 	out_uint32_le(s, g_num_devices);
+@@ -311,6 +313,8 @@
+ 
+ 	s_mark_end(s);
+ 	channel_send(s, rdpdr_channel);
++
++	usbrdr_unlock(USBRDR_LOCK_RDPDR);
+ }
+ 
+ void
+@@ -323,6 +327,8 @@
+ #ifdef WITH_SCARD
+ 	scard_lock(SCARD_LOCK_RDPDR);
+ #endif
++	usbrdr_lock(USBRDR_LOCK_RDPDR);
++
+ 	s = channel_init(rdpdr_channel, 20 + length);
+ 	out_uint8a(s, magic, 4);
+ 	out_uint32_le(s, device);
+@@ -337,6 +343,8 @@
+ 	/* hexdump(s->channel_hdr + 8, s->end - s->channel_hdr - 8); */
+ #endif
+ 	channel_send(s, rdpdr_channel);
++
++	usbrdr_unlock(USBRDR_LOCK_RDPDR);
+ #ifdef WITH_SCARD
+ 	scard_unlock(SCARD_LOCK_RDPDR);
+ #endif
+diff -u /tmp/rdesktop-1.7.1/secure.c /tmp/rdesktop-1.7.1-usbrdr/secure.c
+--- /tmp/rdesktop-1.7.1/secure.c	2011-11-21 12:51:08.000000000 +0200
++++ /tmp/rdesktop-1.7.1-usbrdr/secure.c	2014-06-16 19:55:14.650099129 +0300
+@@ -333,6 +333,7 @@
+ #ifdef WITH_SCARD
+ 	scard_lock(SCARD_LOCK_SEC);
+ #endif
++	usbrdr_lock(USBRDR_LOCK_SEC);
+ 
+ 	s_pop_layer(s, sec_hdr);
+ 	if (!g_licence_issued || (flags & SEC_ENCRYPT))
+@@ -354,6 +355,7 @@
+ 
+ 	mcs_send_to_channel(s, channel);
+ 
++	usbrdr_unlock(USBRDR_LOCK_SEC);
+ #ifdef WITH_SCARD
+ 	scard_unlock(SCARD_LOCK_SEC);
+ #endif
+@@ -364,7 +366,11 @@
+ void
+ sec_send(STREAM s, uint32 flags)
+ {
++	usbrdr_lock(USBRDR_LOCK_CHANNEL);
++
+ 	sec_send_to_channel(s, flags, MCS_GLOBAL_CHANNEL);
++
++	usbrdr_unlock(USBRDR_LOCK_CHANNEL);
+ }
+ 
+ 
+diff -u /tmp/rdesktop-1.7.1/tcp.c /tmp/rdesktop-1.7.1-usbrdr/tcp.c
+--- /tmp/rdesktop-1.7.1/tcp.c	2011-04-13 14:13:04.000000000 +0300
++++ /tmp/rdesktop-1.7.1-usbrdr/tcp.c	2014-06-16 20:02:32.906108051 +0300
+@@ -46,11 +46,13 @@
+ #define INADDR_NONE ((unsigned long) -1)
+ #endif
+ 
+-#ifdef WITH_SCARD
++/*#ifdef WITH_SCARD
+ #define STREAM_COUNT 8
+ #else
+ #define STREAM_COUNT 1
+ #endif
++*/
++#define STREAM_COUNT 16
+ 
+ static int g_sock;
+ static struct stream g_in;
+@@ -82,14 +84,28 @@
+ STREAM
+ tcp_init(uint32 maxlen)
+ {
+-	static int cur_stream_id = 0;
++	int cur_stream_id;
+ 	STREAM result = NULL;
+ 
+ #ifdef WITH_SCARD
+ 	scard_lock(SCARD_LOCK_TCP);
+ #endif
+-	result = &g_out[cur_stream_id];
+-	cur_stream_id = (cur_stream_id + 1) % STREAM_COUNT;
++	usbrdr_lock(USBRDR_LOCK_TCP);
++
++	for(cur_stream_id = 1; cur_stream_id < STREAM_COUNT; cur_stream_id++)
++	{
++		result = &g_out[cur_stream_id];
++		if (result->occupied)
++		{       result = NULL;
++			continue;
++		}
++	}
++
++	if (result == NULL)
++	{
++		DEBUG(("!!! Can't find free stream. Use zero-based STREAM struct\n"));
++		result = &g_out[0];
++	}
+ 
+ 	if (maxlen > result->size)
+ 	{
+@@ -97,8 +113,11 @@
+ 		result->size = maxlen;
+ 	}
+ 
++	result->occupied = 1;
+ 	result->p = result->data;
+ 	result->end = result->data + result->size;
++
++	usbrdr_unlock(USBRDR_LOCK_TCP);
+ #ifdef WITH_SCARD
+ 	scard_unlock(SCARD_LOCK_TCP);
+ #endif
+@@ -115,6 +134,8 @@
+ #ifdef WITH_SCARD
+ 	scard_lock(SCARD_LOCK_TCP);
+ #endif
++	usbrdr_lock(USBRDR_LOCK_TCP);
++
+ 	while (total < length)
+ 	{
+ 		sent = send(g_sock, s->data + total, length - total, 0);
+@@ -127,12 +148,20 @@
+ 			}
+ 			else
+ 			{
++				usbrdr_unlock(USBRDR_LOCK_TCP);
++#ifdef WITH_SCARD
++				scard_unlock(SCARD_LOCK_TCP);
++#endif
+ 				error("send: %s\n", TCP_STRERROR);
+ 				return;
+ 			}
+ 		}
+ 		total += sent;
+ 	}
++
++	s->occupied = 0;
++
++	usbrdr_unlock(USBRDR_LOCK_TCP);
+ #ifdef WITH_SCARD
+ 	scard_unlock(SCARD_LOCK_TCP);
+ #endif
+@@ -373,5 +402,6 @@
+ 		g_out[i].sec_hdr = NULL;
+ 		g_out[i].rdp_hdr = NULL;
+ 		g_out[i].channel_hdr = NULL;
++		g_out[i].occupied = 0;
+ 	}
+ }

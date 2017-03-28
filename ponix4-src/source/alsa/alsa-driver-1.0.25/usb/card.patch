@@ -1,0 +1,120 @@
+--- ../alsa-kernel/usb/card.c	2011-12-19 10:35:45.000000000 +0100
++++ card.c	2011-12-20 07:38:56.000000000 +0100
+@@ -1,3 +1,4 @@
++#include "card.inc"
+ /*
+  *   (Tentative) USB Audio Driver for ALSA
+  *
+@@ -83,7 +84,12 @@
+ static int vid[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = -1 };
+ static int pid[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = -1 };
+ static int nrpacks = 8;		/* max. number of packets per urb */
+-static bool async_unlink = 1;
++static bool async_unlink =
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++true;
++#else
++false; /* disabled as default for buggy async-unlink handling */
++#endif
+ static int device_setup[SNDRV_CARDS]; /* device parameter for this card */
+ static bool ignore_ctl_error;
+ 
+@@ -246,19 +252,25 @@
+ 
+ 	case UAC_VERSION_2: {
+ 		struct usb_interface_assoc_descriptor *assoc =
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 23)
+ 			usb_ifnum_to_if(dev, ctrlif)->intf_assoc;
++#else
++			NULL;
++#endif
+ 
+ 		if (!assoc) {
+ 			snd_printk(KERN_ERR "Audio class v2 interfaces need an interface association\n");
+ 			return -EINVAL;
+ 		}
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 23)
+ 		for (i = 0; i < assoc->bInterfaceCount; i++) {
+ 			int intf = assoc->bFirstInterface + i;
+ 
+ 			if (intf != ctrlif)
+ 				snd_usb_create_stream(chip, ctrlif, intf);
+ 		}
++#endif
+ 
+ 		break;
+ 	}
+@@ -345,8 +357,13 @@
+ 	chip->async_unlink = async_unlink;
+ 	chip->probing = 1;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+ 	chip->usb_id = USB_ID(le16_to_cpu(dev->descriptor.idVendor),
+ 			      le16_to_cpu(dev->descriptor.idProduct));
++#else
++	chip->usb_id = USB_ID(dev->descriptor.idVendor,
++			      dev->descriptor.idProduct);
++#endif
+ 	INIT_LIST_HEAD(&chip->pcm_list);
+ 	INIT_LIST_HEAD(&chip->midi_list);
+ 	INIT_LIST_HEAD(&chip->mixer_list);
+@@ -448,8 +465,12 @@
+ 
+ 	alts = &intf->altsetting[0];
+ 	ifnum = get_iface_desc(alts)->bInterfaceNumber;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+ 	id = USB_ID(le16_to_cpu(dev->descriptor.idVendor),
+ 		    le16_to_cpu(dev->descriptor.idProduct));
++#else
++	id = USB_ID(dev->descriptor.idVendor, dev->descriptor.idProduct);
++#endif
+ 	if (quirk && quirk->ifnum >= 0 && ifnum != quirk->ifnum)
+ 		goto __err_val;
+ 
+@@ -583,6 +604,7 @@
+ 	}
+ }
+ 
++#ifndef OLD_USB
+ /*
+  * new 2.5 USB kernel API
+  */
+@@ -686,6 +708,7 @@
+ #define usb_audio_suspend	NULL
+ #define usb_audio_resume	NULL
+ #endif		/* CONFIG_PM */
++#endif	/* OLD_USB */
+ 
+ static struct usb_device_id usb_audio_ids [] = {
+ #include "quirks-table.h"
+@@ -702,13 +725,23 @@
+  */
+ 
+ static struct usb_driver usb_audio_driver = {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 70) && LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,15)	/* FIXME: find right number */
++	.owner =	THIS_MODULE,
++#endif
+ 	.name =		"snd-usb-audio",
+ 	.probe =	usb_audio_probe,
+ 	.disconnect =	usb_audio_disconnect,
++#ifndef OLD_USB
+ 	.suspend =	usb_audio_suspend,
+ 	.resume =	usb_audio_resume,
++#endif
++#ifdef OLD_USB
++	.driver_list =	LIST_HEAD_INIT(usb_audio_driver.driver_list), 
++#endif
+ 	.id_table =	usb_audio_ids,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19)
+ 	.supports_autosuspend = 1,
++#endif
+ };
+ 
+ static int __init snd_usb_audio_init(void)
+@@ -727,3 +760,5 @@
+ 
+ module_init(snd_usb_audio_init);
+ module_exit(snd_usb_audio_cleanup);
++
++#include "card.inc1"

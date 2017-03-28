@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# This script creates brizpped tar archive of the project
+# with name NAME-VERSION.tbz2
+# NAME - environment variable NAME or TOPDIR's last component
+# VERSION - environment variable VERSION or content of TOPDIR/version file
+
+# Examples 
+# $ pwd
+# /home/aanatoly/src/fbpanel/trunk
+# cat version
+# 5.6
+# $ make tar
+# -rw-rw-r-- 1 aanatoly users 198372 2009-07-03 21:51 ../trunk-5.6.tbz2
+# $ make tar NAME=fbpanel VERSION=9.9
+# -rw-rw-r-- 1 aanatoly users 198372 2009-07-03 21:51 ../fbpanel-9.9.tbz2
+
+n=${NAME:-`basename $PWD`}-${VERSION:-`cat version`}
+t=$n.tbz2
+pwd=`pwd`
+if [ -d .svn -a -n "`svn st`" ]; then
+    echo "SVN repository is not clean. Exiting."
+    svn st
+    exit 1
+fi
+
+td=/tmp/$$
+mkdir $td || exit 1
+cd $td 
+ln -s $pwd $n
+tar hjcvf $t --exclude .svn $n
+cd -
+cp $td/$t ..
+ls -al ../$t
+rm -rf $td
+

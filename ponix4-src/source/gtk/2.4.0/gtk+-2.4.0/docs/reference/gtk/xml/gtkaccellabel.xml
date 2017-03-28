@@ -1,0 +1,276 @@
+<refentry id="GtkAccelLabel">
+<refmeta>
+<refentrytitle>GtkAccelLabel</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkAccelLabel</refname><refpurpose>A label which displays an accelerator key on the right of the text</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkAccelLabel-struct">GtkAccelLabel</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-accel-label-new">gtk_accel_label_new</link>             (const <link linkend="gchar">gchar</link> *string);
+<link linkend="void">void</link>        <link linkend="gtk-accel-label-set-accel-closure">gtk_accel_label_set_accel_closure</link>
+                                            (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label,
+                                             <link linkend="GClosure">GClosure</link> *accel_closure);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-accel-label-get-accel-widget">gtk_accel_label_get_accel_widget</link>
+                                            (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label);
+<link linkend="void">void</link>        <link linkend="gtk-accel-label-set-accel-widget">gtk_accel_label_set_accel_widget</link>
+                                            (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label,
+                                             <link linkend="GtkWidget">GtkWidget</link> *accel_widget);
+<link linkend="guint">guint</link>       <link linkend="gtk-accel-label-get-accel-width">gtk_accel_label_get_accel_width</link> (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-accel-label-refetch">gtk_accel_label_refetch</link>         (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkMisc">GtkMisc</link>
+                     +----<link linkend="GtkLabel">GtkLabel</link>
+                           +----GtkAccelLabel
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkAccelLabel implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkAccelLabel--accel-closure">accel-closure</link>&quot;        <link linkend="GClosure">GClosure</link>             : Read / Write
+  &quot;<link linkend="GtkAccelLabel--accel-widget">accel-widget</link>&quot;         <link linkend="GtkWidget">GtkWidget</link>            : Read / Write
+</synopsis>
+</refsect1>
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> widget is a subclass of <link linkend="GtkLabel"><type>GtkLabel</type></link> that also displays an
+accelerator key on the right of the label text, e.g. 'Ctl+S'.
+It is commonly used in menus to show the keyboard short-cuts for commands.
+</para>
+<para>
+The accelerator key to display is not set explicitly.
+Instead, the <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> displays the accelerators which have been added to
+a particular widget. This widget is set by calling
+<link linkend="gtk-accel-label-set-accel-widget"><function>gtk_accel_label_set_accel_widget()</function></link>.
+</para>
+<para>
+For example, a <link linkend="GtkMenuItem"><type>GtkMenuItem</type></link> widget may have an accelerator added to emit the
+"activate" signal when the 'Ctl+S' key combination is pressed.
+A <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> is created and added to the <link linkend="GtkMenuItem"><type>GtkMenuItem</type></link>, and
+<link linkend="gtk-accel-label-set-accel-widget"><function>gtk_accel_label_set_accel_widget()</function></link> is called with the <link linkend="GtkMenuItem"><type>GtkMenuItem</type></link> as the
+second argument. The <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> will now display 'Ctl+S' after its label.
+</para>
+<para>
+Note that creating a <link linkend="GtkMenuItem"><type>GtkMenuItem</type></link> with <link linkend="gtk-menu-item-new-with-label"><function>gtk_menu_item_new_with_label()</function></link> (or
+one of the similar functions for <link linkend="GtkCheckMenuItem"><type>GtkCheckMenuItem</type></link> and <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>)
+automatically adds a <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> to the <link linkend="GtkMenuItem"><type>GtkMenuItem</type></link> and calls
+<link linkend="gtk-accel-label-set-accel-widget"><function>gtk_accel_label_set_accel_widget()</function></link> to set it up for you.
+</para>
+<para>
+A <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> will only display accelerators which have <literal>GTK_ACCEL_VISIBLE</literal>
+set (see <link linkend="GtkAccelFlags"><type>GtkAccelFlags</type></link>).
+A <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link> can display multiple accelerators and even signal names,
+though it is almost always used to display just one accelerator key.
+</para>
+
+<example>
+<title>Creating a simple menu item with an accelerator key.</title>
+<programlisting>
+  GtkWidget *save_item;
+  GtkAccelGroup *accel_group;
+
+  /* Create a GtkAccelGroup and add it to the window. */
+  accel_group = gtk_accel_group_new (<!-- -->);
+  gtk_window_add_accel_group (GTK_WINDOW (window), accel_group);
+
+  /* Create the menu item using the convenience function. */
+  save_item = gtk_menu_item_new_with_label ("Save");
+  gtk_widget_show (save_item);
+  gtk_container_add (GTK_CONTAINER (menu), save_item);
+
+  /* Now add the accelerator to the GtkMenuItem. Note that since we called
+     gtk_menu_item_new_with_label(<!-- -->) to create the GtkMenuItem the
+     GtkAccelLabel is automatically set up to display the GtkMenuItem
+     accelerators. We just need to make sure we use GTK_ACCEL_VISIBLE here. */
+  gtk_widget_add_accelerator (save_item, "activate", accel_group,
+                              GDK_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+</programlisting>
+</example>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkAccelLabel-struct"/>struct GtkAccelLabel</title>
+<indexterm><primary>GtkAccelLabel</primary></indexterm><programlisting>struct GtkAccelLabel;</programlisting>
+<para>
+The <link linkend="GtkAccelLabel-struct"><type>GtkAccelLabel-struct</type></link> struct contains private data only, and
+should be accessed using the functions below.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-label-new"/>gtk_accel_label_new ()</title>
+<indexterm><primary>gtk_accel_label_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_accel_label_new             (const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Creates a new <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara>the label string. Must be non-<literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-label-set-accel-closure"/>gtk_accel_label_set_accel_closure ()</title>
+<indexterm><primary>gtk_accel_label_set_accel_closure</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accel_label_set_accel_closure
+                                            (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label,
+                                             <link linkend="GClosure">GClosure</link> *accel_closure);</programlisting>
+<para>
+Sets the closure to be monitored by this accelerator label. The closure
+must be connected to an accelerator group; see <link linkend="gtk-accel-group-connect"><function>gtk_accel_group_connect()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_label</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_closure</parameter>&nbsp;:</term>
+<listitem><simpara> the closure to monitor for accelerator changes.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-label-get-accel-widget"/>gtk_accel_label_get_accel_widget ()</title>
+<indexterm><primary>gtk_accel_label_get_accel_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_accel_label_get_accel_widget
+                                            (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label);</programlisting>
+<para>
+Fetches the widget monitored by this accelerator label. See
+<link linkend="gtk-accel-label-set-accel-widget"><function>gtk_accel_label_set_accel_widget()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_label</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the object monitored by the accelerator label,
+              or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-label-set-accel-widget"/>gtk_accel_label_set_accel_widget ()</title>
+<indexterm><primary>gtk_accel_label_set_accel_widget</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accel_label_set_accel_widget
+                                            (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label,
+                                             <link linkend="GtkWidget">GtkWidget</link> *accel_widget);</programlisting>
+<para>
+Sets the widget to be monitored by this accelerator label.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_label</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_widget</parameter>&nbsp;:</term>
+<listitem><simpara> the widget to be monitored.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-label-get-accel-width"/>gtk_accel_label_get_accel_width ()</title>
+<indexterm><primary>gtk_accel_label_get_accel_width</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_accel_label_get_accel_width (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label);</programlisting>
+<para>
+Returns the width needed to display the accelerator key(s).
+This is used by menus to align all of the <link linkend="GtkMenuItem"><type>GtkMenuItem</type></link> widgets, and shouldn't
+be needed by applications.
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_label</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the width needed to display the accelerator key(s).
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-label-refetch"/>gtk_accel_label_refetch ()</title>
+<indexterm><primary>gtk_accel_label_refetch</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_accel_label_refetch         (<link linkend="GtkAccelLabel">GtkAccelLabel</link> *accel_label);</programlisting>
+<para>
+Recreates the string representing the accelerator keys.
+This should not be needed since the string is automatically updated whenever
+accelerators are added or removed from the associated widget.
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_label</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkAccelLabel"><type>GtkAccelLabel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>always returns <literal>FALSE</literal>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkAccelLabel--accel-closure"/>&quot;<literal>accel-closure</literal>&quot; (<link linkend="GClosure">GClosure</link> : Read / Write)</term>
+<listitem>
+<para>The closure to be monitored for accelerator changes.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkAccelLabel--accel-widget"/>&quot;<literal>accel-widget</literal>&quot; (<link linkend="GtkWidget">GtkWidget</link> : Read / Write)</term>
+<listitem>
+<para>The widget to be monitored for accelerator changes.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+
+<varlistentry>
+<term><link linkend="gtk-keyboard-accelerators">Keyboard Accelerators</link>
+</term>
+<listitem><para>installing and using keyboard short-cuts.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><link linkend="GtkItemFactory"><type>GtkItemFactory</type></link></term>
+<listitem><para>an easier way to create menus.</para></listitem>
+</varlistentry>
+
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

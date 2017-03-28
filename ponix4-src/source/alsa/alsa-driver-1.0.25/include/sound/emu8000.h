@@ -1,0 +1,1 @@
+../../alsa-kernel/include/emu8000.h

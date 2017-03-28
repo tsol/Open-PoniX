@@ -1,0 +1,90 @@
+NAME
+    rcout - decode for REDC algorithms
+
+SYNOPSIS
+    rcout(x, m)
+
+TYPES
+    x		integer
+    m		odd positive integer
+
+    return	integer v, 0 <= v < m.
+
+DESCRIPTION
+    Let B be the base calc uses for representing integers internally
+    (B = 2^16 for 32-bit machines, 2^32 for 64-bit machines) and N the
+    number of words (base-B digits) in the representation of m.	 Then
+    rcout(x,m) returns the value of B^-N * x % m, where the inverse
+    implicit in B^-N is modulo m and the modulus operator % gives the
+    least non-negative residue.	 The functions rcin() and rcout() are
+    inverses of each other for all x:
+
+	    rcout(rcin(x,m), m) = rcin(rcout(x,m),m) = x % m.
+
+    The normal use of rcout() may be said to be that of decoding
+    values encoded by rcin() and REDC functions, as in:
+
+	    x * y % m = rcout(rcmul(rcin(x,m),rcin(y,m),m),m),
+
+	    x^2 % m = rcout(rcsq(rcin(x,m),m),m),
+
+	    x ^ k % m = rcout(rcpow(rcin(x,m),k,m),m).
+
+RUNTIME
+    If the value of m in rcout(x,m) is being used for the first time in
+    a REDC function, the information required for the REDC algorithms
+    is calculated and stored for future use, possibly replacing an
+    already stored valued, in a table covering up to 5 (i.e. MAXREDC)
+    values of m.  The runtime required for this is about two times that
+    required for multiplying two N-word integers.
+
+    Two algorithms are available for evaluating rcout(x, m), the one
+    which is usually faster for small N is used when N <
+    config("pow2"); the other is usually faster for larger N. If
+    config("pow2") is set at about 200, and x has been reduced modulo
+    m, the runtime required for rcout(x, m) is at most about f times
+    the runtime required for an N-word by N-word multiplication, where
+    f increases from about 1 for N = 1 to near 2 for N >
+    config("pow2").  More runtime may be required if x has to be
+    reduced modulo m.
+
+EXAMPLE
+    Using a 64-bit machine with B = 2^32:
+
+    ; for (i = 0; i < 9; i++) print rcout(i,9),:; print;
+    0 7 5 3 1 8 6 4 2
+
+LIMITS
+    none
+
+LINK LIBRARY
+    void zredcdecode(REDC *rp, ZVALUE z1, ZVALUE *res)
+
+SEE ALSO
+    rcout, rcmul, rcsq, rcpow
+
+## Copyright (C) 1999  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: rcout,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/rcout,v $
+##
+## Under source code control:	1996/02/25 02:22:21
+## File existed as early as:	1996
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

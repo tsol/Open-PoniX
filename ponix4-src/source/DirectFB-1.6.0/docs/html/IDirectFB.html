@@ -1,0 +1,354 @@
+<HTML>
+<STYLE>
+  <!--
+    A{textdecoration:none}
+  -->
+</STYLE>
+<STYLE type="text/css">
+  A:link, A:visited, A:active { text-decoration: none; }
+</STYLE>
+<HEAD>
+  <TITLE>IDirectFB [DirectFB Reference Manual]</TITLE>
+</HEAD>
+<BODY bgcolor=#C0C8D8 link=#2369E0 vlink=#2369E0 text=#232323>
+
+<TABLE width=100% bgcolor=#8090A0 border=0 cellspacing=0 cellpadding=5>
+  <TR><TD width=30%>
+    <A href="http://www.directfb.org"><IMG border=0 src="dfb_logo-alpha.png"></A>
+  </TD><TD align=right>
+    &nbsp;&nbsp;    <A href="index.html"><FONT size=+3 color=#203040>Reference Manual - 1.6.0</FONT></A>
+  </TD></TR>
+  <TR><TD colspan=2 align=center bgcolor=#284460>
+    <TABLE border=0 cellspacing=0 cellpadding=0>
+      <TR><TD nowrap align=right width=50%>
+        <BIG><FONT color=#D0D0D0><A href="index.html">  <FONT color=#D0D0D0>DirectFB Interfaces</FONT></A>&nbsp;</FONT></BIG>
+      </TD><TD nowrap align=left width=50%>
+        <BIG><FONT color=#E09040>&nbsp;IDirectFB</FONT></BIG>
+      </TD></TR>
+    </TABLE>
+  </TD></TR>
+</TABLE>
+
+<P>
+  
+        <i><b>IDirectFB</b></i> is the main interface. It can be
+        retrieved by a call to <i>DirectFBCreate</i>. It's the only
+        interface with a global creation facility. Other interfaces
+        are created by this interface or interfaces created by it.
+
+  
+        <b>Hardware capabilities</b> such as the amount of video
+        memory or a list of supported drawing/blitting functions and
+        flags can be retrieved.  It also provides enumeration of all
+        supported video modes.
+ </P><P>
+        <b>Input devices</b> and <b>display layers</b> that are
+        present can be enumerated via a callback mechanism. The
+        callback is given the capabilities and the device or layer
+        ID. An interface to specific input devices or display layers
+        can be retrieved by passing the device or layer ID to the
+        corresponding method.
+ </P><P>
+        <b>Surfaces</b> for general purpose use can be created via
+        <i>CreateSurface</i>. These surfaces are so called "offscreen
+        surfaces" and could be used for sprites or icons.
+ </P><P>
+        The <b>primary surface</b> is an abstraction and API shortcut
+        for getting a surface for visual output. Fullscreen games for
+        example have the whole screen as their primary
+        surface. Alternatively fullscreen applications can be forced
+        to run in a window. The primary surface is also created via
+        <i>CreateSurface</i> but with the special capability
+        DSCAPS_PRIMARY.
+ </P><P>
+        The <b>cooperative level</b> selects the type of the primary
+        surface.  With a call to <i>SetCooperativeLevel</i> the
+        application can choose between the surface of an implicitly
+        created window and the surface of the primary layer
+        (deactivating the window stack). The application doesn't need
+        to have any extra functionality to run in a window. If the
+        application is forced to run in a window the call to
+        <i>SetCooperativeLevel</i> fails with DFB_ACCESSDENIED.
+        Applications that want to be "window aware" shouldn't exit on
+        this error.
+ </P><P>
+        The <b>video mode</b> can be changed via <i>SetVideoMode</i>
+        and is the size and depth of the primary surface, i.e. the
+        screen when in exclusive cooperative level. Without exclusive
+        access <i>SetVideoMode</i> sets the size of the implicitly
+        created window.
+ </P><P>
+        <b>Event buffers</b> can be created with an option to
+        automatically attach input devices matching the specified
+        capabilities. If DICAPS_NONE is passed an event buffer with
+        nothing attached to is created. An event buffer can be
+        attached to input devices and windows.
+ </P><P>
+        <b>Fonts, images and videos</b> are created by this
+        interface. There are different implementations for different
+        content types. On creation a suitable implementation is
+        automatically chosen.
+
+</P><P>
+  <CENTER><TABLE width=93% border=1 rules=groups cellpadding=4 cellspacing=2>
+    <THEAD>
+      <TR><TH colspan=3>Methods of IDirectFB</TH></TR>
+    </THEAD>
+    <TBODY>
+    <TR><TD valign=top>
+      <B><SMALL>Cooperative level, video mode </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_SetCooperativeLevel.html">      <B>SetCooperativeLevel</B></A>
+    </TD><TD valign=top>
+      
+        Puts the interface into the specified cooperative level.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_SetVideoMode.html">      <B>SetVideoMode</B></A>
+    </TD><TD valign=top>
+      
+        Switch the current video mode (primary layer).
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Hardware capabilities </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetDeviceDescription.html">      <B>GetDeviceDescription</B></A>
+    </TD><TD valign=top>
+      
+        Get a description of the graphics device.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_EnumVideoModes.html">      <B>EnumVideoModes</B></A>
+    </TD><TD valign=top>
+      
+        Enumerate supported video modes.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Surfaces & Palettes </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateSurface.html">      <B>CreateSurface</B></A>
+    </TD><TD valign=top>
+      
+        Create a surface matching the specified description.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreatePalette.html">      <B>CreatePalette</B></A>
+    </TD><TD valign=top>
+      
+        Create a palette matching the specified description.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Screens </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_EnumScreens.html">      <B>EnumScreens</B></A>
+    </TD><TD valign=top>
+      
+        Enumerate all existing screen.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetScreen.html">      <B>GetScreen</B></A>
+    </TD><TD valign=top>
+      
+        Retrieve an interface to a specific screen.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Display Layers </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_EnumDisplayLayers.html">      <B>EnumDisplayLayers</B></A>
+    </TD><TD valign=top>
+      
+        Enumerate all existing display layers.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetDisplayLayer.html">      <B>GetDisplayLayer</B></A>
+    </TD><TD valign=top>
+      
+        Retrieve an interface to a specific display layer.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Input Devices </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_EnumInputDevices.html">      <B>EnumInputDevices</B></A>
+    </TD><TD valign=top>
+      
+        Enumerate all existing input devices.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetInputDevice.html">      <B>GetInputDevice</B></A>
+    </TD><TD valign=top>
+      
+        Retrieve an interface to a specific input device.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateEventBuffer.html">      <B>CreateEventBuffer</B></A>
+    </TD><TD valign=top>
+      
+        Create a buffer for events.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateInputEventBuffer.html">      <B>CreateInputEventBuffer</B></A>
+    </TD><TD valign=top>
+      
+        Create a buffer for events with input devices connected.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Media </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateImageProvider.html">      <B>CreateImageProvider</B></A>
+    </TD><TD valign=top>
+      
+        Create an image provider for the specified file.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateVideoProvider.html">      <B>CreateVideoProvider</B></A>
+    </TD><TD valign=top>
+      
+        Create a video provider.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateFont.html">      <B>CreateFont</B></A>
+    </TD><TD valign=top>
+      
+        Load a font from the specified file given a description
+        of how to load the glyphs.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_CreateDataBuffer.html">      <B>CreateDataBuffer</B></A>
+    </TD><TD valign=top>
+      
+        Create a data buffer.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Clipboard </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_SetClipboardData.html">      <B>SetClipboardData</B></A>
+    </TD><TD valign=top>
+      
+        Set clipboard content.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetClipboardData.html">      <B>GetClipboardData</B></A>
+    </TD><TD valign=top>
+      
+        Get clipboard content.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetClipboardTimeStamp.html">      <B>GetClipboardTimeStamp</B></A>
+    </TD><TD valign=top>
+      
+        Get time stamp of last SetClipboardData call.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Misc </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_Suspend.html">      <B>Suspend</B></A>
+    </TD><TD valign=top>
+      
+        Suspend DirectFB, no other calls to DirectFB are allowed
+        until Resume has been called.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_Resume.html">      <B>Resume</B></A>
+    </TD><TD valign=top>
+      
+        Resume DirectFB, only to be called after Suspend.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_WaitIdle.html">      <B>WaitIdle</B></A>
+    </TD><TD valign=top>
+      
+        Wait until graphics card is idle,
+        i.e. finish all drawing/blitting functions.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL></SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_WaitForSync.html">      <B>WaitForSync</B></A>
+    </TD><TD valign=top>
+      
+        Wait for next vertical retrace.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Extensions </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetInterface.html">      <B>GetInterface</B></A>
+    </TD><TD valign=top>
+      
+        Load an implementation of a specific interface type.
+
+    </TD></TR>
+    <TR><TD valign=top>
+      <B><SMALL>Surfaces </SMALL></B>
+    </TD><TD valign=top>
+      <A href="IDirectFB_GetSurface.html">      <B>GetSurface</B></A>
+    </TD><TD valign=top>
+      
+        Get a surface by ID.
+
+    </TD></TR>
+    </TBODY>
+  </TABLE></CENTER>
+</P>
+
+<TABLE width=100% bgcolor=#E0E8F0 border=0 cellspacing=1 cellpadding=3>
+  <TR><TD width=100>
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">    <img alt="Creative Commons License" style="border-width:0" border="0"     src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" />    </a>  </TD><TD>
+    This work is licensed under a    <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">    Creative Commons Attribution-Share Alike 3.0 License</a>  </TD></TR>
+</TABLE>
+</BODY>
+</HTML>

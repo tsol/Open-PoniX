@@ -1,0 +1,81 @@
+From 2c208890c6d4e16076c6664137703ec813e8fa6c Mon Sep 17 00:00:00 2001
+From: Joe Perches <joe@perches.com>
+Date: Mon, 4 Jun 2012 12:44:17 +0000
+Subject: [PATCH 03/57] wireless: Remove casts to same type
+
+Adding casts of objects to the same type is unnecessary
+and confusing for a human reader.
+
+For example, this cast:
+
+        int y;
+        int *p = (int *)&y;
+
+I used the coccinelle script below to find and remove these
+unnecessary casts.  I manually removed the conversions this
+script produces of casts with __force, __iomem and __user.
+
+@@
+type T;
+T *p;
+@@
+
+-       (T *)p
++       p
+
+Neatened the mwifiex_deauthenticate_infra function which
+was doing odd things with array pointers and not using
+is_zero_ether_addr.
+
+Signed-off-by: Joe Perches <joe@perches.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.c |    4 ++--
+ drivers/net/wireless/ath/ath9k/eeprom_4k.c     |    3 +--
+ drivers/net/wireless/ath/ath9k/eeprom_def.c    |    3 +--
+ 3 files changed, 4 insertions(+), 6 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
+@@ -3178,7 +3178,7 @@ static int ar9300_compress_decision(stru
+ 				mdata_size, length);
+ 			return -1;
+ 		}
+-		memcpy(mptr, (u8 *) (word + COMP_HDR_LEN), length);
++		memcpy(mptr, word + COMP_HDR_LEN, length);
+ 		ath_dbg(common, EEPROM,
+ 			"restored eeprom %d: uncompressed, length %d\n",
+ 			it, length);
+@@ -3199,7 +3199,7 @@ static int ar9300_compress_decision(stru
+ 			"restore eeprom %d: block, reference %d, length %d\n",
+ 			it, reference, length);
+ 		ar9300_uncompress_block(ah, mptr, mdata_size,
+-					(u8 *) (word + COMP_HDR_LEN), length);
++					(word + COMP_HDR_LEN), length);
+ 		break;
+ 	default:
+ 		ath_dbg(common, EEPROM, "unknown compression code %d\n", code);
+--- a/drivers/net/wireless/ath/ath9k/eeprom_4k.c
++++ b/drivers/net/wireless/ath/ath9k/eeprom_4k.c
+@@ -188,8 +188,7 @@ static int ath9k_hw_4k_check_eeprom(stru
+ {
+ #define EEPROM_4K_SIZE (sizeof(struct ar5416_eeprom_4k) / sizeof(u16))
+ 	struct ath_common *common = ath9k_hw_common(ah);
+-	struct ar5416_eeprom_4k *eep =
+-		(struct ar5416_eeprom_4k *) &ah->eeprom.map4k;
++	struct ar5416_eeprom_4k *eep = &ah->eeprom.map4k;
+ 	u16 *eepdata, temp, magic, magic2;
+ 	u32 sum = 0, el;
+ 	bool need_swap = false;
+--- a/drivers/net/wireless/ath/ath9k/eeprom_def.c
++++ b/drivers/net/wireless/ath/ath9k/eeprom_def.c
+@@ -264,8 +264,7 @@ static u32 ath9k_hw_def_dump_eeprom(stru
+ 
+ static int ath9k_hw_def_check_eeprom(struct ath_hw *ah)
+ {
+-	struct ar5416_eeprom_def *eep =
+-		(struct ar5416_eeprom_def *) &ah->eeprom.def;
++	struct ar5416_eeprom_def *eep = &ah->eeprom.def;
+ 	struct ath_common *common = ath9k_hw_common(ah);
+ 	u16 *eepdata, temp, magic, magic2;
+ 	u32 sum = 0, el;

@@ -1,0 +1,64 @@
+.TH xcb_create_glyph_cursor 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_create_glyph_cursor \- create cursor
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_create_glyph_cursor\fP(xcb_connection_t\ *\fIconn\fP, xcb_cursor_t\ \fIcid\fP, xcb_font_t\ \fIsource_font\fP, xcb_font_t\ \fImask_font\fP, uint16_t\ \fIsource_char\fP, uint16_t\ \fImask_char\fP, uint16_t\ \fIfore_red\fP, uint16_t\ \fIfore_green\fP, uint16_t\ \fIfore_blue\fP, uint16_t\ \fIback_red\fP, uint16_t\ \fIback_green\fP, uint16_t\ \fIback_blue\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIcid\fP 1i
+The ID with which you will refer to the cursor, created by \fIxcb_generate_id\fP.
+.IP \fIsource_font\fP 1i
+In which font to look for the cursor glyph.
+.IP \fImask_font\fP 1i
+In which font to look for the mask glyph.
+.IP \fIsource_char\fP 1i
+The glyph of \fIsource_font\fP to use.
+.IP \fImask_char\fP 1i
+The glyph of \fImask_font\fP to use as a mask: Pixels which are set to 1 define
+which source pixels are displayed. All pixels which are set to 0 are not
+displayed.
+.IP \fIfore_red\fP 1i
+The red value of the foreground color.
+.IP \fIfore_green\fP 1i
+The green value of the foreground color.
+.IP \fIfore_blue\fP 1i
+The blue value of the foreground color.
+.IP \fIback_red\fP 1i
+The red value of the background color.
+.IP \fIback_green\fP 1i
+The green value of the background color.
+.IP \fIback_blue\fP 1i
+The blue value of the background color.
+.SH DESCRIPTION
+Creates a cursor from a font glyph. X provides a set of standard cursor shapes
+in a special font named cursor. Applications are encouraged to use this
+interface for their cursors because the font can be customized for the
+individual display type.
+
+All pixels which are set to 1 in the source will use the foreground color (as
+specified by \fIfore_red\fP, \fIfore_green\fP and \fIfore_blue\fP). All pixels set to 0
+will use the background color (as specified by \fIback_red\fP, \fIback_green\fP and
+\fIback_blue\fP).
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_create_glyph_cursor_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_alloc_error_t\fP 1i
+The X server could not allocate the requested resources (no memory?).
+.IP \fIxcb_font_error_t\fP 1i
+The specified \fIsource_font\fP or \fImask_font\fP does not exist.
+.IP \fIxcb_value_error_t\fP 1i
+Either \fIsource_char\fP or \fImask_char\fP are not defined in \fIsource_font\fP or \fImask_font\fP, respectively.
+.SH SEE ALSO
+.BR xcb-requests (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

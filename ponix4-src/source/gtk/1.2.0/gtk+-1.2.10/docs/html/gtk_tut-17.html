@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Timeouts, IO and Idle Functions</TITLE>
+ <LINK HREF="gtk_tut-18.html" REL=next>
+ <LINK HREF="gtk_tut-16.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc17" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-18.html">Next</A>
+<A HREF="gtk_tut-16.html">Previous</A>
+<A HREF="gtk_tut.html#toc17">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="sec_timeouts"></A> <A NAME="s17">17. Timeouts, IO and Idle Functions</A></H2>
+
+<H2><A NAME="ss17.1">17.1 Timeouts</A>
+</H2>
+
+<P>You may be wondering how you make GTK do useful work when in gtk_main.
+Well, you have several options. Using the following function you can
+create a timeout function that will be called every "interval"
+milliseconds.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_timeout_add( guint32     interval,
+                      GtkFunction function,
+                      gpointer    data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first argument is the number of milliseconds between calls to your
+function. The second argument is the function you wish to have called,
+and the third, the data passed to this callback function. The return
+value is an integer "tag" which may be used to stop the timeout by
+calling:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_timeout_remove( gint tag );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You may also stop the timeout function by returning zero or FALSE from
+your callback function. Obviously this means if you want your function
+to continue to be called, it should return a non-zero value,
+i.e., TRUE.
+<P>The declaration of your callback should look something like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint timeout_callback( gpointer data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss17.2">17.2 Monitoring IO</A>
+</H2>
+
+<P>A nifty feature of GDK (the library that underlies GTK), is the
+ability to have it check for data on a file descriptor for you (as
+returned by open(2) or socket(2)). This is especially useful for
+networking applications. The function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gdk_input_add( gint              source,
+                    GdkInputCondition condition,
+                    GdkInputFunction  function,
+                    gpointer          data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Where the first argument is the file descriptor you wish to have
+watched, and the second specifies what you want GDK to look for. This
+may be one of:
+<P>
+<UL>
+<LI><CODE>GDK_INPUT_READ</CODE> - Call your function when there is data
+ready for reading on your file descriptor.
+</LI>
+<LI>><CODE>GDK_INPUT_WRITE</CODE> - Call your function when the file
+descriptor is ready for writing.</LI>
+</UL>
+<P>As I'm sure you've figured out already, the third argument is the
+function you wish to have called when the above conditions are
+satisfied, and the fourth is the data to pass to this function.
+<P>The return value is a tag that may be used to stop GDK from monitoring
+this file descriptor using the following function.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gdk_input_remove( gint tag );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The callback function should be declared as:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void input_callback( gpointer          data,
+                     gint              source, 
+                     GdkInputCondition condition );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Where <CODE>source</CODE> and <CODE>condition</CODE> are as specified above.
+<P>
+<H2><A NAME="ss17.3">17.3 Idle Functions</A>
+</H2>
+
+<P>What if you have a function which you want to be called when nothing
+else is happening ?
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_idle_add( GtkFunction function,
+                   gpointer    data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This causes GTK to call the specified function whenever nothing else
+is happening.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_idle_remove( gint tag );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>I won't explain the meaning of the arguments as they follow very much
+like the ones above. The function pointed to by the first argument to
+gtk_idle_add will be called whenever the opportunity arises. As with
+the others, returning FALSE will stop the idle function from being
+called.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-18.html">Next</A>
+<A HREF="gtk_tut-16.html">Previous</A>
+<A HREF="gtk_tut.html#toc17">Contents</A>
+</BODY>
+</HTML>

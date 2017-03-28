@@ -1,0 +1,1 @@
+../../alsa-kernel/include/wm1250-ev1.h

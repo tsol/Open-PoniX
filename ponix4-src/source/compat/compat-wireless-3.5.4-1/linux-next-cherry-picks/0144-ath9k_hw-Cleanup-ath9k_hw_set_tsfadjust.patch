@@ -1,0 +1,90 @@
+From 60ca9f8744d29b8fdfd33d3dec8fc2cfc9ec381a Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Date: Tue, 17 Jul 2012 17:15:37 +0530
+Subject: [PATCH] ath9k_hw: Cleanup ath9k_hw_set_tsfadjust
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/htc_drv_main.c |  2 +-
+ drivers/net/wireless/ath/ath9k/hw.c           |  4 ++--
+ drivers/net/wireless/ath/ath9k/hw.h           |  2 +-
+ drivers/net/wireless/ath/ath9k/main.c         | 10 ++--------
+ 4 files changed, 6 insertions(+), 12 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_main.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_main.c
+@@ -1106,7 +1106,7 @@ static int ath9k_htc_add_interface(struc
+ 
+ 	if ((priv->ah->opmode == NL80211_IFTYPE_AP) &&
+ 	    !(priv->op_flags & OP_ANI_RUNNING)) {
+-		ath9k_hw_set_tsfadjust(priv->ah, 1);
++		ath9k_hw_set_tsfadjust(priv->ah, true);
+ 		ath9k_htc_start_ani(priv);
+ 	}
+ 
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -2891,9 +2891,9 @@ void ath9k_hw_reset_tsf(struct ath_hw *a
+ }
+ EXPORT_SYMBOL(ath9k_hw_reset_tsf);
+ 
+-void ath9k_hw_set_tsfadjust(struct ath_hw *ah, u32 setting)
++void ath9k_hw_set_tsfadjust(struct ath_hw *ah, bool set)
+ {
+-	if (setting)
++	if (set)
+ 		ah->misc_mode |= AR_PCU_TX_ADD_TSF;
+ 	else
+ 		ah->misc_mode &= ~AR_PCU_TX_ADD_TSF;
+--- a/drivers/net/wireless/ath/ath9k/hw.h
++++ b/drivers/net/wireless/ath/ath9k/hw.h
+@@ -941,7 +941,7 @@ u32 ath9k_hw_gettsf32(struct ath_hw *ah)
+ u64 ath9k_hw_gettsf64(struct ath_hw *ah);
+ void ath9k_hw_settsf64(struct ath_hw *ah, u64 tsf64);
+ void ath9k_hw_reset_tsf(struct ath_hw *ah);
+-void ath9k_hw_set_tsfadjust(struct ath_hw *ah, u32 setting);
++void ath9k_hw_set_tsfadjust(struct ath_hw *ah, bool set);
+ void ath9k_hw_init_global_settings(struct ath_hw *ah);
+ u32 ar9003_get_pll_sqsum_dvc(struct ath_hw *ah);
+ void ath9k_hw_set11nmac2040(struct ath_hw *ah);
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -907,17 +907,15 @@ static void ath9k_calculate_summary_stat
+ 
+ 	ath9k_calculate_iter_data(hw, vif, &iter_data);
+ 
+-	/* Set BSSID mask. */
+ 	memcpy(common->bssidmask, iter_data.mask, ETH_ALEN);
+ 	ath_hw_setbssidmask(common);
+ 
+-	/* Set op-mode & TSF */
+ 	if (iter_data.naps > 0) {
+-		ath9k_hw_set_tsfadjust(ah, 1);
++		ath9k_hw_set_tsfadjust(ah, true);
+ 		set_bit(SC_OP_TSF_RESET, &sc->sc_flags);
+ 		ah->opmode = NL80211_IFTYPE_AP;
+ 	} else {
+-		ath9k_hw_set_tsfadjust(ah, 0);
++		ath9k_hw_set_tsfadjust(ah, false);
+ 		clear_bit(SC_OP_TSF_RESET, &sc->sc_flags);
+ 
+ 		if (iter_data.nmeshes)
+@@ -930,9 +928,6 @@ static void ath9k_calculate_summary_stat
+ 			ah->opmode = NL80211_IFTYPE_STATION;
+ 	}
+ 
+-	/*
+-	 * Enable MIB interrupts when there are hardware phy counters.
+-	 */
+ 	if ((iter_data.nstations + iter_data.nadhocs + iter_data.nmeshes) > 0)
+ 		ah->imask |= ATH9K_INT_TSFOOR;
+ 	else
+@@ -940,7 +935,6 @@ static void ath9k_calculate_summary_stat
+ 
+ 	ath9k_hw_set_interrupts(ah);
+ 
+-	/* Set up ANI */
+ 	if (iter_data.naps > 0) {
+ 		sc->sc_ah->stats.avgbrssi = ATH_RSSI_DUMMY_MARKER;
+ 

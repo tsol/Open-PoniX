@@ -1,0 +1,42 @@
+From 54717e5330318d53180a1f3026f617509031ee68 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Sun, 1 Jul 2012 19:53:52 +0530
+Subject: [PATCH] ath9k_hw: do not load noise floor readings when it is
+ running
+
+Noise floor calibration is performed on longcal interval and
+the reading will be updated in history buffer. On rare occasions,
+the previous noisefloor calibration might not be completed within
+the period and trying to load nf reading will be failed. In such
+situation, postpone the nf cabliration to next cycle to give
+enough time to complete the calibration. This was already taken
+care for ar9002 chips.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_calib.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_calib.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_calib.c
+@@ -159,14 +159,11 @@ static bool ar9003_hw_calibrate(struct a
+ 		}
+ 	}
+ 
+-	/* Do NF cal only at longer intervals */
+-	if (longcal) {
+-		/*
+-		 * Get the value from the previous NF cal and update
+-		 * history buffer.
+-		 */
+-		ath9k_hw_getnf(ah, chan);
+-
++	/*
++	 * Do NF cal only at longer intervals. Get the value from
++	 * the previous NF cal and update history buffer.
++	 */
++	if (longcal && ath9k_hw_getnf(ah, chan)) {
+ 		/*
+ 		 * Load the NF from history buffer of the current channel.
+ 		 * NF is slow time-variant, so it is OK to use a historical

@@ -1,0 +1,152 @@
+
+#########################################
+
+#$(warning "make=$(MAKE) makeflags=$(MAKEFLAGS) makecmdgoals=$(MAKECMDGOALS)")
+
+# drop all internal rules. This speeds up and simplifies things a lot
+#MAKEFLAGS += -rR
+
+# decide whether we have to build somthing
+not-build-goals := clean distclean tar help
+BUILD := 1
+tmp1 := $(filter $(not-build-goals), $(MAKECMDGOALS))
+#$(warning "present not-build-goals $(tmp1)")
+ifneq (,$(tmp1))
+tmp2 := $(filter-out $(not-build-goals), $(MAKECMDGOALS))
+#$(warning "present build-goals $(tmp2)")
+ifeq (,$(tmp2))
+BUILD := 0
+endif
+endif
+
+#$(warning "build = $(BUILD)")
+
+# catch all goal
+all:
+
+
+
+#########################################
+# check correctness of run-time environment
+ifeq (,$(TOPDIR))
+$(error TOPDIR variable must be defined)
+endif
+
+-include $(TOPDIR)/Makefile.config
+ifeq (1,$(BUILD))
+ifeq (,$(PREFIX))
+$(error Please run $(TOPDIR)/configure first)	
+endif
+endif
+
+
+
+
+#########################################
+# fancy output stuff
+# 1. We do not change make output for all non-build targets,
+#    like tar, clean etc
+# 2. For build targets, we may replace make output by some fancy summary
+#    a. If DEVEL=1 then output is not changed.
+#       To set DEVEL run "./configure --devel" or "make DEVEL=1"
+#    b. if '-s' option was specified then summary is not printed
+
+DEVEL  = 0
+CHATTY = $(DEVEL)
+STATIC_PLUGINS = 0
+#$(warning CHATTY=$(CHATTY) DEVEL=$(DEVEL))
+ifeq (1,$(CHATTY))
+Q :=
+summary =
+else
+ifeq (1,$(BUILD))
+MAKEFLAGS += --no-print-directory
+endif
+# this one to prevent printing make[1]: Nothing to be done for `all'
+all: FORCE
+FORCE: 
+	@#
+
+
+
+Q := @
+ifeq ($(findstring s,$(MAKEFLAGS)),)
+summary = @echo "$(1)" $(subst $(TOPDIR2),,$(CURDIR)/)$(2)
+endif
+endif
+
+# relative dir of src files
+ifeq (,$(TOPDIR2))
+TOPDIR2:=$(CURDIR)/
+export TOPDIR2
+endif
+
+
+#########################################
+# compile flags
+
+RM      = rm -f
+CC      ?= gcc
+AR      = ar
+LIBS    = $(shell pkg-config --libs glib-2.0 gmodule-2.0 gthread-2.0 gtk+-2.0 gdk-pixbuf-2.0 gdk-pixbuf-xlib-2.0) -L/usr/X11R6/lib  -lXmu
+INCS2   = $(shell pkg-config --cflags glib-2.0 gmodule-2.0 gthread-2.0 gtk+-2.0 gdk-pixbuf-2.0 gdk-pixbuf-xlib-2.0)
+INCS   := $(INCS2:-I%=-isystem %)
+
+CFLAGS ?= -O2 -Wall
+ifeq (1,$(DEVEL))
+override CFLAGS += -g
+endif
+
+LDFLAGS ?=-Wl,-O1
+
+#$(warning  echo cc=$(CC) ld=$(LD) cflags=$(CFLAGS) ldflags=$(LDFLAGS))
+
+OBJ = $(SRC:%.c=%.o)
+DEP = $(SRC:%.c=%.dep)
+
+#########################################
+# compile rules
+
+%.o : %.c
+	$(call summary,CC  ,$@)
+	$(Q)$(CC) $(CFLAGS) $(INCS) -c $<
+
+%.dep : %.c
+	$(call summary,DEP ,$@)
+	$(Q)$(CC) $(CPPFLAGS) $(INCS) -MM $< | sed 's/\($*\)\.o[ :]*/\1.o $@ :/' > $@
+
+
+#########################################
+# common deps and targets
+
+.PHONY: all clean distclean install uninstall help
+
+distclean: clean
+install: all
+
+TOCLEAN = $(TARGET) *~ *.o *.so *.dep *.a
+
+clean:
+	$(RM) $(TOCLEAN)
+
+help:
+	@echo 'Supported targets'
+	@echo '  help      - this message (surprise, surprise :-)'
+	@echo '  clean     - remove most generated files but keep the compile config'
+	@echo '  distclean - remove all generated files + compile config'
+	@echo '  all       - build fbpanel binary, plugins, man page and user config files'
+	@echo '  install   - install program into path saved in Makefile.config'
+	@echo '  tar       - pack all sources in a tarball. run distclean before'
+	@echo ''
+	@echo 'Supported variables'
+	@echo '  make CHATTY=0 [targets] - compilation output is replaced by short summary (default)'
+	@echo '  make CHATTY=1 [targets] - compilation output is not changed'
+	@echo '  make DEVEL=0  [targets] - strips all binaries (default)'
+	@echo '  make DEVEL=1  [targets]  - create debug info (-g), do not strip, enable CHATTY=1'
+	@echo '  make STATIC_PLUGINS=0 [...] - compile all plugins as shared libs (default)'
+	@echo '  make STATIC_PLUGINS=1 [...] - compile all plugins staticly eg built in'
+	@echo ''
+	@echo 'Special cases'
+	@echo '  make PREFIX=/path install - installs code, compiled for some prefix, to a different'
+	@echo '                              location (usualy chroot-ed). used by package creators only'
+	@echo ''

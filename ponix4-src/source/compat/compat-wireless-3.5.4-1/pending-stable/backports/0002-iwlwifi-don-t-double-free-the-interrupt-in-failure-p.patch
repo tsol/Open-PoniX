@@ -1,0 +1,29 @@
+From a7be50b7e30f9d77cb059a7ffdb781bb0fb92eba Mon Sep 17 00:00:00 2001
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Date: Tue, 18 Sep 2012 19:48:59 +0200
+Subject: [PATCH 36/39] iwlwifi: don't double free the interrupt in failure
+ path
+
+When the driver can't get the HW ready, we would release
+the interrupt twice which made the kernel complain loudly.
+
+Cc: stable@vger.kernel.org
+Reported-by: Brian Cockrell <brian.cockrell@intel.com>
+Tested-by: Brian Cockrell <brian.cockrell@intel.com>
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/iwlwifi/iwl-trans-pcie.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/net/wireless/iwlwifi/iwl-trans-pcie.c
++++ b/drivers/net/wireless/iwlwifi/iwl-trans-pcie.c
+@@ -1437,6 +1437,7 @@ static int iwl_trans_pcie_start_hw(struc
+ 	return err;
+ 
+ err_free_irq:
++	trans_pcie->irq_requested = false;
+ 	free_irq(trans_pcie->irq, trans);
+ error:
+ 	iwl_free_isr_ict(trans);

@@ -1,0 +1,169 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Engines</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="Pango Reference Manual"><link rel="up" href="lowlevel.html" title="Low Level Functionality"><link rel="previous" href="pango-Coverage-Maps.html" title="Coverage Maps"><link rel="next" href="PangoEngineLang.html" title="PangoEngineLang"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="pango-Coverage-Maps.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="lowlevel.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Pango Reference Manual</th><td><a accesskey="n" href="PangoEngineLang.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="pango-Engines"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Engines</span></h2><p>Engines &#8212; Language-specific and rendering-system-specific processing</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><a name="PangoEngine"></a><pre class="synopsis">
+
+
+
+struct      <a href="pango-Engines.html#PangoEngineInfo">PangoEngineInfo</a>;
+struct      <a href="pango-Engines.html#PangoEngineScriptInfo">PangoEngineScriptInfo</a>;
+struct      <a href="pango-Engines.html#PangoEngine-struct">PangoEngine</a>;
+struct      <a href="pango-Engines.html#PangoEngineClass">PangoEngineClass</a>;
+#define     <a href="pango-Engines.html#PANGO-RENDER-TYPE-NONE-CAPS">PANGO_RENDER_TYPE_NONE</a>
+void        <a href="pango-Engines.html#script-engine-list">script_engine_list</a>              (<a href="pango-Engines.html#PangoEngineInfo">PangoEngineInfo</a> **engines,
+                                             int *n_engines);
+void        <a href="pango-Engines.html#script-engine-init">script_engine_init</a>              (<a
+href="../gobject/GTypeModule.html"
+>GTypeModule</a> *module);
+void        <a href="pango-Engines.html#script-engine-exit">script_engine_exit</a>              (void);
+<a href="pango-Engines.html#PangoEngine">PangoEngine</a>* <a href="pango-Engines.html#script-engine-create">script_engine_create</a>           (const char *id);
+
+
+</pre></div><div class="refsect1" lang="en"><h2>Object Hierarchy</h2><pre class="synopsis">
+
+  <a
+href="../gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----PangoEngine
+         +----<a href="PangoEngineLang.html" title="PangoEngineLang">PangoEngineLang</a>
+         +----<a href="PangoEngineShape.html" title="PangoEngineShape">PangoEngineShape</a>
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+Pango utilizes a module architecture in which the language-specific
+and render-system-specific components are provided by loadable
+modules. Each loadable module supplies one or more
+<i class="firstterm">engines</i>.  Each <i class="firstterm">engine</i>
+has an associated <i class="firstterm">engine type</i> and
+<i class="firstterm">render type</i>. These two types are represented by
+strings.
+</p><p>
+Each dynamically-loaded module exports several functions which provide
+the public API. These functions are <a href="pango-Engines.html#script-engine-list"><tt class="function">script_engine_list()</tt></a>,
+<a href="pango-Engines.html#script-engine-init"><tt class="function">script_engine_init()</tt></a> and script_engine_exit, and
+<a href="pango-Engines.html#script-engine-create"><tt class="function">script_engine_create()</tt></a>. The latter three functions are used when
+creating engines from the module at run time, while the first
+function is used when building a catalog of all available modules.
+</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="PangoEngineInfo"></a>struct PangoEngineInfo</h3><a class="indexterm" name="id3611970"></a><pre class="programlisting">struct PangoEngineInfo {
+
+  gchar *id;
+  gchar *engine_type;
+  gchar *render_type;
+  PangoEngineScriptInfo *scripts;
+  gint n_scripts;
+};
+</pre><p>
+The <a href="pango-Engines.html#PangoEngineInfo"><span class="type">PangoEngineInfo</span></a> structure contains information about a particular
+engine. It contains the following fields:
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gchar"
+>gchar</a> *<i class="structfield"><tt>id</tt></i></span></td><td>a unique string ID for the engine.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gchar"
+>gchar</a> *<i class="structfield"><tt>engine_type</tt></i></span></td><td>a string identifying the engine type.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gchar"
+>gchar</a> *<i class="structfield"><tt>render_type</tt></i></span></td><td>a string identifying the render type.
+</td></tr><tr><td><span class="term"><a href="pango-Engines.html#PangoEngineScriptInfo">PangoEngineScriptInfo</a> *<i class="structfield"><tt>scripts</tt></i></span></td><td>
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>n_scripts</tt></i></span></td><td>
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="PangoEngineScriptInfo"></a>struct PangoEngineScriptInfo</h3><a class="indexterm" name="id3611623"></a><pre class="programlisting">struct PangoEngineScriptInfo {
+
+  PangoScript script;
+  gchar *langs;
+};
+</pre><p>
+The PangoEngineScriptInfo structure contains
+information about how the shaper covers a particular
+script.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="pango-Scripts.html#PangoScript">PangoScript</a> <i class="structfield"><tt>script</tt></i></span></td><td>a <a href="pango-Scripts.html#PangoScript"><span class="type">PangoScript</span></a>. The value <tt class="literal">PANGO_SCRIPT_COMMON</tt> has
+        the special meaning here of "all scripts"
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gchar"
+>gchar</a> *<i class="structfield"><tt>langs</tt></i></span></td><td>a semicolon separated list of languages that this
+        engine handles for this script. This may be empty, 
+        in which case the engine is saying that it is a
+        fallback choice for all languages for this range,
+        but should not be used if another engine 
+        indicates that it is specific for the language for
+        a given code point. An entry in this list of "*"
+        indicates that this engine is specific to all
+        languages for this range.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="PangoEngine-struct"></a>struct PangoEngine</h3><a class="indexterm" name="id3612407"></a><pre class="programlisting">struct PangoEngine;</pre><p>
+<a href="pango-Engines.html#PangoEngine"><span class="type">PangoEngine</span></a> is the base class for all types of language and
+script specific engines. It has no functionality by itself.</p><p>
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PangoEngineClass"></a>struct PangoEngineClass</h3><a class="indexterm" name="id3612454"></a><pre class="programlisting">struct PangoEngineClass {
+
+};
+</pre><p>
+Class structure for <a href="pango-Engines.html#PangoEngine"><span class="type">PangoEngine</span></a></p><p>
+
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PANGO-RENDER-TYPE-NONE-CAPS"></a>PANGO_RENDER_TYPE_NONE</h3><a class="indexterm" name="id3612499"></a><pre class="programlisting">#define PANGO_RENDER_TYPE_NONE "PangoRenderNone"
+</pre><p>
+A string constant defining the render type
+for engines that are not rendering-system 
+specific.
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="script-engine-list"></a>script_engine_list ()</h3><a class="indexterm" name="id3612534"></a><pre class="programlisting">void        script_engine_list              (<a href="pango-Engines.html#PangoEngineInfo">PangoEngineInfo</a> **engines,
+                                             int *n_engines);</pre><p>
+Function to be provided by a module to list the engines that the
+module supplies. The function stores a pointer to an array
+of <a href="pango-Engines.html#PangoEngineInfo"><span class="type">PangoEngineInfo</span></a> structures and the length of that array in
+the given location.
+</p><p>
+Note that <a href="pango-Engines.html#script-engine-init"><tt class="function">script_engine_init()</tt></a> will not be called before this
+function.</p><p>
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>engines</tt></i> :</span></td><td> location to store a pointer to an array of engines.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>n_engines</tt></i> :</span></td><td> location to store the number of elements in <i class="parameter"><tt>engines</tt></i>.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="script-engine-init"></a>script_engine_init ()</h3><a class="indexterm" name="id3612671"></a><pre class="programlisting">void        script_engine_init              (<a
+href="../gobject/GTypeModule.html"
+>GTypeModule</a> *module);</pre><p>
+Function to be provided by a module to register any
+GObject types in the module.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>module</tt></i> :</span></td><td> a <a
+href="../gobject/GTypeModule.html"
+><span class="type">GTypeModule</span></a> structure used to associate any
+ GObject types created in this module with the module.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="script-engine-exit"></a>script_engine_exit ()</h3><a class="indexterm" name="id3612756"></a><pre class="programlisting">void        script_engine_exit              (void);</pre><p>
+Function to be provided by the module that is called
+when the module is unloading. Frequently does nothing.</p><p>
+
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="script-engine-create"></a>script_engine_create ()</h3><a class="indexterm" name="id3612801"></a><pre class="programlisting"><a href="pango-Engines.html#PangoEngine">PangoEngine</a>* script_engine_create           (const char *id);</pre><p>
+Function to be provided by the module to create an instance
+of one of the engines implemented by the module.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>id</tt></i> :</span></td><td> the ID of an engine as reported by script_engine_list.
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> a newly created <a href="pango-Engines.html#PangoEngine"><span class="type">PangoEngine</span></a> of the specified
+ type, or <tt class="literal">NULL</tt> if an error occurred. (In normal operation,
+ a module should not return <tt class="literal">NULL</tt>. A <tt class="literal">NULL</tt> return is only
+ acceptable in the case where system misconfiguration or
+ bugs in the driver routine are encountered.)
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="pango-Coverage-Maps.html"><b>&lt;&lt; Coverage Maps</b></a></td><td align="right"><a accesskey="n" href="PangoEngineLang.html"><b>PangoEngineLang &gt;&gt;</b></a></td></tr></table></body></html>

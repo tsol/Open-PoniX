@@ -1,0 +1,314 @@
+===============================================================================
+IMPORTANT NOTICE:
+~~~~~~~~~~~~~~~~~
+This file is NO MORE MAINTAINED and is kept for historical reasons only. It is
+therefore no more in sync with recent Xdialog releases (v1.5.0 and later).
+
+Please, read the nice HTML documentation instead !
+===============================================================================
+
+This Xdialog written by Cyberone Internet.
+
+Xdialog is designed to be a drop in replacement for the cdialog program.
+It converts any terminal based program into a program with an X-windows
+interface. The dialogs are easier to see and use and the treeview adds an
+extra dimension to the way menus can be displayed.
+
+If you have any problems/bugs contact alfred@cyberone.com.au and I will
+try to help.
+
+Please read the INSTALL file for installation instructions. 
+
+
+Commands - 
+Xdialog functions exactly as cdialog does, and it accepts the same command
+line parameters. It also has an added treeview mode which can be very
+handy.
+
+Here is the command line arguments it accepts:
+
+Usage: Xdialog <Common options> <Box options>
+
+Common options:
+       [--backtitle <backtitle>]    - the menubar title
+       [--title <title>]            - Another part of the title 
+       [--password ]                - make input to the screen '*' (ala
+password entry screens)
+
+Box options:
+  --yesno     <text> <height> <width>
+  --msgbox    <text> <height> <width>
+  --infobox   <text> <height> <width>
+  --inputbox  <text> <height> <width> [<init>]
+  --textbox   <file> <height> <width>
+  --menu      <text> <height> <width> <menu height> <tag1> <item1>...
+  --checklist <text> <height> <width> <list height> <tag1> <item1> <status1>...
+  --radiolist <text> <height> <width> <list height> <tag1> <item1> <status1>...
+  --treeview  <text> <height> <width> <list height> <tag1> <item1> <status1> <item_depth1>...
+  --guage     <text> <height> <width> <percent>
+  --tailbox   <file> <height> <width>
+  --tailboxbg <file> <height> <width>       
+ 
+
+The only thing of note here is the treeview depth. This is the number of
+levels in the tree entry should be, and it should *never* increase by more
+than 1 at a time (decreasing by more than 1 is fine).
+
+-------------------------------------------------------------------------------------
+Xdialog v1.4.6, 15/12/00: Bug fixes and further development by Thierry Godefroy
+<xdialog@free.fr> (web site: http://xdialog.free.fr):
+
+1.- Bug fixes:
+    ~~~~~~~~~
+- The <height> and <width> parameters are now actually taken into account. They
+  must be specified in "lines" (12 pixels high each) and "characters" (8 pixels
+  wide each). The 8x12 character size may be changed at compile time only by
+  defining XSIZE_MULT and/or YSIZE_MULT in the CPPFLAGS line of the
+  src/Makefile (e.g. CPPFLAGS = -DXSIZE_MULT=10 -DYSIZE_MULT=18).
+  These two parameters may also be replaced by a single <XSIZExYSIZE> parameter
+  that will specify the size in pixels (this size will be rounded to the next
+  "character" boundary). Passing 0 0 (or 0x0) to Xdialog for its window size
+  will make it to auto-size.
+
+- The <text> is now actually displayed by checklist, radiolist, menu, etc...
+
+- The treeview options is debugged and now takes parameters in the order in
+  which they are documented (it used to mess up the tags, the status and the
+  item names). Note that the "<status>" ("on" or "off") although taken into
+  account for the item tag returned as default, does not hilight the "on"
+  item (because of what looks like a GTK+ bug...).
+
+- The <tag>s are now displayed before the <item>s in checklist and radiolist
+  (same behaviour as with "(c)dialog"). But as hidding them may be useful too,
+  I added the transient "--no-tags" option, which may also be used with the
+  "menubox" widget.
+
+2.- Changes and improvements:
+    ~~~~~~~~~~~~~~~~~~~~~~~~
+- It is now possible to chain dialogs in a single Xdialog command line. The
+  chain is broken as soon as a "cancel" button is pressed or the box is closed
+  (see the "chain" example script in the "samples" directory).
+  Note though that in this case no parameter can be defaulted in the
+  <Box options>.
+
+- Distinction has been made between "common options" (that will affect all the
+  following "box options" until the same or opposite "common options" are
+  encountered in the command line) and "transient options" that only apply to
+  the next "box option" in the command line. The "--passwd" option has been
+  made a "transient option".
+
+- The <file> parameter of "--textbox", "--editbox" and "--tailbox(bg)" may be
+  replaced by a minus sign ("-"). In this case stdin is used as the input file,
+  which allow to pipe data to Xdialog.
+
+- The infobox now accepts an optional <timeout> parameter (the default is 1000
+  and will make the infobox to vanish after one second) and no more waits
+  forever for the "OK" button to be pressed (this makes infobox behave much
+  more closer to the "(c)dialog" infobox).
+  When timeout is set to 0, then infobox behaves differently:
+   - The "OK" button is replaced by a "Cancel" button (unless the --no-button
+     option is given, in which case no button will be set up).
+   - It accepts messages from stdin (much in the same way as the gauge widget).
+     These messages may be "XXXX" (in which case the infobox is closed) or new
+     <text> enclosed by "XXX" markers; as for the gauge widget, newlines can be
+     inserted into the <text> (see below).
+   - It waits until the "Cancel" button is pressed, or the "XXXX" message is
+     received, or the stdin put at EOF.
+
+- The "guage" widget has been properly renamed into "gauge" (but "guage" is
+  still recognized for compatibility reasons).
+  It does now behave much like the dialog gauge (it accepts percentage values
+  on stdin as well as new <text> enclosed by two "XXX" markers; a newline can
+  be inserted into the new <text> by isuing echo "\\n" between each line).
+  Note that the <percent> parameter (which represents the initial gauge
+  position) is now optional and defaults to 0.
+
+- "--menu" has been renamed as "--menubox" but you still may use "--menu"
+  because abreviated options are allowed.
+
+- The tailbox  widget is displayed as soon as Xdialog is invoked (it used to
+  appear only once 1024 characters were read from the input file).
+
+- A new "--fselect" box option is implemented (GTK file selector). Using the
+  "--no-button" transient option with "--fselect" prevents the "New directory",
+  "Delete file" and "Rename file" buttons to be displayed in the file selector.
+  The "--help" option is allowed and makes a help button to appear even if the
+  "--no-buttons" option was specified. Note that the --backtitle option is
+  ignored by fselect.
+
+- A new "--dselect" box option is implemented (GTK directory selector). This
+  box has the same behaviour as the file selector (see above).
+
+- A new "--editbox" option is implemented. It takes the same parameters as the
+  textbox but allows to edit the text and returns the edited text (after "OK"
+  is pressed) on Xdialog output stream (i.e. stderr unless "--stdout" is in
+  force).
+
+- A new "--rangebox" option is implemented. It takes a <text> parameter
+  together with a <min value>, a <max value> and an optional <default value>
+  and displays the text together with a horizontal slider allowing to set a
+  value that will be returned (printed to Xdialog output stream) by Xdialog.
+  When the <default value> parameter is omitted, the default value is set to
+  the <min value>.
+
+- A new "--calendar" option is implemented. It takes a <text> parameter
+  together with <day> (1 to 31) <month>, (1 to 12) and <year> (1970 and
+  more) parameters and returns the user-selected date (in the form DD/MM/YYYY).
+  any of <day>, <month> or <year> parameter may be given a value of 0 so that
+  the current day, month or year is used as default.
+
+- A new "--timebox" option is implemented. It takes a <text> parameter and
+  returns the user-set time (in the form HH:MM:SS).
+
+- "--left", "--right", "--center", "--wrap" and "--no-wrap" common options have
+  been added so to instruct Xdialog to justify the text left, right or centered
+  and/or to wrap (or not) long lines (line wrapping also apply to the
+  "back-title" line). Default is --center --no-wrap.
+
+- "--fixed-font" transient option added. This allows to use a monospacing font
+  in the text area of tailbox, textbox and editbox widgets.
+
+- "--screen-center" (default), "--under-mouse" and "--auto-placement" common
+  options added so to control the Xdialog widgets placement.
+
+- If the back-title line is empty (no --backtitle option in the command line),
+  then it will not be displayed (Xdialog v1.0 used to display a "Cyberone -"
+  line in this case).
+
+- "--no-cancel" and "--no-buttons" options added.
+  The "--no-cancel" option allows to suppress the "Cancel" button from all but
+  the infobox, gauge and fselect widgets.
+  The "--no-buttons" option allows to suppress all the "OK", the "Cancel",
+  the "Help" and the "Print" buttons from the tailbox(bg), textbox and infobox
+  widgets, as well as the "New directory", "Delete file" and "Rename file"
+  buttons from the fselect widget.
+  Note that these options are transient ones and only apply to the next <Box
+  option> listed in the command line.
+
+- A new "--help" transient option has been added. This option is to be followed
+  by the help text that will be displayed (in a msgbox) when the "Help" button
+  is chosen. All widgets but the "gauge" and "fselect" ones got the help
+  feature implemented. The <help> text following "--help" may hold "\n" (as for
+  the <text> parameter) so to force help text line splitting.
+
+- A new "--print" transient option has been added. It makes a "Print" button to
+  appear in textbox, editbox and tailbox widgets (provided that the --no-button
+  option was not specified). Hitting the button will make Xdialog to issue a
+  printing command defined at compile time, defaulting to "lpr -P <printer>
+  /tmp/Xdialog.tmp". The <printer> parameter (that must follow the "--print"
+  option) gives the name of the printer to use. The "/tmp/Xdialog.tmp" file is
+  a temporary file used by Xdialog and is deleted when Xdialog terminates. To
+  see what printing command is used by your version of Xdialog, just invoke
+  "Xdialog" (without parameter) and look at the last lines in the displayed
+  usage.
+
+- A new "--buttons-style" common option has been added. It must be followed by
+  a parameter (the style name, case sensitive !) which must be either "default"
+  (both icon and text in each button), "icon" (icon only in each button) or
+  "text" (text only in each button).
+
+- New "--stderr" and "--stdout" options added. The default behaviour of Xdialog
+  is to mimic (c)dialog and send all its results to stderr. This may sometimes
+  be inapropriate and you may want to get separate output (one for the true
+  errors/warnings and one for the result). This is why the "--stdout" common
+  option was implemented: it makes Xdialog to output all the widgets results
+  to stdout instead of stderr. The "--stderr" common option is there so that you
+  can revert to the default stderr output in a chained dialogs command line.
+
+- New "--wmclass" common option added. This option allows to set the window
+  manager class name for Xdialog so that its window may be differenciated and
+  decorated differently from other applications windows. This, of course, will
+  depend on your window manager features... This also allows to use different
+  decorations for different scripts using Xdialog. The --wmclass option must be
+  followed by a <name> (the wmclass name of Xdialog then becomes
+  <name>/<name>).
+
+- New "--rc-file" common option added. This allows to change the GTK+ theme
+  for the following box options into the Xdialog command line. This option must
+  be followed by the name of a file in the gtkrc format.
+
+- New "--icon" transient option added. This option must be followed by the
+  filename of an icon (in XPM format only). This icon will be displayed on
+  the left of the <text> (provided the following box option accepts such a
+  <text> parameter). If the filename does not corresponds to a XPM image, the
+  option will be ignored.
+
+- New "--version" special option added. This option makes Xdialog to prints its
+  version number to stderr and to exit. This is useful to check from a script
+  if the installed version of Xdialog is able to use some of the latest widgets
+  that have been implemented since Xdialog exists...
+
+- When the Xdialog window is closed via the window manager, an exit code of 255
+  is now returned (same exit code as for the (c)dialog ESC event). 255 is also
+  returned when an error occured (bad options or parameters, GUI initialisation
+  failure) in Xdialog.
+  Two new common options have been implemented: "--no-close" that prevents the
+  dialogs to be closed with the window manager close button and "--allow-close"
+  allowing to revert to default behaviour of allowing the window manager to
+  close the dialogs.
+
+- The Xdialog usage while still printed to stderr is now also displayed into a
+  textbox.
+
+- Xdialog may be compiled so to use french buttons labels (by passing the
+  --with-french-labels options to the "configure" script).
+
+3.- Distribution changes:
+    ~~~~~~~~~~~~~~~~~~~~
+- Examples of how to use Xdialog are given into the "samples" directory (many
+  of these examples are adapted from the "cdialog" ones).
+- Xdialog.spec added into the tarball.
+- Added a FAQ.
+
+
+The new usage for Xdialog v1.4.6 is therefore:
+
+Usage: Xdialog <Common options> <Transient options> <Box options>
+
+Common options:
+	[--wmclass <name>]
+	[--rc-file <gtkrc filename>]
+	[--backtitle <backtitle>]
+	[--title <title>]
+	[--allow-close | --no-close]
+	[--screen-center | --under-mouse | --auto-placement]
+	[--center | --right | --left]
+	[--no-wrap | --wrap]
+	[--stderr | --stdout]
+	[--buttons-style default|icon|text]
+
+Transient options:
+	[--fixed-font]
+	[--password]
+	[--no-tags]
+	[--icon <xpm filename>]
+	[--no-cancel]
+	[--no-buttons]
+	[--help <help>]
+        [--print <printer>] (1)
+
+Box options:
+  --yesno	<text> <height> <width>
+  --msgbox	<text> <height> <width>
+  --infobox	<text> <height> <width> [<timeout>]
+  --inputbox	<text> <height> <width> [<init>]
+  --rangebox	<text> <height> <width> <min value> <max value> [<default value>]
+  --textbox	<file> <height> <width>
+  --editbox	<file> <height> <width>
+  --menubox	<text> <height> <width> <menu height (1)> <tag1> <item1>...
+  --checklist	<text> <height> <width> <list height (1)> <tag1> <item1> <status1>...
+  --radiolist	<text> <height> <width> <list height (1)> <tag1> <item1> <status1>...
+  --treeview	<text> <height> <width> <list height (1)> <tag1> <item1> <status1> <item_depth1>...
+  --gauge	<text> <height> <width> [<percent>]
+  --tailbox	<file> <height> <width>
+  --tailboxbg	<file> <height> <width>
+  --fselect	<file> <height> <width>
+  --dselect	<directory> <height> <width>
+  --calendar	<text> <height> <width> <day> <month> <year>
+  --timebox	<text> <height> <width>
+
+Special option:
+  --version	(prints version number to stderr and exits).
+
+(1) this parameter is actually ignored by Xdialog and kept for backward
+    compatibility only.

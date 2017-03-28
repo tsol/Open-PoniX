@@ -1,0 +1,1 @@
+#define SND_HAVE_DUMMY_CS_H

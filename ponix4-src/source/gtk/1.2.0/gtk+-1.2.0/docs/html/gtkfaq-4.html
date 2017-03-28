@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.7">
+ <TITLE>GTK+ FAQ: Development with GTK+</TITLE>
+ <LINK HREF="gtkfaq-5.html" REL=next>
+ <LINK HREF="gtkfaq-3.html" REL=previous>
+ <LINK HREF="gtkfaq.html#toc4" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtkfaq-5.html">Next</A>
+<A HREF="gtkfaq-3.html">Previous</A>
+<A HREF="gtkfaq.html#toc4">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s4">4. Development with GTK+</A></H2>
+
+<H2><A NAME="ss4.1">4.1 How do I get started?</A>
+</H2>
+
+<P>So, after you have installed GTK+ there are a couple of things that can
+ease you into developing applications with it. There is the
+GTK+ Tutorial 
+<A HREF="http://www.gtk.org/tutorial/">&lt;http://www.gtk.org/tutorial/&gt;</A>, which is undergoing 
+development. This will introduce you to writing applications using C.
+<P>The Tutorial doesn't (yet) contain information on all of the widgets
+that are in GTK+. For example code on how to use the basics of all the
+GTK+ widgets you should look at the file gtk/testgtk.c (and associated
+source files) within the GTK+ distribution. Looking at these exmaples will
+give you a good grounding on what the widgets can do.
+<P>
+<H2><A NAME="ss4.2">4.2 What widgets are in GTK?</A>
+</H2>
+
+<P>The GTK+ Tutorial lists the following widgets:
+<PRE>
+  GtkObject
+   +GtkData
+   | +GtkAdjustment
+   | `GtkTooltips
+   `GtkWidget
+     +GtkContainer
+     | +GtkBin
+     | | +GtkAlignment
+     | | +GtkEventBox
+     | | +GtkFrame
+     | | | `GtkAspectFrame
+     | | +GtkHandleBox
+     | | +GtkItem
+     | | | +GtkListItem
+     | | | +GtkMenuItem
+     | | | | `GtkCheckMenuItem
+     | | | |   `GtkRadioMenuItem
+     | | | `GtkTreeItem
+     | | +GtkViewport
+     | | `GtkWindow
+     | |   +GtkColorSelectionDialog
+     | |   +GtkDialog
+     | |   | `GtkInputDialog
+     | |   `GtkFileSelection
+     | +GtkBox
+     | | +GtkButtonBox
+     | | | +GtkHButtonBox
+     | | | `GtkVButtonBox
+     | | +GtkHBox
+     | | | +GtkCombo
+     | | | `GtkStatusbar
+     | | `GtkVBox
+     | |   +GtkColorSelection
+     | |   `GtkGammaCurve
+     | +GtkButton
+     | | +GtkOptionMenu
+     | | `GtkToggleButton
+     | |   `GtkCheckButton
+     | |     `GtkRadioButton
+     | +GtkCList
+     |   `GtkCTree
+     | +GtkFixed
+     | +GtkList
+     | +GtkMenuShell
+     | | +GtkMenuBar
+     | | `GtkMenu
+     | +GtkNotebook
+     | +GtkPaned
+     | | +GtkHPaned
+     | | `GtkVPaned
+     | +GtkScrolledWindow
+     | +GtkTable
+     | +GtkToolbar
+     | `GtkTree
+     +GtkDrawingArea
+     | `GtkCurve
+     +GtkEditable
+     | +GtkEntry
+     | | `GtkSpinButton
+     | `GtkText
+     +GtkMisc
+     | +GtkArrow
+     | +GtkImage
+     | +GtkLabel
+     | | `GtkTipsQuery
+     | `GtkPixmap
+     +GtkPreview
+     +GtkProgressBar
+     +GtkRange
+     | +GtkScale
+     | | +GtkHScale
+     | | `GtkVScale
+     | `GtkScrollbar
+     |   +GtkHScrollbar
+     |   `GtkVScrollbar
+     +GtkRuler
+     | +GtkHRuler
+     | `GtkVRuler
+     `GtkSeparator
+       +GtkHSeparator
+       `GtkVSeparator
+</PRE>
+<P>
+<H2><A NAME="ss4.3">4.3 Is GTK+ thread safe? How do I write multi-threaded GTK+ applications?</A>
+</H2>
+
+<P>Although GTK+, like many X toolkits, isn't thread safe, this does
+not prohibit the development of multi-threaded applications with
+GTK+. 
+<P>Rob Browning (rlb@cs.utexas.edu) describes threading techniques for
+use with GTK+ (slightly edited): 
+<P>There are basically two main approaches, the first is simple, and the
+second complicated. In the first, you just make sure that all GTK+ (or
+X) interactions are handled by one, and
+only one, thread. Any other thread that wants to draw something has
+to somehow notify the "GTK+" thread, and let it handle the
+actual work. 
+<P>The second approach allows you to call GTK+ (or X) functions from any
+thread, but it requires some careful synchronization. The
+basic idea is that you create an X protection mutex, and no one may
+make any X calls without first acquiring this mutex. 
+<P>Note that this is a little effort, but it allows you to be
+potentially more efficient than a completely thread safe GTK+. You
+get to decide the granularity of the thread locking. You also have to
+make sure that the thread that calls gtk_main is holding the lock when
+it calls gtk_main.
+<P>The next thing to worry about is that since you were holding the
+global mutex when you entered gtk_main, all callbacks will also be
+holding it. This means that the callback must release it if it's
+going to call any other code that might reacquire it. Otherwise
+you'll get deadlock. Also, you must be holding the mutex when you
+finally return from the callback. 
+<P>In order to allow threads other than the one calling gtk_main to
+get access to the mutex, we also need to register a work function
+with GTK that allows us to release the mutex periodically.
+<P>Why can't GTK+ be thread safe by default?                           
+<P>Complexity, overhead, and manpower.  The proportion of threaded
+programs is still reasonably small, and getting thread safety right is
+both quite difficult and takes valuable time away from the main work
+of getting a good graphics library finished.  It would be nice to have
+GTK+ thread safe "out of the box", but that's not practical right now,
+and it also might make GTK+ substantially less efficient if not handled
+carefully.
+<P>Regardless, it's especially not a priority since relatively good
+workarounds exist.
+<P>
+<H2><A NAME="ss4.4">4.4 How can I prevent redrawing and resizing while I change multiple widgets?</A>
+</H2>
+
+<P> 
+Use gtk_container_disable_resize and gtk_container_enable_resize around the 
+code where you are changing a lot of stuff. This will result in much faster 
+speed since it will prevent resizing of the entire widget hierarchy. 
+<P>
+<H2><A NAME="ss4.5">4.5 How do I catch a double click event (in a list widget, for example)?</A>
+</H2>
+
+<P>Tim Janik wrote to gtk-list (slightly modified):
+<P>Define a signal handler:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint
+signal_handler_event(GtkWiget *widget, GdkEvenButton *event, gpointer func_data)
+{
+  if (GTK_IS_LIST_ITEM(widget) &amp;&amp;
+       (event->type==GDK_2BUTTON_PRESS ||
+        event->type==GDK_3BUTTON_PRESS) ) {
+    printf("I feel %s clicked on button %d\",
+           event->type==GDK_2BUTTON_PRESS ? "double" : "triple",
+           event->button);
+  }
+
+  return FALSE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>And connect the handler to your object:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+{
+  /* list, list item init stuff */     
+
+  gtk_signal_connect(GTK_OBJECT(list_item),
+                     "button_press_event",
+                     GTK_SIGNAL_FUNC(signal_handler_event),
+                     NULL);
+
+  /* and/or */
+
+  gtk_signal_connect(GTK_OBJECT(list_item),
+                     "button_release_event",
+                     GTK_SIGNAL_FUNC(signal_handler_event),
+                     NULL);
+
+  /* something else */
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>and, Owen Taylor wrote:
+<P>Note that a single button press will be received beforehand, and
+if you are doing this for a button, you will therefore also get a
+"clicked" signal for the button. (This is going to be true for
+any toolkit, since computers aren't good at reading one's
+mind.)
+<P>
+<H2><A NAME="ss4.6">4.6 How do I find out about the selection of a GtkList?</A>
+</H2>
+
+<P>
+<P>Get the selection something like this:
+<BLOCKQUOTE><CODE>
+<PRE>
+GList *sel;
+sel = GTK_LIST(list)->selection;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is how GList is defined (quoting glist.h):
+<BLOCKQUOTE><CODE>
+<PRE>
+typedef struct _GList GList;
+
+struct _GList
+{
+  gpointer data;
+  GList *next;
+  GList *prev;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A GList structure is just a simple structure for doubly linked lists.
+there exist several g_list_*() functions to modify a linked list in
+glib.h.  However the GTK_LIST(MyGtkList)->selection is maintained
+by the gtk_list_*() functions and should not be modified.
+<P>The selection_mode of the GtkList determines the selection
+facilities of a GtkList and therefore the contents
+of GTK_LIST(AnyGtkList)->selection:
+<P>
+<PRE>
+selection_mode          GTK_LIST()->selection contents
+------------------------------------------------------
+
+GTK_SELECTION_SINGLE)   selection is either NULL
+                        or contains a GList* pointer
+                        for a single selected item.
+
+GTK_SELECTION_BROWSE)   selection is NULL if the list
+                        contains no widgets, otherwise
+                        it contains a GList* pointer
+                        for one GList structure.
+GTK_SELECTION_MULTIPLE) selection is NULL if no listitems
+                        are selected or a a GList* pointer
+                        for the first selected item. that
+                        in turn points to a GList structure
+                        for the second selected item and so
+                        on
+
+GTK_SELECTION_EXTENDED) selection is NULL.
+</PRE>
+<P>The data field of the GList structure GTK_LIST(MyGtkList)->selection points
+to the first GtkListItem that is selected.  So if you would like to determine 
+which listitems are selected you should go like this:
+<P>Upon Initialization:
+<BLOCKQUOTE><CODE>
+<PRE>
+{
+        gchar           *list_items[]={
+                                "Item0",
+                                "Item1",
+                                "foo",
+                                "last Item",
+                        };
+        guint           nlist_items=sizeof(list_items)/sizeof(list_items[0]);
+        GtkWidget       *list_item;
+        guint           i;
+
+        list=gtk_list_new();
+        gtk_list_set_selection_mode(GTK_LIST(list), GTK_SELECTION_MULTIPLE);
+        gtk_container_add(GTK_CONTAINER(AnyGtkContainer), list);
+        gtk_widget_show (list);
+
+        for (i = 0; i &lt; nlist_items; i++)
+        {
+                list_item=gtk_list_item_new_with_label(list_items[i]);
+                gtk_object_set_user_data(GTK_OBJECT(list_item), (gpointer)i);
+                gtk_container_add(GTK_CONTAINER(list), list_item);
+                gtk_widget_show(list_item);
+        }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To get known about the selection:
+<BLOCKQUOTE><CODE>
+<PRE>
+{
+        GList   *items;
+
+        items=GTK_LIST(list)->selection;
+
+        printf("Selected Items: ");
+        while (items) {
+                if (GTK_IS_LIST_ITEM(items->data))
+                        printf("%d ", (guint) 
+                gtk_object_get_user_data(items->data));
+                items=items->next;
+        }
+        printf("\n");
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<H2><A NAME="ss4.7">4.7 Is it possible to get some text displayed which is truncated to fit inside its allocation? </A>
+</H2>
+
+<P>GTK's behavior (no clipping) is a consequence of its attempts to
+conserve X resources. Label widgets (among others) don't get their own
+X window - they just draw their contents on their parent's window.
+While it might be possible to have clipping occur by setting the clip
+mask before drawing the text, this would probably cause a substantial
+performance penalty.
+<P>Its possible that, in the long term, the best solution to such
+problems might be just to change gtk to give labels X windows.
+A short term workaround is to put the label widget inside another
+widget that does get it's own window - one possible candidate would
+be the viewport widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+viewport = gtk_viewport (NULL, NULL);
+gtk_widget_set_usize (viewport, 50, 25);
+gtk_viewport_set_shadow_type (GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
+gtk_widget_show(viewport);
+
+label = gtk_label ("a really long label that won't fit");
+gtk_container_add (GTK_CONTAINER(viewport), label);
+gtk_widget_show (label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If you were doing this for a bunch of widgets, you might want to
+copy gtkviewport.c and strip out the adjustment and shadow
+functionality (perhaps you could call it GtkClipper).
+<P>
+<H2><A NAME="ss4.8">4.8 Why don't the contents of a button move when the button is pressed? Here's a patch to make it work that way...</A>
+</H2>
+
+<P>From: Peter Mattis
+<P>The reason buttons don't move their child down and to the right when
+they are depressed is because I don't think that's what is happening
+visually. My view of buttons is that you are looking at them straight
+on. That is, the user interface lies in a plane and you're above it
+looking straight at it. When a button gets pressed it moves directly
+away from you. To be absolutely correct I guess the child should
+actually shrink a tiny amount. But I don't see why the child should
+shift down and to the left. Remember, the child is supposed to be
+attached to the buttons surface. Its not good for it to appear like
+the child is slipping on the surface of the button.
+<P>On a more practical note, I did implement this at one point and
+determined it didn't look good and removed it.
+<P>
+<H2><A NAME="ss4.9">4.9 How can I define a separation line in a menu? </A>
+</H2>
+
+<P>See the 
+<A HREF="http://www.gtk.org/tutorial/">Tutorial</A> for information on how to create menus.
+However, to create a separation line in a menu, just insert an
+empty menu item:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+menuitem = gtk_menu_item_new();
+gtk_menu_append(GTK_MENU(menu), menuitem);
+gtk_widget_show(menuitem);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss4.10">4.10 How can I right justify a menu, such as Help, when using the MenuFactory? </A>
+</H2>
+
+<P>Use something like the following:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+menu_path = gtk_menu_factory_find (factory,  "&lt;MyApp>/Help");
+gtk_menu_item_right_justify(menu_path->widget);
+</PRE>
+</CODE></BLOCKQUOTE>
+<H2><A NAME="ss4.11">4.11 How do I make my window modal? / How do I make a single window active?</A>
+</H2>
+
+<P>After you create your window, do gtk_grab_add(my_window). And after 
+closing the window do gtk_grab_remove(my_window).
+<P>
+<H2><A NAME="ss4.12">4.12 Why doesn't my widget (e.g. progressbar) update?</A>
+</H2>
+
+<P>
+<P>You are probably doing all the changes within a function 
+without returning control to gtk_main. Most drawing updates are only 
+placed on a queue, which is processed within gtk_main. You can
+force the drawing queue to be processed using something like:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+while (gtk_events_pending())
+        gtk_main_iteration();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>inside you're function that changes the widget.
+<P>What the above snippet does is run all pending events and high priority 
+idle functions, then return immediately (the drawing is done in a 
+high priority idle function).
+<P>
+<HR NOSHADE>
+<A HREF="gtkfaq-5.html">Next</A>
+<A HREF="gtkfaq-3.html">Previous</A>
+<A HREF="gtkfaq.html#toc4">Contents</A>
+</BODY>
+</HTML>

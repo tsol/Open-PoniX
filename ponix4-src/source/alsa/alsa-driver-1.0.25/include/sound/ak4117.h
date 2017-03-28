@@ -1,0 +1,1 @@
+../../alsa-kernel/include/ak4117.h

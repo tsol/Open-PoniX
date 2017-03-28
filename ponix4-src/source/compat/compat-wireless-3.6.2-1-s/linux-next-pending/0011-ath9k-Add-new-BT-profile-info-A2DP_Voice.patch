@@ -1,0 +1,44 @@
+From 2b175a64f5daa777c6509542e38a48dd15f8e1b4 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 15 Oct 2012 15:29:55 +0530
+Subject: [PATCH 11/11] ath9k: Add new BT profile info A2DP_Voice
+
+When the BT connection is initiated by headset, it's possible that headset
+requests to make one A2DP and one Voice connection over the same link.
+BT firmware will send a new profile A2DP_Voice in this case. So WLAN
+has to take care of this new profile for tuning BTCOEX parameters.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h |    1 +
+ drivers/net/wireless/ath/ath9k/mci.h        |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -126,6 +126,7 @@ enum ath_mci_gpm_coex_profile_type {
+ 	MCI_GPM_COEX_PROFILE_HID,
+ 	MCI_GPM_COEX_PROFILE_BNEP,
+ 	MCI_GPM_COEX_PROFILE_VOICE,
++	MCI_GPM_COEX_PROFILE_A2DPVO,
+ 	MCI_GPM_COEX_PROFILE_MAX
+ };
+ 
+--- a/drivers/net/wireless/ath/ath9k/mci.h
++++ b/drivers/net/wireless/ath/ath9k/mci.h
+@@ -49,6 +49,7 @@
+ 			_mci->num_pan++;	 \
+ 			break;			 \
+ 		case MCI_GPM_COEX_PROFILE_VOICE: \
++		case MCI_GPM_COEX_PROFILE_A2DPVO:\
+ 			_mci->num_sco++;	 \
+ 			break;			 \
+ 		default:			 \
+@@ -73,6 +74,7 @@
+ 			_mci->num_pan--;	 \
+ 			break;			 \
+ 		case MCI_GPM_COEX_PROFILE_VOICE: \
++		case MCI_GPM_COEX_PROFILE_A2DPVO:\
+ 			_mci->num_sco--;	 \
+ 			break;			 \
+ 		default:			 \

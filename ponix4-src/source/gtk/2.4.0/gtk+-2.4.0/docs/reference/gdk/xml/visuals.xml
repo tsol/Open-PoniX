@@ -1,0 +1,546 @@
+<refentry id="gdk-Visuals">
+<refmeta>
+<refentrytitle>Visuals</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Visuals</refname><refpurpose>
+Low-level display hardware information</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk/gdk.h&gt;
+
+
+struct      <link linkend="GdkVisual">GdkVisual</link>;
+enum        <link linkend="GdkVisualType">GdkVisualType</link>;
+enum        <link linkend="GdkByteOrder">GdkByteOrder</link>;
+<link linkend="void">void</link>        <link linkend="gdk-query-depths">gdk_query_depths</link>                (<link linkend="gint">gint</link> **depths,
+                                             <link linkend="gint">gint</link> *count);
+<link linkend="void">void</link>        <link linkend="gdk-query-visual-types">gdk_query_visual_types</link>          (<link linkend="GdkVisualType">GdkVisualType</link> **visual_types,
+                                             <link linkend="gint">gint</link> *count);
+<link linkend="GList">GList</link>*      <link linkend="gdk-list-visuals">gdk_list_visuals</link>                (void);
+<link linkend="gint">gint</link>        <link linkend="gdk-visual-get-best-depth">gdk_visual_get_best_depth</link>       (void);
+<link linkend="GdkVisualType">GdkVisualType</link> <link linkend="gdk-visual-get-best-type">gdk_visual_get_best_type</link>      (void);
+<link linkend="GdkVisual">GdkVisual</link>*  <link linkend="gdk-visual-get-system">gdk_visual_get_system</link>           (void);
+<link linkend="GdkVisual">GdkVisual</link>*  <link linkend="gdk-visual-get-best">gdk_visual_get_best</link>             (void);
+<link linkend="GdkVisual">GdkVisual</link>*  <link linkend="gdk-visual-get-best-with-depth">gdk_visual_get_best_with_depth</link>  (<link linkend="gint">gint</link> depth);
+<link linkend="GdkVisual">GdkVisual</link>*  <link linkend="gdk-visual-get-best-with-type">gdk_visual_get_best_with_type</link>   (<link linkend="GdkVisualType">GdkVisualType</link> visual_type);
+<link linkend="GdkVisual">GdkVisual</link>*  <link linkend="gdk-visual-get-best-with-both">gdk_visual_get_best_with_both</link>   (<link linkend="gint">gint</link> depth,
+                                             <link linkend="GdkVisualType">GdkVisualType</link> visual_type);
+#define     <link linkend="gdk-visual-ref">gdk_visual_ref</link>                  (v)
+#define     <link linkend="gdk-visual-unref">gdk_visual_unref</link>                (v)
+<link linkend="GdkScreen">GdkScreen</link>*  <link linkend="gdk-visual-get-screen">gdk_visual_get_screen</link>           (<link linkend="GdkVisual">GdkVisual</link> *visual);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+A <link linkend="GdkVisual"><type>GdkVisual</type></link> describes a particular video hardware display format. It includes
+information about the number of bits used for each color, the way the bits are
+translated into an RGB value for display, and the way the bits are stored in 
+memory. For example, a piece of display hardware might support 24-bit color, 
+16-bit color, or 8-bit color; meaning 24/16/8-bit pixel sizes. For a given 
+pixel size, pixels can be in different formats; for example the "red" element 
+of an RGB pixel may be in the top 8 bits of the pixel, or may be in the lower 
+4 bits.
+</para>
+<para>
+Usually you can avoid thinking about visuals in GTK+. Visuals are useful to
+interpret the contents of a <link linkend="GdkImage"><type>GdkImage</type></link>, but you should avoid <link linkend="GdkImage"><type>GdkImage</type></link> precisely
+because its contents depend on the display hardware; use <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> instead, for
+all but the most low-level purposes. Also, anytime you provide a <link linkend="GdkColormap"><type>GdkColormap</type></link>,
+the visual is implied as part of the colormap (<link linkend="gdk-colormap-get-visual"><function>gdk_colormap_get_visual()</function></link>), so
+you won't have to provide a visual in addition.
+</para>
+<para>
+There are several standard visuals. The visual returned
+by <link linkend="gdk-visual-get-system"><function>gdk_visual_get_system()</function></link> is the system's default
+visual. <link linkend="gdk-rgb-get-visual"><function>gdk_rgb_get_visual()</function></link> return the visual most
+suited to displaying full-color image data. If you
+use the calls in <link linkend="GdkRGB"><type>GdkRGB</type></link>, you should create your windows
+using this visual (and the colormap returned by
+<link linkend="gdk-rgb-get-colormap"><function>gdk_rgb_get_colormap()</function></link>).
+</para>
+<para>
+A number of functions are provided for determining
+the "best" available visual. For the purposes of
+making this determination, higher bit depths are
+considered better, and for visuals of the same
+bit depth, <literal>GDK_VISUAL_PSEUDO_COLOR</literal> is preferred at
+8bpp, otherwise, the visual types are ranked in the
+order of (highest to lowest) <literal>GDK_VISUAL_DIRECT_COLOR</literal>,
+<literal>GDK_VISUAL_TRUE_COLOR</literal>, <literal>GDK_VISUAL_PSEUDO_COLOR</literal>,
+<literal>GDK_VISUAL_STATIC_COLOR</literal>, <literal>GDK_VISUAL_GRAYSCALE</literal>,
+then <literal>GDK_VISUAL_STATIC_GRAY</literal>.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkVisual"/>struct GdkVisual</title>
+<indexterm><primary>GdkVisual</primary></indexterm><programlisting>struct GdkVisual {
+
+  GObject parent_instance;
+  
+  GdkVisualType type;
+  gint depth;
+  GdkByteOrder byte_order;
+  gint colormap_size;
+  gint bits_per_rgb;
+
+  guint32 red_mask;
+  gint red_shift;
+  gint red_prec;
+
+  guint32 green_mask;
+  gint green_shift;
+  gint green_prec;
+
+  guint32 blue_mask;
+  gint blue_shift;
+  gint blue_prec;
+};
+</programlisting>
+<para>
+The <type>GdkVisual</type> structure contains information about
+a particular visual.
+</para>
+
+<example id="rgbmask">
+<title>Constructing a pixel value from components</title>
+<programlisting>
+guint
+pixel_from_rgb (GdkVisual *visual,
+                guchar r, guchar b, guchar g)
+{
+  return ((r &gt;&gt; (16 - visual-&gt;red_prec))   &lt;&lt; visual-&gt;red_shift) |
+         ((g &gt;&gt; (16 - visual-&gt;green_prec)) &lt;&lt; visual-&gt;green_shift) |
+         ((r &gt;&gt; (16 - visual-&gt;blue_prec))  &lt;&lt; visual-&gt;blue_shift);
+}
+</programlisting>
+</example><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GObject">GObject</link> <structfield>parent_instance</structfield></term>
+<listitem><simpara>inherited portion from <link linkend="GObject"><type>GObject</type></link>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkVisualType">GdkVisualType</link> <structfield>type</structfield></term>
+<listitem><simpara>The type of this visual.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>depth</structfield></term>
+<listitem><simpara>The number of bits per pixel.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkByteOrder">GdkByteOrder</link> <structfield>byte_order</structfield></term>
+<listitem><simpara>The byte-order for this visual.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>colormap_size</structfield></term>
+<listitem><simpara>The number of entries in the colormap, for
+    visuals of type <literal>GDK_VISUAL_PSEUDO_COLOR</literal> or
+    <literal>GDK_VISUAL_GRAY_SCALE</literal>. For other visual types, it
+    is the number of possible levels per color component.
+    If the visual has different numbers of levels for
+    different components, the value of this field is undefined.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>bits_per_rgb</structfield></term>
+<listitem><simpara>The number of significant bits per red, green, or blue
+    when specifying colors for this visual. (For instance, for 
+    <link linkend="gdk-colormap-alloc-color"><function>gdk_colormap_alloc_color()</function></link>)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>red_mask</structfield></term>
+<listitem><simpara>A mask giving the bits in a pixel value that
+    correspond to the red field. Significant only for
+    <literal>GDK_VISUAL_PSEUDOCOLOR</literal> and <literal>GDK_VISUAL_DIRECTCOLOR</literal>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>red_shift</structfield></term>
+<listitem><simpara>The <structfield>red_shift</structfield> and
+    <structfield>red_prec</structfield> give an alternate presentation
+    of the information in <structfield>red_mask</structfield>.
+    <structfield>red_mask</structfield> is a contiguous sequence
+    of <structfield>red_prec</structfield> bits starting at bit
+    number <structfield>red_shift</structfield>. For example,
+    <xref linkend="rgbmask"/> shows constructing a pixel value
+    out of three 16 bit color values.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>red_prec</structfield></term>
+<listitem><simpara>See above.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>green_mask</structfield></term>
+<listitem><simpara>A mask giving the bits in a pixel value that
+    correspond to the green field.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>green_shift</structfield></term>
+<listitem><simpara>The <structfield>green_shift</structfield> and
+    <structfield>green_prec</structfield> give an alternate presentation
+    of the information in <structfield>green_mask</structfield>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>green_prec</structfield></term>
+<listitem><simpara>See above.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>blue_mask</structfield></term>
+<listitem><simpara>A mask giving the bits in a pixel value that
+    correspond to the blue field.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>blue_shift</structfield></term>
+<listitem><simpara>The <structfield>blue_shift</structfield> and
+    <structfield>blue_prec</structfield> give an alternate presentation
+    of the information in <structfield>blue_mask</structfield>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>blue_prec</structfield></term>
+<listitem><simpara>See above.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkVisualType"/>enum GdkVisualType</title>
+<indexterm><primary>GdkVisualType</primary></indexterm><programlisting>typedef enum
+{
+  GDK_VISUAL_STATIC_GRAY,
+  GDK_VISUAL_GRAYSCALE,
+  GDK_VISUAL_STATIC_COLOR,
+  GDK_VISUAL_PSEUDO_COLOR,
+  GDK_VISUAL_TRUE_COLOR,
+  GDK_VISUAL_DIRECT_COLOR
+} GdkVisualType;
+</programlisting>
+<para>
+A set of values that describe the manner in which the
+pixel values for a visual are converted into RGB
+values for display.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_VISUAL_STATIC_GRAY</literal></term>
+<listitem><simpara>Each pixel value indexes a grayscale value directly.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_VISUAL_GRAYSCALE</literal></term>
+<listitem><simpara>Each pixel is an index into a color map that maps pixel 
+   values into grayscale values. The color map can be changed by an application.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_VISUAL_STATIC_COLOR</literal></term>
+<listitem><simpara>Each pixel value is an index into a predefined,
+   unmodifiable color map that maps pixel values into RGB values.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_VISUAL_PSEUDO_COLOR</literal></term>
+<listitem><simpara>Each pixel is an index into a color map that maps
+   pixel values into rgb values. The color map can be changed by an application.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_VISUAL_TRUE_COLOR</literal></term>
+<listitem><simpara>Each pixel value directly contains red, green,
+   and blue components. The <structfield>red_mask</structfield>,
+   <structfield>green_mask</structfield>, and 
+   <structfield>blue_mask</structfield> fields of the <link linkend="GdkVisual"><type>GdkVisual</type></link>
+   structure describe how the components are assembled into a pixel value.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_VISUAL_DIRECT_COLOR</literal></term>
+<listitem><simpara>Each pixel value contains red, green, and blue
+   components as for <literal>GDK_TRUE_COLOR</literal>, but the components are mapped via a 
+   color table into the final output table instead of being converted directly.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkByteOrder"/>enum GdkByteOrder</title>
+<indexterm><primary>GdkByteOrder</primary></indexterm><programlisting>typedef enum
+{
+  GDK_LSB_FIRST,
+  GDK_MSB_FIRST
+} GdkByteOrder;
+</programlisting>
+<para>
+A set of values describing the possible byte-orders
+for storing pixel values in memory.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_LSB_FIRST</literal></term>
+<listitem><simpara>The values are stored with the least-significant byte
+  first. For instance, the 32-bit value 0xffeecc would be stored
+  in memory as 0xcc, 0xee, 0xff, 0x00.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_MSB_FIRST</literal></term>
+<listitem><simpara>The values are stored with the most-significant byte
+first. For instance, the 32-bit value 0xffeecc would be stored
+in memory as 0x00, 0xcc, 0xee, 0xff.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-query-depths"/>gdk_query_depths ()</title>
+<indexterm><primary>gdk_query_depths</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_query_depths                (<link linkend="gint">gint</link> **depths,
+                                             <link linkend="gint">gint</link> *count);</programlisting>
+<para>
+This function returns the available bit depths for the default
+screen. It's equivalent to listing the visuals
+(<link linkend="gdk-list-visuals"><function>gdk_list_visuals()</function></link>) and then looking at the depth field in each
+visual, removing duplicates.
+</para>
+<para>
+The array returned by this function should not be freed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>depths</parameter>&nbsp;:</term>
+<listitem><simpara> return location for available depths 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> return location for number of available depths
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-query-visual-types"/>gdk_query_visual_types ()</title>
+<indexterm><primary>gdk_query_visual_types</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_query_visual_types          (<link linkend="GdkVisualType">GdkVisualType</link> **visual_types,
+                                             <link linkend="gint">gint</link> *count);</programlisting>
+<para>
+This function returns the available visual types for the default
+screen. It's equivalent to listing the visuals
+(<link linkend="gdk-list-visuals"><function>gdk_list_visuals()</function></link>) and then looking at the type field in each
+visual, removing duplicates.
+</para>
+<para>
+The array returned by this function should not be freed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>visual_types</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the available visual types
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>count</parameter>&nbsp;:</term>
+<listitem><simpara> return location for the number of available visual types
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-list-visuals"/>gdk_list_visuals ()</title>
+<indexterm><primary>gdk_list_visuals</primary></indexterm><programlisting><link linkend="GList">GList</link>*      gdk_list_visuals                (void);</programlisting>
+<para>
+Lists the available visuals for the default screen.
+(See <link linkend="gdk-screen-list-visuals"><function>gdk_screen_list_visuals()</function></link>)
+A visual describes a hardware image data format.
+For example, a visual might support 24-bit color, or 8-bit color,
+and might expect pixels to be in a certain format.
+</para>
+<para>
+Call <link linkend="g-list-free"><function>g_list_free()</function></link> on the return value when you're finished with it.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a list of visuals; the list must be freed, but not its contents
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-best-depth"/>gdk_visual_get_best_depth ()</title>
+<indexterm><primary>gdk_visual_get_best_depth</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_visual_get_best_depth       (void);</programlisting>
+<para>
+Get the best available depth for the default GDK screen.  "Best"
+means "largest," i.e. 32 preferred over 24 preferred over 8 bits
+per pixel.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> best available depth
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-best-type"/>gdk_visual_get_best_type ()</title>
+<indexterm><primary>gdk_visual_get_best_type</primary></indexterm><programlisting><link linkend="GdkVisualType">GdkVisualType</link> gdk_visual_get_best_type      (void);</programlisting>
+<para>
+Return the best available visual type for the default GDK screen.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> best visual type
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-system"/>gdk_visual_get_system ()</title>
+<indexterm><primary>gdk_visual_get_system</primary></indexterm><programlisting><link linkend="GdkVisual">GdkVisual</link>*  gdk_visual_get_system           (void);</programlisting>
+<para>
+Get the system'sdefault visual for the default GDK screen.
+This is the visual for the root window of the display.
+The return value should not be freed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> system visual
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-best"/>gdk_visual_get_best ()</title>
+<indexterm><primary>gdk_visual_get_best</primary></indexterm><programlisting><link linkend="GdkVisual">GdkVisual</link>*  gdk_visual_get_best             (void);</programlisting>
+<para>
+Get the visual with the most available colors for the default
+GDK screen. The return value should not be freed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> best visual
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-best-with-depth"/>gdk_visual_get_best_with_depth ()</title>
+<indexterm><primary>gdk_visual_get_best_with_depth</primary></indexterm><programlisting><link linkend="GdkVisual">GdkVisual</link>*  gdk_visual_get_best_with_depth  (<link linkend="gint">gint</link> depth);</programlisting>
+<para>
+Get the best visual with depth <parameter>depth</parameter> for the default GDK screen.
+Color visuals and visuals with mutable colormaps are preferred
+over grayscale or fixed-colormap visuals. The return value should not
+be freed. <literal>NULL</literal> may be returned if no visual supports <parameter>depth</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara> a bit depth
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> best visual for the given depth
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-best-with-type"/>gdk_visual_get_best_with_type ()</title>
+<indexterm><primary>gdk_visual_get_best_with_type</primary></indexterm><programlisting><link linkend="GdkVisual">GdkVisual</link>*  gdk_visual_get_best_with_type   (<link linkend="GdkVisualType">GdkVisualType</link> visual_type);</programlisting>
+<para>
+Get the best visual of the given <parameter>visual_type</parameter> for the default GDK screen.
+Visuals with higher color depths are considered better. The return value
+should not be freed. <literal>NULL</literal> may be returned if no visual has type
+<parameter>visual_type</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>visual_type</parameter>&nbsp;:</term>
+<listitem><simpara> a visual type
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> best visual of the given type
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-best-with-both"/>gdk_visual_get_best_with_both ()</title>
+<indexterm><primary>gdk_visual_get_best_with_both</primary></indexterm><programlisting><link linkend="GdkVisual">GdkVisual</link>*  gdk_visual_get_best_with_both   (<link linkend="gint">gint</link> depth,
+                                             <link linkend="GdkVisualType">GdkVisualType</link> visual_type);</programlisting>
+<para>
+Combines <link linkend="gdk-visual-get-best-with-depth"><function>gdk_visual_get_best_with_depth()</function></link> and <link linkend="gdk-visual-get-best-with-type"><function>gdk_visual_get_best_with_type()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara> a bit depth
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>visual_type</parameter>&nbsp;:</term>
+<listitem><simpara> a visual type
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> best visual with both <parameter>depth</parameter> and <parameter>visual_type</parameter>, or <literal>NULL</literal> if none
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-ref"/>gdk_visual_ref()</title>
+<indexterm><primary>gdk_visual_ref</primary></indexterm><programlisting>#define gdk_visual_ref(v) g_object_ref(v)
+</programlisting>
+<warning><para><literal>gdk_visual_ref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated equivalent of <link linkend="g-object-ref"><function>g_object_ref()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>v</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-unref"/>gdk_visual_unref()</title>
+<indexterm><primary>gdk_visual_unref</primary></indexterm><programlisting>#define gdk_visual_unref(v) g_object_unref(v)
+</programlisting>
+<warning><para><literal>gdk_visual_unref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated equivalent of <link linkend="g-object-unref"><function>g_object_unref()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>v</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-visual-get-screen"/>gdk_visual_get_screen ()</title>
+<indexterm><primary>gdk_visual_get_screen</primary></indexterm><programlisting><link linkend="GdkScreen">GdkScreen</link>*  gdk_visual_get_screen           (<link linkend="GdkVisual">GdkVisual</link> *visual);</programlisting>
+<para>
+Gets the screen to which this visual belongs</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>visual</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkVisual"><type>GdkVisual</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the screen to which this visual belongs.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="GdkImage"><type>GdkImage</type></link>, <link linkend="GdkColormap"><type>GdkColormap</type></link>, <link linkend="GdkRGB"><type>GdkRGB</type></link>
+</para>
+</refsect1>
+
+</refentry>

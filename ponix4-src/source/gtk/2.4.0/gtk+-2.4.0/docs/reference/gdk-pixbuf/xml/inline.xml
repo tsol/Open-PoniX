@@ -1,0 +1,426 @@
+<refentry id="gdk-pixbuf-inline">
+<refmeta>
+<refentrytitle>Inline data</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Inline data</refname><refpurpose>Functions for inlined pixbuf handling.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+struct      <link linkend="GdkPixdata">GdkPixdata</link>;
+enum        <link linkend="GdkPixdataType">GdkPixdataType</link>;
+enum        <link linkend="GdkPixdataDumpType">GdkPixdataDumpType</link>;
+#define     <link linkend="GDK-PIXBUF-MAGIC-NUMBER-CAPS">GDK_PIXBUF_MAGIC_NUMBER</link>
+#define     <link linkend="GDK-PIXDATA-HEADER-LENGTH-CAPS">GDK_PIXDATA_HEADER_LENGTH</link>
+<link linkend="gpointer">gpointer</link>    <link linkend="gdk-pixdata-from-pixbuf">gdk_pixdata_from_pixbuf</link>         (<link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             const <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gboolean">gboolean</link> use_rle);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-from-pixdata">gdk_pixbuf_from_pixdata</link>         (const <link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             <link linkend="gboolean">gboolean</link> copy_pixels,
+                                             <link linkend="GError">GError</link> **error);
+<link linkend="guint8">guint8</link>*     <link linkend="gdk-pixdata-serialize">gdk_pixdata_serialize</link>           (const <link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             <link linkend="guint">guint</link> *stream_length_p);
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-pixdata-deserialize">gdk_pixdata_deserialize</link>         (<link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             <link linkend="guint">guint</link> stream_length,
+                                             const <link linkend="guint8">guint8</link> *stream,
+                                             <link linkend="GError">GError</link> **error);
+<link linkend="GString">GString</link>*    <link linkend="gdk-pixdata-to-csource">gdk_pixdata_to_csource</link>          (<link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             const <link linkend="gchar">gchar</link> *name,
+                                             <link linkend="GdkPixdataDumpType">GdkPixdataDumpType</link> dump_type);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkPixdata"/>struct GdkPixdata</title>
+<indexterm><primary>GdkPixdata</primary></indexterm><programlisting>struct GdkPixdata {
+
+  guint32 magic;        /* GDK_PIXBUF_MAGIC_NUMBER */
+  gint32  length;       /* &lt;1 to disable length checks, otherwise:
+			 * GDK_PIXDATA_HEADER_LENGTH + pixel_data length
+			 */
+  guint32 pixdata_type; /* GdkPixdataType */
+  guint32 rowstride;
+  guint32 width;
+  guint32 height;
+  guint8 *pixel_data;
+};
+</programlisting>
+<para>
+A <link linkend="GdkPixdata"><type>GdkPixdata</type></link> contains pixbuf information in a form suitable for 
+serialization and streaming.</para>
+  <para>
+
+  </para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>magic</structfield></term>
+<listitem><simpara> magic number. A valid <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure must have 
+   <link linkend="GDK-PIXBUF-MAGIC-NUMBER-CAPS"><type>GDK_PIXBUF_MAGIC_NUMBER</type></link> here.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint32">gint32</link> <structfield>length</structfield></term>
+<listitem><simpara> less than 1 to disable length checks, otherwise 
+   <link linkend="GDK-PIXDATA-HEADER-LENGTH-CAPS"><type>GDK_PIXDATA_HEADER_LENGTH</type></link> + length of <parameter>pixel_data</parameter>. 
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>pixdata_type</structfield></term>
+<listitem><simpara> information about colorspace, sample width and 
+   encoding, in a <link linkend="GdkPixdataType"><type>GdkPixdataType</type></link>. 
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>rowstride</structfield></term>
+<listitem><simpara> Distance in bytes between rows.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>width</structfield></term>
+<listitem><simpara> Width of the image in pixels.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>height</structfield></term>
+<listitem><simpara> Height of the image in pixels.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint8">guint8</link> *<structfield>pixel_data</structfield></term>
+<listitem><simpara> <parameter>width</parameter> x <parameter>height</parameter> pixels, encoded according to <parameter>pixdata_type</parameter>
+  and <parameter>rowstride</parameter>.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkPixdataType"/>enum GdkPixdataType</title>
+<indexterm><primary>GdkPixdataType</primary></indexterm><programlisting>typedef enum
+{
+  /* colorspace + alpha */
+  GDK_PIXDATA_COLOR_TYPE_RGB    = 0x01,
+  GDK_PIXDATA_COLOR_TYPE_RGBA   = 0x02,
+  GDK_PIXDATA_COLOR_TYPE_MASK   = 0xff,
+  /* width, support 8bits only currently */
+  GDK_PIXDATA_SAMPLE_WIDTH_8    = 0x01 &lt;&lt; 16,
+  GDK_PIXDATA_SAMPLE_WIDTH_MASK = 0x0f &lt;&lt; 16,
+  /* encoding */
+  GDK_PIXDATA_ENCODING_RAW      = 0x01 &lt;&lt; 24,
+  GDK_PIXDATA_ENCODING_RLE      = 0x02 &lt;&lt; 24,
+  GDK_PIXDATA_ENCODING_MASK     = 0x0f &lt;&lt; 24
+} GdkPixdataType;
+</programlisting>
+<para>
+An enumeration containing three sets of flags for a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> struct: 
+one for the used colorspace, one for the width of the samples and one 
+for the encoding of the pixel data.</para>
+  <para>
+
+  </para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_PIXDATA_COLOR_TYPE_RGB</literal></term>
+<listitem><simpara>  each pixel has red, green and blue samples.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_COLOR_TYPE_RGBA</literal></term>
+<listitem><simpara> each pixel has red, green and blue samples 
+   and an alpha value.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_COLOR_TYPE_MASK</literal></term>
+<listitem><simpara> mask for the colortype flags of the enum.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_SAMPLE_WIDTH_8</literal></term>
+<listitem><simpara> each sample has 8 bits.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_SAMPLE_WIDTH_MASK</literal></term>
+<listitem><simpara> mask for the sample width flags of the enum.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_ENCODING_RAW</literal></term>
+<listitem><simpara> the pixel data is in raw form. 
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_ENCODING_RLE</literal></term>
+<listitem><simpara> the pixel data is run-length encoded. Runs may 
+   be up to 127 bytes long; their length is stored in a single byte 
+   preceding the pixel data for the run. If a run is constant, its length
+   byte has the high bit set and the pixel data consists of a single pixel
+   which must be repeated. 
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_ENCODING_MASK</literal></term>
+<listitem><simpara> mask for the encoding flags of the enum.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkPixdataDumpType"/>enum GdkPixdataDumpType</title>
+<indexterm><primary>GdkPixdataDumpType</primary></indexterm><programlisting>typedef enum
+{
+  /* type of source to save */
+  GDK_PIXDATA_DUMP_PIXDATA_STREAM	= 0,
+  GDK_PIXDATA_DUMP_PIXDATA_STRUCT	= 1,
+  GDK_PIXDATA_DUMP_MACROS		= 2,
+  /* type of variables to use */
+  GDK_PIXDATA_DUMP_GTYPES		= 0,
+  GDK_PIXDATA_DUMP_CTYPES		= 1 &lt;&lt; 8,
+  GDK_PIXDATA_DUMP_STATIC		= 1 &lt;&lt; 9,
+  GDK_PIXDATA_DUMP_CONST		= 1 &lt;&lt; 10,
+  /* save RLE decoder macro? */
+  GDK_PIXDATA_DUMP_RLE_DECODER		= 1 &lt;&lt; 16
+} GdkPixdataDumpType;
+</programlisting>
+<para>
+An enumeration which is used by <link linkend="gdk-pixdata-to-csource"><function>gdk_pixdata_to_csource()</function></link> to
+determine the form of C source to be generated. The three values
+<parameter>GDK_PIXDATA_DUMP_PIXDATA_STREAM</parameter>, <parameter>GDK_PIXDATA_DUMP_PIXDATA_STRUCT</parameter>
+and <parameter>GDK_PIXDATA_DUMP_MACROS</parameter> are mutually exclusive, as are
+<parameter>GDK_PIXBUF_DUMP_GTYPES</parameter> and <parameter>GDK_PIXBUF_DUMP_CTYPES</parameter>. The remaining
+elements are optional flags that can be freely added.</para>
+  <para>
+
+  </para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_PIXDATA_STREAM</literal></term>
+<listitem><simpara> Generate pixbuf data stream (a single 
+   string containing a serialized <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure in network byte 
+   order).
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_PIXDATA_STRUCT</literal></term>
+<listitem><simpara> Generate <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure (needs 
+   the <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure definition from gdk-pixdata.h).
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_MACROS</literal></term>
+<listitem><simpara> Generate <function>*_ROWSTRIDE</function>,     
+   <function>*_WIDTH</function>, <function>*_HEIGHT</function>,
+   <function>*_BYTES_PER_PIXEL</function> and 
+   <function>*_RLE_PIXEL_DATA</function> or <function>*_PIXEL_DATA</function>
+   macro definitions for the image.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_GTYPES</literal></term>
+<listitem><simpara> Generate GLib data types instead of 
+   standard C data types.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_CTYPES</literal></term>
+<listitem><simpara> Generate standard C data types instead of 
+   GLib data types.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_STATIC</literal></term>
+<listitem><simpara> Generate static symbols.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_CONST</literal></term>
+<listitem><simpara> Generate const symbols.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_PIXDATA_DUMP_RLE_DECODER</literal></term>
+<listitem><simpara> Provide a <function>*_RUN_LENGTH_DECODE(image_buf, rle_data, size, bpp)</function> 
+   macro definition  to  decode  run-length encoded image data.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GDK-PIXBUF-MAGIC-NUMBER-CAPS"/>GDK_PIXBUF_MAGIC_NUMBER</title>
+<indexterm><primary>GDK_PIXBUF_MAGIC_NUMBER</primary></indexterm><programlisting>#define GDK_PIXBUF_MAGIC_NUMBER (0x47646b50)    /* 'GdkP' */
+</programlisting>
+<para>
+Magic number for <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structures.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GDK-PIXDATA-HEADER-LENGTH-CAPS"/>GDK_PIXDATA_HEADER_LENGTH</title>
+<indexterm><primary>GDK_PIXDATA_HEADER_LENGTH</primary></indexterm><programlisting>#define	GDK_PIXDATA_HEADER_LENGTH	(4 + 4 + 4 + 4 + 4 + 4)
+</programlisting>
+<para>
+The length of a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure without the <parameter>pixel_data</parameter> pointer.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixdata-from-pixbuf"/>gdk_pixdata_from_pixbuf ()</title>
+<indexterm><primary>gdk_pixdata_from_pixbuf</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gdk_pixdata_from_pixbuf         (<link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             const <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gboolean">gboolean</link> use_rle);</programlisting>
+<para>
+Converts a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> to a <link linkend="GdkPixdata"><type>GdkPixdata</type></link>. If <parameter>use_rle</parameter> is <literal>TRUE</literal>, the
+pixel data is run-length encoded into newly-allocated memory and a 
+pointer to that memory is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixdata</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> to fill.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> the data to fill <parameter>pixdata</parameter> with.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>use_rle</parameter>&nbsp;:</term>
+<listitem><simpara> whether to use run-length encoding for the pixel data.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> If <parameter>ure_rle</parameter> is <literal>TRUE</literal>, a pointer to the newly-allocated memory 
+  for the run-length encoded pixel data, otherwise <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-from-pixdata"/>gdk_pixbuf_from_pixdata ()</title>
+<indexterm><primary>gdk_pixbuf_from_pixdata</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_from_pixdata         (const <link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             <link linkend="gboolean">gboolean</link> copy_pixels,
+                                             <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Converts a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> to a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>. If <parameter>copy_pixels</parameter> is <literal>TRUE</literal> or
+if the pixel data is run-length-encoded, the pixel data is copied into
+newly-allocated memory; otherwise it is reused.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixdata</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> to convert into a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>copy_pixels</parameter>&nbsp;:</term>
+<listitem><simpara> whether to copy raw pixel data; run-length encoded
+    pixel data is always copied.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> location to store possible errors.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixdata-serialize"/>gdk_pixdata_serialize ()</title>
+<indexterm><primary>gdk_pixdata_serialize</primary></indexterm><programlisting><link linkend="guint8">guint8</link>*     gdk_pixdata_serialize           (const <link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             <link linkend="guint">guint</link> *stream_length_p);</programlisting>
+<para>
+Serializes a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure into a byte stream.
+The byte stream consists of a straightforward writeout of the
+<link linkend="GdkPixdata"><type>GdkPixdata</type></link> fields in network byte order, plus the <parameter>pixel_data</parameter>
+bytes the structure points to.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixdata</parameter>&nbsp;:</term>
+<listitem><simpara> a valid <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure to serialize.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stream_length_p</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the resulting stream length in.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-allocated string containing the serialized
+<link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixdata-deserialize"/>gdk_pixdata_deserialize ()</title>
+<indexterm><primary>gdk_pixdata_deserialize</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gdk_pixdata_deserialize         (<link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             <link linkend="guint">guint</link> stream_length,
+                                             const <link linkend="guint8">guint8</link> *stream,
+                                             <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Deserializes (reconstruct) a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure from a byte stream.
+The byte stream consists of a straightforward writeout of the
+<link linkend="GdkPixdata"><type>GdkPixdata</type></link> fields in network byte order, plus the <parameter>pixel_data</parameter>
+bytes the structure points to.
+The <parameter>pixdata</parameter> contents are reconstructed byte by byte and are checked
+for validity. This function may fail with <literal>GDK_PIXBUF_CORRUPT_IMAGE</literal>
+or <literal>GDK_PIXBUF_ERROR_UNKNOWN_TYPE</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixdata</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure to be filled in.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stream_length</parameter>&nbsp;:</term>
+<listitem><simpara> length of the stream used for deserialization.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stream</parameter>&nbsp;:</term>
+<listitem><simpara> stream of bytes containing a serialized <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="GError"><type>GError</type></link> location to indicate failures (maybe <literal>NULL</literal> to ignore errors).
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> Upon successful deserialization <literal>TRUE</literal> is returned,
+<literal>FALSE</literal> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixdata-to-csource"/>gdk_pixdata_to_csource ()</title>
+<indexterm><primary>gdk_pixdata_to_csource</primary></indexterm><programlisting><link linkend="GString">GString</link>*    gdk_pixdata_to_csource          (<link linkend="GdkPixdata">GdkPixdata</link> *pixdata,
+                                             const <link linkend="gchar">gchar</link> *name,
+                                             <link linkend="GdkPixdataDumpType">GdkPixdataDumpType</link> dump_type);</programlisting>
+<para>
+Generates C source code suitable for compiling images directly 
+into programs. 
+</para>
+<para>
+GTK+ ships with a program called <command>gdk-pixbuf-csource</command> 
+which offers a command line interface to this function.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixdata</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixdata"><type>GdkPixdata</type></link> to convert to C source.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> used for naming generated data structures or macros.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dump_type</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixdataDumpType"><type>GdkPixdataDumpType</type></link> determining the kind of C
+  source to be generated.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a newly-allocated string containing the C source form
+  of <parameter>pixdata</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

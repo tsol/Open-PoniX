@@ -1,0 +1,170 @@
+#!/bin/sh
+#
+#  Copyright (C) 2002-2010 RealVNC Ltd.
+#
+
+#
+# vncinstall - install VNC programs, man pages, and create default PAM and 
+# vncserver configuration files and a default xstartup.
+#
+
+# Set up defaults and platform-specific overrides
+dst=/usr/local/bin
+lib=/usr/local/lib
+
+SYSNAME=`uname -s`
+case "$SYSNAME" in
+    Linux)
+        dst=/usr/bin
+        lib=/usr/lib
+        ;;
+    SunOS)
+        ;;
+    HP-UX)
+        ;;
+    AIX)
+        ;;
+    *)
+        echo "Unknown platform"
+        exit 1
+        ;;
+esac
+
+if [ $# -gt 4 ]; then 
+    echo "usage: $0 [<installation-directory> [<man-page-directory> [<cups-directory] ] ]"
+    exit 1
+fi
+
+# Installation directory
+if [ $# -gt 0 ]; then
+    dst=$1
+    shift
+fi
+
+# Check installation directory exists
+if [ ! -d $dst ]; then
+  echo "Installation directory $dst does not exist."
+  exit 1
+fi
+
+# Man page directories
+if [ $# -gt 0 ]; then
+    mandst="$1/man1"
+    shift
+else
+    if [ "`basename $dst`" = bin ]; then
+        mandst="`dirname $dst`/man/man1"
+        if [ ! -d "$mandst" -a "$dst" = /usr/bin ]; then
+            mandst=/usr/share/man/man1
+        fi
+    fi
+fi
+if [ "$mandst" != "" ]; then
+    if [ ! -d "$mandst" -o ! -w "$mandst" ]; then
+        echo "Can't install manual pages to $mandst"
+        mandst=""
+    fi
+fi
+
+# CUPS directory
+if [ $# -gt 0 ]; then
+    cupsdst=$1
+    shift
+else
+    cupsdst=/usr/lib/cups
+fi
+
+# Copy files
+for f in vncviewer vncaddrbook vncserver-x11 vncserver-x11-core Xvnc Xvnc-core \
+         vncserverui vncserver-virtual vncserver-virtuald \
+         vncserver-x11-serviced vncpasswd vnclicense vnclicensewiz \
+         vncpipehelper vncchat vncinitconfig; do
+
+  if [ ! -f $f ]; then
+      echo "Couldn't find $f"
+  else
+      if cmp -s $f $dst/`basename $f`; then
+          echo "`basename $f` hasn't changed"
+      else
+          echo "Copying $f to $dst"
+          cp -f $f $dst
+          chmod 0555 $dst/`basename $f`
+      fi
+
+      if [ -f $f.man ]; then
+          if [ "$mandst" != "" -a -d "$mandst" ]; then
+              if cmp -s $f.man $mandst/`basename $f.1`; then
+                  echo "`basename $f.man` hasn't changed"
+              else
+                  echo "Copying $f.man to $mandst/`basename $f.1`"
+                  cp -f $f.man $mandst/`basename $f.1`
+                  chmod 0444 $mandst/`basename $f.1`
+              fi
+          fi
+      fi
+  fi
+
+done
+
+rm -f $dst/vncserver
+ln -s vncserver-virtual $dst/vncserver
+
+if [ "`id -u`" -ne "0" ]; then
+    echo "Some installation components require root access to install."
+    echo "Rerun `basename $0` as root to install properly."
+    exit 1
+fi
+
+# Create lib directory if it doesn't exist
+if [ ! -d $lib/vnc ]; then
+  mkdir -p $lib/vnc
+  chmod 0755 $lib/vnc
+fi
+
+# Copy files to lib directory
+for f in get_primary_ip4 vncelevate; do
+
+  if [ ! -f $f ]; then
+      echo "Couldn't find $f"
+  else
+      if cmp -s $f $lib/vnc/`basename $f`; then
+          echo "`basename $f` hasn't changed"
+      else
+          echo "Copying $f to $lib/vnc"
+          cp -f $f $lib/vnc
+          chmod 0555 $lib/vnc/`basename $f`
+      fi
+  fi
+
+done
+
+# Create fonts directory if it doesn't exist
+if [ ! -d /usr/share/vnc ]; then
+  mkdir -p /usr/share/vnc
+  chmod 0755 /usr/share/vnc
+fi
+
+if [ ! -d /usr/share/vnc/fonts ]; then
+  mkdir -p /usr/share/vnc/fonts
+  chmod 0755 /usr/share/vnc/fonts
+fi
+
+cp -f fonts/* /usr/share/vnc/fonts
+chmod 0444 /usr/share/vnc/fonts/*
+
+cp -f rgb.txt /usr/share/vnc
+chmod 0444 /usr/share/vnc/rgb.txt
+
+setuid="Xvnc vncserver-x11"
+for i in $setuid; do
+    chmod 4555 $dst/$i
+done
+
+cups_backend=$cupsdst/backend
+cups_vnc=$cups_backend/vnc
+mkdir -p $cups_backend
+cp -f cups/vnc $cups_vnc
+chown root $cups_vnc
+chmod 0700 $cups_vnc
+
+$dst/vncinitconfig --install-defaults

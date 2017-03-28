@@ -1,0 +1,136 @@
+<refentry id="gdk-pixbuf-refcounting">
+<refmeta>
+<refentrytitle>Reference Counting and Memory Mangement</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Reference Counting and Memory Mangement</refname><refpurpose>
+Functions for reference counting and memory management on pixbufs.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-ref">gdk_pixbuf_ref</link>                  (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+<link linkend="void">void</link>        <link linkend="gdk-pixbuf-unref">gdk_pixbuf_unref</link>                (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+<link linkend="void">void</link>        (<link linkend="GdkPixbufDestroyNotify">*GdkPixbufDestroyNotify</link>)       (<link linkend="guchar">guchar</link> *pixels,
+                                             <link linkend="gpointer">gpointer</link> data);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structures are reference counted.  This means that an
+    application can share a single pixbuf among many parts of the
+    code.  When a piece of the program needs to keep a pointer to a
+    pixbuf, it should add a reference to it by calling <link linkend="g-object-ref"><function>g_object_ref()</function></link>.
+    When it no longer needs the pixbuf, it should subtract a reference
+    by calling <link linkend="g-object-unref"><function>g_object_unref()</function></link>.  The pixbuf will be destroyed when
+    its reference count drops to zero.  Newly-created <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>
+    structures start with a reference count of one.
+  </para>
+
+  <note>
+    <para>
+      As <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> is derived from <link linkend="GObject"><type>GObject</type></link> now, <link linkend="gdk-pixbuf-ref"><function>gdk_pixbuf_ref()</function></link> and
+      <link linkend="gdk-pixbuf-unref"><function>gdk_pixbuf_unref()</function></link> are deprecated in favour of <link linkend="g-object-ref"><function>g_object_ref()</function></link>
+      and <link linkend="g-object-unref"><function>g_object_unref()</function></link> resp.
+    </para>
+  </note>
+
+  <para>
+    <emphasis>Finalizing</emphasis> a pixbuf means to free its pixel
+    data and to free the <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structure itself.  Most of the
+    library functions that create <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structures create the
+    pixel data by themselves and define the way it should be freed;
+    you do not need to worry about those.  The only function that lets
+    you specify how to free the pixel data is
+    <link linkend="gdk-pixbuf-new-from-data"><function>gdk_pixbuf_new_from_data()</function></link>.  Since you pass it a pre-allocated
+    pixel buffer, you must also specify a way to free that data.  This
+    is done with a function of type <link linkend="GdkPixbufDestroyNotify"><type>GdkPixbufDestroyNotify</type></link>.  When a
+    pixbuf created with <link linkend="gdk-pixbuf-new-from-data"><function>gdk_pixbuf_new_from_data()</function></link> is finalized, your
+    destroy notification function will be called, and it is its
+    responsibility to free the pixel array.
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="gdk-pixbuf-ref"/>gdk_pixbuf_ref ()</title>
+<indexterm><primary>gdk_pixbuf_ref</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_ref                  (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<warning><para><literal>gdk_pixbuf_ref</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-ref"><function>g_object_ref()</function></link>.</para></warning>
+<para>
+Adds a reference to a pixbuf.</para>
+  <para>
+
+  </para><variablelist role="params">
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> A pixbuf.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The same as the <parameter>pixbuf</parameter> argument.
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-unref"/>gdk_pixbuf_unref ()</title>
+<indexterm><primary>gdk_pixbuf_unref</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_pixbuf_unref                (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<warning><para><literal>gdk_pixbuf_unref</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-unref"><function>g_object_unref()</function></link>.</para></warning>
+<para>
+Removes a reference from a pixbuf.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> A pixbuf.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkPixbufDestroyNotify"/>GdkPixbufDestroyNotify ()</title>
+<indexterm><primary>GdkPixbufDestroyNotify</primary></indexterm><programlisting><link linkend="void">void</link>        (*GdkPixbufDestroyNotify)       (<link linkend="guchar">guchar</link> *pixels,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+  <para>
+    A function of this type is responsible for freeing the pixel array
+    of a pixbuf.  The <link linkend="gdk-pixbuf-new-from-data"><function>gdk_pixbuf_new_from_data()</function></link> function lets you
+    pass in a pre-allocated pixel array so that a pixbuf can be
+    created from it; in this case you will need to pass in a function
+    of <link linkend="GdkPixbufDestroyNotify"><type>GdkPixbufDestroyNotify</type></link> so that the pixel data can be freed
+    when the pixbuf is finalized.
+  </para><variablelist role="params">
+<varlistentry><term><parameter>pixels</parameter>&nbsp;:</term>
+<listitem><simpara>The pixel array of the pixbuf that is being finalized.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>User closure data.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>, <link linkend="gdk-pixbuf-new-from-data"><function>gdk_pixbuf_new_from_data()</function></link>.
+  </para>
+</refsect1>
+
+</refentry>

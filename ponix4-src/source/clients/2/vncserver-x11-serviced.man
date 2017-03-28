@@ -1,0 +1,104 @@
+.TH vncserver-x11-serviced 1 "May 2012" "RealVNC Ltd" "VNC Server"
+.SH NAME
+vncserver-x11-serviced \- VNC\(rg X11 Service-mode Daemon.
+.SH SYNOPSIS
+.B vncserver-x11-serviced
+.RI [ OPTION... ]
+.SH DESCRIPTION
+.B vncserver-x11-serviced
+is a daemon which manages the running of a service-mode VNC server for each X 
+Server which is running on the system. This ensures that the system can be
+accessed via VNC, even if the X server is restarted. It is designed to be 
+started automatically at system boot time.
+
+.SH OPTIONS
+.TP
+.B \-help
+Gives a list of supported options.
+.TP
+.B \-fg
+Causes the daemon to run in the foreground, which can be useful for 
+troubleshooting.
+
+.SH CONFIGURATION FILES
+In addition to the command line, configuration parameters can also be specified
+in 
+.I /etc/vnc/config.d/vncserver-x11-serviced
+as well as the common configuration files used by all RealVNC applications.
+
+
+.SH DISPLAY MANAGER CONFIGURATION
+
+This section describes issues or configuration changes that may be required 
+when running certain display managers. For most display managers, no 
+configuration changes are required. 
+
+.B dtlogin
+(used by HP-UX, AIX and Solaris up to v10)
+
+For systems using dtlogin, you need to set the following option (normally found 
+in /usr/dt/config/Xconfig) in order to allow vncserver-x11-serviced to allow 
+connections at login time:
+
+.nf
+  Dtlogin*grabServer: False
+.fi
+
+The above line is normally present in the file but commented out. Please note 
+that the effect of this will be to potentially allow any program to connect to 
+the X server at login time (subject to the normal X authorisation rules).
+
+
+.SH USER INTERFACE
+
+In most cases, the service-mode VNC server and user-interface processes are 
+started automatically when the X server starts and a user logs-in respectively.
+On some systems running older window managers, this second phase may not happen
+automatically. In this case, it is necessary to tell the user interface to start
+by running the following command from within the desktop session:
+
+.nf
+  vncserver-x11 -serviceui
+.fi
+
+This could be included in the user's .xstartup file (or appropriate startup
+file for the desktop environment).
+
+
+.SH STARTING AUTOMATICALLY
+A suitable init script for your system should have been installed by the 
+vncinitconfig program. This can be used to start and stop the daemon manually
+as follows:
+
+.nf
+  # /etc/init.d/vncserver-x11-serviced (start|stop)
+.fi
+
+To have the daemon start automatically at system boot time, you need to run
+the appropriate configuration tool for your system to enable it. For example,
+on Debian-based systems use the
+.B update-rc.d 
+tool:
+
+.nf
+  # update-rc.d vncserver-x11-serviced defaults
+.fi
+
+On Red Hat-based systems use the 
+.B chkconfig 
+tool:
+
+.nf
+  # chkconfig --add vncserver-x11-serviced
+.fi
+
+For other systems please consult your system documentation on startup scripts.
+
+
+.SH SEE ALSO
+.BR vncserver-x11 (1),
+.BR vncinitconfig (1),
+.br
+http://www.realvnc.com
+.SH AUTHOR
+RealVNC Ltd.

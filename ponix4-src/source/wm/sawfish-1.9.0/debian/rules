@@ -1,0 +1,74 @@
+#!/usr/bin/make -f
+
+version := $(shell sed -n 's/version="\(.*\)"/\1/p' configure.in | head -n 1)
+
+CFLAGS += -Wall -g -fno-strict-aliasing
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+
+LC_ALL=
+LINGUAS=
+LANG=
+export LC_ALL LINGUAS LANG
+
+DEB_CONFIGURE_USER_FLAGS = --with-readline
+
+lisp_source_extras = debian/tmp/usr/share/sawfish/lisp -name "*.jl" \
+	\! -name "*autoload*" \! -name "*custom-defaults*" \
+	\! -name "*wallpaper.jl"
+
+data_extras = debian/tmp/usr/share/sawfish/lisp -name "*autoload.jl" \
+	      -o -name "*custom-defaults.jl" \
+	      -o -name "*.jlc" \
+	      -o -name "*wallpaper.jl"
+
+data_extradirs = debian/tmp/usr/share/sawfish/sounds \
+	debian/tmp/usr/share/sawfish/themes \
+	debian/tmp/usr/share/xsessions \
+	debian/tmp/usr/include \
+	debian/tmp/usr/share/applications \
+	debian/tmp/usr/share/kde4 \
+	debian/tmp/usr/share/gnome \
+	debian/tmp/usr/share/locale \
+	debian/tmp/usr/share/icons
+
+dh_install_auto = xargs dh_install --autodest
+
+dh_install_data = dh_install -psawfish-data --autodest
+
+%:
+	dh $@ --with autotools-dev --with autoreconf
+
+override_dh_auto_clean:
+	-$(MAKE) debclean
+
+override_dh_auto_configure:
+	env CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" dh_auto_configure -- $(DEB_CONFIGURE_USER_FLAGS)
+
+override_dh_auto_install:
+	dh_auto_install
+	find $(lisp_source_extras) | $(dh_install_auto) -psawfish-lisp-source
+	find $(data_extras) | $(dh_install_auto) -psawfish-data
+	dh_install -psawfish-data sawfish.el usr/share/emacs/site-lisp/sawfish
+	for d in $(data_extradirs) ; do dh_install -psawfish-data --autodest $$d ; done
+	dh_install -psawfish-data debian/tmp/usr/share/sawfish/sawfish.png
+
+override_dh_installdocs:
+	dh_installdocs --link-doc=sawfish-data
+	dh_installdocs -psawfish-data  FAQ NEWS README TODO OPTIONS KEYBINDINGS USERDOC
+
+override_dh_installchangelogs:
+	dh_installchangelogs -psawfish-data
+
+override_dh_installman:
+	dh_installman -psawfish man/*.1
+
+override_dh_strip:
+	dh_strip -a --dbg-package=sawfish-dbg
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --warnings=2

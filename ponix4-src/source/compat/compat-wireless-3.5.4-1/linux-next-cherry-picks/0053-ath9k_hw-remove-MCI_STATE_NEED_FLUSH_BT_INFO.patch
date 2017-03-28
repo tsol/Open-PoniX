@@ -1,0 +1,48 @@
+From d02ca07e6fdf89ed6f453fe1c9229c71a0358886 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Tue, 12 Jun 2012 20:18:19 +0530
+Subject: [PATCH 53/57] ath9k_hw: remove MCI_STATE_NEED_FLUSH_BT_INFO
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |   17 -----------------
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h |    1 -
+ 2 files changed, 18 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1245,23 +1245,6 @@ u32 ar9003_mci_state(struct ath_hw *ah,
+ 		query_type = MCI_GPM_COEX_QUERY_BT_TOPOLOGY;
+ 		ar9003_mci_send_coex_bt_status_query(ah, true, query_type);
+ 		break;
+-	case MCI_STATE_NEED_FLUSH_BT_INFO:
+-		/*
+-		 * btcoex_hw.mci.unhalt_bt_gpm means whether it's
+-		 * needed to send UNHALT message. It's set whenever
+-		 * there's a request to send HALT message.
+-		 * mci_halted_bt_gpm means whether HALT message is sent
+-		 * out successfully.
+-		 *
+-		 * Checking (mci_unhalt_bt_gpm == false) instead of
+-		 * checking (ah->mci_halted_bt_gpm == false) will make
+-		 * sure currently is in UNHALT-ed mode and BT can
+-		 * respond to status query.
+-		 */
+-		value = (!mci->unhalt_bt_gpm && mci->need_flush_btinfo) ? 1 : 0;
+-		if (p_data)
+-			mci->need_flush_btinfo = (*p_data != 0) ? true : false;
+-		break;
+ 	case MCI_STATE_RECOVER_RX:
+ 		ar9003_mci_prep_interface(ah);
+ 		mci->query_bt = true;
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -203,7 +203,6 @@ enum mci_state_type {
+ 	MCI_STATE_SEND_WLAN_COEX_VERSION,
+ 	MCI_STATE_SEND_VERSION_QUERY,
+ 	MCI_STATE_SEND_STATUS_QUERY,
+-	MCI_STATE_NEED_FLUSH_BT_INFO,
+ 	MCI_STATE_SET_CONCUR_TX_PRI,
+ 	MCI_STATE_RECOVER_RX,
+ 	MCI_STATE_NEED_FTP_STOMP,

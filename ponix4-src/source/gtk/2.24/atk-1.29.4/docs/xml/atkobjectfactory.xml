@@ -1,0 +1,126 @@
+<refentry id="AtkObjectFactory">
+<refmeta>
+<refentrytitle role="top_of_page" id="AtkObjectFactory.top_of_page">AtkObjectFactory</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkObjectFactory</refname>
+<refpurpose>The base object class for a factory used to create accessible objects for
+objects of a specific GType.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="AtkObjectFactory.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+                    <link linkend="AtkObjectFactory-struct">AtkObjectFactory</link>;
+<link linkend="AtkObject">AtkObject</link>*          <link linkend="atk-object-factory-create-accessible">atk_object_factory_create_accessible</link>
+                                                        (<link linkend="AtkObjectFactory">AtkObjectFactory</link> *factory,
+                                                         <link linkend="GObject">GObject</link> *obj);
+<link linkend="GType">GType</link>               <link linkend="atk-object-factory-get-accessible-type">atk_object_factory_get_accessible_type</link>
+                                                        (<link linkend="AtkObjectFactory">AtkObjectFactory</link> *factory);
+<link linkend="void">void</link>                <link linkend="atk-object-factory-invalidate">atk_object_factory_invalidate</link>       (<link linkend="AtkObjectFactory">AtkObjectFactory</link> *factory);
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 id="AtkObjectFactory.object-hierarchy" role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+  <link linkend="GObject">GObject</link>
+   +----AtkObjectFactory
+         +----<link linkend="AtkNoOpObjectFactory">AtkNoOpObjectFactory</link>
+</synopsis>
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1 id="AtkObjectFactory.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+This class is the base object class for a factory used to create an
+accessible object for a specific GType. The function
+<link linkend="atk-registry-set-factory-type"><function>atk_registry_set_factory_type()</function></link> is normally called to store
+in the registry the factory type to be used to create an accessible of a
+particular GType.
+</para>
+</refsect1>
+
+<refsect1 id="AtkObjectFactory.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="AtkObjectFactory-struct" role="struct">
+<title>AtkObjectFactory</title>
+<indexterm zone="AtkObjectFactory-struct"><primary sortas="AtkObjectFactory">AtkObjectFactory</primary></indexterm><programlisting>typedef struct _AtkObjectFactory AtkObjectFactory;</programlisting>
+<para>
+The AtkObjectFactory structure should not be accessed directly.
+</para></refsect2>
+<refsect2 id="atk-object-factory-create-accessible" role="function">
+<title>atk_object_factory_create_accessible ()</title>
+<indexterm zone="atk-object-factory-create-accessible"><primary sortas="atk_object_factory_create_accessible">atk_object_factory_create_accessible</primary></indexterm><programlisting><link linkend="AtkObject">AtkObject</link>*          atk_object_factory_create_accessible
+                                                        (<link linkend="AtkObjectFactory">AtkObjectFactory</link> *factory,
+                                                         <link linkend="GObject">GObject</link> *obj);</programlisting>
+<para>
+Provides an <link linkend="AtkObject"><type>AtkObject</type></link> that implements an accessibility interface 
+on behalf of <parameter>obj</parameter></para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>factory</parameter>&#160;:</term>
+<listitem><simpara> The <link linkend="AtkObjectFactory"><type>AtkObjectFactory</type></link> associated with <parameter>obj</parameter>'s
+object type
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>obj</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> an <link linkend="AtkObject"><type>AtkObject</type></link> that implements an accessibility interface
+on behalf of <parameter>obj</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-object-factory-get-accessible-type" role="function">
+<title>atk_object_factory_get_accessible_type ()</title>
+<indexterm zone="atk-object-factory-get-accessible-type"><primary sortas="atk_object_factory_get_accessible_type">atk_object_factory_get_accessible_type</primary></indexterm><programlisting><link linkend="GType">GType</link>               atk_object_factory_get_accessible_type
+                                                        (<link linkend="AtkObjectFactory">AtkObjectFactory</link> *factory);</programlisting>
+<para>
+Gets the GType of the accessible which is created by the factory.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>factory</parameter>&#160;:</term>
+<listitem><simpara> an <link linkend="AtkObjectFactory"><type>AtkObjectFactory</type></link> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> the type of the accessible which is created by the <parameter>factory</parameter>.
+The value G_TYPE_INVALID is returned if no type if found.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-object-factory-invalidate" role="function">
+<title>atk_object_factory_invalidate ()</title>
+<indexterm zone="atk-object-factory-invalidate"><primary sortas="atk_object_factory_invalidate">atk_object_factory_invalidate</primary></indexterm><programlisting><link linkend="void">void</link>                atk_object_factory_invalidate       (<link linkend="AtkObjectFactory">AtkObjectFactory</link> *factory);</programlisting>
+<para>
+Inform <parameter>factory</parameter> that it is no longer being used to create
+accessibles. When called, <parameter>factory</parameter> may need to inform
+<link linkend="AtkObjects"><type>AtkObjects</type></link> which it has created that they need to be re-instantiated.
+Note: primarily used for runtime replacement of <link linkend="AtkObjectFactorys"><type>AtkObjectFactorys</type></link>
+in object registries.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>factory</parameter>&#160;:</term>
+<listitem><simpara> an <link linkend="AtkObjectFactory"><type>AtkObjectFactory</type></link> to invalidate
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1 id="AtkObjectFactory.see-also">
+<title>See Also</title>
+<para>
+AtkRegistry
+</para>
+</refsect1>
+
+</refentry>

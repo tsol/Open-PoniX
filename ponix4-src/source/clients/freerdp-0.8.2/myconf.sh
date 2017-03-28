@@ -1,0 +1,23 @@
+#!/bin/bash
+
+export ACLOCAL="aclocal -I/usr/xorg/share/aclocal" \
+export PKG_CONFIG_PATH=/usr/xorg/lib/pkgconfig:/usr/xorg/share/pkgconfig:${PKG_CONFIG_PATH} \
+export LD_LIBRARY_PATH=/usr/xorg/lib:${LD_LIBRARY_PATH} \
+export LDFLAGS=-static-libgcc \
+#export CFLAGS=-Os \
+#export CXXFLAGS=-O2
+
+make clean
+
+rm -r /bin/xfreerdp
+rm -r /lib/freerdp
+rm -r /lib/libfreerdp*
+rm -r /share/freerdp
+
+./configure --prefix=/ --with-x --with-sound=alsa --enable-ipv6 \
+--x-includes=/usr/xorg/include/ --x-libraries=/usr/xorg/lib/ --disable-smartcard \
+--with-printer=no
+
+#  --without-libsamplerate
+
+make ; make install

@@ -1,0 +1,219 @@
+<refentry id="PangoFcFontMap">
+<refmeta>
+<refentrytitle>PangoFcFontMap</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>PangoFcFontMap</refname><refpurpose>Base fontmap class for Fontconfig-based backends</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+struct      <link linkend="PangoFcFontMap-struct">PangoFcFontMap</link>;
+struct      <link linkend="PangoFcFontMapClass">PangoFcFontMapClass</link>;
+<link linkend="PangoFontDescription">PangoFontDescription</link>* <link linkend="pango-fc-font-description-from-pattern">pango_fc_font_description_from_pattern</link>
+                                            (<link linkend="FcPattern">FcPattern</link> *pattern,
+                                             <link linkend="gboolean">gboolean</link> include_size);
+<link linkend="void">void</link>        <link linkend="pango-fc-font-map-cache-clear">pango_fc_font_map_cache_clear</link>   (<link linkend="PangoFcFontMap">PangoFcFontMap</link> *fcfontmap);
+<link linkend="PangoContext">PangoContext</link>* <link linkend="pango-fc-font-map-create-context">pango_fc_font_map_create_context</link>
+                                            (<link linkend="PangoFcFontMap">PangoFcFontMap</link> *fcfontmap);
+<link linkend="void">void</link>        <link linkend="pango-fc-font-map-shutdown">pango_fc_font_map_shutdown</link>      (<link linkend="PangoFcFontMap">PangoFcFontMap</link> *fcfontmap);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="PangoFontMap">PangoFontMap</link>
+         +----PangoFcFontMap
+               +----<link linkend="PangoFT2FontMap">PangoFT2FontMap</link>
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+PangoFcFontMap is a base class for font map implementations using the
+FontConfig and FreeType libraries. It is used in the
+<link linkend="pango-Xft-Fonts-and-Rendering">Xft</link> and
+<link linkend="pango-FreeType-Fonts-and-Rendering">FreeType</link>
+backends shipped with Pango, but can also be used when creating
+new backends. Any backend deriving from this base class will 
+take advantage of the wide range of shapers implemented using
+FreeType that come with Pango.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="PangoFcFontMap-struct"/>struct PangoFcFontMap</title>
+<indexterm><primary>PangoFcFontMap</primary></indexterm><programlisting>struct PangoFcFontMap;</programlisting>
+<para>
+<link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link> is a base class for font map implementations
+using the FontConfig and FreeType libraries. To create a new
+backend using Fontconfig and FreeType, you derive from this class
+and implement a <link linkend="new-font"><function>new_font()</function></link> virtual function that creates an
+instance deriving from <link linkend="PangoFcFont"><type>PangoFcFont</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoFcFontMapClass"/>struct PangoFcFontMapClass</title>
+<indexterm><primary>PangoFcFontMapClass</primary></indexterm><programlisting>struct PangoFcFontMapClass {
+
+  void         (*default_substitute) (PangoFcFontMap   *fontmap,
+			              FcPattern        *pattern);
+  PangoFcFont  *(*new_font)          (PangoFcFontMap  *fontmap,
+			              FcPattern       *pattern);
+
+};
+</programlisting>
+<para>
+Class structure for <link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link>.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="void">void</link> (*<structfield>default_substitute</structfield>) (PangoFcFontMap   *fontmap,
+			              FcPattern        *pattern)</term>
+<listitem><simpara> Substitutes in default values for
+ unspecified fields in a <link linkend="FcPattern"><type>FcPattern</type></link>. This will be called
+ prior to creating a font for the pattern. May be <literal>NULL</literal>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoFcFont">PangoFcFont</link>* (*<structfield>new_font</structfield>) (PangoFcFontMap  *fontmap,
+			              FcPattern       *pattern)</term>
+<listitem><simpara> Creates a new <link linkend="PangoFcFont"><type>PangoFcFont</type></link> for the specified
+ pattern of the appropriate type for this font map. The
+ <parameter>pattern</parameter> argument must be passed to the "pattern" property
+ of <link linkend="PangoFcFont"><type>PangoFcFont</type></link> when you call <link linkend="g-object-new"><function>g_object_new()</function></link>
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-description-from-pattern"/>pango_fc_font_description_from_pattern ()</title>
+<indexterm><primary>pango_fc_font_description_from_pattern</primary></indexterm><programlisting><link linkend="PangoFontDescription">PangoFontDescription</link>* pango_fc_font_description_from_pattern
+                                            (<link linkend="FcPattern">FcPattern</link> *pattern,
+                                             <link linkend="gboolean">gboolean</link> include_size);</programlisting>
+<para>
+Creates a <link linkend="PangoFontDescription"><type>PangoFontDescription</type></link> that matches the specified
+Fontconfig pattern as closely as possible. Many possible Fontconfig
+pattern values, such as <literal>FC_RASTERIZER</literal> or <literal>FC_DPI</literal>, don't make sense in
+the context of <link linkend="PangoFontDescription"><type>PangoFontDescription</type></link>, so will be ignored.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pattern</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="FcPattern"><type>FcPattern</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>include_size</parameter>&nbsp;:</term>
+<listitem><simpara> if <literal>TRUE</literal>, the pattern will include the size from
+  the <parameter>pattern</parameter>; otherwise the resulting pattern will be unsized.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="PangoFontDescription"><type>PangoFontDescription</type></link>. Free with
+ <link linkend="pango-font-description-free"><function>pango_font_description_free()</function></link>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-map-cache-clear"/>pango_fc_font_map_cache_clear ()</title>
+<indexterm><primary>pango_fc_font_map_cache_clear</primary></indexterm><programlisting><link linkend="void">void</link>        pango_fc_font_map_cache_clear   (<link linkend="PangoFcFontMap">PangoFcFontMap</link> *fcfontmap);</programlisting>
+<para>
+Clear all cached information and fontsets for this font map;
+this should be called whenever there is a change in the
+output of the <link linkend="default-substitute"><function>default_substitute()</function></link> virtual function.
+</para>
+<para>
+This function is intended to be used only by backend implementations
+deriving from <link linkend="PangoFcFontmap"><type>PangoFcFontmap</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>fcfontmap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFontmap"><type>PangoFcFontmap</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-map-create-context"/>pango_fc_font_map_create_context ()</title>
+<indexterm><primary>pango_fc_font_map_create_context</primary></indexterm><programlisting><link linkend="PangoContext">PangoContext</link>* pango_fc_font_map_create_context
+                                            (<link linkend="PangoFcFontMap">PangoFcFontMap</link> *fcfontmap);</programlisting>
+<para>
+Creates a new context for this fontmap. This function is intended
+only for backend implementations deriving from <link linkend="PangoFcFontmap"><type>PangoFcFontmap</type></link>;
+it is possible that a backend will store additional information
+needed for correct operation on the <link linkend="PangoContext"><type>PangoContext</type></link> after calling
+this function.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>fcfontmap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="PangoContext"><type>PangoContext</type></link> 
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-map-shutdown"/>pango_fc_font_map_shutdown ()</title>
+<indexterm><primary>pango_fc_font_map_shutdown</primary></indexterm><programlisting><link linkend="void">void</link>        pango_fc_font_map_shutdown      (<link linkend="PangoFcFontMap">PangoFcFontMap</link> *fcfontmap);</programlisting>
+<para>
+Clears all cached information for the fontmap and marks
+all fonts open for the fontmap as dead. (See the <link linkend="shutdown"><function>shutdown()</function></link>
+virtual function of PangoFcFont.) This function might be used
+by a backend when the underlying windowing system for the font
+map exits. This function is only intended to be called from
+only for backend implementations deriving from <link linkend="PangoFcFontmap"><type>PangoFcFontmap</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>fcfontmap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFontmap"><type>PangoFcFontmap</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+
+<varlistentry>
+<term><link linkend="PangoFcFont"><type>PangoFcFont</type></link></term>
+<listitem><para>The base class for fonts; creating a new
+Fontconfig-based backend involves deriving from both
+<link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link> and <link linkend="PangoFcFont"><type>PangoFcFont</type></link>.
+</para></listitem>
+</varlistentry>
+
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

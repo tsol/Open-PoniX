@@ -1,0 +1,34 @@
+From a50d1fd4525162732b45db7a372e868933746a4e Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 24 Sep 2012 14:04:24 +0530
+Subject: [PATCH] ath9k_hw: fix BT sleep state on chip wakeup
+
+Whenever both WLAN and BT in/out sleep mode, sometimes WLAN
+is not able to take back the shared LNA control after resumes
+from sleep mode. The idea is that for WLAN to check if BT owns
+LNA control and BT is in sleep mode when WLAN just resumes from
+sleep mode. If the condition is true, do a BTCOEX_RC_WARM_RESET
+for WLAN to take back the control of shared LNA.
+Now the issue is the BT sleep value read from MCI register is
+overlooked by assigning u32 into u8. Hence the above condition never
+be met so that WLAN used to report beacon losses and frequent
+connection drops.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Tested-by: Paul Stewart <pstew@chromium.org>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1289,7 +1289,7 @@ void ar9003_mci_set_power_awake(struct a
+ 	}
+ 	REG_WRITE(ah, AR_DIAG_SW, (diag_sw | BIT(27) | BIT(19) | BIT(18)));
+ 	lna_ctrl = REG_READ(ah, AR_OBS_BUS_CTRL) & 0x3;
+-	bt_sleep = REG_READ(ah, AR_MCI_RX_STATUS) & AR_MCI_RX_REMOTE_SLEEP;
++	bt_sleep = MS(REG_READ(ah, AR_MCI_RX_STATUS), AR_MCI_RX_REMOTE_SLEEP);
+ 
+ 	REG_WRITE(ah, AR_BTCOEX_CTRL2, btcoex_ctrl2);
+ 	REG_WRITE(ah, AR_DIAG_SW, diag_sw);

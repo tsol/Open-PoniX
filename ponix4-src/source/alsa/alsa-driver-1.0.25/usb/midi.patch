@@ -1,0 +1,116 @@
+--- ../alsa-kernel/usb/midi.c	2010-10-23 17:00:26.073707353 +0200
++++ midi.c	2010-11-02 16:47:34.469336266 +0100
+@@ -1,3 +1,5 @@
++#include "midi.inc"
++
+ /*
+  * usbmidi.c - ALSA USB MIDI driver
+  *
+@@ -246,7 +248,11 @@ static void dump_urb(const char *type, c
+ /*
+  * Processes the data read from the device.
+  */
++#if !defined(OLD_USB) && !defined(CONFIG_SND_NEW_IRQ_HANDLER)
++static void snd_usbmidi_in_urb_complete(struct urb* urb, struct pt_regs *regs)
++#else
+ static void snd_usbmidi_in_urb_complete(struct urb* urb)
++#endif
+ {
+ 	struct snd_usb_midi_in_endpoint* ep = urb->context;
+ 
+@@ -270,7 +276,11 @@ static void snd_usbmidi_in_urb_complete(
+ 	snd_usbmidi_submit_urb(urb, GFP_ATOMIC);
+ }
+ 
++#if !defined(OLD_USB) && !defined(CONFIG_SND_NEW_IRQ_HANDLER)
++static void snd_usbmidi_out_urb_complete(struct urb* urb, struct pt_regs *regs)
++#else
+ static void snd_usbmidi_out_urb_complete(struct urb* urb)
++#endif
+ {
+ 	struct out_urb_context *context = urb->context;
+ 	struct snd_usb_midi_out_endpoint* ep = context->ep;
+@@ -380,8 +390,13 @@ static int send_bulk_static_data(struct
+ 		return -ENOMEM;
+ 	dump_urb("sending", buf, len);
+ 	if (ep->urbs[0].urb)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 12)
+ 		err = usb_bulk_msg(ep->umidi->dev, ep->urbs[0].urb->pipe,
+ 				   buf, len, NULL, 250);
++#else
++		err = usb_bulk_msg(ep->umidi->dev, ep->urbs[0].urb->pipe,
++				   buf, len, NULL, HZ);
++#endif
+ 	kfree(buf);
+ 	return err;
+ }
+@@ -1003,7 +1018,12 @@ static void update_roland_altsetting(str
+ 	int is_light_load;
+ 
+ 	intf = umidi->iface;
++#ifndef OLD_USB
+ 	is_light_load = intf->cur_altsetting != intf->altsetting;
++#else
++	is_light_load = &intf->altsetting[intf->act_altsetting] !=
++							intf->altsetting;
++#endif
+ 	if (umidi->roland_load_ctl->private_value == is_light_load)
+ 		return;
+ 	hostif = &intf->altsetting[umidi->roland_load_ctl->private_value];
+@@ -1090,7 +1110,11 @@ static void snd_usbmidi_output_drain(str
+ 	struct usbmidi_out_port* port = substream->runtime->private_data;
+ 	struct snd_usb_midi_out_endpoint *ep = port->ep;
+ 	unsigned int drain_urbs;
++#ifndef OLD_USB
+ 	DEFINE_WAIT(wait);
++#else
++	wait_queue_t wait;
++#endif
+ 	long timeout = msecs_to_jiffies(50);
+ 
+ 	if (ep->umidi->disconnected)
+@@ -1103,6 +1127,7 @@ static void snd_usbmidi_output_drain(str
+ 	drain_urbs = ep->active_urbs;
+ 	if (drain_urbs) {
+ 		ep->drain_urbs |= drain_urbs;
++#ifndef OLD_USB
+ 		do {
+ 			prepare_to_wait(&ep->drain_wait, &wait,
+ 					TASK_UNINTERRUPTIBLE);
+@@ -1112,6 +1137,18 @@ static void snd_usbmidi_output_drain(str
+ 			drain_urbs &= ep->drain_urbs;
+ 		} while (drain_urbs && timeout);
+ 		finish_wait(&ep->drain_wait, &wait);
++#else
++		do {
++			init_waitqueue_entry(&wait, current);
++			add_wait_queue(&ep->drain_wait, &wait);
++			set_current_state(TASK_UNINTERRUPTIBLE);
++			spin_unlock_irq(&ep->buffer_lock);
++			timeout = schedule_timeout(timeout);
++			spin_lock_irq(&ep->buffer_lock);
++			drain_urbs &= ep->drain_urbs;
++			remove_wait_queue(&ep->drain_wait, &wait);
++		} while (drain_urbs && timeout);
++#endif
+ 	}
+ 	spin_unlock_irq(&ep->buffer_lock);
+ }
+@@ -1823,7 +1860,11 @@ static int snd_usbmidi_detect_endpoints(
+ 	intf = umidi->iface;
+ 	if (!intf || intf->num_altsetting < 1)
+ 		return -ENOENT;
++#ifndef OLD_USB
+ 	hostif = intf->cur_altsetting;
++#else
++	hostif = &intf->altsetting[intf->act_altsetting];
++#endif
+ 	intfd = get_iface_desc(hostif);
+ 
+ 	for (i = 0; i < intfd->bNumEndpoints; ++i) {
+@@ -2197,3 +2238,5 @@ EXPORT_SYMBOL(snd_usbmidi_create);
+ EXPORT_SYMBOL(snd_usbmidi_input_stop);
+ EXPORT_SYMBOL(snd_usbmidi_input_start);
+ EXPORT_SYMBOL(snd_usbmidi_disconnect);
++
++#include "midi.inc1"

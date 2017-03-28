@@ -1,0 +1,272 @@
+<refentry id="atk-AtkSelection">
+<refmeta>
+<refentrytitle>AtkSelection</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkSelection</refname><refpurpose>
+ATK Interface implemented by container objects whose <link linkend="AtkObject">AtkObject</link> children
+can be selected.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+
+
+struct      <link linkend="AtkSelection">AtkSelection</link>;
+struct      <link linkend="AtkSelectionIface">AtkSelectionIface</link>;
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-selection-add-selection">atk_selection_add_selection</link>     (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-selection-clear-selection">atk_selection_clear_selection</link>   (<link linkend="AtkSelection">AtkSelection</link> *selection);
+<link linkend="AtkObject">AtkObject</link>*  <link linkend="atk-selection-ref-selection">atk_selection_ref_selection</link>     (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);
+<link linkend="gint">gint</link>        <link linkend="atk-selection-get-selection-count">atk_selection_get_selection_count</link>
+                                            (<link linkend="AtkSelection">AtkSelection</link> *selection);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-selection-is-child-selected">atk_selection_is_child_selected</link> (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-selection-remove-selection">atk_selection_remove_selection</link>  (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-selection-select-all-selection">atk_selection_select_all_selection</link>
+                                            (<link linkend="AtkSelection">AtkSelection</link> *selection);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="AtkSelection">AtkSelection</link> should be implemented by UI components with children which
+are exposed by <link linkend="atk-object-ref-child">atk_object_ref_child</link> and <link linkend="atk-object-get-n-children">atk_object_get_n_children</link>, if
+the use of the parent UI component ordinarily involves selection of one
+or more of the objects corresponding to those <link linkend="AtkObject">AtkObject</link> children - for
+example, selectable lists.
+</para>
+<para>
+Note that other types of "selection" (for instance text selection) are
+accomplished a other ATK interfaces - <link linkend="AtkSelection">AtkSelection</link> is limited to the
+selection/deselection of children.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="AtkSelection">struct AtkSelection</title>
+<programlisting>struct AtkSelection;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="AtkSelectionIface">struct AtkSelectionIface</title>
+<programlisting>struct AtkSelectionIface
+{
+  GTypeInterface parent;
+
+  gboolean     (* add_selection)        (AtkSelection   *selection,
+                                         gint           i);
+  gboolean     (* clear_selection)      (AtkSelection   *selection);
+  AtkObject*   (* ref_selection)        (AtkSelection   *selection,
+                                         gint           i);
+  gint         (* get_selection_count)  (AtkSelection   *selection);
+  gboolean     (* is_child_selected)    (AtkSelection   *selection,
+                                         gint           i);
+  gboolean     (* remove_selection)     (AtkSelection   *selection,
+                                         gint           i);
+  gboolean     (* select_all_selection) (AtkSelection   *selection);
+
+  /* signal handlers */
+  
+  void         (*selection_changed)     (AtkSelection   *selection);
+
+  AtkFunction  pad1;
+  AtkFunction  pad2;
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-add-selection">atk_selection_add_selection ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_selection_add_selection     (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Adds the specified accessible child of the object to the
+object's selection.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><parameter>i</parameter>&nbsp;:</entry>
+<entry> a <link linkend="gint">gint</link> specifying the child index.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> TRUE if success, FALSE otherwise.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-clear-selection">atk_selection_clear_selection ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_selection_clear_selection   (<link linkend="AtkSelection">AtkSelection</link> *selection);</programlisting>
+<para>
+Clears the selection in the object so that no children in the object
+are selected.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> TRUE if success, FALSE otherwise.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-ref-selection">atk_selection_ref_selection ()</title>
+<programlisting><link linkend="AtkObject">AtkObject</link>*  atk_selection_ref_selection     (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Gets a reference to the accessible object representing the specified 
+selected child of the object.
+Note: callers should not rely on <literal>NULL</literal> or on a zero value for
+indication of whether AtkSelectionIface is implemented, they should
+use type checking/interface checking macros or the
+<link linkend="atk-get-accessible-value">atk_get_accessible_value</link>() convenience method.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><parameter>i</parameter>&nbsp;:</entry>
+<entry> a <link linkend="gint">gint</link> specifying the index in the selection set.  (e.g. the
+ith selection as opposed to the ith child).
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> an <link linkend="AtkObject">AtkObject</link> representing the selected accessible , or <literal>NULL</literal>
+if <parameter>selection</parameter> does not implement this interface.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-get-selection-count">atk_selection_get_selection_count ()</title>
+<programlisting><link linkend="gint">gint</link>        atk_selection_get_selection_count
+                                            (<link linkend="AtkSelection">AtkSelection</link> *selection);</programlisting>
+<para>
+Gets the number of accessible children currently selected.
+Note: callers should not rely on <literal>NULL</literal> or on a zero value for
+indication of whether AtkSelectionIface is implemented, they should
+use type checking/interface checking macros or the
+<link linkend="atk-get-accessible-value">atk_get_accessible_value</link>() convenience method.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a gint representing the number of items selected, or 0
+if <parameter>selection</parameter> does not implement this interface.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-is-child-selected">atk_selection_is_child_selected ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_selection_is_child_selected (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Determines if the current child of this object is selected
+Note: callers should not rely on <literal>NULL</literal> or on a zero value for
+indication of whether AtkSelectionIface is implemented, they should
+use type checking/interface checking macros or the
+<link linkend="atk-get-accessible-value">atk_get_accessible_value</link>() convenience method.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><parameter>i</parameter>&nbsp;:</entry>
+<entry> a <link linkend="gint">gint</link> specifying the child index.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a gboolean representing the specified child is selected, or 0
+if <parameter>selection</parameter> does not implement this interface.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-remove-selection">atk_selection_remove_selection ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_selection_remove_selection  (<link linkend="AtkSelection">AtkSelection</link> *selection,
+                                             <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Removes the specified child of the object from the object's selection.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><parameter>i</parameter>&nbsp;:</entry>
+<entry> a <link linkend="gint">gint</link> specifying the index in the selection set.  (e.g. the
+ith selection as opposed to the ith child).
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> TRUE if success, FALSE otherwise.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-selection-select-all-selection">atk_selection_select_all_selection ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_selection_select_all_selection
+                                            (<link linkend="AtkSelection">AtkSelection</link> *selection);</programlisting>
+<para>
+Causes every child of the object to be selected if the object
+supports multiple selections.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>selection</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GObject">GObject</link> instance that implements AtkSelectionIface
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> TRUE if success, FALSE otherwise.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="AtkText">AtkText</link>
+</para>
+</refsect1>
+
+</refentry>

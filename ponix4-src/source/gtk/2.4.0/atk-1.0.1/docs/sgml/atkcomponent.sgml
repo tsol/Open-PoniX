@@ -1,0 +1,518 @@
+<refentry id="atk-AtkComponent">
+<refmeta>
+<refentrytitle>AtkComponent</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkComponent</refname><refpurpose>ATK Interface provided by UI components which occupy a physical area on
+the screen.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+
+
+struct      <link linkend="AtkComponent">AtkComponent</link>;
+struct      <link linkend="AtkComponentIface">AtkComponentIface</link>;
+<link linkend="guint">guint</link>       <link linkend="atk-component-add-focus-handler">atk_component_add_focus_handler</link> (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="AtkFocusHandler">AtkFocusHandler</link> handler);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-component-contains">atk_component_contains</link>          (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+void        <link linkend="atk-component-get-extents">atk_component_get_extents</link>       (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> *x,
+                                             <link linkend="gint">gint</link> *y,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+<link linkend="AtkLayer">AtkLayer</link>    <link linkend="atk-component-get-layer">atk_component_get_layer</link>         (<link linkend="AtkComponent">AtkComponent</link> *component);
+<link linkend="gint">gint</link>        <link linkend="atk-component-get-mdi-zorder">atk_component_get_mdi_zorder</link>    (<link linkend="AtkComponent">AtkComponent</link> *component);
+void        <link linkend="atk-component-get-position">atk_component_get_position</link>      (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> *x,
+                                             <link linkend="gint">gint</link> *y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+void        <link linkend="atk-component-get-size">atk_component_get_size</link>          (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-component-grab-focus">atk_component_grab_focus</link>        (<link linkend="AtkComponent">AtkComponent</link> *component);
+<link linkend="AtkObject">AtkObject</link>*  <link linkend="atk-component-ref-accessible-at-point">atk_component_ref_accessible_at_point</link>
+                                            (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+void        <link linkend="atk-component-remove-focus-handler">atk_component_remove_focus_handler</link>
+                                            (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="guint">guint</link> handler_id);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-component-set-extents">atk_component_set_extents</link>       (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-component-set-position">atk_component_set_position</link>      (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-component-set-size">atk_component_set_size</link>          (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="AtkComponent">AtkComponent</link> should be implemented by most if not all UI elements with
+an actual on-screen presence, i.e. components which can be said to have
+a screen-coordinate bounding box.  Virtually all widgets will need to
+have <link linkend="AtkComponent">AtkComponent</link> implementations provided for their corresponding
+<link linkend="AtkObject">AtkObject</link> class.  In short, only UI elements which are *not* GUI
+elements will omit this ATK interface.
+</para>
+<para>
+A possible exception might be textual information with a transparent
+background, in which case text glyph bounding box information is
+provided by <link linkend="AtkText">AtkText</link>.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="AtkComponent">struct AtkComponent</title>
+<programlisting>struct AtkComponent;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="AtkComponentIface">struct AtkComponentIface</title>
+<programlisting>struct AtkComponentIface
+{
+  GTypeInterface parent;
+
+  guint          (* add_focus_handler)  (AtkComponent          *component,
+                                         AtkFocusHandler        handler);
+
+  gboolean       (* contains)           (AtkComponent          *component,
+                                         gint                   x,
+                                         gint                   y,
+                                         AtkCoordType           coord_type);
+
+  AtkObject*    (* ref_accessible_at_point)  (AtkComponent     *component,
+                                         gint                   x,
+                                         gint                   y,
+                                         AtkCoordType           coord_type);
+  void          (* get_extents)         (AtkComponent          *component,
+                                         gint                  *x,
+                                         gint                  *y,
+                                         gint                  *width,
+                                         gint                  *height,
+                                         AtkCoordType          coord_type);
+  void                     (* get_position)     (AtkComponent   *component,
+                                                 gint           *x,
+                                                 gint           *y,
+                                                 AtkCoordType   coord_type);
+  void                     (* get_size)                 (AtkComponent   *component,
+                                                         gint           *width,
+                                                         gint           *height);
+  gboolean                 (* grab_focus)               (AtkComponent   *component);
+  void                     (* remove_focus_handler)      (AtkComponent  *component,
+                                                          guint         handler_id);
+  gboolean                 (* set_extents)      (AtkComponent   *component,
+                                                 gint           x,
+                                                 gint           y,
+                                                 gint           width,
+                                                 gint           height,
+                                                 AtkCoordType   coord_type);
+  gboolean                 (* set_position)     (AtkComponent   *component,
+                                                 gint           x,
+                                                 gint           y,
+                                                 AtkCoordType   coord_type);
+  gboolean                 (* set_size)         (AtkComponent   *component,
+                                                 gint           width,
+                                                 gint           height);
+  	
+  AtkLayer                 (* get_layer)        (AtkComponent   *component);
+  gint                     (* get_mdi_zorder)   (AtkComponent   *component);
+
+  AtkFunction              pad1;
+  AtkFunction              pad2;
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="atk-component-add-focus-handler">atk_component_add_focus_handler ()</title>
+<programlisting><link linkend="guint">guint</link>       atk_component_add_focus_handler (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="AtkFocusHandler">AtkFocusHandler</link> handler);</programlisting>
+<para>
+Add the specified handler to the set of functions to be called 
+when this object receives focus events (in or out). If the handler is
+already added it is not added again</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> The <link linkend="AtkComponent">AtkComponent</link> to attach the <parameter>handler</parameter> to
+</entry></row>
+<row><entry align="right"><parameter>handler</parameter>&nbsp;:</entry>
+<entry> The <link linkend="AtkFocusHandler">AtkFocusHandler</link> to be attached to <parameter>component</parameter>
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a handler id which can be used in atk_component_remove_focus_handler
+or zero if the handler was already added.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-contains">atk_component_contains ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_component_contains          (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Checks whether the specified point is within the extent of the <parameter>component</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> the <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> x coordinate
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> y coordinate
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <literal>TRUE</literal> or <literal>FALSE</literal> indicating whether the specified point is within
+the extent of the <parameter>component</parameter> or not
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-get-extents">atk_component_get_extents ()</title>
+<programlisting>void        atk_component_get_extents       (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> *x,
+                                             <link linkend="gint">gint</link> *y,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Gets the rectangle which gives the extent of the <parameter>component</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put x coordinate
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put y coordinate
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put width
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put height
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-get-layer">atk_component_get_layer ()</title>
+<programlisting><link linkend="AtkLayer">AtkLayer</link>    atk_component_get_layer         (<link linkend="AtkComponent">AtkComponent</link> *component);</programlisting>
+<para>
+Gets the layer of the component.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> an <link linkend="AtkLayer">AtkLayer</link> which is the layer of the component
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-get-mdi-zorder">atk_component_get_mdi_zorder ()</title>
+<programlisting><link linkend="gint">gint</link>        atk_component_get_mdi_zorder    (<link linkend="AtkComponent">AtkComponent</link> *component);</programlisting>
+<para>
+Gets the zorder of the component. The value G_MININT will be returned 
+if the layer of the component is not ATK_LAYER_MDI.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a gint which is the zorder of the component, i.e. the depth at 
+which the component is shown in relation to other components in the same 
+container.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-get-position">atk_component_get_position ()</title>
+<programlisting>void        atk_component_get_position      (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> *x,
+                                             <link linkend="gint">gint</link> *y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Gets the position of <parameter>component</parameter> in the form of 
+a point specifying <parameter>component</parameter>'s top-left corner.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put x coordinate position
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put y coordinate position
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-get-size">atk_component_get_size ()</title>
+<programlisting>void        atk_component_get_size          (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height);</programlisting>
+<para>
+Gets the size of the <parameter>component</parameter> in terms of width and height.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put width of <parameter>component</parameter>
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry> address of <link linkend="gint">gint</link> to put height of <parameter>component</parameter>
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-grab-focus">atk_component_grab_focus ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_component_grab_focus        (<link linkend="AtkComponent">AtkComponent</link> *component);</programlisting>
+<para>
+Grabs focus for this <parameter>component</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <literal>TRUE</literal> if successful, <literal>FALSE</literal> otherwise.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-ref-accessible-at-point">atk_component_ref_accessible_at_point ()</title>
+<programlisting><link linkend="AtkObject">AtkObject</link>*  atk_component_ref_accessible_at_point
+                                            (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Gets a reference to the accessible child, if one exists, at the
+coordinate point specified by <parameter>x</parameter> and <parameter>y</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> the <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> x coordinate
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> y coordinate
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a reference to the accessible child, if one exists
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-remove-focus-handler">atk_component_remove_focus_handler ()</title>
+<programlisting>void        atk_component_remove_focus_handler
+                                            (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="guint">guint</link> handler_id);</programlisting>
+<para>
+Remove the handler specified by <parameter>handler_id</parameter> from the list of
+functions to be executed when this object receives focus events 
+(in or out).</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> the <link linkend="AtkComponent">AtkComponent</link> to remove the focus handler from
+</entry></row>
+<row><entry align="right"><parameter>handler_id</parameter>&nbsp;:</entry>
+<entry> the handler id of the focus handler to be removed
+from <parameter>component</parameter>
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-set-extents">atk_component_set_extents ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_component_set_extents       (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Sets the extents of <parameter>component</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> x coordinate
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> y coordinate
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry> width to set for <parameter>component</parameter>
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry> height to set for <parameter>component</parameter>
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <literal>TRUE</literal> or <literal>FALSE</literal> whether the extents were set or not
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-set-position">atk_component_set_position ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_component_set_position      (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="AtkCoordType">AtkCoordType</link> coord_type);</programlisting>
+<para>
+Sets the postition of <parameter>component</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry> x coordinate
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry> y coordinate
+</entry></row>
+<row><entry align="right"><parameter>coord_type</parameter>&nbsp;:</entry>
+<entry> specifies whether the coordinates are relative to the screen
+or to the components top level window
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <literal>TRUE</literal> or <literal>FALSE</literal> whether or not the position was set or not
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-component-set-size">atk_component_set_size ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_component_set_size          (<link linkend="AtkComponent">AtkComponent</link> *component,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);</programlisting>
+<para>
+Set the size of the <parameter>component</parameter> in terms of width and height.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>component</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkComponent">AtkComponent</link>
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry> width to set for <parameter>component</parameter>
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry> height to set for <parameter>component</parameter>
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <literal>TRUE</literal> or <literal>FALSE</literal> whether the size was set or not
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

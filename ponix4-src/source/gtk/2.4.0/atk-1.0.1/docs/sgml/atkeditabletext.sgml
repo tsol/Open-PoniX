@@ -1,0 +1,298 @@
+<refentry id="atk-AtkEditableText">
+<refmeta>
+<refentrytitle>AtkEditableText</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkEditableText</refname><refpurpose>ATK Interface implemented by components containing user-editable text content.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+
+
+struct      <link linkend="AtkEditableText">AtkEditableText</link>;
+struct      <link linkend="AtkEditableTextIface">AtkEditableTextIface</link>;
+<link linkend="gboolean">gboolean</link>    <link linkend="atk-editable-text-set-run-attributes">atk_editable_text_set_run_attributes</link>
+                                            (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="AtkAttributeSet">AtkAttributeSet</link> *attrib_set,
+                                             <link linkend="gint">gint</link> start_offset,
+                                             <link linkend="gint">gint</link> end_offset);
+void        <link linkend="atk-editable-text-set-text-contents">atk_editable_text_set_text_contents</link>
+                                            (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             const <link linkend="gchar">gchar</link> *string);
+void        <link linkend="atk-editable-text-insert-text">atk_editable_text_insert_text</link>   (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             const <link linkend="gchar">gchar</link> *string,
+                                             <link linkend="gint">gint</link> length,
+                                             <link linkend="gint">gint</link> *position);
+void        <link linkend="atk-editable-text-copy-text">atk_editable_text_copy_text</link>     (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> start_pos,
+                                             <link linkend="gint">gint</link> end_pos);
+void        <link linkend="atk-editable-text-cut-text">atk_editable_text_cut_text</link>      (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> start_pos,
+                                             <link linkend="gint">gint</link> end_pos);
+void        <link linkend="atk-editable-text-delete-text">atk_editable_text_delete_text</link>   (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> start_pos,
+                                             <link linkend="gint">gint</link> end_pos);
+void        <link linkend="atk-editable-text-paste-text">atk_editable_text_paste_text</link>    (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> position);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="AtkEditableText">AtkEditableText</link> should be implemented by UI components which contain
+text which the user can edit, via the <link linkend="AtkObject">AtkObject</link> corresponding to that
+component (see <link linkend="AtkObject">AtkObject</link>).
+</para>
+<para>
+<link linkend="AtkEditableText">AtkEditableText</link> is a subclass of <link linkend="AtkText">AtkText</link>, and as such, an object which
+implements <link linkend="AtkEditableText">AtkEditableText</link> is by definition an <link linkend="AtkText">AtkText</link> implementor as well.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="AtkEditableText">struct AtkEditableText</title>
+<programlisting>struct AtkEditableText;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="AtkEditableTextIface">struct AtkEditableTextIface</title>
+<programlisting>struct AtkEditableTextIface
+{
+  GTypeInterface parent_interface;
+
+  gboolean (* set_run_attributes) (AtkEditableText  *text,
+                                   AtkAttributeSet  *attrib_set,
+                                   gint		    start_offset,
+ 				   gint		    end_offset);
+  void   (* set_text_contents)    (AtkEditableText  *text,
+                                   const gchar      *string);
+  void   (* insert_text)          (AtkEditableText  *text,
+                                   const gchar      *string,
+                                   gint             length,
+                                   gint             *position);
+  void   (* copy_text)            (AtkEditableText  *text,
+                                   gint             start_pos,
+                                   gint             end_pos);
+  void   (* cut_text)             (AtkEditableText  *text,
+                                   gint             start_pos,
+                                   gint             end_pos);
+  void   (* delete_text)          (AtkEditableText  *text,
+                                   gint             start_pos,
+                                   gint             end_pos);
+  void   (* paste_text)           (AtkEditableText  *text,
+                                   gint             position);
+
+  AtkFunction                     pad1;
+  AtkFunction                     pad2;
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-set-run-attributes">atk_editable_text_set_run_attributes ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    atk_editable_text_set_run_attributes
+                                            (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="AtkAttributeSet">AtkAttributeSet</link> *attrib_set,
+                                             <link linkend="gint">gint</link> start_offset,
+                                             <link linkend="gint">gint</link> end_offset);</programlisting>
+<para>
+Sets the attributes for a specified range. See the ATK_ATTRIBUTE
+macros (such as <link linkend="ATK-ATTRIBUTE-LEFT-MARGIN-CAPS">ATK_ATTRIBUTE_LEFT_MARGIN</link>) for examples of attributes 
+that can be set. Note that other attributes that do not have corresponding
+ATK_ATTRIBUTE macros may also be set for certain text widgets.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>attrib_set</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkAttributeSet">AtkAttributeSet</link>
+</entry></row>
+<row><entry align="right"><parameter>start_offset</parameter>&nbsp;:</entry>
+<entry> start of range in which to set attributes
+</entry></row>
+<row><entry align="right"><parameter>end_offset</parameter>&nbsp;:</entry>
+<entry> end of range in which to set attributes
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <literal>TRUE</literal> if attributes successfully set for the specified
+range, otherwise <literal>FALSE</literal>
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-set-text-contents">atk_editable_text_set_text_contents ()</title>
+<programlisting>void        atk_editable_text_set_text_contents
+                                            (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             const <link linkend="gchar">gchar</link> *string);</programlisting>
+<para>
+Set text contents of <parameter>text</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>string</parameter>&nbsp;:</entry>
+<entry> string to set for text contents of <parameter>text</parameter>
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-insert-text">atk_editable_text_insert_text ()</title>
+<programlisting>void        atk_editable_text_insert_text   (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             const <link linkend="gchar">gchar</link> *string,
+                                             <link linkend="gint">gint</link> length,
+                                             <link linkend="gint">gint</link> *position);</programlisting>
+<para>
+Insert text at a given position.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>string</parameter>&nbsp;:</entry>
+<entry> the text to insert
+</entry></row>
+<row><entry align="right"><parameter>length</parameter>&nbsp;:</entry>
+<entry> the length of text to insert, in bytes
+</entry></row>
+<row><entry align="right"><parameter>position</parameter>&nbsp;:</entry>
+<entry> The caller initializes this to 
+the position at which to insert the text. After the call it
+points at the position after the newly inserted text.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-copy-text">atk_editable_text_copy_text ()</title>
+<programlisting>void        atk_editable_text_copy_text     (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> start_pos,
+                                             <link linkend="gint">gint</link> end_pos);</programlisting>
+<para>
+Copy text from <parameter>start_pos</parameter> up to, but not including <parameter>end_pos</parameter> 
+to the clipboard.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>start_pos</parameter>&nbsp;:</entry>
+<entry> start position
+</entry></row>
+<row><entry align="right"><parameter>end_pos</parameter>&nbsp;:</entry>
+<entry> end position
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-cut-text">atk_editable_text_cut_text ()</title>
+<programlisting>void        atk_editable_text_cut_text      (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> start_pos,
+                                             <link linkend="gint">gint</link> end_pos);</programlisting>
+<para>
+Copy text from <parameter>start_pos</parameter> up to, but not including <parameter>end_pos</parameter>
+to the clipboard and then delete from the widget.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>start_pos</parameter>&nbsp;:</entry>
+<entry> start position
+</entry></row>
+<row><entry align="right"><parameter>end_pos</parameter>&nbsp;:</entry>
+<entry> end position
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-delete-text">atk_editable_text_delete_text ()</title>
+<programlisting>void        atk_editable_text_delete_text   (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> start_pos,
+                                             <link linkend="gint">gint</link> end_pos);</programlisting>
+<para>
+Delete text <parameter>start_pos</parameter> up to, but not including <parameter>end_pos</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>start_pos</parameter>&nbsp;:</entry>
+<entry> start position
+</entry></row>
+<row><entry align="right"><parameter>end_pos</parameter>&nbsp;:</entry>
+<entry> end position
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-editable-text-paste-text">atk_editable_text_paste_text ()</title>
+<programlisting>void        atk_editable_text_paste_text    (<link linkend="AtkEditableText">AtkEditableText</link> *text,
+                                             <link linkend="gint">gint</link> position);</programlisting>
+<para>
+Paste text from clipboard to specified <parameter>position</parameter>.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>text</parameter>&nbsp;:</entry>
+<entry> an <link linkend="AtkEditableText">AtkEditableText</link>
+</entry></row>
+<row><entry align="right"><parameter>position</parameter>&nbsp;:</entry>
+<entry> position to paste
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="AtkText">AtkText</link>
+</para>
+</refsect1>
+
+</refentry>

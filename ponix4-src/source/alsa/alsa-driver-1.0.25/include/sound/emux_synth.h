@@ -1,0 +1,1 @@
+../../alsa-kernel/include/emux_synth.h

@@ -1,0 +1,58 @@
+#!/bin/sh
+
+READ_OPTIONS="-r"
+
+tty 2>&1 > /dev/null
+ISATTY=$?
+
+if [ "$ISATTY" = 0 ]
+then
+    # rlwrap provides readline to stuff which doesn't know readline by itself
+    RLWRAP=$(which rlwrap 2>/dev/null)
+    if [ "$RLWRAP" != "" ]
+    then
+        if [ "$A_RERUN" = "" ]
+        then
+            A_RERUN="no" exec $RLWRAP $0
+        fi
+    else
+        if [ "$BASH" ]
+        then
+            READ_OPTIONS=" -e"
+        fi
+    fi
+
+    if [ $BASH ]
+    then
+        READ_OPTIONS="$READ_OPTIONS -p awesome# "
+    fi
+fi
+
+DBUS_SEND=dbus-send
+
+which ${DBUS_SEND} > /dev/null
+if test $? = 1
+then
+    echo "E: Unable to find" ${DBUS_SEND}
+    exit 1
+fi
+
+DBUS_PATH=/
+DBUS_DEST=org.naquadah.awesome.awful
+DBUS_METHOD=${DBUS_DEST}.Remote.Eval
+
+a_dbus_send()
+{
+    $DBUS_SEND --dest=$DBUS_DEST --type=method_call --print-reply $DBUS_PATH \
+        $DBUS_METHOD string:"$1" | tail -n +2
+}
+
+if [ "$ISATTY" = 0 ]
+then
+    while read ${READ_OPTIONS} line
+    do
+        a_dbus_send "$line"
+    done
+else
+    a_dbus_send "`cat`"
+fi

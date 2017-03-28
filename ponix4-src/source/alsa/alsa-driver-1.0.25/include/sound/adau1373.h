@@ -1,0 +1,1 @@
+../../alsa-kernel/include/adau1373.h

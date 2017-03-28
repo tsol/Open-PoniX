@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Widget "Testo" (Text Widget)</TITLE>
+ <LINK HREF="gtk_tut_it-12.html" REL=next>
+ <LINK HREF="gtk_tut_it-10.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc11" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-12.html">Avanti</A>
+<A HREF="gtk_tut_it-10.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc11">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s11">11. Widget "Testo" (Text Widget)</A></H2>
+
+<P>Il widget di testo permette di mostrare e modificare del testo disposto su pi&ugrave;
+linee. Questo widget supporta sia la presenza di diversi colori che di diversi font
+contemporaneamente, permettendo di mischiarli nel modo in cui si desidera. Mette poi a
+disposizione un ampio gruppo di comandi basati sulla tastiera, che sono compatibili con
+Emacs.
+<P>Il widget di testo d&agrave; la possibilit&agrave; di fare taglia e incolla in modo
+completo, compreso l'uso del doppio e triplo click per selezionare un'intera parola o
+un'intera linea.
+<P>
+<H2><A NAME="ss11.1">11.1 Creazione e configurazione di una casella di testo</A>
+</H2>
+
+<P>Esiste un'unica funzione per la creazione di un nuovo widget di testo:
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_text_new (GtkAdjustment *hadj,
+                         GtkAdjustment *vadj);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Gli argomenti di questa chiamata ci permettono di assegnare dei puntatori a dei
+valori che stabiliscono il punto di vista del widget. Passare dei valori NULL all'uno
+o all'altro o ad entrambi questi argomenti, f&agrave; s&igrave; che gtk_text_new li
+crei automaticamente.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_adjustments (GtkText       *text,
+                               GtkAdjustment *hadj,
+                               GtkAdjustment *vadj);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La funzione precedente permette di cambiare gli aggiustamenti orizzontale e verticale
+di un widget di testo i ogni momento.
+<P>Il widget di testo non \ di creare delle barre di scorrimento quando la
+quantit&agrave; &egrave; troppo grande per la finestra. Dobbiamo quindi crearle e
+aggiungerle alla finestra noi stessi.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  vscrollbar = gtk_vscrollbar_new (GTK_TEXT(text)->vadj);
+  gtk_box_pack_start(GTK_BOX(hbox), vscrollbar, FALSE, FALSE, 0);
+  gtk_widget_show (vscrollbar);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Il pezzetto di codice precedente crea una nuova barra di scorrimento verticale e la
+collega all'aggiustamento verticale del widget di testo, <CODE>text</CODE>, dopodich&eacute; la
+impacchetta nella hbox al solito modo.
+<P>Ci sono due modi principali di utilizzo di un widget di testo: per permettere all'utente
+di editare del testo, oppure per permettere a noi di mostrare all'utente del testo
+disposto su pi&ugrave; righe. Per passare dall'una all'altra di queste modalit&agrave;,
+il widget di testo ci mette a disposizione la seguente funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_editable    (GtkText *text,
+                               gint    editable);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>L'argomento <CODE>editable</CODE> &egrave; un valore TRUE o FALSE che specifica se l'utente
+pu&ograve; modificare o meno il contenuto del widgte. Quando il widget &egrave;
+modificabile, mostrer&agrave; un cursore nel punto di inserimento corrente.
+<P>Niente per&ograve; vi obbliga ad usare il widget di testo in questi due soli modi. Si
+pu&ograve; passare dall'una all'altra delle due modalit&agrave; in qualsiasi momento,
+e si pu&ograve; inserire del testo in ogni momento.
+<P>Il widget di testo &egrave; in grado di andare a capo automaticamente quando delle linee
+di testo sono troppo lunghe per stare su una sola linea della finestra. Il comportamento
+predefinito &egrave; di andare a capo automaticamente al termine della linea. Questo
+pu&ograve; essere cambiato con la seguente funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_word_wrap (GtkText *text,
+                             gint    word_wrap);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>L'uso di questa funzione ci permette di specificare se il widget di testo deve spezzare
+o no le linee lunghe ai bordi della finestra. L'argomento <CODE>word_wrap</CODE> &egrave; un
+valore di tipo TRUE o FALSE.
+<P>
+<H2><A NAME="ss11.2">11.2 Manipolazione del testo</A>
+</H2>
+
+<P>Il punto di inserimento corrente del widget pu&ograve; essere stabilito usando
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_point (GtkText *text,
+                         guint   index);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+in cui <CODE>index</CODE> &egrave; la posizione in cui mettere il punto di inserimento.
+<P>La funzione per ottenere la posizione di inserimento corrente &egrave; analoga:
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_text_get_point (GtkText *text);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Una funzione che &egrave; utile in combinazione con le precedenti due &egrave;
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_text_get_length (GtkText *text);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+la quale restituisce la lunghezza corrente del widget di testo. La lunghezza &egrave;
+definita come il numero di caratteri che si trovano nel blocco di testo della finestra,
+compresi i caratteri tipo CR, che marcano la fine delle linee.
+<P>Per inserire del testo alla posizione corrente del widget di testo, si usa la funzione
+gtk_text_insert, che permette anche di specificare i colori di primo piano e di sfondo
+per il testo, oltre al font da usare.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_insert (GtkText    *text,
+                      GdkFont    *font,
+                      GdkColor   *fore,
+                      GdkColor   *back,
+                      const char *chars,
+                      gint       length);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Passare un valore di NULL come valore per il colore di primo piano (fore), di sfondo (back)
+o per il font, far&agrave; s&igrave; che vengano usati i valori che sono specifici dello
+stile del widget. Usare un valore di <CODE>-1</CODE> per il parametro lunghezza (length) avr&agrave;
+come risultato l'inserzione dell'intera stringa di testo.
+<P>Il widget di testo &egrave; uno dei pochi in GTK che vengono disegnati dinamicamente, fuori
+dalla funzione gtk_main. Ci&ograve; significa che tutti i cambiamenti al suo contenuto
+avranno effetto immediato. Questo pu&ograve; essere un comportamento indesiderabile quando
+si stanno facendo delle modifiche multiple al contenuto del widget. Per permettere di 
+operare cambiamenti multipli sul widget senza che esso si ridisegni continuamente,
+si pu&ograve; congelare il contenuto della finestra, in modo che esso interrompa
+temporaneamente di ridisegnarsi. Potremo poi sbloccare il widget una volta che tutte
+le modifiche sono state completate.
+<P>Le due seguenti funzioni fanno il congelamento e lo sbloccaggio (thaw) del widget:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_freeze (GtkText *text);
+void gtk_text_thaw   (GtkText *text);         
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Il testo pu&ograve; essere cancellato nel widget di testo a partire dal punto di
+inserimento corrente usando le seguenti due funzioni, andando all'indietro (backward)
+o all'avanti (forward):
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_text_backward_delete (GtkText *text,
+                               guint   nchars);
+gint gtk_text_forward_delete  (GtkText *text,
+                               guint   nchars);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Quando si vuole recuperare il contenuto del widget di testo, &egrave;
+disponibile la macro <CODE>GTK_TEXT_INDEX(t, index)</CODE>, che permette di
+ottenere il crattere alla posizione <CODE>index</CODE> all'interno del widget
+<CODE>t</CODE>.
+<P>Per ecuperare un blocco di testo pi&ugrave; ampio, si usa la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *gtk_editable_get_chars (GtkEditable *editable,
+                               gint        start_pos,
+                               gint        end_pos);   
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa &egrave; una funzione della classe madre del widget di testo. Un valore
+di -1 per <CODE>end_pos</CODE>, sta ad indicare la fine del testo. L'indice per il
+testo parte da 0.
+<P>Questa funzione alloca una nuova porzione di memoria per il blocco di testo,
+per cui non dimenticate di liberarla con una chiamata a g_free quando non
+ne avete pi&ugrave; bisogno.
+<P>
+<H2><A NAME="ss11.3">11.3 Keyboard Shortcuts</A>
+</H2>
+
+<P>Il widget di testo mette a disposizione un certo numero di scorciatoie da tastiera
+per le pi&ugrave; comuni operazioni di modifica, movimento e selezione. Si possono
+utilizzare con delle combinazioni che comprendono i tasti Control e Alt.
+<P>Oltre a queste, mantenendo premuto il pulsante Control mentre si usano i tasti di
+movimento del cursore, causer&agrave; lo spostamento parola per parola invece che
+carattere per carattere. Mantenere invece premuto il tasto Shift mentre si sposta il
+cursore, causer&agrave; l'estensione della selezione.
+<P>
+<H3>Scorciatoie per il movimento</H3>
+
+<P>
+<UL>
+<LI> Ctrl-A   Inizio della linea</LI>
+<LI> Ctrl-E     Fine della linea</LI>
+<LI> Ctrl-N   Prossima linea</LI>
+<LI> Ctrl-P     Linea precedente</LI>
+<LI> Ctrl-B   Indietro di un carattere</LI>
+<LI> Ctrl-F   Avanti di un carattere</LI>
+<LI> Alt-B    Indietro di una parola</LI>
+<LI> Alt-F      Avanti di una parola</LI>
+</UL>
+<P>
+<H3>Scorciatoie per la modifica</H3>
+
+<P>
+<UL>
+<LI> Ctrl-H   Cancella il carattere precedente (Backspace)</LI>
+<LI> Ctrl-D   Cancella il carattere successivo (Delete)</LI>
+<LI> Ctrl-W     Cancella la parola precedente</LI>
+<LI> Alt-D    Cancella la parola successiva</LI>
+<LI> Ctrl-K     Cancella fino alla fine della linea</LI>
+<LI> Ctrl-U     Cancella la linea</LI>
+</UL>
+<P>
+<H3>Scorciatoie per la selezione</H3>
+
+<P>
+<UL>
+<LI> Ctrl-X   Taglia</LI>
+<LI> Ctrl-C   Copia</LI>
+<LI> Ctrl-V     Incolla</LI>
+</UL>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-12.html">Avanti</A>
+<A HREF="gtk_tut_it-10.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc11">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK+ FAQ: How to find, configure, install, and troubleshoot GTK+</TITLE>
+ <LINK HREF="gtkfaq-3.html" REL=next>
+ <LINK HREF="gtkfaq-1.html" REL=previous>
+ <LINK HREF="gtkfaq.html#toc2" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtkfaq-3.html">Next</A>
+<A HREF="gtkfaq-1.html">Previous</A>
+<A HREF="gtkfaq.html#toc2">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s2">2. How to find, configure, install, and troubleshoot GTK+</A></H2>
+
+<H2><A NAME="ss2.1">2.1 What do I need to run GTK+?</A>
+</H2>
+
+<P>To compile GTK+, all you need is a C compiler (gcc) and the X Window System
+and associated libraries on your system.
+<P>
+<H2><A NAME="ss2.2">2.2 Where can I get GTK+?</A>
+</H2>
+
+<P>The canonical site is:
+<PRE>
+ftp://ftp.gtk.org/pub/gtk
+</PRE>
+
+This site tends to get busy around the time of a new GTK+ release
+so try and use one of the mirror sites that are listed in
+<A HREF="ftp://ftp.gtk.org/etc/mirrors">ftp://ftp.gtk.org/etc/mirrors</A><P>Here's a few mirror sites to get you started:
+<UL>
+<LI>Africa - ftp://ftp.is.co.za/applications/gimp/</LI>
+<LI>Australia - ftp://ftp.au.gimp.org/pub/gimp/</LI>
+<LI>Finland - ftp://ftp.funet.fi/pub/sci/graphics/packages/gimp</LI>
+<LI>Germany - ftp://infosoc.uni-koeln.de/pub/ftp.gimp.org/</LI>
+<LI>Japan - ftp://SunSITE.sut.ac.jp/pub/archives/packages/gimp/</LI>
+<LI>UK - ftp://ftp.flirble.org/pub/X/gimp/</LI>
+<LI>US - ftp://ftp.insync.net/pub/mirrors/ftp.gimp.org/</LI>
+</UL>
+<P>
+<H2><A NAME="ss2.3">2.3 How do I configure/compile GTK+?</A>
+</H2>
+
+<P>Generally, all you will need to do is issue the commands:
+<PRE>
+./configure
+make
+</PRE>
+
+in the gtk+-version/ directory.
+<P>
+<H2><A NAME="ss2.4">2.4 When compiling GTK+ I get an error like: <CODE>make: file `Makefile' line 456: Syntax error</CODE></A>
+</H2>
+
+<P>Make sure that you are using GNU make (use <CODE>make -v</CODE> to
+check). There are many weird and wonderful versions of make out there,
+and not all of them handle the automatically generated Makefiles.
+<P>
+<P>
+<H2><A NAME="ss2.5">2.5 I've compiled and installed GTK+, but I can't get any programs to link with it!</A>
+</H2>
+
+<P>This problem is most often encountered when the GTK+ libraries can't
+be found or are the wrong version. Generally, the compiler will
+complain about an 'unresolved symbol'.  There are two things you need
+to check:
+<UL>
+<LI>Make sure that the libraries can be found. You want to edit
+/etc/ld.so.conf to include the directories which contain the GTK
+libraries, so it looks something like:
+<PRE>
+/usr/X11R6/lib
+/usr/local/lib
+</PRE>
+
+Then you need to run /sbin/ldconfig as root. You can find what directory
+GTK is in using
+<PRE>
+gtk-config --libs
+</PRE>
+
+
+If your system doesn't use ld.so to find libraries (such as Solaris), then
+you will have to use the LD_LIBRARY_PATH environment variable (or compile
+the path into your program, which I'm not going to cover here). So, with a
+Bourne type shell you can do (if your GTK libraries are in /usr/local/lib):
+<PRE>
+export LD_LIBRARY_PATH=/usr/local/lib
+</PRE>
+
+and in a csh, you can do:
+<PRE>
+setenv LD_LIBRARY_PATH /usr/local/lib
+</PRE>
+
+</LI>
+<LI>Make sure the linker is finding the correct set of libraries. If you
+have a Linux distribution that installs GTK+ (e.g. RedHat 5.0) then this 
+older version may be used. Now (assuming you have a RedHat
+system), issue the command
+<PRE>
+rpm -e gtk gtk-devel
+</PRE>
+
+You may also want to remove the packages that depend on gtk (rpm will
+tell you which ones they are). If you don't have a RedHat Linux
+system, check to make sure that neither 
+<PRE>
+/usr/lib
+</PRE>
+ or
+<PRE>
+/usr/local/lib
+</PRE>
+ contain any of the libraries libgtk,
+libgdk, libglib, or libgck.  If they do exist, remove them (and any
+gtk include files, such as /usr/include/gtk and /usr/include/gdk) and
+reinstall gtk+.  </LI>
+</UL>
+<P>
+<H2><A NAME="ss2.6">2.6 When compiling programs with GTK+, I get compiler error messages about not being able to find <CODE>"glibconfig.h"</CODE>.</A>
+</H2>
+
+<P>The header file "glibconfig.h" was moved to the directory
+$exec_prefix/lib/glib/include/. $exec_prefix is the
+directory that was specified by giving the --exec-prefix
+flags to ./configure when compiling GTK+. It defaults to 
+$prefix, (specified with --prefix), which in turn defaults
+to /usr/local/.
+<P>This was done because "glibconfig.h" includes architecture
+dependent information, and the rest of the include files
+are put in $prefix/include, which can be shared between different
+architectures. 
+<P>GTK+ includes a shell script, <CODE>gtk-config</CODE>, that
+makes it easy to find out the correct include paths.
+The GTK+ tutorial includes an example of using <CODE>gtk-config</CODE>
+for simple compilation from the command line. For information
+about more complicated configuration, see the file
+docs/gtk-config.txt in the GTK+ distribution.
+<P>If you are trying to compile an old program, you may
+be able to work around the problem by configuring it
+with a command line like: 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+CPPFLAGS="-I/usr/local/include/glib/include" ./configure
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>for Bourne-compatible shells like bash, or for csh variants:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+setenv CPPFLAGS "-I/usr/local/include/glib/include" 
+./configure
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>(Substitute the appropriate value of $exec_prefix for /usr/local.)
+<P>
+<H2><A NAME="ss2.7">2.7 When installing a GTK+ application, configure reports that it can't find GTK.</A>
+</H2>
+
+<P>There are several common reasons for this:
+<UL>
+<LI>You have an old version of GTK installed somewhere. RedHat 5.0, for 
+example, installs an older copy of GTK that may not work with the latest 
+applications. You should remove this old copy, but note that in the case
+of RedHat 5.0 this will break the <CODE>control-panel</CODE> applications.
+<P>
+</LI>
+<LI><CODE>gtk-config</CODE> (or another component of GTK) isn't in your path, or
+there is an old version on your system. Type:
+<PRE>
+gtk-config --version
+</PRE>
+
+to check for both of these. If it returns a value different from what
+you expect, then you have an old version of GTK on your system.
+<P>
+</LI>
+<LI>The ./configure script can't find the GTK libraries. As ./configure
+compiles various test programs, it needs to be able to find the GTK
+libraries. See the question above for help on this.</LI>
+</UL>
+<P>If none of the above help, then have a look in config.log, which is
+generated by ./configure as it runs. At the bottom will be the last
+action it took before failing. If it is a section of source code, copy
+the source code to a file and compile it with the line just above it in
+config.log. If the compilation is successful, try executing it.
+<P>
+<HR NOSHADE>
+<A HREF="gtkfaq-3.html">Next</A>
+<A HREF="gtkfaq-1.html">Previous</A>
+<A HREF="gtkfaq.html#toc2">Contents</A>
+</BODY>
+</HTML>

@@ -1,0 +1,695 @@
+<refentry id="gtk-Keyboard-Accelerators">
+<refmeta>
+<refentrytitle>Accelerator Groups</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Accelerator Groups</refname><refpurpose>Groups of global keyboard accelerators for an entire GtkWindow</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<anchor id="GtkAccelGroup"/>
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkAccelGroup-struct">GtkAccelGroup</link>;
+<link linkend="GtkAccelGroup">GtkAccelGroup</link>* <link linkend="gtk-accel-group-new">gtk_accel_group_new</link>          (void);
+#define     <link linkend="gtk-accel-group-ref">gtk_accel_group_ref</link>
+#define     <link linkend="gtk-accel-group-unref">gtk_accel_group_unref</link>
+<link linkend="void">void</link>        <link linkend="gtk-accel-group-connect">gtk_accel_group_connect</link>         (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods,
+                                             <link linkend="GtkAccelFlags">GtkAccelFlags</link> accel_flags,
+                                             <link linkend="GClosure">GClosure</link> *closure);
+<link linkend="void">void</link>        <link linkend="gtk-accel-group-connect-by-path">gtk_accel_group_connect_by_path</link> (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             const <link linkend="gchar">gchar</link> *accel_path,
+                                             <link linkend="GClosure">GClosure</link> *closure);
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkAccelGroupActivate">*GtkAccelGroupActivate</link>)        (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GObject">GObject</link> *acceleratable,
+                                             <link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifier);
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkAccelGroupFindFunc">*GtkAccelGroupFindFunc</link>)        (<link linkend="GtkAccelKey">GtkAccelKey</link> *key,
+                                             <link linkend="GClosure">GClosure</link> *closure,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-accel-group-disconnect">gtk_accel_group_disconnect</link>      (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GClosure">GClosure</link> *closure);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-accel-group-disconnect-key">gtk_accel_group_disconnect_key</link>  (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods);
+<link linkend="GtkAccelGroupEntry">GtkAccelGroupEntry</link>* <link linkend="gtk-accel-group-query">gtk_accel_group_query</link>   (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods,
+                                             <link linkend="guint">guint</link> *n_entries);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-accel-group-activate">gtk_accel_group_activate</link>        (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GQuark">GQuark</link> accel_quark,
+                                             <link linkend="GObject">GObject</link> *acceleratable,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods);
+<link linkend="void">void</link>        <link linkend="gtk-accel-group-lock">gtk_accel_group_lock</link>            (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);
+<link linkend="void">void</link>        <link linkend="gtk-accel-group-unlock">gtk_accel_group_unlock</link>          (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);
+<link linkend="GtkAccelGroup">GtkAccelGroup</link>* <link linkend="gtk-accel-group-from-accel-closure">gtk_accel_group_from_accel_closure</link>
+                                            (<link linkend="GClosure">GClosure</link> *closure);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-accel-groups-activate">gtk_accel_groups_activate</link>       (<link linkend="GObject">GObject</link> *object,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods);
+<link linkend="GSList">GSList</link>*     <link linkend="gtk-accel-groups-from-object">gtk_accel_groups_from_object</link>    (<link linkend="GObject">GObject</link> *object);
+<link linkend="GtkAccelKey">GtkAccelKey</link>* <link linkend="gtk-accel-group-find">gtk_accel_group_find</link>           (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GtkAccelGroupFindFunc">GtkAccelGroupFindFunc</link> find_func,
+                                             <link linkend="gpointer">gpointer</link> data);
+struct      <link linkend="GtkAccelKey">GtkAccelKey</link>;
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-accelerator-valid">gtk_accelerator_valid</link>           (<link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifiers);
+<link linkend="void">void</link>        <link linkend="gtk-accelerator-parse">gtk_accelerator_parse</link>           (const <link linkend="gchar">gchar</link> *accelerator,
+                                             <link linkend="guint">guint</link> *accelerator_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> *accelerator_mods);
+<link linkend="gchar">gchar</link>*      <link linkend="gtk-accelerator-name">gtk_accelerator_name</link>            (<link linkend="guint">guint</link> accelerator_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accelerator_mods);
+<link linkend="void">void</link>        <link linkend="gtk-accelerator-set-default-mod-mask">gtk_accelerator_set_default_mod_mask</link>
+                                            (<link linkend="GdkModifierType">GdkModifierType</link> default_mod_mask);
+<link linkend="guint">guint</link>       <link linkend="gtk-accelerator-get-default-mod-mask">gtk_accelerator_get_default_mod_mask</link>
+                                            (void);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GtkAccelGroup
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkAccelGroup-accel-activate">accel-activate</link>&quot;
+            <link linkend="gboolean">gboolean</link>    user_function      (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accelgroup,
+                                            <link linkend="GObject">GObject</link> *arg1,
+                                            <link linkend="guint">guint</link> arg2,
+                                            <link linkend="GdkModifierType">GdkModifierType</link> arg3,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkAccelGroup-accel-changed">accel-changed</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accelgroup,
+                                            <link linkend="guint">guint</link> arg1,
+                                            <link linkend="GdkModifierType">GdkModifierType</link> arg2,
+                                            <link linkend="GClosure">GClosure</link> *arg3,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+A <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> represents a group of keyboard accelerators,
+typically attached to a toplevel <link linkend="GtkWindow"><type>GtkWindow</type></link> (with
+<link linkend="gtk-window-add-accel-group"><function>gtk_window_add_accel_group()</function></link>). Usually you won't need to create a
+<link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> directly; instead, when using <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>, GTK+
+automatically sets up the accelerators for your menus in the item
+factory's <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link>.
+</para>
+
+<para>
+Note that <firstterm>accelerators</firstterm> are different from
+<firstterm>mnemonics</firstterm>. Accelerators are shortcuts for
+activating a menu item; they appear alongside the menu item they're a
+shortcut for. For example "Ctrl+Q" might appear alongside the "Quit"
+menu item. Mnemonics are shortcuts for GUI elements such as text
+entries or buttons; they appear as underlined characters. See
+<link linkend="gtk-label-new-with-mnemonic"><function>gtk_label_new_with_mnemonic()</function></link>. Menu items can have both accelerators
+and mnemonics, of course.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkAccelGroup-struct"/>struct GtkAccelGroup</title>
+<indexterm><primary>GtkAccelGroup</primary></indexterm><programlisting>struct GtkAccelGroup;</programlisting>
+<para>
+An object representing and maintaining a group of accelerators.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-new"/>gtk_accel_group_new ()</title>
+<indexterm><primary>gtk_accel_group_new</primary></indexterm><programlisting><link linkend="GtkAccelGroup">GtkAccelGroup</link>* gtk_accel_group_new          (void);</programlisting>
+<para>
+Creates a new <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> object
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-ref"/>gtk_accel_group_ref</title>
+<indexterm><primary>gtk_accel_group_ref</primary></indexterm><programlisting>#define	gtk_accel_group_ref	g_object_ref
+</programlisting>
+<warning><para><literal>gtk_accel_group_ref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated equivalent of <link linkend="g-object-ref"><function>g_object_ref()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-unref"/>gtk_accel_group_unref</title>
+<indexterm><primary>gtk_accel_group_unref</primary></indexterm><programlisting>#define	gtk_accel_group_unref	g_object_unref
+</programlisting>
+<warning><para><literal>gtk_accel_group_unref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated equivalent of <link linkend="g-object-unref"><function>g_object_unref()</function></link>.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-connect"/>gtk_accel_group_connect ()</title>
+<indexterm><primary>gtk_accel_group_connect</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accel_group_connect         (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods,
+                                             <link linkend="GtkAccelFlags">GtkAccelFlags</link> accel_flags,
+                                             <link linkend="GClosure">GClosure</link> *closure);</programlisting>
+<para>
+Installs an accelerator in this group. When <parameter>accel_group</parameter> is being activated
+in response to a call to <link linkend="gtk-accel-groups-activate"><function>gtk_accel_groups_activate()</function></link>, <parameter>closure</parameter> will be
+invoked if the <parameter>accel_key</parameter> and <parameter>accel_mods</parameter> from <link linkend="gtk-accel-groups-activate"><function>gtk_accel_groups_activate()</function></link>
+match those of this connection.
+</para>
+<para>
+The signature used for the <parameter>closure</parameter> is that of <link linkend="GtkAccelGroupActivate"><type>GtkAccelGroupActivate</type></link>.
+</para>
+<para>
+Note that, due to implementation details, a single closure can only be
+connected to one accelerator group.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>      the accelerator group to install an accelerator in
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_key</parameter>&nbsp;:</term>
+<listitem><simpara>        key value of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_mods</parameter>&nbsp;:</term>
+<listitem><simpara>       modifier combination of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_flags</parameter>&nbsp;:</term>
+<listitem><simpara>      a flag mask to configure this accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara>          closure to be executed upon accelerator activation
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-connect-by-path"/>gtk_accel_group_connect_by_path ()</title>
+<indexterm><primary>gtk_accel_group_connect_by_path</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accel_group_connect_by_path (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             const <link linkend="gchar">gchar</link> *accel_path,
+                                             <link linkend="GClosure">GClosure</link> *closure);</programlisting>
+<para>
+Installs an accelerator in this group, using an accelerator path to look
+up the appropriate key and modifiers (see <link linkend="gtk-accel-map-add-entry"><function>gtk_accel_map_add_entry()</function></link>).
+When <parameter>accel_group</parameter> is being activated in response to a call to
+<link linkend="gtk-accel-groups-activate"><function>gtk_accel_groups_activate()</function></link>, <parameter>closure</parameter> will be invoked if the <parameter>accel_key</parameter> and
+<parameter>accel_mods</parameter> from <link linkend="gtk-accel-groups-activate"><function>gtk_accel_groups_activate()</function></link> match the key and modifiers
+for the path.
+</para>
+<para>
+The signature used for the <parameter>closure</parameter> is that of <link linkend="GtkAccelGroupActivate"><type>GtkAccelGroupActivate</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>      the accelerator group to install an accelerator in
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_path</parameter>&nbsp;:</term>
+<listitem><simpara>       path used for determining key and modifiers.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara>          closure to be executed upon accelerator activation
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkAccelGroupActivate"/>GtkAccelGroupActivate ()</title>
+<indexterm><primary>GtkAccelGroupActivate</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkAccelGroupActivate)        (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GObject">GObject</link> *acceleratable,
+                                             <link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifier);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>acceleratable</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>keyval</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>modifier</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkAccelGroupFindFunc"/>GtkAccelGroupFindFunc ()</title>
+<indexterm><primary>GtkAccelGroupFindFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkAccelGroupFindFunc)        (<link linkend="GtkAccelKey">GtkAccelKey</link> *key,
+                                             <link linkend="GClosure">GClosure</link> *closure,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since 2.2
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-disconnect"/>gtk_accel_group_disconnect ()</title>
+<indexterm><primary>gtk_accel_group_disconnect</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_accel_group_disconnect      (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GClosure">GClosure</link> *closure);</programlisting>
+<para>
+Removes an accelerator previously installed through
+<link linkend="gtk-accel-group-connect"><function>gtk_accel_group_connect()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara> the accelerator group to remove an accelerator from
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara>     the closure to remove from this accelerator group
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>     <literal>TRUE</literal> if the closure was found and got disconnected
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-disconnect-key"/>gtk_accel_group_disconnect_key ()</title>
+<indexterm><primary>gtk_accel_group_disconnect_key</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_accel_group_disconnect_key  (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods);</programlisting>
+<para>
+Removes an accelerator previously installed through
+<link linkend="gtk-accel-group-connect"><function>gtk_accel_group_connect()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>      the accelerator group to install an accelerator in
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_key</parameter>&nbsp;:</term>
+<listitem><simpara>        key value of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_mods</parameter>&nbsp;:</term>
+<listitem><simpara>       modifier combination of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>          <literal>TRUE</literal> if there was an accelerator which could be 
+                   removed, <literal>FALSE</literal> otherwise
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-query"/>gtk_accel_group_query ()</title>
+<indexterm><primary>gtk_accel_group_query</primary></indexterm><programlisting><link linkend="GtkAccelGroupEntry">GtkAccelGroupEntry</link>* gtk_accel_group_query   (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods,
+                                             <link linkend="guint">guint</link> *n_entries);</programlisting>
+<para>
+Queries an accelerator group for all entries matching <parameter>accel_key</parameter> and 
+<parameter>accel_mods</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>      the accelerator group to query
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_key</parameter>&nbsp;:</term>
+<listitem><simpara>        key value of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_mods</parameter>&nbsp;:</term>
+<listitem><simpara>       modifier combination of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_entries</parameter>&nbsp;:</term>
+<listitem><simpara>        location to return the number of entries found, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>          an array of <parameter>n_entries</parameter> <link linkend="GtkAccelGroupEntry"><type>GtkAccelGroupEntry</type></link> elements, or <literal>NULL</literal>. The array is owned by GTK+ and must not be freed. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-activate"/>gtk_accel_group_activate ()</title>
+<indexterm><primary>gtk_accel_group_activate</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_accel_group_activate        (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GQuark">GQuark</link> accel_quark,
+                                             <link linkend="GObject">GObject</link> *acceleratable,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_quark</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>acceleratable</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_key</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_mods</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-lock"/>gtk_accel_group_lock ()</title>
+<indexterm><primary>gtk_accel_group_lock</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accel_group_lock            (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);</programlisting>
+<para>
+Locks the given accelerator group.
+</para>
+<para>
+Locking an acelerator group prevents the accelerators contained
+within it to be changed during runtime. Refer to
+<link linkend="gtk-accel-map-change-entry"><function>gtk_accel_map_change_entry()</function></link> about runtime accelerator changes.
+</para>
+<para>
+If called more than once, <parameter>accel_group</parameter> remains locked until
+<link linkend="gtk-accel-group-unlock"><function>gtk_accel_group_unlock()</function></link> has been called an equivalent number
+of times.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-unlock"/>gtk_accel_group_unlock ()</title>
+<indexterm><primary>gtk_accel_group_unlock</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accel_group_unlock          (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);</programlisting>
+<para>
+Undoes the last call to <link linkend="gtk-accel-group-lock"><function>gtk_accel_group_lock()</function></link> on this <parameter>accel_group</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-from-accel-closure"/>gtk_accel_group_from_accel_closure ()</title>
+<indexterm><primary>gtk_accel_group_from_accel_closure</primary></indexterm><programlisting><link linkend="GtkAccelGroup">GtkAccelGroup</link>* gtk_accel_group_from_accel_closure
+                                            (<link linkend="GClosure">GClosure</link> *closure);</programlisting>
+<para>
+Finds the <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> to which <parameter>closure</parameter> is connected; 
+see <link linkend="gtk-accel-group-connect"><function>gtk_accel_group_connect()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>closure</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GClosure"><type>GClosure</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> to which <parameter>closure</parameter> is connected, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-groups-activate"/>gtk_accel_groups_activate ()</title>
+<indexterm><primary>gtk_accel_groups_activate</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_accel_groups_activate       (<link linkend="GObject">GObject</link> *object,
+                                             <link linkend="guint">guint</link> accel_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accel_mods);</programlisting>
+<para>
+Finds the first accelerator in any <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> attached
+to <parameter>object</parameter> that matches <parameter>accel_key</parameter> and <parameter>accel_mods</parameter>, and
+activates that accelerator.
+If an accelerator was activated and handled this keypress, <literal>TRUE</literal>
+is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>        the <link linkend="GObject"><type>GObject</type></link>, usually a <link linkend="GtkWindow"><type>GtkWindow</type></link>, on which
+                to activate the accelerator.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_key</parameter>&nbsp;:</term>
+<listitem><simpara>     accelerator keyval from a key event
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_mods</parameter>&nbsp;:</term>
+<listitem><simpara>    keyboard state mask from a key event
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>       <literal>TRUE</literal> if the accelerator was handled, <literal>FALSE</literal> otherwise
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-groups-from-object"/>gtk_accel_groups_from_object ()</title>
+<indexterm><primary>gtk_accel_groups_from_object</primary></indexterm><programlisting><link linkend="GSList">GSList</link>*     gtk_accel_groups_from_object    (<link linkend="GObject">GObject</link> *object);</programlisting>
+<para>
+Gets a list of all accel groups which are attached to <parameter>object</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>        a <link linkend="GObject"><type>GObject</type></link>, usually a <link linkend="GtkWindow"><type>GtkWindow</type></link> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a list of all accel groups which are attached to <parameter>object</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accel-group-find"/>gtk_accel_group_find ()</title>
+<indexterm><primary>gtk_accel_group_find</primary></indexterm><programlisting><link linkend="GtkAccelKey">GtkAccelKey</link>* gtk_accel_group_find           (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="GtkAccelGroupFindFunc">GtkAccelGroupFindFunc</link> find_func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+Finds the first entry in an accelerator group for which 
+<parameter>find_func</parameter> returns <literal>TRUE</literal> and returns its <link linkend="GtkAccelKey"><type>GtkAccelKey</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>find_func</parameter>&nbsp;:</term>
+<listitem><simpara> a function to filter the entries of <parameter>accel_group</parameter> with
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> data to pass to <parameter>find_func</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the key of the first entry passing <parameter>find_func</parameter>. The key is 
+owned by GTK+ and must not be freed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkAccelKey"/>struct GtkAccelKey</title>
+<indexterm><primary>GtkAccelKey</primary></indexterm><programlisting>struct GtkAccelKey {
+
+  guint           accel_key;
+  GdkModifierType accel_mods;
+  guint           accel_flags : 16;
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-accelerator-valid"/>gtk_accelerator_valid ()</title>
+<indexterm><primary>gtk_accelerator_valid</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_accelerator_valid           (<link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifiers);</programlisting>
+<para>
+Determines whether a given keyval and modifier mask constitute
+a valid keyboard accelerator. For example, the <link linkend="GDK-a"><type>GDK_a</type></link> keyval
+plus <link linkend="GDK-CONTROL-MASK-CAPS"><type>GDK_CONTROL_MASK</type></link> is valid - this is a "Ctrl+a" accelerator.
+But, you can't, for instance, use the <link linkend="GDK-Control-L"><type>GDK_Control_L</type></link> keyval
+as an accelerator.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>keyval</parameter>&nbsp;:</term>
+<listitem><simpara>    a GDK keyval
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>modifiers</parameter>&nbsp;:</term>
+<listitem><simpara> modifier mask
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>   <literal>TRUE</literal> if the accelerator is valid
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accelerator-parse"/>gtk_accelerator_parse ()</title>
+<indexterm><primary>gtk_accelerator_parse</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accelerator_parse           (const <link linkend="gchar">gchar</link> *accelerator,
+                                             <link linkend="guint">guint</link> *accelerator_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> *accelerator_mods);</programlisting>
+<para>
+Parses a string representing an accelerator. The
+format looks like "&lt;Control&gt;a" or "&lt;Shift&gt;&lt;Alt&gt;F1" or
+"&lt;Release&gt;z" (the last one is for key release).
+The parser is fairly liberal and allows lower or upper case,
+and also abbreviations such as "&lt;Ctl&gt;" and "&lt;Ctrl&gt;".
+</para>
+<para>
+If the parse fails, <parameter>accelerator_key</parameter> and <parameter>accelerator_mods</parameter> will
+be set to 0 (zero).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accelerator</parameter>&nbsp;:</term>
+<listitem><simpara>      string representing an accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accelerator_key</parameter>&nbsp;:</term>
+<listitem><simpara>  return location for accelerator keyval
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accelerator_mods</parameter>&nbsp;:</term>
+<listitem><simpara> return location for accelerator modifier mask
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accelerator-name"/>gtk_accelerator_name ()</title>
+<indexterm><primary>gtk_accelerator_name</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*      gtk_accelerator_name            (<link linkend="guint">guint</link> accelerator_key,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> accelerator_mods);</programlisting>
+<para>
+Converts an accelerator keyval and modifier mask
+into a string parseable by <link linkend="gtk-accelerator-parse"><function>gtk_accelerator_parse()</function></link>.
+For example, if you pass in <link linkend="GDK-q"><type>GDK_q</type></link> and <link linkend="GDK-CONTROL-MASK-CAPS"><type>GDK_CONTROL_MASK</type></link>,
+this function returns "&lt;Control&gt;q". 
+</para>
+<para>
+The caller of this function must free the returned string.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accelerator_key</parameter>&nbsp;:</term>
+<listitem><simpara>  accelerator keyval
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accelerator_mods</parameter>&nbsp;:</term>
+<listitem><simpara> accelerator modifier mask
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>          a newly-allocated accelerator name
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accelerator-set-default-mod-mask"/>gtk_accelerator_set_default_mod_mask ()</title>
+<indexterm><primary>gtk_accelerator_set_default_mod_mask</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_accelerator_set_default_mod_mask
+                                            (<link linkend="GdkModifierType">GdkModifierType</link> default_mod_mask);</programlisting>
+<para>
+Sets the modifiers that will be considered significant for keyboard
+accelerators. The default mod mask is <link linkend="GDK-CONTROL-MASK-CAPS"><type>GDK_CONTROL_MASK</type></link> |
+<link linkend="GDK-SHIFT-MASK-CAPS"><type>GDK_SHIFT_MASK</type></link> | <link linkend="GDK-MOD1-MASK-CAPS"><type>GDK_MOD1_MASK</type></link>, that is, Control, Shift, and Alt.
+Other modifiers will by default be ignored by <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link>.
+You must include at least the three default modifiers in any
+value you pass to this function.
+</para>
+<para>
+The default mod mask should be changed on application startup,
+before using any accelerator groups.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>default_mod_mask</parameter>&nbsp;:</term>
+<listitem><simpara> accelerator modifier mask
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-accelerator-get-default-mod-mask"/>gtk_accelerator_get_default_mod_mask ()</title>
+<indexterm><primary>gtk_accelerator_get_default_mod_mask</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_accelerator_get_default_mod_mask
+                                            (void);</programlisting>
+<para>
+Gets the value set by <link linkend="gtk-accelerator-set-default-mod-mask"><function>gtk_accelerator_set_default_mod_mask()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the default accelerator modifier mask
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkAccelGroup-accel-activate"/>The &quot;accel-activate&quot; signal</title>
+<programlisting><link linkend="gboolean">gboolean</link>    user_function                  (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accelgroup,
+                                            <link linkend="GObject">GObject</link> *arg1,
+                                            <link linkend="guint">guint</link> arg2,
+                                            <link linkend="GdkModifierType">GdkModifierType</link> arg3,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accelgroup</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg2</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg3</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkAccelGroup-accel-changed"/>The &quot;accel-changed&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkAccelGroup">GtkAccelGroup</link> *accelgroup,
+                                            <link linkend="guint">guint</link> arg1,
+                                            <link linkend="GdkModifierType">GdkModifierType</link> arg2,
+                                            <link linkend="GClosure">GClosure</link> *arg3,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accelgroup</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg2</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg3</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="gtk-window-add-accel-group"><function>gtk_window_add_accel_group()</function></link>, <link linkend="gtk-accel-map-change-entry"><function>gtk_accel_map_change_entry()</function></link>,
+<link linkend="gtk-item-factory-new"><function>gtk_item_factory_new()</function></link>, <link linkend="gtk-label-new-with-mnemonic"><function>gtk_label_new_with_mnemonic()</function></link>
+</para>
+</refsect1>
+
+</refentry>

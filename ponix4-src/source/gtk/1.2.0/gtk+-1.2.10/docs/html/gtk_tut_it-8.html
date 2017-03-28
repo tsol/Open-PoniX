@@ -1,0 +1,740 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Widget Contenitore</TITLE>
+ <LINK HREF="gtk_tut_it-9.html" REL=next>
+ <LINK HREF="gtk_tut_it-7.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc8" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-9.html">Avanti</A>
+<A HREF="gtk_tut_it-7.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc8">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s8">8. Widget Contenitore</A></H2>
+
+<H2><A NAME="ss8.1">8.1 Il widget Blocco Note (Notebook)</A>
+</H2>
+
+<P>Il widget Blocco note &egrave; un insieme di pagine sovrapposte l'una con l'altra, 
+ognuna contente cose diverse. Questo widget &egrave; diventato molto comune nella
+programmazione delle interfacce utente ed &egrave; un buon metodo per mostrare informazioni
+tra loro correlate ma che debbano essere mostrate separatamente.
+<P>
+<P>La prima funzione da invocare che si deve conoscere, come si pu&ograve; intuire, &egrave; usata
+per creare un nuovo Blocco Note.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_notebook_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Una volta che il notebook &egrave; sato creato, ci sono 12 funzioni che possono
+operare sul widget notebook. Guardiamole individualmente.
+<P>La prima che vediamo riguarda come posizionare l'indicatore di pagina.
+Questi inidicatori di pagina o ``linguette'' (come possono anche essere chiamati)
+possono essere posizionati in quattro posti: alto, basso, sinistra.destra.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_tab_pos (GtkNotebook *notebook, GtkPositionType pos);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>GtkPositionType sar&agrave; uno dei seguenti valori (molto autoesplicativi)
+<UL>
+<LI> GTK_POS_LEFT</LI>
+<LI> GTK_POS_RIGHT</LI>
+<LI> GTK_POS_TOP</LI>
+<LI> GTK_POS_BOTTOM</LI>
+</UL>
+<P>GTK_POS_TOP e' il valore predefinito.
+<P>Ora vediamo come aggiugere le pagine al Blocco Note. Ci sono 3 modi per farlo. Diamo
+un'occhiata ai primi due insieme, viste che sono molto simili.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_append_page (GtkNotebook *notebook, GtkWidget *child, GtkWidget *tab_label);
+
+void gtk_notebook_prepend_page (GtkNotebook *notebook, GtkWidget *child, GtkWidget *tab_label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Queste funzioni aggiungono pagine al notebook inserendole rispettivamente alla fine
+(append) o all'inizio (prepend). *child &egrave; il widget che &egrave; posto nella pagina del
+notebook e *tab_label e la intestazione della pagina stessa.
+<P>L'ultima funzione per aggiungere una pagina al notebook contiene tutte le propriet&agrave;
+delle precedenti due, ma permette di specificare dove posizionare la pagina che
+si vuole inserire.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_insert_page (GtkNotebook *notebook, GtkWidget *child, GtkWidget *tab_label, gint position);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>I parametri sono gli stessi di _append_ e _prepend_ tranne che per il parametro in
+pi&ugrave;: ``position''. 
+Questo parametro viene usato per specificare in che posizione ineserire la pagina.
+<P>Ora che conosciamo come aggiungere le pagine, vediamo come poter toglierne una.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_remove_page (GtkNotebook *notebook, gint page_num);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione prende il numero della pagina specificata dal campo page_num e
+rimuove la pagina corrispondente dal Blocco Note.
+<P>Per trovare qual'&egrave; la pagina corrente nel notebook bisogna usare la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_notebook_current_page (GtkNotebook *notebook);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le prossime due funzioni sono semplicemente delle chiamate che muovono la pagina del 
+notebook avanti o indietro. Semplicemente forniscono le chiamate alle rispettive
+funzioni del widget notebook su si pu&ograve; operare. NB: quando un notebook &egrave;
+correntemente sull'ultima pagina e viene invocata la funzione gtk_notebook_next_page,
+il notebook ritorner&agrave; automaticamente alla prima pagina. Logicamente succede anche
+il contrario quando invochi gtk_notebook_prev_page e ti trovi sulla prima pagina.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_next_page (GtkNoteBook *notebook);
+void gtk_notebook_prev_page (GtkNoteBook *notebook);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La prossima funzione stabilisce la pagina ``attiva''. Se si vuole che la pagina
+principale del notebook sia per esempio la 5 (ad esempio) si pu&ograve; usare questa
+funzione.
+Se non si usa questa funzione la pagina principale sar&agrave; la 1.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_page (GtkNotebook *notebook, gint page_num);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le prossime due funzioni aggiungono o rimuovono, rispettivamente, le intestazioni e
+i bordi delle pagine.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_show_tabs (GtkNotebook *notebook, gint show_tabs);
+void gtk_notebook_set_show_border (GtkNotebook *notebook, gint show_border);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>show_tabs e show_border posso avere come valore TRUE o FALSE (0 or 1).
+<P>Diamo ora una occhiata ad un esempio. Si tratta di una espansione del codice preso
+dal file testgtk.c che &egrave; compreso in tutte le distribuzioni, e mostra 
+tutte le 13 funzioni. Questo piccolo programma crea una finestra con un notebook
+e 6 bottoni. Il notebook contiene 11 pagine, aggiunte nei 3 modi differenti (alla
+fine, all'inizio o in qualsiasi posizione). I bottoni permettono di girare le 
+intestazioni, aggiungere/rimuovere le intestazioni e i bordi, rimuovere una 
+pagina, cambiare la pagina avanti e indietro e uscire dal programma.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* notebook.c */
+
+#include &lt;gtk/gtk.h>
+
+/* Queta funzione ruota le posizione delle linguette delle pagine */
+void rotate_book (GtkButton *button, GtkNotebook *notebook)
+{
+    gtk_notebook_set_tab_pos (notebook, (notebook->tab_pos +1) %4);
+}
+
+/* Aggiunge e rimuove le linguette e i bordi */
+void tabsborder_book (GtkButton *button, GtkNotebook *notebook)
+{
+    gint tval = FALSE;
+    gint bval = FALSE;
+    if (notebook->show_tabs == 0)
+            tval = TRUE; 
+    if (notebook->show_border == 0)
+            bval = TRUE;
+    
+    gtk_notebook_set_show_tabs (notebook, tval);
+    gtk_notebook_set_show_border (notebook, bval);
+}
+
+/* Rimuove una pagina */
+void remove_book (GtkButton *button, GtkNotebook *notebook)
+{
+    gint page;
+    
+    page = gtk_notebook_current_page(notebook);
+    gtk_notebook_remove_page (notebook, page);
+    /* E' necessario fare un refresh del widget --
+       Questo forza il widget a ridisegnarsi. */
+    gtk_widget_draw(GTK_WIDGET(notebook), NULL);
+}
+
+void delete (GtkWidget *widget, gpointer data)
+{
+    gtk_main_quit ();
+}
+
+int main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *table;
+    GtkWidget *notebook;
+    GtkWidget *frame;
+    GtkWidget *label;
+    GtkWidget *checkbutton;
+    int i;
+    char bufferf[32];
+    char bufferl[32];
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (destroy), NULL);
+    
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+    
+    table = gtk_table_new(2,6,TRUE);
+    gtk_container_add (GTK_CONTAINER (window), table);
+    
+    /* Crea un nuovo notebook, e tabilisce la posizione delle linguette */
+    notebook = gtk_notebook_new ();
+    gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_TOP);
+    gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0,6,0,1);
+    gtk_widget_show(notebook);
+    
+    /* appende una parte delle pagine */
+    for (i=0; i &lt; 5; i++) {
+        sprintf(bufferf, "Append Frame %d", i+1);
+        sprintf(bufferl, "Page %d", i+1);
+        
+        frame = gtk_frame_new (bufferf);
+        gtk_container_border_width (GTK_CONTAINER (frame), 10);
+        gtk_widget_set_usize (frame, 100, 75);
+        gtk_widget_show (frame);
+        
+        label = gtk_label_new (bufferf);
+        gtk_container_add (GTK_CONTAINER (frame), label);
+        gtk_widget_show (label);
+        
+        label = gtk_label_new (bufferl);
+        gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
+    }
+    
+    
+    /* Ora aggiungiamo una pagina in una certa posizione */
+    checkbutton = gtk_check_button_new_with_label ("Check me please!");
+    gtk_widget_set_usize(checkbutton, 100, 75);
+    gtk_widget_show (checkbutton);
+    
+    label = gtk_label_new ("Add spot");
+    gtk_container_add (GTK_CONTAINER (checkbutton), label);
+    gtk_widget_show (label);
+    label = gtk_label_new ("Add page");
+    gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), checkbutton, label, 2);
+    
+    /* Ora finalmente aggiungiamo le pagine all'inizio */
+    for (i=0; i &lt; 5; i++) {
+        sprintf(bufferf, "Prepend Frame %d", i+1);
+        sprintf(bufferl, "PPage %d", i+1);
+        
+        frame = gtk_frame_new (bufferf);
+        gtk_container_border_width (GTK_CONTAINER (frame), 10);
+        gtk_widget_set_usize (frame, 100, 75);
+        gtk_widget_show (frame);
+        
+        label = gtk_label_new (bufferf);
+        gtk_container_add (GTK_CONTAINER (frame), label);
+        gtk_widget_show (label);
+        
+        label = gtk_label_new (bufferl);
+        gtk_notebook_prepend_page (GTK_NOTEBOOK(notebook), frame, label);
+    }
+    
+    /* Stabilisce quale sar&agrave; la prima pagina che sar&agrave; visualizzata. */
+    gtk_notebook_set_page (GTK_NOTEBOOK(notebook), 3);
+    
+    
+    /* Crea un set di bottoni */
+    button = gtk_button_new_with_label ("close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC (delete), NULL);
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 0,1,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("next page");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_notebook_next_page,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 1,2,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("prev page");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_notebook_prev_page,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 2,3,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("tab position");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) rotate_book, GTK_OBJECT(notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 3,4,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("tabs/border on/off");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) tabsborder_book,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 4,5,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("remove page");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) remove_book,
+                               GTK_OBJECT(notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 5,6,1,2);
+    gtk_widget_show(button);
+    
+    gtk_widget_show(table);
+    gtk_widget_show(window);
+    
+    gtk_main ();
+    
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>E speriamo che questo vi aiuti a creare i Blocco Note per le vostre applicazioni GTK!
+<P>
+<H2><A NAME="ss8.2">8.2 Finestre Scorribili (Scrolled Windows)</A>
+</H2>
+
+<P>Le Finestre Scorribili sono usate per creare areee scorribili in una vera finestra.
+Si pu&ograve; inserire qualsiasi tipo di widget in questo tipo di finestra, e possono poi 
+essere accessibili a prescindere dalle dimensioni usando le barre di scorrimento.
+<P>La funzione seguente &egrave; usata per creare una nuova scrolled window.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_scrolled_window_new (GtkAdjustment *hadjustment,
+                                    GtkAdjustment *vadjustment);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Il primo argomento &egrave; l'aggiustamento (di quanto scendere ogni
+volta) orizzontale e il secondo &egrave; quello verticale.  A questi si assegna
+quasi sempre il valore NULL.
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scrolled_window_set_policy (GtkScrolledWindow *scrolled_window,
+                                     GtkPolicyType      hscrollbar_policy,
+                     GtkPolicyType      vscrollbar_policy);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione stabilisce la politica da usare nella barra di scorrimento. Il primo
+argomento &egrave; la finestra scorribile interessata. Il secondo stabilisce la politica
+per la barra di scorrimento orizzontale e il terzo &egrave; quello per la politca verticale.
+<P>La politica pu&ograve; essere GTK_POLICY AUTOMATIC o GTK_POLICY_ALWAYS.
+GTK_POLICY_AUTOMATIC decide automaticamente se la barra di scorrimento deve essere
+visualizzata, mentre con GTK_POLICY_ALWAYS la barra verr&agrave; sempre mostrata.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* scrolledwin.c */
+
+#include &lt;gtk/gtk.h>
+
+void destroy(GtkWidget *widget, gpointer data)
+{
+    gtk_main_quit();
+}
+
+int main (int argc, char *argv[])
+{
+    static GtkWidget *window;
+    GtkWidget *scrolled_window;
+    GtkWidget *table;
+    GtkWidget *button;
+    char buffer[32];
+    int i, j;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    /* Crea una nuove finestra di dialogo in cui la scrolled window sar&agrave; 
+        inserita. Una finestra di dialogo &egrave; semplicemente come una 
+        finestra normale, ma ha anche un vbox e un separatore orizzontale 
+        gi&agrave; inseriti per difetto. E'un modo semplice per
+        creare finestre di dialogo. */
+    window = gtk_dialog_new ();
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        (GtkSignalFunc) destroy, NULL);
+    gtk_window_set_title (GTK_WINDOW (window), "dialog");
+    gtk_container_border_width (GTK_CONTAINER (window), 0);
+    gtk_widget_set_usize(window, 300, 300);    
+
+    /* crea una nuova finestra scorribile. */
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    
+    gtk_container_border_width (GTK_CONTAINER (scrolled_window), 10);
+    
+    /* la politica &egrave; GTK_POLICY AUTOMATIC per lo scorrimento orizzontale e 
+        GTK_POLICY_ALWAYS per quello verticale.  */
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+    
+    /* La finestra di dialogo &egrave; creata con un vbox gi&agrave; inserito.*/
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG(window)->vbox), scrolled_window, 
+                        TRUE, TRUE, 0);
+    gtk_widget_show (scrolled_window);
+    
+    /* crea una tablella di10 x 10. */
+    table = gtk_table_new (10, 10, FALSE);
+    
+    /* setta lo spazio tra ogni cella di 10 pixel sia verticale sia orizzontale*/
+    gtk_table_set_row_spacings (GTK_TABLE (table), 10);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 10);
+    
+    /* inserisce la tabella nella finestra scorribile*/
+    gtk_container_add (GTK_CONTAINER (scrolled_window), table);
+    gtk_widget_show (table);
+    
+    /* questo semplicemente crea una griglia di bottoni nella tabelle per
+       dimostrare il comportamento della finestra scorribile */
+    for (i = 0; i &lt; 10; i++)
+       for (j = 0; j &lt; 10; j++) {
+          sprintf (buffer, "button (%d,%d)\n", i, j);
+          button = gtk_toggle_button_new_with_label (buffer);
+          gtk_table_attach_defaults (GTK_TABLE (table), button,
+                                     i, i+1, j, j+1);
+          gtk_widget_show (button);
+       }
+    
+    /* Aggiunge un bottone "close" alla fine della finestra */
+    button = gtk_button_new_with_label ("close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (window));
+    
+    /* questo fa s&igrave; che questo bottone sia quello predefinito */
+    
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->action_area), button, TRUE, TRUE, 0);
+    
+    /* Questo ottiene il bottone predefinito. Premendo semplicemente l'"enter" il
+        bottone si avvier&agrave; */
+    gtk_widget_grab_default (button);
+    gtk_widget_show (button);
+    
+    gtk_widget_show (window);
+    
+    gtk_main();
+    
+    return(0);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Prova a giocare con il ridemensionamento della finestra. Noterete la reazione della
+barra di scorrimento. Potete anche usare la funzione gtk_widget_set_usize() per
+assegnare la dimensione predefinita della finestra o di un widget.
+<P>   
+<H2><A NAME="ss8.3">8.3 Il widget "Finestra Frazionata" (Paned Window)</A>
+</H2>
+
+<P>Le finestre frazionate tornano utili quando si vuole dividere un'area in due parti,
+<P>le cui dimensioni relative siano sotto il controllo dell'utente. Fra le due zone
+<P>viene disgnato un separatore dotato di una maniglia che l'utente pu&ograve;
+<P>trascinare per cambiare la proporzione fra le aree. La divisione pu&ograve;
+<P>essere sia di tipo orizzontale (HPaned) che verticale (VPaned).
+<P>
+<P>Per creare una finestra frazionata, si chiama una delle seguenti:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_hpaned_new (void)
+GtkWidget* gtk_vpaned_new (void)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Dopo aver creato il widget della finestra frazionata, si devono aggiungere dei
+<P>widget figli alle due parti. Per farlo, si usano le funzioni:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_paned_add1 (GtkPaned *paned, GtkWidget *child)
+void gtk_paned_add2 (GtkPaned *paned, GtkWidget *child)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>gtk_paned_add1()</CODE> inserisce il widget figlo alla parte di sinistra o superiore
+<P>della finestra. <CODE>gtk_paned_add2()</CODE> lo inserisce invece nella parte destra o
+<P>inferore.
+<P>
+<P>Per fare un esempio, creeremo una parte dell'interfaccia utente di un immaginario
+<P>programma di email. Si divide una finestra in due verticalmente, 
+<P>con la parte superiore in cui si mette la lista dei messaggi, e quella inferiore con
+<P>il testo. La maggior parte del programma &egrave; piuttosto banale. Un paio
+<P>di punti da notare sono: Non si pu&ograve; scrivere su un widget di testo prima
+<P>che esso venga "realizato". Questa operazione pu&ograve; essere fatta con una
+<P>chiamata alla funzione <CODE>gtk_widget_realize()</CODE>, ma per far vedere un metodo
+<P>alternativo, connetteremo una funzione al segnale "realize" per aggiungere il testo.
+<P>Inoltre, dobbiamo aggiungere l'opzione <CODE>GTK_SHRINK</CODE> ad alcuni degli
+<P>elementi della tabella che contiene la finestra del testo e le barre di scorrimento, in
+<P>modo che quando si riducono le dimensioni della parte inferiore, le parti coinvolte
+<P>risultino proporzionalmente rimpicciolite invece di venir spinte fuori dal fondo
+<P>della finestra.
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* paned.c */
+
+#include &lt;gtk/gtk.h>
+   
+/*Creiamo la lista dei "messaggi" */
+GtkWidget *
+create_list (void)
+{
+
+    GtkWidget *scrolled_window;
+    GtkWidget *list;
+    GtkWidget *list_item;
+   
+    int i;
+    char buffer[16];
+   
+    /* Creiamo una nuova finestra scorribile con barre di scorrimento solo
+
+     * se necessarie */
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, 
+                                    GTK_POLICY_AUTOMATIC);
+   
+    /* Creiamo una nuova lista e la mettiamo nella finestra scorribile */
+    list = gtk_list_new ();
+    gtk_container_add (GTK_CONTAINER(scrolled_window), list);
+    gtk_widget_show (list);
+   
+    /* Aggiungiamo un po' di messaggi alla fiestra */
+    for (i=0; i&lt;10; i++) {
+
+        sprintf(buffer,"Message #%d",i);
+        list_item = gtk_list_item_new_with_label (buffer);
+        gtk_container_add (GTK_CONTAINER(list), list_item);
+        gtk_widget_show (list_item);
+
+    }
+   
+    return scrolled_window;
+}
+   
+/* Aggiungiamo un po' di testo al nostro widget di testo - questa e' una
+
+funzione di callback che viene invocata quando la finestra viene "realizzata".
+
+Potremmo anche forzare la finestra ad essere realizzata con la funzione
+
+ gtk_widget_realize, ma dovrebbe prima essere parte di una certa cerarchia */
+
+
+void
+realize_text (GtkWidget *text, gpointer data)
+{
+    gtk_text_freeze (GTK_TEXT (text));
+    gtk_text_insert (GTK_TEXT (text), NULL, &amp;text->style->black, NULL,
+    "From: pathfinder@nasa.gov\n"
+    "To: mom@nasa.gov\n"
+    "Subject: Made it!\n"
+    "\n"
+    "We just got in this morning. The weather has been\n"
+    "great - clear but cold, and there are lots of fun sights.\n"
+    "Sojourner says hi. See you soon.\n"
+    " -Path\n", -1);
+   
+    gtk_text_thaw (GTK_TEXT (text));
+}
+   
+/* Creiamo un'area di testo scorribile che mostra un "messaggio" */
+GtkWidget *
+create_text (void)
+{
+    GtkWidget *table;
+    GtkWidget *text;
+    GtkWidget *hscrollbar;
+    GtkWidget *vscrollbar;
+   
+    /*Creiamo una tabella in cui mettere il widget di testo e le barre di scorrimento */
+    table = gtk_table_new (2, 2, FALSE);
+   
+    /* Mettiamo un widget di testo nella parte superiore destra. Notate l'uso di
+     * GTK_SHRINK nella direzione y */
+    text = gtk_text_new (NULL, NULL);
+    gtk_table_attach (GTK_TABLE (table), text, 0, 1, 0, 1,
+                      GTK_FILL | GTK_EXPAND,
+                      GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
+    gtk_widget_show (text);
+   
+    /* Mettiamo una HScrollbar nella parte in basso a sinistra */
+    hscrollbar = gtk_hscrollbar_new (GTK_TEXT (text)->hadj);
+    gtk_table_attach (GTK_TABLE (table), hscrollbar, 0, 1, 1, 2,
+                      GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+    gtk_widget_show (hscrollbar);
+   
+    /* Aggiungiamo una VScrollbar in alto a sinistra */
+    vscrollbar = gtk_vscrollbar_new (GTK_TEXT (text)->vadj);
+    gtk_table_attach (GTK_TABLE (table), vscrollbar, 1, 2, 0, 1,
+                      GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+    gtk_widget_show (vscrollbar);
+   
+    /* Aggiungiamo un gestore per mettere un messaggio nel wiget di testo
+
+     * viene reaizzato */
+    gtk_signal_connect (GTK_OBJECT (text), "realize",
+                        GTK_SIGNAL_FUNC (realize_text), NULL);
+   
+    return table;
+}
+   
+int
+main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *vpaned;
+    GtkWidget *list;
+    GtkWidget *text;
+
+    gtk_init (&amp;argc, &amp;argv);
+   
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (window), "Paned Windows");
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+   
+    /* Creiamo un widget frazionato verticalmente e aggiungiamolo alla
+
+     * finestra di piu' alto livello */
+   
+    vpaned = gtk_vpaned_new ();
+    gtk_container_add (GTK_CONTAINER(window), vpaned);
+    gtk_widget_show (vpaned);
+   
+    /* Creiamo il contenuto delle de parti della finestra */
+   
+    list = create_list ();
+    gtk_paned_add1 (GTK_PANED(vpaned), list);
+    gtk_widget_show (list);
+   
+    text = create_text ();
+    gtk_paned_add2 (GTK_PANED(vpaned), text);
+    gtk_widget_show (text);
+    gtk_widget_show (window);
+    gtk_main ();
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>   
+<H2><A NAME="ss8.4">8.4 Cornici ad aspetto fisso (Aspect Frames)</A>
+</H2>
+
+<P>Il widget aspect frame \ analogo al widget "cornice", tranne che per il
+<P>fatto che &egrave; in grado di forzare le finestre figlie ad avere un certo aspetto,
+<P>cio&egrave; un certo rapporto fra altezza e larghezza, aggiungendo se necessario
+<P>dello spazio in pi&ugrave;. Ci&ograve; pu&ograve; tornare utile se per esempio
+<P>si vuole fare l'anteprima di un'immagine: le dimensioni dell'anteprima devono
+<P>variare se l'utente ridimensiona la finestra, ma le proporzioni devono essere
+<P>sempre quelle dell'immagine originale.
+<P>Per creare una nuova cornice ad aspetto fisso, si usa:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_aspect_frame_new  (const gchar *label,
+                                        gfloat xalign,
+                                        gfloat yalign,
+                                        gfloat ratio,
+                                        gint obey_child)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>xalign</CODE> e <CODE>yalign</CODE> specificano l'allineamento come si fa con il widget di
+<P>allineamento. Se <CODE>obey_child</CODE> &egrave; TRUE, le proporzioni di una finestra
+<P>figlia saranno le stesse delle misure ideali richieste. In caso contrario, vengono
+<P>stabilite da <CODE>ratio</CODE>.
+<P>
+<P>Per cambiare le opzioni di una finestra esistente, si pu&ograve; usare:   
+To change the options of an existing aspect frame, you can use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_aspect_frame_set (GtkAspectFrame *aspect_frame,
+                           gfloat xalign,
+                           gfloat yalign,
+                           gfloat ratio,
+                           gint obey_child)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Per fare un esempio, il seguente programma usa un Aspect Frame per rendere
+<P>disponibile un'area disegnabile che sia sempre di proporzioni 2:1, in quasiasi
+<P>modo l'utente ridimensioni la finestra di base.
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* aspectframe.c */
+
+#include &lt;gtk/gtk.h>
+   
+int
+main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *aspect_frame;
+    GtkWidget *drawing_area;
+    gtk_init (&amp;argc, &amp;argv);
+   
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (window), "Aspect Frame");
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+    GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+   
+    /* Creiamo aspect_frame e lo mettiamo nella finestra di base */
+   
+    aspect_frame = gtk_aspect_frame_new ("2x1", /* etichetta */
+                                         0.5, /* x del centro */
+                                         0.5, /* y del centro */
+                                         2, /* xsize/ysize = 2 */
+                                         FALSE /* ignora le proporzioni del figlio */);
+   
+    gtk_container_add (GTK_CONTAINER(window), aspect_frame);
+    gtk_widget_show (aspect_frame);
+   
+    /* Aggiungamo un widget figlio alla nostra cornice */
+   
+    drawing_area = gtk_drawing_area_new ();
+   
+    /* Chiediamo una finestra 200x200, anche se l'AspectFrame ce ne dara' una 
+     * di 200x100 perche' forziamo l'aspetto 2:1 */
+    gtk_widget_set_usize (drawing_area, 200, 200);
+    gtk_container_add (GTK_CONTAINER(aspect_frame), drawing_area);
+    gtk_widget_show (drawing_area);
+   
+    gtk_widget_show (window);
+    gtk_main ();
+    return 0;
+}  
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-9.html">Avanti</A>
+<A HREF="gtk_tut_it-7.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc8">Indice</A>
+</BODY>
+</HTML>

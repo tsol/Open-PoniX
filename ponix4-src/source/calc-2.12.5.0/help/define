@@ -1,0 +1,219 @@
+NAME
+    define - command keyword to start a function definition
+
+SYNTAX
+    define fname([param_1 [= default_1], ...]) = [expr]
+    define fname([param_1 [= default_1], ...]) { [statement_1 ... ] }
+
+TYPES
+    fname		identifier, not a builtin function name
+    param_1, ...	identifiers, no two the same
+    default_1, ...	expressions
+    expr		expression
+    statement_1, ...	statements
+
+DESCRIPTION
+    The intention of a function definition is that the identifier fname
+    becomes the name of a function which may be called by an expression
+    of the form  fname(arg_1, arg_2, ...), where arg_1, arg_2, ... are
+    expressions (including possibly blanks, which are treated as
+    null values).  Evaluation of the function begins with evaluation
+    of arg_1, arg_2, ...; then, in increasing order of i, if arg_i is
+    null-valued and  "= default_i" has been included in the definition,
+    default_i is evaluated and its value becomes the value of arg_i.
+    The instructions in expr or the listed statements are then executed
+    with each occurrence of param_i replaced by the value obtained
+    for arg_i.
+
+    In a call, arg_i may be preceded by a backquote (`)  to indicate that
+    evaluation of arg_i is not to include a final evaluation of an lvalue.
+    For example, suppose a function f and a global variable A have been
+    defined by:
+
+	; define f(x) = (x = 3);
+	; global mat A[3];
+
+    If g() is  a function that evaluates to 2:
+
+	; f(A[g()]);
+
+    assigns the value of A[2] to the parameter x and then assigns the
+    value 3 to x:
+
+	; f(`A[g()]);
+
+    has essentially the effect of assigning A[2] as an lvalue to x and
+    then assigning the value 3 to A[2].  (Very old versions of calc
+    achieved the same result by using '&' as in  f(&A[g()]).)
+
+    The number of arguments arg_1, arg_2, ... in a call need not equal the
+    number of parameters.  If there are fewer arguments than parameters,
+    the "missing" values are assigned the null value.
+
+    In the definition of a function, the builtin function param(n)
+    provides a way of referring to the parameters.  If n (which may
+    result from evaluating an expreession) is zero, it returns the number
+    of arguments in a call to the function, and if 1 <= n <= param(0),
+    param(n) refers to the parameter with index n.
+
+    If no error occurs and no quit statement or abort statement is
+    encountered during evaluation of the expression or the statements,
+    the function call returns a value.  In the expression form, this is
+    simply the value of the expression.
+
+    In the statement form, if a return statement is encountered,
+    the "return" keyword is to be either immediately followed by an
+    expression or by a statement terminator (semicolon or rightbrace);
+    in the former case, the expression is evaluated, evaluation of
+    the function ceases, and the value obtained for the expression is
+    returned as the "value of the function";  in the no-expression case,
+    evaluation ceases immediately and the null-value is returned.
+
+    In the expression form of definition, the end of the expression expr
+    is to be indicated by either a semicolon or a newline not within
+    a part enclosed by parentheses; the definition may extend over
+    several physical lines by ending each line with a '\' character or by
+    enclosing the expression in parentheses.  In interactive mode, that
+    a definition has not been completed is indicated by the continuation
+    prompt.   A ctrl-C interrupt at this stage will abort the definition.
+
+    If the expr is omitted from an expression definition, as in:
+
+	; define h() = ;
+
+    any call to the function will evaluate the arguments and return the
+    null value.
+
+    In the statement form, the definition ends when a matching right
+    brace completes the "block" started by the initial left brace.
+    Newlines within the block are treated as white space; statements
+    within the block end with a ';' or a '}' matching an earlier '{'.
+
+    If a function with name fname had been defined earlier, the old
+    definition has no effect on the new definition, but if the definition
+    is completed successfully, the new definition replaces the old one;
+    otherwise the old definition is retained.  The number of parameters
+    and their names in the new definiton may be quite different from
+    those in the old definition.
+
+    An attempt at a definition may fail because of scanerrors as the
+    definition is compiled.  Common causes of these are: bad syntax,
+    using identifiers as names of variables not yet defined.  It is
+    not a fault to have in the definition a call to a function that has
+    not yet been defined; it is sufficient that the function has been
+    defined when a call is made to the function.
+
+    After fname has been defined, the definition may be removed by the command:
+
+	; undefine fname
+
+    The definitions of all user-defined functions may be removed by:
+
+	; undefine *
+
+    If bit 0 of config("resource_debug") is set and the define command is
+    at interactive level, a message saying that fname has been defined
+    or redefined is displayed.  The same message is displayed if bit 1
+    of config("resource_debug") is set and the define command is read
+    from a file.
+
+    The identifiers used for the parameters in a function definition do
+    not form part of the completed definition.  For example,
+
+	; define f(a,b) = a + b;
+	; define g(alpha, beta) = alpha + beta;
+
+    result in identical code for the functions f, g.
+
+    If config("trace") & 8 is nonzero, the opcodes of a newly defined
+    function are displayed on completion of its definition, parameters
+    being specified by names used in the definition.  For example:
+
+	; config("trace", 8),
+	; define f(a,b) = a + b
+	0: PARAMADDR a
+	2: PARAMADDR b
+	4: ADD
+	5: RETURN
+	f(a,b) defined
+
+    The opcodes may also be displayed later using the show opcodes command;
+    parameters will be specified by indices instead of by names.  For example:
+
+	; show opco f
+	0: PARAMADDR 0
+	2: PARAMADDR 1
+	4: ADD
+	5: RETURN
+
+    When a function is defined by the statement mode, the opcodes normally
+    include DEBUG opcodes which specify statement boundaries at which
+    SIGINT interruptions are likely to be least risky.  Inclusion of
+    the DEBUG opcodes is disabled if config("trace") & 2 is nonzero.
+    For details, see help interrupt.
+
+    While config("trace") & 1 is nonzero, the opcodes are displayed as
+    they are being evaluated.  The current function is identified by its
+    name, or "*" in the case of a command-line and "**" in the case of
+    an eval(str) evaluation.
+
+    When a function is called, argument values may be of any type for
+    which the operations and any functions used within the body of the
+    definition can be executed.  For example, whatever the intention at
+    the time they were defined, the functions f1(), f2() defined above
+    may be called with integer, fractional, or complex-number values, or
+    with both arguments strings, or under some compatibility conditions,
+    matrices or objects.
+
+EXAMPLE
+    ; define f(a,b) = 2*a + b;
+    ; define g(alpha, beta)
+    ;; {
+    ;;	   local a, pi2;
+    ;;
+    ;;	   pi2 = 2 * pi();
+    ;;	   a = sin(alpha % pi2);
+    ;;	   if (a > 0.0) {
+    ;;	       return a*beta;
+    ;;	   }
+    ;;	   if (beta > 0.0) {
+    ;;	       a *= cos(-beta % pi2);
+    ;;	   }
+    ;;	   return a;
+    ;; }
+
+LIMITS
+    The number of arguments in a function-call cannot exceed 1024.
+
+LIBRARY
+    none
+
+SEE ALSO
+    param, variable, undefine, show
+
+## Copyright (C) 2000-2006  David I. Bell, Landon Curt Noll and Ernest Bowen
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: define,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/define,v $
+##
+##
+## Under source code control:	1991/07/21 04:37:18
+## File existed as early as:	1991
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

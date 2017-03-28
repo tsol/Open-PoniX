@@ -1,0 +1,136 @@
+NAME
+    rsearch - reverse search for an element satisfying a specified condition
+
+SYNOPSIS
+    rsearch(a, b [, [c] [, [d] ] ])
+
+TYPES
+    a		matrix, list, association, or file open for reading
+    b		string if a is a file, otherwise any
+    c		integer, defaults to zero, size(a) or the current file-position
+    d		integer, defaults to size(a) or current file-position
+
+    return	nonnegative integer or null
+
+DESCRIPTION
+
+    Negative values of c and nonpositive values of d are treated as
+    offsets from size(a), i.e. as if c were replaced by size(a) + c
+    and d by size(a) + d.  Any such adjustment is assumed to have been
+    made.
+
+    The nature of the search depends on whether the rsearch() is called
+    with or without the fourth argument d.
+
+Four argument case:
+
+    The search interval is as for search(a,b,c,d), i.e. the indices i
+    to be examined are to satisfy c <= i < d and 0 <= i < size(a)
+    for non-file a, and c <= i <= d - strlen(b), 0 <= i <= size(a) - strlen(b)
+    if a is a file stream.  The difference from search(a,b,c,d) is that
+    the indices i, if any, are examined in decreasing order, so that
+    if a match is found, the returned integer i is the largest in the
+    search interval.  The null value is returned if no match is found.
+
+    The default value for d is size(a) for non-file cases, and the current
+    file-position if a is a file.  The default for c is zero except if a
+    is a file and d is an integer.
+
+    For non-file a, the search is for a[[i]] == b, except that if
+    the function accept() as been defined, it is for i such that
+    accept(a[[i]], b) tests as nonzero.	 Since the addresses (rather than
+    values) of a[[i]] and b are passed to accept(), the values of one or
+    both of a[[i]] and b may be changed during a call to rsearch().
+
+    In the file-stream case, if strlen(b) = n, a match at file-position i
+    corresponds to the n characters in the file starting at position i
+    matching those of the string b.  The null value is returned if no
+    match is found.   The final file position will correspond to the
+    last character if a match is found, or the start (lowest) position
+    of the search interval if no match is found, except that if no
+    reading of characters is required (e.g. if start > end), the original
+    file-position is not changed.
+
+
+    Two- or Three-argument case:
+
+    If a is not a file, the default value for c is size(a).  If a is a
+    file, rsearch(a,b) = rsearch(a, b, ftell(a)), and
+    rsearch(a,b,) = rsearch(a, b, size(a)).
+
+    If a is not a file, the search starts, if at all, at the largest
+    non-negative index i for which i <= c and i < size(a), and continues
+    until a match a[[i]] == b is found, or if accept() has been defined,
+    accept(a[[i]], b) tests as nonzero; if no such i is found and returned,
+    the null value is returned.
+
+    If a is a file, the first, if any, file-position tested has the greatest
+    nonnegative position i such that i <= c and i <= size(a) - strlen(b).
+    The returned value is either the first i at which a match is found or
+    the null value if no match with the string b is found.  The final
+    file-position will correspond to the last character of b, or the zero
+    position, according as a match is found or not found.
+
+EXAMPLE
+    ; L = list(2,"three",4i)
+    ; rsearch(L,"three")
+	    1
+    ; rsearch(L,"threes")
+    ; rsearch(L, 4i, 4)
+    ; rsearch(L, 4i, 1)
+	    2
+
+    ; f = fopen("foo", "w+")
+    ; fputs(f, "This file has 28 characters.")
+    ; fflush(f)
+    ; rsearch(f, "ha")
+	18
+    ; ftell(f)
+	19
+    ; rsearch(f, "ha", 17)
+	10
+    ; rsearch(f, "ha", 9)
+    ; ftell(f)
+	0
+    ; rsearch(f, "ha")
+	18
+    ; rsearch(f, "ha", 5, 500)
+	18
+
+LIMITS
+    none
+
+LINK LIBRARY
+    none
+
+SEE ALSO
+     append, delete, insert, islist, pop, push, remove, search,
+     select, size,
+
+     assoc, list, mat
+
+## Copyright (C) 1999-2006  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: rsearch,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/rsearch,v $
+##
+## Under source code control:	1994/03/19 03:13:21
+## File existed as early as:	1994
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

@@ -1,0 +1,256 @@
+<refentry id="AtkAction">
+<refmeta>
+<refentrytitle role="top_of_page" id="AtkAction.top_of_page">AtkAction</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkAction</refname>
+<refpurpose>The ATK interface provided by UI components which the user can
+activate/interact with,</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="AtkAction.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+                    <link linkend="AtkAction-struct">AtkAction</link>;
+<link linkend="gboolean">gboolean</link>            <link linkend="atk-action-do-action">atk_action_do_action</link>                (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);
+<link linkend="gint">gint</link>                <link linkend="atk-action-get-n-actions">atk_action_get_n_actions</link>            (<link linkend="AtkAction">AtkAction</link> *action);
+const <link linkend="gchar">gchar</link>*        <link linkend="atk-action-get-description">atk_action_get_description</link>          (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);
+const <link linkend="gchar">gchar</link>*        <link linkend="atk-action-get-name">atk_action_get_name</link>                 (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);
+const <link linkend="gchar">gchar</link>*        <link linkend="atk-action-get-localized-name">atk_action_get_localized_name</link>       (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);
+const <link linkend="gchar">gchar</link>*        <link linkend="atk-action-get-keybinding">atk_action_get_keybinding</link>           (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);
+<link linkend="gboolean">gboolean</link>            <link linkend="atk-action-set-description">atk_action_set_description</link>          (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i,
+                                                         const <link linkend="gchar">gchar</link> *desc);
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 id="AtkAction.object-hierarchy" role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+  <link linkend="GInterface">GInterface</link>
+   +----AtkAction
+</synopsis>
+</refsect1>
+
+
+
+
+<refsect1 id="AtkAction.implementations" role="implementations">
+<title role="implementations.title">Known Implementations</title>
+<para>
+AtkAction is implemented by
+ <link linkend="AtkHyperlink">AtkHyperlink</link> and  <link linkend="AtkNoOpObject">AtkNoOpObject</link>.</para>
+</refsect1>
+
+
+
+
+<refsect1 id="AtkAction.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+<link linkend="AtkAction"><type>AtkAction</type></link> should be implemented by instances of <link linkend="AtkObject"><type>AtkObject</type></link> classes with
+which the user can interact directly, i.e. buttons, checkboxes,
+scrollbars,  e.g. components which are not "passive"
+providers of UI information.
+</para>
+<para>
+Exceptions: when the user interaction is already covered by
+another appropriate interface such as <link linkend="AtkEditableText"><type>AtkEditableText</type></link> (insert/delete
+test, etc.) or <link linkend="AtkValue"><type>AtkValue</type></link> (set value) then these actions should not be
+exposed by <link linkend="AtkAction"><type>AtkAction</type></link> as well.
+</para>
+<para>
+Also note that the <link linkend="AtkAction"><type>AtkAction</type></link> API is limited in that parameters may not
+be passed to the object being activated; thus the action must be
+self-contained and specifiable via only a single "verb".  Concrete
+examples include "press", "release", "click" for buttons, "drag"
+(meaning initiate drag) and "drop" for drag sources and drop targets,
+etc.
+</para>
+<para>
+Though most UI interactions on components should be invocable via
+keyboard as well as mouse, there will generally be a close mapping
+between "mouse actions" that are possible on a component and the
+AtkActions.  Where mouse and keyboard actions are redundant in effect,
+<link linkend="AtkAction"><type>AtkAction</type></link> should expose only one action rather than exposing redundant
+actions if possible.  By convention we have been using "mouse centric"
+terminology for <link linkend="AtkAction"><type>AtkAction</type></link> names.
+</para>
+</refsect1>
+
+<refsect1 id="AtkAction.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="AtkAction-struct" role="struct">
+<title>AtkAction</title>
+<indexterm zone="AtkAction-struct"><primary sortas="AtkAction">AtkAction</primary></indexterm><programlisting>typedef struct _AtkAction AtkAction;</programlisting>
+<para>
+The AtkAction structure does not contain any fields.
+</para></refsect2>
+<refsect2 id="atk-action-do-action" role="function">
+<title>atk_action_do_action ()</title>
+<indexterm zone="atk-action-do-action"><primary sortas="atk_action_do_action">atk_action_do_action</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            atk_action_do_action                (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Perform the specified action on the object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>i</parameter>&#160;:</term>
+<listitem><simpara> the action index corresponding to the action to be performed 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> <link linkend="TRUE--CAPS"><literal>TRUE</literal></link> if success, <link linkend="FALSE--CAPS"><literal>FALSE</literal></link> otherwise
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-action-get-n-actions" role="function">
+<title>atk_action_get_n_actions ()</title>
+<indexterm zone="atk-action-get-n-actions"><primary sortas="atk_action_get_n_actions">atk_action_get_n_actions</primary></indexterm><programlisting><link linkend="gint">gint</link>                atk_action_get_n_actions            (<link linkend="AtkAction">AtkAction</link> *action);</programlisting>
+<para>
+Gets the number of accessible actions available on the object.
+If there are more than one, the first one is considered the
+"default" action of the object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> a the number of actions, or 0 if <parameter>action</parameter> does not
+implement this interface.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-action-get-description" role="function">
+<title>atk_action_get_description ()</title>
+<indexterm zone="atk-action-get-description"><primary sortas="atk_action_get_description">atk_action_get_description</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        atk_action_get_description          (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Returns a description of the specified action of the object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>i</parameter>&#160;:</term>
+<listitem><simpara> the action index corresponding to the action to be performed 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>a description string, or <link linkend="NULL--CAPS"><literal>NULL</literal></link>
+if <parameter>action</parameter> does not implement this interface.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-action-get-name" role="function">
+<title>atk_action_get_name ()</title>
+<indexterm zone="atk-action-get-name"><primary sortas="atk_action_get_name">atk_action_get_name</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        atk_action_get_name                 (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Returns a non-localized string naming the specified action of the 
+object. This name is generally not descriptive of the end result 
+of the action, but instead names the 'interaction type' which the 
+object supports. By convention, the above strings should be used to 
+represent the actions which correspond to the common point-and-click 
+interaction techniques of the same name: i.e. 
+"click", "press", "release", "drag", "drop", "popup", etc.
+The "popup" action should be used to pop up a context menu for the 
+object, if one exists.
+</para>
+<para>
+For technical reasons, some toolkits cannot guarantee that the 
+reported action is actually 'bound' to a nontrivial user event;
+i.e. the result of some actions via <link linkend="atk-action-do-action"><function>atk_action_do_action()</function></link> may be
+NIL.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>i</parameter>&#160;:</term>
+<listitem><simpara> the action index corresponding to the action to be performed 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>a name string, or <link linkend="NULL--CAPS"><literal>NULL</literal></link>
+if <parameter>action</parameter> does not implement this interface.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-action-get-localized-name" role="function">
+<title>atk_action_get_localized_name ()</title>
+<indexterm zone="atk-action-get-localized-name"><primary sortas="atk_action_get_localized_name">atk_action_get_localized_name</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        atk_action_get_localized_name       (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Returns the localized name of the specified action of the object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>i</parameter>&#160;:</term>
+<listitem><simpara> the action index corresponding to the action to be performed 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>a name string, or <link linkend="NULL--CAPS"><literal>NULL</literal></link>
+if <parameter>action</parameter> does not implement this interface.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-action-get-keybinding" role="function">
+<title>atk_action_get_keybinding ()</title>
+<indexterm zone="atk-action-get-keybinding"><primary sortas="atk_action_get_keybinding">atk_action_get_keybinding</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link>*        atk_action_get_keybinding           (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Returns a keybinding associated with this action, if one exists.
+The returned string is in the format "&lt;a&gt;;&lt;b&gt;;&lt;c&gt;"
+(i.e. semicolon-delimited), where &lt;a&gt; is the keybinding which
+activates the object if it is presently enabled onscreen, 
+&lt;b&gt; corresponds to the keybinding or sequence of keys
+which invokes the action even if the relevant element is not
+currently posted on screen (for instance, for a menu item it
+posts the parent menus before invoking).  The last token in the
+above string, if non-empty, represents a keyboard shortcut which
+invokes the same action without posting the component or its
+enclosing menus or dialogs.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>i</parameter>&#160;:</term>
+<listitem><simpara> the action index corresponding to the action to be performed 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>a string representing the available keybindings, or <link linkend="NULL--CAPS"><literal>NULL</literal></link>
+if there is no keybinding for this action.
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-action-set-description" role="function">
+<title>atk_action_set_description ()</title>
+<indexterm zone="atk-action-set-description"><primary sortas="atk_action_set_description">atk_action_set_description</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            atk_action_set_description          (<link linkend="AtkAction">AtkAction</link> *action,
+                                                         <link linkend="gint">gint</link> i,
+                                                         const <link linkend="gchar">gchar</link> *desc);</programlisting>
+<para>
+Sets a description of the specified action of the object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>action</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="GObject"><type>GObject</type></link> instance that implements AtkActionIface
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>i</parameter>&#160;:</term>
+<listitem><simpara> the action index corresponding to the action to be performed 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>desc</parameter>&#160;:</term>
+<listitem><simpara> the description to be assigned to this action
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> a gboolean representing if the description was successfully set;
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

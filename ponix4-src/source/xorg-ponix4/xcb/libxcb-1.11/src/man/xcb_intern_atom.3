@@ -1,0 +1,88 @@
+.TH xcb_intern_atom 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_intern_atom \- Get atom identifier by name
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_intern_atom_cookie_t \fBxcb_intern_atom\fP(xcb_connection_t\ *\fIconn\fP, uint8_t\ \fIonly_if_exists\fP, uint16_t\ \fIname_len\fP, const char\ *\fIname\fP);
+.PP
+.SS Reply datastructure
+.nf
+.sp
+typedef struct xcb_intern_atom_reply_t {
+    uint8_t    \fIresponse_type\fP;
+    uint8_t    \fIpad0\fP;
+    uint16_t   \fIsequence\fP;
+    uint32_t   \fIlength\fP;
+    xcb_atom_t \fIatom\fP;
+} \fBxcb_intern_atom_reply_t\fP;
+.fi
+.SS Reply function
+.HP
+xcb_intern_atom_reply_t *\fBxcb_intern_atom_reply\fP(xcb_connection_t\ *\fIconn\fP, xcb_intern_atom_cookie_t\ \fIcookie\fP, xcb_generic_error_t\ **\fIe\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIonly_if_exists\fP 1i
+Return a valid atom id only if the atom already exists.
+.IP \fIname_len\fP 1i
+The length of the following \fIname\fP.
+.IP \fIname\fP 1i
+The name of the atom.
+.SH REPLY FIELDS
+.IP \fIresponse_type\fP 1i
+The type of this reply, in this case \fIXCB_INTERN_ATOM\fP. This field is also present in the \fIxcb_generic_reply_t\fP and can be used to tell replies apart from each other.
+.IP \fIsequence\fP 1i
+The sequence number of the last request processed by the X11 server.
+.IP \fIlength\fP 1i
+The length of the reply, in words (a word is 4 bytes).
+.IP \fIatom\fP 1i
+TODO: NOT YET DOCUMENTED.
+.SH DESCRIPTION
+Retrieves the identifier (xcb_atom_t TODO) for the atom with the specified
+name. Atoms are used in protocols like EWMH, for example to store window titles
+(\fI_NET_WM_NAME\fP atom) as property of a window.
+
+If \fIonly_if_exists\fP is 0, the atom will be created if it does not already exist.
+If \fIonly_if_exists\fP is 1, \fIXCB_ATOM_NONE\fP will be returned if the atom does
+not yet exist.
+.SH RETURN VALUE
+Returns an \fIxcb_intern_atom_cookie_t\fP. Errors have to be handled when calling the reply function \fIxcb_intern_atom_reply\fP.
+
+If you want to handle errors in the event loop instead, use \fIxcb_intern_atom_unchecked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_alloc_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_value_error_t\fP 1i
+A value other than 0 or 1 was specified for \fIonly_if_exists\fP.
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Resolves the _NET_WM_NAME atom.
+ *
+ */
+void my_example(xcb_connection *c) {
+    xcb_intern_atom_cookie_t cookie;
+    xcb_intern_atom_reply_t *reply;
+
+    cookie = xcb_intern_atom(c, 0, strlen("_NET_WM_NAME"), "_NET_WM_NAME");
+    /* ... do other work here if possible ... */
+    if ((reply = xcb_intern_atom_reply(c, cookie, NULL))) {
+        printf("The _NET_WM_NAME atom has ID %u\n", reply->atom);
+        free(reply);
+    }
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3),
+.BR xcb_get_atom_name (3),
+.BR xlsatoms (1)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

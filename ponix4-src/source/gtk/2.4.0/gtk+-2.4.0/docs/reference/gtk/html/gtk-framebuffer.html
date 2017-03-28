@@ -1,0 +1,131 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Using GTK+ on the Framebuffer</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="gtk.html" title="Part I. GTK+ Overview"><link rel="previous" href="gtk-windows.html" title="Using GTK+ on Windows"><link rel="next" href="gtk-x11.html" title="Using GTK+ on the X Window System"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="gtk-windows.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="gtk.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="gtk-x11.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="gtk-framebuffer"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Using GTK+ on the Framebuffer</span></h2><p>Using GTK+ on the Framebuffer &#8212; 
+Linux framebuffer aspects of using GTK+
+</p></div><div class="refsect1" lang="en"><h2>GTK+ for the Linux Framebuffer</h2><p>
+The linux-fb port of GTK+, also known as GtkFB is an implementation of
+GDK (and therefore GTK+) that runs on the Linux framebuffer. It runs in
+a single process that doesn't need X. It should run most GTK+ programs
+without any changes to the source.
+</p><div class="refsect2" lang="en"><h3>Build requirements</h3><p>
+You need GTK+ 2.0; the 1.2.x series does not have framebuffer support.
+To compile GTK+ with framebuffer support you will need FreeType 2; we
+recommend FreeType 2.0.1 or later, as there was some problems with
+<b class="command">freetype-config</b> in 2.0.  Make sure that you install 
+FreeType before Pango, since Pango also needs it. FreeType can be found at
+<a href="ftp://ftp.freetype.org" target="_top">ftp://ftp.freetype.org</a>.  You also
+need fontconfig in order to properly use the FreeType 2 backend in Pango.
+Fontconfig depends on FreeType as well. Fontconfig can be found at
+<a href="http://fontconfig.org" target="_top">http://fontconfig.org</a>.
+</p></div><hr><div class="refsect2" lang="en"><h3>Hardware requirements</h3><p>
+You need a graphics card with an available framebuffer driver that can
+run in 8, 16, 24 or 32 bpp, such as matroxfb or vesafb.  You also need
+a supported mouse. GTK+ currently supports the ps2 mouse, ms serial
+mouse and fidmour touchscreen. Additional hardware support should 
+be simple to add.
+</p></div><hr><div class="refsect2" lang="en"><h3>Building and installing</h3><p>
+First build and install GLib, ATK and Pango as usual, in that order.
+
+Then configure GTK+ by running <b class="command">configure</b> (or 
+<b class="command">autogen.sh</b> if running from
+CVS) with <tt class="option">--with-gdktarget=linux-fb</tt>.
+</p><p>Then compile as usual: <b class="command">make; make install</b></p></div><hr><div class="refsect2" lang="en"><h3>Fonts</h3><p>
+Since GtkFB uses FreeType 2 to render fonts it can render TrueType and
+Postscript type 1 antialiased fonts.
+</p><p>
+GtkFB uses fontconfig for configuration of font information, including
+directories and aliases. Make sure that you have your fonts.conf file
+configured with where your TrueType and Type1 fonts are. Please refer to the
+fontconfig documentation for more information.
+</p></div><hr><div class="refsect2" lang="en"><h3>Running</h3><p>
+To run a program you should only need to start it, but there are some
+things that can cause problems, and some things that can be controlled
+by environment variables. Try <span class="application">gtk-demo</span> distributed 
+with GTK+ to test if things work.
+</p><p>
+If you use a ps2 mouse, make sure that <tt class="filename">/dev/psaux</tt> is 
+readable and writable.
+</p><p>Make sure <b class="command">gpm</b> is not running.</p><p>If you don't specify anything GtkFB will start up in the current
+virtual console in the current resolution and bit-depth. This can be
+changed by specifying environment variables:
+</p><p>
+</p><pre class="programlisting">
+<tt class="envar">GDK_VT</tt>:
+ unset means open on the current VT.
+ 0-9: open on the specified VT. Make sure you have read/write rights
+      there.
+ new: Allocate a new VT after the last currently used one.
+
+<tt class="envar">GDK_DISPLAY_MODE</tt>:
+ Specifies the name of a mode in <tt class="filename">/etc/fb.modes</tt> that you 
+ want to use.
+
+<tt class="envar">GDK_DISPLAY_DEPTH</tt>:
+ Specify the desired bit depth of the framebuffer.
+ 
+<tt class="envar">GDK_DISPLAY_WIDTH</tt>:
+ Specify the desired width of the framebuffer.
+ 
+<tt class="envar">GDK_DISPLAY_HEIGHT</tt>:
+ Specify the desired height of the framebuffer.
+
+<tt class="envar">GDK_DISPLAY</tt>:
+ Specify the framebuffer device to use. Default is <tt class="filename">/dev/fb0</tt>.
+
+<tt class="envar">GDK_MOUSE_TYPE</tt>:
+ Specify mouse type. Currently supported is:
+  ps2 - PS/2 mouse
+  imps2 - PS/2 intellimouse (wheelmouse)
+  ms - Microsoft serial mouse
+  fidmour - touch screen
+ Default is ps2.
+
+<tt class="envar">GDK_KEYBOARD_TYPE</tt>:
+ Specify keyboard type. Currently supported is
+  xlate - normal tty mode keyboard.
+    Quite limited, cannot detect key up/key down events. Doesn't
+    handle ctrl/alt/shift for all keys. This is the default driver,
+    but should not be used in "production" use.
+  raw - read from the tty in RAW mode.
+    Sets the keyboard in RAW mode and handles all the keycodes. This
+    gives correct handling of modifiers and key up/down events. You
+    must be root to use this. If you use this for development or
+    debugging it is recommended to enable magic sysrq handling in the
+    kernel. Then you can use ALT-SysRQ-r to turn the keyboard back to
+    normal mode.
+ Default is xlate.
+</pre><p>
+</p></div><hr><div class="refsect2" lang="en"><h3>Debug features</h3><p>Pressing Ctrl-Alt-Return repaints the whole screen.
+Unfortunately this cannot be pressed when using the xlate keyboard
+driver, so instead you can use shift-F1 instead when using this
+driver.
+</p><p>Pressing Ctrl-Alt-BackSpace kills the GtkFB program. (This can't be
+pressed in the xlate driver, so instead you can use shift-F8.)</p></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="gtk-windows.html"><b>&lt;&lt; Using GTK+ on Windows</b></a></td><td align="right"><a accesskey="n" href="gtk-x11.html"><b>Using GTK+ on the X Window System &gt;&gt;</b></a></td></tr></table></body></html>

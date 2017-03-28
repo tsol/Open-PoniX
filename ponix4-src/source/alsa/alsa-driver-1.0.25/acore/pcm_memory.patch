@@ -1,0 +1,22 @@
+--- ../alsa-kernel/core/pcm_memory.c	2009-12-23 08:57:36.000000000 +0100
++++ pcm_memory.c	2009-12-23 09:21:05.000000000 +0100
+@@ -1,3 +1,5 @@
++#define __NO_VERSION__
++#include "adriver.h"
+ /*
+  *  Digital Audio (PCM) abstract layer
+  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+@@ -449,7 +451,13 @@ int _snd_pcm_lib_alloc_vmalloc_buffer(st
+ 			return 0; /* already large enough */
+ 		vfree(runtime->dma_area);
+ 	}
++#ifndef CONFIG_HAVE_OWN_GFP_ZERO
+ 	runtime->dma_area = __vmalloc(size, gfp_flags, PAGE_KERNEL);
++#else
++	runtime->dma_area = __vmalloc(size, gfp_flags & ~__GFP_ZERO, PAGE_KERNEL);
++	if ((gfp_flags & __GFP_ZERO) != 0 && runtime->dma_area)
++		memset(runtime->dma_area, 0, size);
++#endif
+ 	if (!runtime->dma_area)
+ 		return -ENOMEM;
+ 	runtime->dma_bytes = size;

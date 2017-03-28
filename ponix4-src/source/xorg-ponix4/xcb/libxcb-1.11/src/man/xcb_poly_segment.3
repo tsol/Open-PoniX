@@ -1,0 +1,50 @@
+.TH xcb_poly_segment 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_poly_segment \- draw lines
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_poly_segment\fP(xcb_connection_t\ *\fIconn\fP, xcb_drawable_t\ \fIdrawable\fP, xcb_gcontext_t\ \fIgc\fP, uint32_t\ \fIsegments_len\fP, const xcb_segment_t\ *\fIsegments\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIdrawable\fP 1i
+A drawable (Window or Pixmap) to draw on.
+.IP \fIgc\fP 1i
+The graphics context to use.
+
+TODO: document which attributes of a gc are used
+.IP \fIsegments_len\fP 1i
+The number of \fIxcb_segment_t\fP structures in \fIsegments\fP.
+.IP \fIsegments\fP 1i
+An array of \fIxcb_segment_t\fP structures.
+.SH DESCRIPTION
+Draws multiple, unconnected lines. For each segment, a line is drawn between
+(x1, y1) and (x2, y2). The lines are drawn in the order listed in the array of
+\fIxcb_segment_t\fP structures and does not perform joining at coincident
+endpoints. For any given line, a pixel is not drawn more than once. If lines
+intersect, the intersecting pixels are drawn multiple times.
+
+TODO: include the xcb_segment_t data structure
+
+TODO: an example
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_poly_segment_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_drawable_error_t\fP 1i
+The specified \fIdrawable\fP does not exist.
+.IP \fIxcb_g_context_error_t\fP 1i
+The specified \fIgc\fP does not exist.
+.IP \fIxcb_match_error_t\fP 1i
+TODO: reasons?
+.SH SEE ALSO
+.BR xcb-requests (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

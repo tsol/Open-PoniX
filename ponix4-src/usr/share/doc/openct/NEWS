@@ -1,0 +1,215 @@
+NEWS for OpenCT -- History of user visible changes
+
+New in 0.6.20; 2010-02-16; Andreas Jellinghaus
+* Modify Rutoken S binary interfaces by Aktiv Co.
+* Makefiles fixed in doc/ directory
+
+New in 0.6.19; 2010-01-07; Andreas Jellinghaus
+* update on udev rules. Please now use udev instead of hal,
+  as distributions are deprecating hal in favor for udev.
+* Thanks to Daniel Kahn Gillmor for testing on debian.
+
+New in 0.6.18; 2009-09-25; Andreas Jellinghaus
+* USB code for BSD fixed by Emmanuel Dreyfus
+* Add support for Rutoken S by  Aktiv Co. / Aleksey Samsonov
+
+New in 0.6.17; 2009-07-29; Andreas Jellinghaus
+* add support for Rutoken ECP (ccid driver)
+* small bugfixes
+
+New in 0.6.16; 2009-05-04; Andreas Jellinghaus
+* For ccid, etoken* drivers remove polling loop, review the force_poll
+  configuration option, this reduces power consumption and CPU load.
+* Fix some issues caused by newer udev version.
+* Handle T1 abort better.
+* Some build system fixes.
+* Some minor fixes.
+* Re-add api documentation (pre-generated), like we used to.
+
+New in 0.6.15; 2008-07-31; Andreas Jellinghaus
+* Build system rewritten (NOTICE: configure options was modified). 
+* Build system rewritten (NOTICE: configure options was modified). 
+* None privileged configuration added, as a result /etc/openct.conf ifdhandler
+  was modified, please review sample at etc/openct.conf before upgrade.
+* The usb device add (/dev/bus/usb/$env{BUSNUM}/$env{DEVNUM}) udev rule is now
+  available in separate file, as it should be available at most distributions,
+  and may conflict. Install this only if you are using old udev that miss this
+  statement.
+* Basic coldplug support on Linux is available without libusb dependency.
+* CCID-1.10 is now supported.
+
+New in 0.6.14; 2007-08-30; Andreas Jellinghaus
+* further fixes to udev script by Kay Sievers
+
+New in 0.6.13; 2007-08-23; Andreas Jellinghaus
+* get hal setup to work
+* more fixes to udev setup. works now without usbfs.
+* fix openct.udev.modalias rule file for openct. tested, now working fine.
+* this version works with linux kernel 2.6.22+ if patched, see
+  http://lkml.org/lkml/2007/8/17/193 for a patch.
+  will be fixed in 2.6.22.6 I hope.
+* improve etc/openct_usb.in script for working without PRODUCT environment
+* comment out wbeiuu driver - use kernel driver plus phoenix driver instead
+
+New in 0.6.12; 2007-07-11; Andreas Jellinghaus
+* add alternative udev rules based on MODALIAS.
+* update wiki export (fix links, add images).
+* remove TEST_MINUS_S_SH tests from configure (not needed).
+* make lots of functions static (warnings from sparse).
+* rename variables clashing with function names such as index.
+* fix DragonFly BSD build.
+* add small delays to smph driver, suggested by  Alexej Wassiljew.
+* fix pcsclite compile issue (Ludovic Rousseau).
+* add ccid as fallback driver if no other is found (linux only, FIXME others).
+* add more drivers to etc/ files, get them in sync.
+* fix lots of warnings/issues found by sparse.
+* add patch by harald welte for contactless reader support (librfid).
+* add set_params to pcmcia and pcmcia-block code to
+  get cm4000/cm4040 drivers to work again.
+
+New in 0.6.11; 2006-11-22; Andreas Jellinghaus
+* add usb reset for non-linux too (dummy code only).
+* fix three small bugs/warnings
+
+New in 0.6.10; 2006-11-11; Andreas Jellinghaus
+* fix etc/Makefile installation (Ville Skytta)
+* bsd compile fixed (Markus Schatzl)
+* include string.h in utils.c (Dann Frazier)
+* fix 'BUS="pcmcia"' match in udev rules file.
+* improve egate reset logic (Chaskiel Grundman, bugs by AJ)
+* implement usb reset (Andrey Jivsov)
+
+New in 0.6.9; 2006-09-20; Andreas Jellinghaus
+* more work on wbeiuu driver.
+* better handling of usb devices for openbsd.
+* small delays in egate initialisation for new sealed egate token.
+* small bugfix in socket code.
+* fix openct.conf for wbeeui driver.
+* move scripts used by udev to /lib/udev/ by default.
+* udev scripts for usb, pcmcia_block and serial readers.
+* add several usb ids to ccid driver config.
+* small fix in ccid driver with configuration 0.
+* don't claim interface in device_open, instead make sure all drivers
+  call ifd_device_set_parameters which will (in the case of usb) claim
+  the interface.
+* cleanup the parameters to ifdhandler and openct-control attach.
+  include type of the device in these parameters. do not drop the
+  type if already known. this change requires the updated hotplug files.
+
+New in 0.6.8; 2006-06-19; Andreas Jellinghaus
+Fix bug in socket code: retry if read() returns -1/EINTR.
+
+New in 0.6.7; 2006-05-01; Andreas Jellinghaus
+* configure.ac uses now pkg-config.
+* sys-linux.c does not need kernel headers (all data etc. included)
+* now generating a Changelog file in the documentation
+* all urls now based on http://www.opensc-project.org/
+* wiki documentation included as html snapshot
+* new driver for WB Electronics' Infinity USB Unlimited by Juan Carlos Borras
+* bug in sleep code fixed.
+* new pertosmart ac1038 driver by Carlos Henrique Bauer
+* new smartkey driver: not finished yet
+* support for both /proc/bus/usb and /dev/bus/usb devices with linux
+* improved T=1 implementation by Ludovic Rousseau
+* improved eutron driver by Chaskiel Grundman
+* OPENCT_SOCKETDIR environment can point to any dir for the sockets so
+  users can use it without being root.
+* sample config files for both hald and udev.
+  we suggest udev as hotplug replacement. hald is not tested.
+* sample reader.conf included for pcsc-lite.
+  remember to use opensc->openct or opensc->pcsc->openct but not both.
+* add phoenix/smartmouse driver by Antoine Nguyen
+  based on sctk by Alexandre Becoulet
+* License is now officialy LGPL. So far it was BSD/LGPL
+  dual licensed, and most parts still are, but we already
+  had some usb code under LGPL and now got another driver
+  under LGPL, so the project as whole is considered LGPL.
+  Libopenct is still 100% BSD, in case you want to use it.
+  so this only affects the ifdhandler process and other tools.
+* Siemens B1 driver improved by Lorenz Knauer.
+
+New in 0.6.6; 2005-09-11 Andreas Jellinghaus
+* updated html documentation. now generated with "make dist".
+* indent'ed with linux kernel Lindet script.
+* use libltdl instead of scdl.
+* new ident schema: Lident (from linux kernel)
+* new etoken64 driver (completely untested.
+  not supported by opensc.)
+* new pertosmart driver by Carlos Henrique Bauer 
+* new acr30u driver by Laurent Pinchart
+* initial driver documentation by Laurent Pinchart
+* ccid driver now supports pcmcia block based devices
+  such as the OMNIKEY CardMan 4040 (Harald Welte)
+
+New in 0.6.5; 2005-05-16; Andreas Jellinghaus
+* add pcmcia subsystem (Harald Welte)
+* add cm4000 driver (Harald Welte)
+* improve ccid driver (Harald Welte)
+* sunray support (William Wanders)
+* updated solaris support (William Wanders)
+* silience some aclocal warning (Ville Skytta)
+* man page for openct-tool (Ville Skytta)
+* print usage to stdout if there is no error (Ville Skytta)
+* document ifdhandler "-i" option (Ville Skytta)
+* gempc configuration example (Ville Skytta)
+* first claim usb interface, then configure it.
+* replace xml/html documentation with a wiki snapshot.
+
+New in 0.6.4; 2005-04-25; Andreas Jellinghaus:
+* solaris/ directory with files for building openct on solaris
+* improved usb code for bsd
+* improved usb code for solaris
+* require automake 1.5 
+* on darwin link with -Wl,-framework,CoreFoundation
+* configure code cleanup (use AC_HELP_STRING etc.)
+* implement protocol selection, improved command checking
+* ccid update with some cleanups.
+* improved t=1 protocoll code.
+* improved and fixed remote socket code.
+* increased library version to 1.0.0 (incompatible with 0.*.* versions)
+* fix libtool issue on mac os X (thanks to ville skytta)
+
+New in 0.6.3; 2005-01-11; Andreas Jellinghaus
+* silence "unable to open" and "Debug: connect() failed:" error messages,
+  as they can happen in normal operation (e.g. opensc compiled with openct
+  support (but openct not used), or probing for readers to see if there is
+  one).
+* add version option to all command line tools.
+
+New in 0.6.2; 2004-10-31; Andreas Jellinghaus
+* Small fix in hotplug script.
+* Increased transfer buffer to 258 bytes for e-gate.
+* Improved error handling in e-gate driver.
+* Updated Info.plist files.
+* Small fix in atr.c that returned an error for legal atrs.
+* Improvements to the kaan driver.
+
+New in 0.6.1; 2004-07-18; Andreas Jellinghaus
+* This is a test version of alpha code quality
+  There are several known problems with it, please
+  use the older 0.5.0 release in production environments
+* new driver for generic usb smart card readers (ccid)
+* new proxy mechanism for remote access
+* small fix in ct_buf_put function, new ct_buf_push function
+* improved ct-api interface code
+* support for solaris
+* improved t=1 protocol
+
+New in 0.5.0; 2003-11-24; Antti Tapaninen:
+* Initial support for synchronous ICCs
+* Improved support for egate, kaan and towitoko drivers
+* Initial support for Siemens B1 (DTAG/T-TeleSec),
+  iKey 2032, Cherry Smartboard and GemPC readers
+* A new CT-API implementation by Michael Haardt
+* A new PC/SC IFD module implementation based on
+  work by Carlos Prados
+* USB/serial layer cleanups. USB support for other than
+  Linux is under development, volunteers welcome
+* Lots of generic build and portability fixes. Now works
+  with native compilers for several OS's including Linux,
+  *BSD, MacOS X, Solaris, Tru64 and AIX
+* Some OpenCT client API resource leaks fixed
+* Documentation improvements
+
+New in 0.1.0; 2003-08-15; Olaf Kirch:
+* Initial release

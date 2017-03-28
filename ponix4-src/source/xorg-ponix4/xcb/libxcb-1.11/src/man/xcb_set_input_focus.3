@@ -1,0 +1,72 @@
+.TH xcb_set_input_focus 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_set_input_focus \- Sets input focus
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_set_input_focus\fP(xcb_connection_t\ *\fIconn\fP, uint8_t\ \fIrevert_to\fP, xcb_window_t\ \fIfocus\fP, xcb_timestamp_t\ \fItime\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIrevert_to\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_INPUT_FOCUS_NONE\fP 1i
+The focus reverts to \fIXCB_NONE\fP, so no window will have the input focus.
+.IP \fIXCB_INPUT_FOCUS_POINTER_ROOT\fP 1i
+The focus reverts to \fIXCB_POINTER_ROOT\fP respectively. When the focus reverts,
+FocusIn and FocusOut events are generated, but the last-focus-change time is
+not changed.
+.IP \fIXCB_INPUT_FOCUS_PARENT\fP 1i
+The focus reverts to the parent (or closest viewable ancestor) and the new
+revert_to value is \fIXCB_INPUT_FOCUS_NONE\fP.
+.IP \fIXCB_INPUT_FOCUS_FOLLOW_KEYBOARD\fP 1i
+NOT YET DOCUMENTED. Only relevant for the xinput extension.
+.RE
+.RS 1i
+
+Specifies what happens when the \fIfocus\fP window becomes unviewable (if \fIfocus\fP
+is neither \fIXCB_NONE\fP nor \fIXCB_POINTER_ROOT\fP).
+.RE
+.IP \fIfocus\fP 1i
+The window to focus. All keyboard events will be reported to this window. The
+window must be viewable (TODO), or a \fIxcb_match_error_t\fP occurs (TODO).
+
+If \fIfocus\fP is \fIXCB_NONE\fP (TODO), all keyboard events are
+discarded until a new focus window is set.
+
+If \fIfocus\fP is \fIXCB_POINTER_ROOT\fP (TODO), focus is on the root window of the
+screen on which the pointer is on currently.
+.IP \fItime\fP 1i
+Timestamp to avoid race conditions when running X over the network.
+
+The special value \fIXCB_CURRENT_TIME\fP will be replaced with the current server
+time.
+.SH DESCRIPTION
+Changes the input focus and the last-focus-change time. If the specified \fItime\fP
+is earlier than the current last-focus-change time, the request is ignored (to
+avoid race conditions when running X over the network).
+
+A FocusIn and FocusOut event is generated when focus is changed.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_set_input_focus_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_match_error_t\fP 1i
+The specified \fIfocus\fP window is not viewable.
+.IP \fIxcb_value_error_t\fP 1i
+TODO: Reasons?
+.IP \fIxcb_window_error_t\fP 1i
+The specified \fIfocus\fP window does not exist.
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb_focus_in_event_t (3),
+.BR xcb_focus_out_event_t (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

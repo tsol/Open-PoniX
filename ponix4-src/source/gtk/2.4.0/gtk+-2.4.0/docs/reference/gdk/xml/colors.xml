@@ -1,0 +1,696 @@
+<refentry id="gdk-Colormaps-and-Colors">
+<refmeta>
+<refentrytitle>Colormaps and Colors</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Colormaps and Colors</refname><refpurpose>Manipulation of colors and colormaps</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk/gdk.h&gt;
+
+
+struct      <link linkend="GdkColor">GdkColor</link>;
+struct      <link linkend="GdkColormap">GdkColormap</link>;
+<link linkend="GdkColormap">GdkColormap</link>* <link linkend="gdk-colormap-new">gdk_colormap_new</link>               (<link linkend="GdkVisual">GdkVisual</link> *visual,
+                                             <link linkend="gboolean">gboolean</link> allocate);
+<link linkend="GdkColormap">GdkColormap</link>* <link linkend="gdk-colormap-ref">gdk_colormap_ref</link>               (<link linkend="GdkColormap">GdkColormap</link> *cmap);
+<link linkend="void">void</link>        <link linkend="gdk-colormap-unref">gdk_colormap_unref</link>              (<link linkend="GdkColormap">GdkColormap</link> *cmap);
+<link linkend="GdkColormap">GdkColormap</link>* <link linkend="gdk-colormap-get-system">gdk_colormap_get_system</link>        (void);
+<link linkend="gint">gint</link>        <link linkend="gdk-colormap-get-system-size">gdk_colormap_get_system_size</link>    (void);
+<link linkend="void">void</link>        <link linkend="gdk-colormap-change">gdk_colormap_change</link>             (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gint">gint</link> ncolors);
+<link linkend="gint">gint</link>        <link linkend="gdk-colormap-alloc-colors">gdk_colormap_alloc_colors</link>       (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *colors,
+                                             <link linkend="gint">gint</link> ncolors,
+                                             <link linkend="gboolean">gboolean</link> writeable,
+                                             <link linkend="gboolean">gboolean</link> best_match,
+                                             <link linkend="gboolean">gboolean</link> *success);
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-colormap-alloc-color">gdk_colormap_alloc_color</link>        (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color,
+                                             <link linkend="gboolean">gboolean</link> writeable,
+                                             <link linkend="gboolean">gboolean</link> best_match);
+<link linkend="void">void</link>        <link linkend="gdk-colormap-free-colors">gdk_colormap_free_colors</link>        (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *colors,
+                                             <link linkend="gint">gint</link> ncolors);
+<link linkend="void">void</link>        <link linkend="gdk-colormap-query-color">gdk_colormap_query_color</link>        (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gulong">gulong</link> pixel,
+                                             <link linkend="GdkColor">GdkColor</link> *result);
+<link linkend="GdkVisual">GdkVisual</link>*  <link linkend="gdk-colormap-get-visual">gdk_colormap_get_visual</link>         (<link linkend="GdkColormap">GdkColormap</link> *colormap);
+<link linkend="GdkScreen">GdkScreen</link>*  <link linkend="gdk-colormap-get-screen">gdk_colormap_get_screen</link>         (<link linkend="GdkColormap">GdkColormap</link> *cmap);
+<link linkend="void">void</link>        <link linkend="gdk-colors-store">gdk_colors_store</link>                (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *colors,
+                                             <link linkend="gint">gint</link> ncolors);
+<link linkend="GdkColor">GdkColor</link>*   <link linkend="gdk-color-copy">gdk_color_copy</link>                  (const <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="void">void</link>        <link linkend="gdk-color-free">gdk_color_free</link>                  (<link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="gint">gint</link>        <link linkend="gdk-colors-alloc">gdk_colors_alloc</link>                (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gboolean">gboolean</link> contiguous,
+                                             <link linkend="gulong">gulong</link> *planes,
+                                             <link linkend="gint">gint</link> nplanes,
+                                             <link linkend="gulong">gulong</link> *pixels,
+                                             <link linkend="gint">gint</link> npixels);
+<link linkend="void">void</link>        <link linkend="gdk-colors-free">gdk_colors_free</link>                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gulong">gulong</link> *pixels,
+                                             <link linkend="gint">gint</link> npixels,
+                                             <link linkend="gulong">gulong</link> planes);
+<link linkend="gint">gint</link>        <link linkend="gdk-color-white">gdk_color_white</link>                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="gint">gint</link>        <link linkend="gdk-color-black">gdk_color_black</link>                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="gint">gint</link>        <link linkend="gdk-color-parse">gdk_color_parse</link>                 (const <link linkend="gchar">gchar</link> *spec,
+                                             <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="gint">gint</link>        <link linkend="gdk-color-alloc">gdk_color_alloc</link>                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="gint">gint</link>        <link linkend="gdk-color-change">gdk_color_change</link>                (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-color-equal">gdk_color_equal</link>                 (const <link linkend="GdkColor">GdkColor</link> *colora,
+                                             const <link linkend="GdkColor">GdkColor</link> *colorb);
+<link linkend="guint">guint</link>       <link linkend="gdk-color-hash">gdk_color_hash</link>                  (const <link linkend="GdkColor">GdkColor</link> *colora);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+These functions are used to modify colormaps.
+A colormap is an object that contains the mapping
+between the color values stored in memory and
+the RGB values that are used to display color
+values. In general, colormaps only contain
+significant information for pseudo-color visuals,
+but even for other visual types, a colormap object
+is required in some circumstances.
+</para>
+
+<para>
+There are a couple of special colormaps that can
+be retrieved. The system colormap (retrieved 
+with <link linkend="gdk-colormap-get-system"><function>gdk_colormap_get_system()</function></link>) is the default
+colormap of the system. If you are using GdkRGB,
+there is another colormap that is important - the
+colormap in which GdkRGB works, retrieved with
+<link linkend="gdk-rgb-get-cmap"><function>gdk_rgb_get_cmap()</function></link>. However, when using GdkRGB, 
+it is not generally necessary to allocate colors
+directly.
+</para>
+
+<para>
+In previous revisions of this interface, a number
+of functions that take a <link linkend="GdkColormap"><type>GdkColormap</type></link> parameter
+were replaced with functions whose names began
+with "gdk_colormap_". This process will probably
+be extended somewhat in the future - 
+<link linkend="gdk-color-white"><function>gdk_color_white()</function></link>, <link linkend="gdk-color-black"><function>gdk_color_black()</function></link>, and 
+<link linkend="gdk-color-change"><function>gdk_color_change()</function></link> will probably become aliases.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkColor"/>struct GdkColor</title>
+<indexterm><primary>GdkColor</primary></indexterm><programlisting>struct GdkColor {
+
+  guint32 pixel;
+  guint16 red;
+  guint16 green;
+  guint16 blue;
+};
+</programlisting>
+<para>
+The <link linkend="GdkColor"><type>GdkColor</type></link> structure is used to describe an 
+allocated or unallocated color.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>pixel</structfield></term>
+<listitem><simpara>For allocated colors, the value used to
+  draw this color on the screen.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>red</structfield></term>
+<listitem><simpara>The red component of the color. This is
+  a value between 0 and 65535, with 65535 indicating
+  full intensitiy.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>green</structfield></term>
+<listitem><simpara>The blue component of the color.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>blue</structfield></term>
+<listitem><simpara>The green component of the color.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkColormap"/>struct GdkColormap</title>
+<indexterm><primary>GdkColormap</primary></indexterm><programlisting>struct GdkColormap {
+
+  GObject parent_instance;
+
+  gint      size;
+  GdkColor *colors;
+
+};
+</programlisting>
+<para>
+The colormap structure contains the following public fields.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GObject">GObject</link> <structfield>parent_instance</structfield></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>size</structfield></term>
+<listitem><simpara>For pseudo-color colormaps, the number of colors
+  in the colormap.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkColor">GdkColor</link> *<structfield>colors</structfield></term>
+<listitem><simpara>An array containing the current values in the
+  colormap. This can be used to map from pixel values
+  back to RGB values. This is only meaningful for
+  pseudo-color colormaps.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-new"/>gdk_colormap_new ()</title>
+<indexterm><primary>gdk_colormap_new</primary></indexterm><programlisting><link linkend="GdkColormap">GdkColormap</link>* gdk_colormap_new               (<link linkend="GdkVisual">GdkVisual</link> *visual,
+                                             <link linkend="gboolean">gboolean</link> allocate);</programlisting>
+<para>
+Creates a new colormap for the given visual.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>visual</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkVisual"><type>GdkVisual</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>allocate</parameter>&nbsp;:</term>
+<listitem><simpara> if <literal>TRUE</literal>, the newly created colormap will be
+a private colormap, and all colors in it will be
+allocated for the applications use.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the new <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-ref"/>gdk_colormap_ref ()</title>
+<indexterm><primary>gdk_colormap_ref</primary></indexterm><programlisting><link linkend="GdkColormap">GdkColormap</link>* gdk_colormap_ref               (<link linkend="GdkColormap">GdkColormap</link> *cmap);</programlisting>
+<warning><para><literal>gdk_colormap_ref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated function; use <link linkend="g-object-ref"><function>g_object_ref()</function></link> instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cmap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the colormap
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-unref"/>gdk_colormap_unref ()</title>
+<indexterm><primary>gdk_colormap_unref</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_colormap_unref              (<link linkend="GdkColormap">GdkColormap</link> *cmap);</programlisting>
+<warning><para><literal>gdk_colormap_unref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated function; use <link linkend="g-object-ref"><function>g_object_ref()</function></link> instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cmap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-get-system"/>gdk_colormap_get_system ()</title>
+<indexterm><primary>gdk_colormap_get_system</primary></indexterm><programlisting><link linkend="GdkColormap">GdkColormap</link>* gdk_colormap_get_system        (void);</programlisting>
+<para>
+Gets the system's default colormap for the default screen. (See
+<link linkend="gdk-colormap-get-system-for-screen"><function>gdk_colormap_get_system_for_screen()</function></link>)</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the default colormap.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-get-system-size"/>gdk_colormap_get_system_size ()</title>
+<indexterm><primary>gdk_colormap_get_system_size</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_colormap_get_system_size    (void);</programlisting>
+<warning><para><literal>gdk_colormap_get_system_size</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Returns the size of the system's default colormap.
+(See the description of struct <link linkend="GdkColormap"><type>GdkColormap</type></link> for an
+explanation of the size of a colormap.)</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the size of the system's default colormap.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-change"/>gdk_colormap_change ()</title>
+<indexterm><primary>gdk_colormap_change</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_colormap_change             (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gint">gint</link> ncolors);</programlisting>
+<warning><para><literal>gdk_colormap_change</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Changes the value of the first <parameter>ncolors</parameter> in a private colormap
+to match the values in the <structfield>colors</structfield>
+array in the colormap. This function is obsolete and
+should not be used. See <link linkend="gdk-color-change"><function>gdk_color_change()</function></link>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ncolors</parameter>&nbsp;:</term>
+<listitem><simpara> the number of colors to change.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-alloc-colors"/>gdk_colormap_alloc_colors ()</title>
+<indexterm><primary>gdk_colormap_alloc_colors</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_colormap_alloc_colors       (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *colors,
+                                             <link linkend="gint">gint</link> ncolors,
+                                             <link linkend="gboolean">gboolean</link> writeable,
+                                             <link linkend="gboolean">gboolean</link> best_match,
+                                             <link linkend="gboolean">gboolean</link> *success);</programlisting>
+<para>
+Allocates colors from a colormap.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colors</parameter>&nbsp;:</term>
+<listitem><simpara> The color values to allocate. On return, the pixel
+   values for allocated colors will be filled in.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ncolors</parameter>&nbsp;:</term>
+<listitem><simpara> The number of colors in <parameter>colors</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>writeable</parameter>&nbsp;:</term>
+<listitem><simpara> If <literal>TRUE</literal>, the colors are allocated writeable
+   (their values can later be changed using <link linkend="gdk-color-change"><function>gdk_color_change()</function></link>).
+   Writeable colors cannot be shared between applications.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>best_match</parameter>&nbsp;:</term>
+<listitem><simpara> If <literal>TRUE</literal>, GDK will attempt to do matching against
+   existing colors if the colors cannot be allocated as requested.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>success</parameter>&nbsp;:</term>
+<listitem><simpara> An array of length <parameter>ncolors</parameter>. On return, this
+  indicates whether the corresponding color in <parameter>colors</parameter> was
+  successfully allocated or not.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The number of colors that were not successfully 
+allocated.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-alloc-color"/>gdk_colormap_alloc_color ()</title>
+<indexterm><primary>gdk_colormap_alloc_color</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gdk_colormap_alloc_color        (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color,
+                                             <link linkend="gboolean">gboolean</link> writeable,
+                                             <link linkend="gboolean">gboolean</link> best_match);</programlisting>
+<para>
+Allocates a single color from a colormap.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> the color to allocate. On return the
+   <structfield>pixel</structfield> field will be
+   filled in if allocation succeeds.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>writeable</parameter>&nbsp;:</term>
+<listitem><simpara> If <literal>TRUE</literal>, the color is allocated writeable
+   (their values can later be changed using <link linkend="gdk-color-change"><function>gdk_color_change()</function></link>).
+   Writeable colors cannot be shared between applications.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>best_match</parameter>&nbsp;:</term>
+<listitem><simpara> If <literal>TRUE</literal>, GDK will attempt to do matching against
+   existing colors if the color cannot be allocated as requested.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the allocation succeeded.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-free-colors"/>gdk_colormap_free_colors ()</title>
+<indexterm><primary>gdk_colormap_free_colors</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_colormap_free_colors        (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *colors,
+                                             <link linkend="gint">gint</link> ncolors);</programlisting>
+<para>
+Frees previously allocated colors.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colors</parameter>&nbsp;:</term>
+<listitem><simpara> the colors to free.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ncolors</parameter>&nbsp;:</term>
+<listitem><simpara> the number of colors in <parameter>colors</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-query-color"/>gdk_colormap_query_color ()</title>
+<indexterm><primary>gdk_colormap_query_color</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_colormap_query_color        (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gulong">gulong</link> pixel,
+                                             <link linkend="GdkColor">GdkColor</link> *result);</programlisting>
+<para>
+Locates the RGB color in <parameter>colormap</parameter> corresponding to the given
+hardware pixel <parameter>pixel</parameter>. <parameter>pixel</parameter> must be a valid pixel in the
+colormap; it's a programmer error to call this function with a
+pixel which is not in the colormap. Hardware pixels are normally
+obtained from <link linkend="gdk-colormap-alloc-colors"><function>gdk_colormap_alloc_colors()</function></link>, or from a <link linkend="GdkImage"><type>GdkImage</type></link>. (A
+<link linkend="GdkImage"><type>GdkImage</type></link> contains image data in hardware format, a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>
+contains image data in a canonical 24-bit RGB format.)
+</para>
+<para>
+This function is rarely useful; it's used for example to
+implement the eyedropper feature in <link linkend="GtkColorSelection"><type>GtkColorSelection</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixel</parameter>&nbsp;:</term>
+<listitem><simpara> pixel value in hardware display format
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>result</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="GdkColor"><type>GdkColor</type></link> with red, green, blue fields initialized
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-get-visual"/>gdk_colormap_get_visual ()</title>
+<indexterm><primary>gdk_colormap_get_visual</primary></indexterm><programlisting><link linkend="GdkVisual">GdkVisual</link>*  gdk_colormap_get_visual         (<link linkend="GdkColormap">GdkColormap</link> *colormap);</programlisting>
+<para>
+Returns the visual for which a given colormap was created.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the visual of the colormap.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colormap-get-screen"/>gdk_colormap_get_screen ()</title>
+<indexterm><primary>gdk_colormap_get_screen</primary></indexterm><programlisting><link linkend="GdkScreen">GdkScreen</link>*  gdk_colormap_get_screen         (<link linkend="GdkColormap">GdkColormap</link> *cmap);</programlisting>
+<para>
+Gets the screen for which this colormap was created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cmap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the screen for which this colormap was created.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-colors-store"/>gdk_colors_store ()</title>
+<indexterm><primary>gdk_colors_store</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_colors_store                (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *colors,
+                                             <link linkend="gint">gint</link> ncolors);</programlisting>
+<warning><para><literal>gdk_colors_store</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Changes the value of the first <parameter>ncolors</parameter> colors in
+a private colormap. This function is obsolete and
+should not be used. See <link linkend="gdk-color-change"><function>gdk_color_change()</function></link>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colors</parameter>&nbsp;:</term>
+<listitem><simpara> the new color values.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ncolors</parameter>&nbsp;:</term>
+<listitem><simpara> the number of colors to change.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-copy"/>gdk_color_copy ()</title>
+<indexterm><primary>gdk_color_copy</primary></indexterm><programlisting><link linkend="GdkColor">GdkColor</link>*   gdk_color_copy                  (const <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<para>
+Makes a copy of a color structure. The result
+must be freed using <link linkend="gdk-color-free"><function>gdk_color_free()</function></link>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColor"><type>GdkColor</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a copy of <parameter>color</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-free"/>gdk_color_free ()</title>
+<indexterm><primary>gdk_color_free</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_color_free                  (<link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<para>
+Frees a color structure created with 
+<link linkend="gdk-color-copy"><function>gdk_color_copy()</function></link>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColor"><type>GdkColor</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colors-alloc"/>gdk_colors_alloc ()</title>
+<indexterm><primary>gdk_colors_alloc</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_colors_alloc                (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gboolean">gboolean</link> contiguous,
+                                             <link linkend="gulong">gulong</link> *planes,
+                                             <link linkend="gint">gint</link> nplanes,
+                                             <link linkend="gulong">gulong</link> *pixels,
+                                             <link linkend="gint">gint</link> npixels);</programlisting>
+<warning><para><literal>gdk_colors_alloc</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Allocates colors from a colormap. This function
+is obsolete. See <link linkend="gdk-colormap-alloc-colors"><function>gdk_colormap_alloc_colors()</function></link>.
+For full documentation of the fields, see 
+the Xlib documentation for <function><link linkend="XAllocColorCells"><function>XAllocColorCells()</function></link></function>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>contiguous</parameter>&nbsp;:</term>
+<listitem><simpara> if <literal>TRUE</literal>, the colors should be allocated
+   in contiguous color cells.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>planes</parameter>&nbsp;:</term>
+<listitem><simpara> an array in which to store the plane masks.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>nplanes</parameter>&nbsp;:</term>
+<listitem><simpara> the number of planes to allocate. (Or zero,
+   to indicate that the color allocation should not be planar.)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixels</parameter>&nbsp;:</term>
+<listitem><simpara> an array into which to store allocated pixel values.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>npixels</parameter>&nbsp;:</term>
+<listitem><simpara> the number of pixels in each plane to allocate.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-colors-free"/>gdk_colors_free ()</title>
+<indexterm><primary>gdk_colors_free</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_colors_free                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="gulong">gulong</link> *pixels,
+                                             <link linkend="gint">gint</link> npixels,
+                                             <link linkend="gulong">gulong</link> planes);</programlisting>
+<warning><para><literal>gdk_colors_free</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Frees colors allocated with <link linkend="gdk-colors-alloc"><function>gdk_colors_alloc()</function></link>. This
+function is obsolete. See <link linkend="gdk-colormap-free-colors"><function>gdk_colormap_free_colors()</function></link>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixels</parameter>&nbsp;:</term>
+<listitem><simpara> the pixel values of the colors to free.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>npixels</parameter>&nbsp;:</term>
+<listitem><simpara> the number of values in <parameter>pixels</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>planes</parameter>&nbsp;:</term>
+<listitem><simpara> the plane masks for all planes to free, OR'd together.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-white"/>gdk_color_white ()</title>
+<indexterm><primary>gdk_color_white</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_color_white                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<warning><para><literal>gdk_color_white</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Returns the white color for a given colormap. The resulting
+value has already allocated been allocated.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> the location to store the color.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the allocation succeeded.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-black"/>gdk_color_black ()</title>
+<indexterm><primary>gdk_color_black</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_color_black                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<warning><para><literal>gdk_color_black</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Returns the black color for a given colormap. The resulting
+value has already benn allocated.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> the location to store the color.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the allocation succeeded.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-parse"/>gdk_color_parse ()</title>
+<indexterm><primary>gdk_color_parse</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_color_parse                 (const <link linkend="gchar">gchar</link> *spec,
+                                             <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<para>
+Parses a textual specification of a color and fill in
+the <structfield>red</structfield>,
+<structfield>green</structfield>, and 
+<structfield>blue</structfield> fields of a 
+<link linkend="GdkColor"><type>GdkColor</type></link> structure. The color is <emphasis>not</emphasis> 
+allocated, you must call <link linkend="gdk-colormap-alloc-color"><function>gdk_colormap_alloc_color()</function></link> yourself.
+The text string can be in any of the forms accepted
+by <function>XParseColor</function>; these include
+name for a color from <filename>rgb.txt</filename>, such as
+<literal>DarkSlateGray</literal>, or a hex specification
+such as <literal>305050</literal>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>spec</parameter>&nbsp;:</term>
+<listitem><simpara> the string specifying the color.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="GdkColor"><type>GdkColor</type></link> to fill in
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the parsing succeeded.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-alloc"/>gdk_color_alloc ()</title>
+<indexterm><primary>gdk_color_alloc</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_color_alloc                 (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<warning><para><literal>gdk_color_alloc</literal> is deprecated and should not be used in newly-written code. Use <link linkend="gdk-colormap-alloc-color"><function>gdk_colormap_alloc_color()</function></link> instead.</para></warning>
+<para>
+Allocates a single color from a colormap.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> The color to allocate. On return, the 
+   <structfield>pixel</structfield> field will be filled in.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the allocation succeeded.
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-change"/>gdk_color_change ()</title>
+<indexterm><primary>gdk_color_change</primary></indexterm><programlisting><link linkend="gint">gint</link>        gdk_color_change                (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<warning><para><literal>gdk_color_change</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Changes the value of a color that has already
+been allocated. If <parameter>colormap</parameter> is not a private
+colormap, then the color must have been allocated
+using <link linkend="gdk-colormap-alloc-colors"><function>gdk_colormap_alloc_colors()</function></link> with the 
+<parameter>writeable</parameter> set to <literal>TRUE</literal>.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColor"><type>GdkColor</type></link>, with the color to change
+in the <structfield>pixel</structfield> field,
+and the new value in the remaining fields.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the color was successfully changed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-equal"/>gdk_color_equal ()</title>
+<indexterm><primary>gdk_color_equal</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gdk_color_equal                 (const <link linkend="GdkColor">GdkColor</link> *colora,
+                                             const <link linkend="GdkColor">GdkColor</link> *colorb);</programlisting>
+<para>
+Compares two colors.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colora</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColor"><type>GdkColor</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colorb</parameter>&nbsp;:</term>
+<listitem><simpara> another <link linkend="GdkColor"><type>GdkColor</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the two colors compare equal
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-color-hash"/>gdk_color_hash ()</title>
+<indexterm><primary>gdk_color_hash</primary></indexterm><programlisting><link linkend="guint">guint</link>       gdk_color_hash                  (const <link linkend="GdkColor">GdkColor</link> *colora);</programlisting>
+<para>
+A hash function suitable for using for a hash
+table that stores <link linkend="GdkColor"><type>GdkColor</type></link>'s.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>colora</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColor"><type>GdkColor</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The hash function appled to <parameter>colora</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

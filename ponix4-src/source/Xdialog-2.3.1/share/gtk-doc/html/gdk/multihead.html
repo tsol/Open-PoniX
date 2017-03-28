@@ -1,0 +1,96 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Multi-head Support Overview</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GDK Reference Manual"><link rel="up" href="reference.html" title="API Reference"><link rel="previous" href="gdk-General.html" title="General"><link rel="next" href="GdkDisplay.html" title="GdkDisplay"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="gdk-General.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="reference.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GDK Reference Manual</th><td><a accesskey="n" href="GdkDisplay.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="multihead"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Multi-head Support Overview</span></h2><p>Multi-head Support Overview &#8212; Overview of GdkDisplay and GdkScreen</p></div><div class="refsect1" lang="en"><h2>Overview</h2><p>
+	Multihead support is based around two main object types:
+	</p><div class="itemizedlist"><ul type="disc"><li><p>GdkDisplay</p></li><li><p>GdkScreen</p></li></ul></div><p>
+      </p><p>
+	GdkDisplay objects are the GDK
+	representation of the X Display which can be described as <span class="emphasis"><em>a
+	workstation consisting of a keyboard a pointing device (such as a
+	  mouse) and one or more screens</em></span>. 
+	It is used to open and keep track of various GdkScreen objects currently 
+	instanciated by the application. It is also used to grab and release
+	the keyboard and the mouse pointer.
+      </p><p>
+	GdkScreen objects are the GDK
+	representation of a physical screen. It is used throughout GDK and GTK+
+	to specify which screen the top level windows are to be displayed on. 
+	It is also used to query the screen specification and default settings such as 
+	the default colormap (<a href="GdkScreen.html#gdk-screen-get-default-colormap">gdk_screen_get_default_colormap</a>()),
+	the screen width (<a href="GdkScreen.html#gdk-screen-get-width">gdk_screen_get_width</a>()), etc.
+      </p><p> 
+	The following code samples demonstrate common usage of the objects described above.
+      </p><div class="example"><a name="id3051891"></a><p class="title"><b>Example 2. Testing the number of screen on the current display</b></p><pre class="programlisting">gint num_screen = 0;
+gchar *displayname = NULL;
+GdkScreen **screen_list;
+GdkDisplay *display;
+
+gtk_init (&amp;argc, &amp;argv);
+
+display = gdk_display_get_default ();
+num_screen = gdk_display_get_n_screens (display);
+displayname = gdk_display_get_name (display);
+if (num_screen &lt;= 1)
+  {
+    printf ("This Xserver (%s) manages only one screen. exiting...\n",
+            displayname);
+    exit (1);
+  }
+else
+  {
+    printf ("This Xserver (%s) manages %d screens.\n", displayname,
+            num_screen);
+  }     </pre></div><div class="example"><a name="id3051926"></a><p class="title"><b>Example 3. Opening a second display</b></p><pre class="programlisting">gchar *second_screen_name;
+GdkDisplay *second_display;
+GdkScreen *second_screen;
+GtkWidget *window;
+
+gtk_init (&amp;argc, &amp;argv);
+
+/* screen2_name needs to be initialized before calling 
+/* gdk_display_new() */
+second_display = gdk_display_new (&amp;argc, &amp;argv, second_screen_name);
+if (second_display)
+    second_screen = gdk_display_get_default_screen (second_display);
+else 
+  {
+	g_print ("Can't open display :\n\t%s\n\n",
+		  second_screen_name);
+    exit (1);	
+  }
+/* now GdkScreen can be assigned to GtkWindows */
+
+window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+gtk_window_set_screen (window, second_screen);</pre></div></div><div class="refsect1" lang="en"><h2>See Also</h2><p>
+	</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term">GdkDisplay</span></td><td><p>the GDK Object used to represent and manipulate display
+		related data</p></td></tr><tr><td><span class="term">GdkScreen</span></td><td><p>the GDK Object used to represent and query screen related
+		data</p></td></tr></tbody></table></div><p>
+      </p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="gdk-General.html"><b>&lt;&lt; General</b></a></td><td align="right"><a accesskey="n" href="GdkDisplay.html"><b>GdkDisplay &gt;&gt;</b></a></td></tr></table></body></html>

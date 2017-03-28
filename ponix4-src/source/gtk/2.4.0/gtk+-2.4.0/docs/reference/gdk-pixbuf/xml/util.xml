@@ -1,0 +1,205 @@
+<refentry id="gdk-pixbuf-util">
+<refmeta>
+<refentrytitle>Utilities</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Utilities</refname><refpurpose>Utility and miscellaneous convenience functions.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-add-alpha">gdk_pixbuf_add_alpha</link>            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gboolean">gboolean</link> substitute_color,
+                                             <link linkend="guchar">guchar</link> r,
+                                             <link linkend="guchar">guchar</link> g,
+                                             <link linkend="guchar">guchar</link> b);
+<link linkend="void">void</link>        <link linkend="gdk-pixbuf-copy-area">gdk_pixbuf_copy_area</link>            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src_pixbuf,
+                                             <link linkend="int">int</link> src_x,
+                                             <link linkend="int">int</link> src_y,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest_pixbuf,
+                                             <link linkend="int">int</link> dest_x,
+                                             <link linkend="int">int</link> dest_y);
+<link linkend="void">void</link>        <link linkend="gdk-pixbuf-saturate-and-pixelate">gdk_pixbuf_saturate_and_pixelate</link>
+                                            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             <link linkend="gfloat">gfloat</link> saturation,
+                                             <link linkend="gboolean">gboolean</link> pixelate);
+<link linkend="void">void</link>        <link linkend="gdk-pixbuf-fill">gdk_pixbuf_fill</link>                 (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="guint32">guint32</link> pixel);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    These functions provide miscellaneous utilities for manipulating
+    pixbufs.  The pixel data in pixbufs may of course be manipulated
+    directly by applications, but several common operations can be
+    performed by these functions instead.
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="gdk-pixbuf-add-alpha"/>gdk_pixbuf_add_alpha ()</title>
+<indexterm><primary>gdk_pixbuf_add_alpha</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_add_alpha            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gboolean">gboolean</link> substitute_color,
+                                             <link linkend="guchar">guchar</link> r,
+                                             <link linkend="guchar">guchar</link> g,
+                                             <link linkend="guchar">guchar</link> b);</programlisting>
+<para>
+Takes an existing pixbuf and adds an alpha channel to it.
+If the existing pixbuf already had an alpha channel, the channel
+values are copied from the original; otherwise, the alpha channel
+is initialized to 255 (full opacity).
+</para>
+<para>
+If <parameter>substitute_color</parameter> is <literal>TRUE</literal>, then the color specified by (<parameter>r</parameter>, <parameter>g</parameter>, <parameter>b</parameter>) will be
+assigned zero opacity. That is, if you pass (255, 255, 255) for the
+substitute color, all white pixels will become fully transparent.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>substitute_color</parameter>&nbsp;:</term>
+<listitem><simpara> Whether to set a color to zero opacity.  If this
+is <literal>FALSE</literal>, then the (<parameter>r</parameter>, <parameter>g</parameter>, <parameter>b</parameter>) arguments will be ignored.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>r</parameter>&nbsp;:</term>
+<listitem><simpara> Red value to substitute.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>g</parameter>&nbsp;:</term>
+<listitem><simpara> Green value to substitute.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>b</parameter>&nbsp;:</term>
+<listitem><simpara> Blue value to substitute.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created pixbuf with a reference count of 1.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-copy-area"/>gdk_pixbuf_copy_area ()</title>
+<indexterm><primary>gdk_pixbuf_copy_area</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_pixbuf_copy_area            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src_pixbuf,
+                                             <link linkend="int">int</link> src_x,
+                                             <link linkend="int">int</link> src_y,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest_pixbuf,
+                                             <link linkend="int">int</link> dest_x,
+                                             <link linkend="int">int</link> dest_y);</programlisting>
+<para>
+Copies a rectangular area from <parameter>src_pixbuf</parameter> to <parameter>dest_pixbuf</parameter>.  Conversion of
+pixbuf formats is done automatically.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>src_pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> Source pixbuf.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>src_x</parameter>&nbsp;:</term>
+<listitem><simpara> Source X coordinate within <parameter>src_pixbuf</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>src_y</parameter>&nbsp;:</term>
+<listitem><simpara> Source Y coordinate within <parameter>src_pixbuf</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> Width of the area to copy.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> Height of the area to copy.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dest_pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> Destination pixbuf.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dest_x</parameter>&nbsp;:</term>
+<listitem><simpara> X coordinate within <parameter>dest_pixbuf</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dest_y</parameter>&nbsp;:</term>
+<listitem><simpara> Y coordinate within <parameter>dest_pixbuf</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-saturate-and-pixelate"/>gdk_pixbuf_saturate_and_pixelate ()</title>
+<indexterm><primary>gdk_pixbuf_saturate_and_pixelate</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_pixbuf_saturate_and_pixelate
+                                            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             <link linkend="gfloat">gfloat</link> saturation,
+                                             <link linkend="gboolean">gboolean</link> pixelate);</programlisting>
+<para>
+Modifies saturation and optionally pixelates <parameter>src</parameter>, placing the
+result in <parameter>dest</parameter>. <parameter>src</parameter> and <parameter>dest</parameter> may be the same pixbuf with no ill
+effects.  If <parameter>saturation</parameter> is 1.0 then saturation is not changed. If
+it's less than 1.0, saturation is reduced (the image is darkened);
+if greater than 1.0, saturation is increased (the image is
+brightened). If <parameter>pixelate</parameter> is <literal>TRUE</literal>, then pixels are faded in a
+checkerboard pattern to create a pixelated image. <parameter>src</parameter> and <parameter>dest</parameter>
+must have the same image format, size, and rowstride.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>src</parameter>&nbsp;:</term>
+<listitem><simpara> source image
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dest</parameter>&nbsp;:</term>
+<listitem><simpara> place to write modified version of <parameter>src</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>saturation</parameter>&nbsp;:</term>
+<listitem><simpara> saturation factor
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixelate</parameter>&nbsp;:</term>
+<listitem><simpara> whether to pixelate
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-fill"/>gdk_pixbuf_fill ()</title>
+<indexterm><primary>gdk_pixbuf_fill</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_pixbuf_fill                 (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="guint32">guint32</link> pixel);</programlisting>
+<para>
+Clears a pixbuf to the given RGBA value, converting the RGBA value into
+the pixbuf's pixel format. The alpha will be ignored if the pixbuf
+doesn't have an alpha channel.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixel</parameter>&nbsp;:</term>
+<listitem><simpara> RGBA pixel to clear to
+        (0xffffffff is opaque white, 0x00000000 transparent black)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>
+  </para>
+</refsect1>
+
+</refentry>

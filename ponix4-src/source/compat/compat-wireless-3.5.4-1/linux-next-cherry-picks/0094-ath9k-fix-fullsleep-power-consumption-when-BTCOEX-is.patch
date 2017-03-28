@@ -1,0 +1,59 @@
+From b73f3e78047abdcc8bc33f97445ef6691ce3cc3d Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Sun, 1 Jul 2012 19:53:53 +0530
+Subject: [PATCH] ath9k: fix fullsleep power consumption when BTCOEX is
+ enabled
+
+As soon as the interface brought up, btcoex timer starts running
+eventhough the interface is in idle state and WLAN chip is moved
+to full sleep mode. There is no point in running btcoex timer when
+the wlan interface is in sleep mode and also it might consumes
+more power on WLAN idle unassociated state. So lets stop the
+btcoex when wlan is idle state.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/main.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -666,8 +666,6 @@ static int ath9k_start(struct ieee80211_
+ 
+ 	spin_unlock_bh(&sc->sc_pcu_lock);
+ 
+-	ath9k_start_btcoex(sc);
+-
+ 	if (ah->caps.pcie_lcr_extsync_en && common->bus_ops->extn_synch_en)
+ 		common->bus_ops->extn_synch_en(common);
+ 
+@@ -774,8 +772,6 @@ static void ath9k_stop(struct ieee80211_
+ 	/* Ensure HW is awake when we try to shut it down. */
+ 	ath9k_ps_wakeup(sc);
+ 
+-	ath9k_stop_btcoex(sc);
+-
+ 	spin_lock_bh(&sc->sc_pcu_lock);
+ 
+ 	/* prevent tasklets to enable interrupts once we disable them */
+@@ -1139,14 +1135,17 @@ static int ath9k_config(struct ieee80211
+ 
+ 	if (changed & IEEE80211_CONF_CHANGE_IDLE) {
+ 		sc->ps_idle = !!(conf->flags & IEEE80211_CONF_IDLE);
+-		if (sc->ps_idle)
++		if (sc->ps_idle) {
+ 			ath_cancel_work(sc);
+-		else
++			ath9k_stop_btcoex(sc);
++		} else {
++			ath9k_start_btcoex(sc);
+ 			/*
+ 			 * The chip needs a reset to properly wake up from
+ 			 * full sleep
+ 			 */
+ 			reset_channel = ah->chip_fullsleep;
++		}
+ 	}
+ 
+ 	/*

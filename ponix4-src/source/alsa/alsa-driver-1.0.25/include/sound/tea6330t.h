@@ -1,0 +1,1 @@
+../../alsa-kernel/include/tea6330t.h

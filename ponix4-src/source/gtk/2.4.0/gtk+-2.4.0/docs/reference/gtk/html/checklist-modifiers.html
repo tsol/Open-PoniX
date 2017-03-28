@@ -1,0 +1,87 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Test for modifier keys correctly</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="gtk-migrating-checklist.html" title="Migration Checklist"><link rel="previous" href="checklist-gdkeventexpose-region.html" title="Use GdkEventExpose.region"><link rel="next" href="gtk-changes-1-2.html" title="Changes from 1.0 to 1.2"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="checklist-gdkeventexpose-region.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="gtk-migrating-checklist.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="gtk-changes-1-2.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="checklist-modifiers"></a>Test for modifier keys correctly</h2></div></div><div></div></div><p><b>Why. </b>
+	With
+	<tt class="function">gtk_accelerator_get_default_mod_mask()</tt>
+	you can test for modifier keys reliably; this way your key
+	event handlers will work correctly even if
+	<b class="keycap">NumLock</b> or <b class="keycap">CapsLock</b> are
+	activated.
+      </p><p>
+      In a <span class="structname">GdkEventKey</span>, the
+      <i class="structfield"><tt>state</tt></i> field is a bit mask which
+      indicates the modifier state at the time the key was pressed.
+      Modifiers are keys like <b class="keycap">Control</b> and
+      <b class="keycap">NumLock</b>.  When implementing a <a href="GtkWidget.html#GtkWidget-key-press-event">GtkWidget::key_press_event</a>
+      handler, you should use
+      <tt class="function">gtk_accelerator_get_default_mod_mask()</tt> to
+      test against modifier keys.  This function returns a bit mask
+      which encompasses all the modifiers which the user may be
+      actively pressing, such as <b class="keycap">Control</b>,
+      <b class="keycap">Shift</b>, and <b class="keycap">Alt</b>, but ignores
+      "inocuous" modifiers such as <b class="keycap">NumLock</b> and
+      <b class="keycap">CapsLock</b>.
+    </p><p>
+      Say you want to see if
+      <b class="keycap">Control</b>-<b class="keycap">F10</b>
+      was pressed.  Doing a simple test like
+      <tt class="literal">event-&gt;keysym == GDK_F10 &amp;&amp;
+      event-&gt;state == GDK_CONTROL_MASK</tt> is not
+      enough.  If <b class="keycap">CapsLock</b> is pressed, then
+      <i class="structfield"><tt>event-&gt;state</tt></i> will be equal to
+      <tt class="literal">GDK_CONTROL_MASK | GDK_LOCK_MASK</tt>, and the
+      simple test will fail.  By taking the logical-and of
+      <i class="structfield"><tt>event-&gt;state</tt></i> and
+      <tt class="function">gtk_accelerator_get_default_mod_mask()</tt>, you
+      can ignore the modifiers which are not actively pressed by the
+      user at the same time as the base key.
+    </p><p>
+      The following example correctly tests for
+      <b class="keycap">Control</b>-<b class="keycap">F10</b>
+      being pressed.
+    </p><a name="default-mod-mask"></a><pre class="programlisting">
+static gboolean
+my_widget_key_press_event_handler (GtkWidget *widget, GdkEventKey *event)
+{
+  guint modifiers;
+
+  modifiers = gtk_accelerator_get_default_mod_mask ();
+
+  if (event-&gt;keysym == GDK_F10
+      &amp;&amp; (event-&gt;state &amp; modifiers) == GDK_CONTROL_MASK)
+    {
+      g_print ("Control-F10 was pressed\n");
+      return TRUE;
+    }
+
+  return FALSE;
+}
+    </pre></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="checklist-gdkeventexpose-region.html"><b>&lt;&lt; Use GdkEventExpose.region</b></a></td><td align="right"><a accesskey="n" href="gtk-changes-1-2.html"><b>Changes from 1.0 to 1.2 &gt;&gt;</b></a></td></tr></table></body></html>

@@ -1,0 +1,713 @@
+<refentry id="gdk-Input-Devices">
+<refmeta>
+<refentrytitle>Input Devices</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Input Devices</refname><refpurpose>Functions for handling extended input devices</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk/gdk.h&gt;
+
+
+struct      <link linkend="GdkDevice">GdkDevice</link>;
+enum        <link linkend="GdkInputSource">GdkInputSource</link>;
+enum        <link linkend="GdkInputMode">GdkInputMode</link>;
+struct      <link linkend="GdkDeviceKey">GdkDeviceKey</link>;
+struct      <link linkend="GdkDeviceAxis">GdkDeviceAxis</link>;
+enum        <link linkend="GdkAxisUse">GdkAxisUse</link>;
+<link linkend="GList">GList</link>*      <link linkend="gdk-devices-list">gdk_devices_list</link>                (void);
+<link linkend="void">void</link>        <link linkend="gdk-device-set-source">gdk_device_set_source</link>           (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkInputSource">GdkInputSource</link> source);
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-device-set-mode">gdk_device_set_mode</link>             (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkInputMode">GdkInputMode</link> mode);
+<link linkend="void">void</link>        <link linkend="gdk-device-set-key">gdk_device_set_key</link>              (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="guint">guint</link> index_,
+                                             <link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifiers);
+<link linkend="void">void</link>        <link linkend="gdk-device-set-axis-use">gdk_device_set_axis_use</link>         (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="guint">guint</link> index_,
+                                             <link linkend="GdkAxisUse">GdkAxisUse</link> use);
+<link linkend="GdkDevice">GdkDevice</link>*  <link linkend="gdk-device-get-core-pointer">gdk_device_get_core_pointer</link>     (void);
+
+<link linkend="void">void</link>        <link linkend="gdk-device-get-state">gdk_device_get_state</link>            (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkWindow">GdkWindow</link> *window,
+                                             <link linkend="gdouble">gdouble</link> *axes,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> *mask);
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-device-get-history">gdk_device_get_history</link>          (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkWindow">GdkWindow</link> *window,
+                                             <link linkend="guint32">guint32</link> start,
+                                             <link linkend="guint32">guint32</link> stop,
+                                             <link linkend="GdkTimeCoord">GdkTimeCoord</link> ***events,
+                                             <link linkend="gint">gint</link> *n_events);
+<link linkend="void">void</link>        <link linkend="gdk-device-free-history">gdk_device_free_history</link>         (<link linkend="GdkTimeCoord">GdkTimeCoord</link> **events,
+                                             <link linkend="gint">gint</link> n_events);
+struct      <link linkend="GdkTimeCoord">GdkTimeCoord</link>;
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-device-get-axis">gdk_device_get_axis</link>             (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="gdouble">gdouble</link> *axes,
+                                             <link linkend="GdkAxisUse">GdkAxisUse</link> use,
+                                             <link linkend="gdouble">gdouble</link> *value);
+
+<link linkend="void">void</link>        <link linkend="gdk-input-set-extension-events">gdk_input_set_extension_events</link>  (<link linkend="GdkWindow">GdkWindow</link> *window,
+                                             <link linkend="gint">gint</link> mask,
+                                             <link linkend="GdkExtensionMode">GdkExtensionMode</link> mode);
+enum        <link linkend="GdkExtensionMode">GdkExtensionMode</link>;
+
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+In addition to the normal keyboard and mouse input devices, GTK+ also
+contains support for <firstterm>extended input devices</firstterm>. In
+particular, this support is targeted at graphics tablets. Graphics
+tablets typically return sub-pixel positioning information and possibly
+information about the pressure and tilt of the stylus. Under
+X, the support for extended devices is done through the 
+<firstterm>XInput</firstterm> extension.
+</para>
+<para>
+Because handling extended input devices may involve considerable
+overhead, they need to be turned on for each <link linkend="GdkWindow"><type>GdkWindow</type></link>
+individually using <link linkend="gdk-input-set-extension-events"><function>gdk_input_set_extension_events()</function></link>.
+(Or, more typically, for GtkWidgets, using <link linkend="gtk-widget-set-extension-events"><function>gtk_widget_set_extension_events()</function></link>).
+As an additional complication, depending on the support from
+the windowing system, its possible that a normal mouse
+cursor will not be displayed for a particular extension
+device. If an application does not want to deal with displaying
+a cursor itself, it can ask only to get extension events
+from devices that will display a cursor, by passing the
+<literal>GDK_EXTENSION_EVENTS_CURSOR</literal> value to
+<link linkend="gdk-input-set-extension-events"><function>gdk_input_set_extension_events()</function></link>. Otherwise, the application
+must retrieve the device information using <link linkend="gdk-devices-list"><function>gdk_devices_list()</function></link>,
+check the <structfield>has_cursor</structfield> field, and, 
+if it is <literal>FALSE</literal>, draw a cursor itself when it receives 
+motion events.
+</para>
+<para>
+Each pointing device is assigned a unique integer ID; events from a
+particular device can be identified by the
+<structfield>deviceid</structfield> field in the event structure. The
+events generated by pointer devices have also been extended to contain
+<structfield>pressure</structfield>, <structfield>xtilt</structfield>
+and <structfield>ytilt</structfield> fields which contain the extended
+information reported as additional <firstterm>valuators</firstterm>
+from the device. The <structfield>pressure</structfield> field is a 
+a double value ranging from 0.0 to 1.0, while the tilt fields are
+double values ranging from -1.0 to 1.0. (With -1.0 representing the
+maximum tilt to the left or up, and 1.0 representing the maximum
+tilt to the right or down.)
+</para>
+<para>
+One additional field in each event is the
+<structfield>source</structfield> field, which contains an
+enumeration value describing the type of device; this currently
+can be one of <literal>GDK_SOURCE_MOUSE</literal>, <literal>GDK_SOURCE_PEN</literal>, <literal>GDK_SOURCE_ERASER</literal>,
+or <literal>GDK_SOURCE_CURSOR</literal>. This field is present to allow simple
+applications to (for instance) delete when they detect eraser
+devices without having to keep track of complicated per-device
+settings.
+</para>
+<para>
+Various aspects of each device may be configured. The easiest way of
+creating a GUI to allow the user to configure such a device
+is to use the <link linkend="GtkInputDialog"><type>GtkInputDialog</type></link> widget in GTK+. 
+However, even when using this widget, application writers
+will need to directly query and set the configuration parameters
+in order to save the state between invocations of the application.
+The configuration of devices is queried using <link linkend="gdk-devices-list"><function>gdk_devices_list()</function></link>.
+Each device must be activated using <link linkend="gdk-device-set-mode"><function>gdk_device_set_mode()</function></link>, which
+also controls whether the device's range is mapped to the
+entire screen or to a single window. The mapping of the valuators of
+the device onto the predefined valuator types is set using
+<link linkend="gdk-device-set-axis-use"><function>gdk_device_set_axis_use()</function></link>. And the source type for each device
+can be set with <link linkend="gdk-device-set-source"><function>gdk_device_set_source()</function></link>.
+</para>
+<para>
+Devices may also have associated <firstterm>keys</firstterm>
+or macro buttons. Such keys can be globally set to map
+into normal X keyboard events. The mapping is set using
+<link linkend="gdk-device-set-key"><function>gdk_device_set_key()</function></link>.
+</para>
+<para>
+The interfaces in this section will most likely be considerably
+modified in the future to accomodate devices that may have different
+sets of additional valuators than the pressure <structfield>xtilt</structfield>
+and <structfield>ytilt</structfield>.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkDevice"/>struct GdkDevice</title>
+<indexterm><primary>GdkDevice</primary></indexterm><programlisting>struct GdkDevice {
+
+  GObject parent_instance;
+  /* All fields are read-only */
+	  
+  gchar *name;
+  GdkInputSource source;
+  GdkInputMode mode;
+  gboolean has_cursor;	     /* TRUE if the X pointer follows device motion */
+	  
+  gint num_axes;
+  GdkDeviceAxis *axes;
+	  
+  gint num_keys;
+  GdkDeviceKey *keys;
+};
+</programlisting>
+<para>
+A <structname>GdkDevice</structname> structure contains
+a detailed description of an extended input device. All
+fields are read-only; but you can use <link linkend="gdk-device-set-source"><function>gdk_device_set_source()</function></link>,
+<link linkend="gdk-device-set-mode"><function>gdk_device_set_mode()</function></link>, <link linkend="gdk-device-set-key"><function>gdk_device_set_key()</function></link> and <link linkend="gdk-device-set-axis-use"><function>gdk_device_set_axis_use()</function></link>
+to configure various aspects of the device.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GObject">GObject</link> <structfield>parent_instance</structfield></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gchar">gchar</link> *<structfield>name</structfield></term>
+<listitem><simpara>the name of this device.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkInputSource">GdkInputSource</link> <structfield>source</structfield></term>
+<listitem><simpara>the type of this device.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkInputMode">GdkInputMode</link> <structfield>mode</structfield></term>
+<listitem><simpara>the mode of this device
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gboolean">gboolean</link> <structfield>has_cursor</structfield></term>
+<listitem><simpara><literal>TRUE</literal> if the pointer follows device motion.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>num_axes</structfield></term>
+<listitem><simpara>the length of the <parameter>axes</parameter> array.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkDeviceAxis">GdkDeviceAxis</link> *<structfield>axes</structfield></term>
+<listitem><simpara>an array of <link linkend="GdkDeviceAxis"><type>GdkDeviceAxis</type></link>, describing the axes of this device.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>num_keys</structfield></term>
+<listitem><simpara>the length of the <parameter>keys</parameter> array.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkDeviceKey">GdkDeviceKey</link> *<structfield>keys</structfield></term>
+<listitem><simpara>an array of <link linkend="GdkDeviceKey"><type>GdkDeviceKey</type></link>, describing the mapped macro buttons 
+  of this device.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkInputSource"/>enum GdkInputSource</title>
+<indexterm><primary>GdkInputSource</primary></indexterm><programlisting>typedef enum
+{
+  GDK_SOURCE_MOUSE,
+  GDK_SOURCE_PEN,
+  GDK_SOURCE_ERASER,
+  GDK_SOURCE_CURSOR
+} GdkInputSource;
+</programlisting>
+<para>
+An enumeration describing the type of an input device
+in general terms.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_SOURCE_MOUSE</literal></term>
+<listitem><simpara>the device is a mouse. (This will be reported for the core
+                    pointer, even if it is something else, such as a trackball.)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_SOURCE_PEN</literal></term>
+<listitem><simpara>the device is a stylus of a graphics tablet or similar device.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_SOURCE_ERASER</literal></term>
+<listitem><simpara>the device is an eraser. Typically, this would be the other end
+                    of a stylus on a graphics tablet.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_SOURCE_CURSOR</literal></term>
+<listitem><simpara>the device is a graphics tablet "puck" or similar device.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkInputMode"/>enum GdkInputMode</title>
+<indexterm><primary>GdkInputMode</primary></indexterm><programlisting>typedef enum
+{
+  GDK_MODE_DISABLED,
+  GDK_MODE_SCREEN,
+  GDK_MODE_WINDOW
+} GdkInputMode;
+</programlisting>
+<para>
+An enumeration that describes the mode of an input device.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_MODE_DISABLED</literal></term>
+<listitem><simpara>the device is disabled and will not report any events.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_MODE_SCREEN</literal></term>
+<listitem><simpara>the device is enabled. The device's coordinate space
+                    maps to the entire screen.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_MODE_WINDOW</literal></term>
+<listitem><simpara>the device is enabled. The device's coordinate space
+                    is mapped to a single window. The manner in which this window
+                    is chosen is undefined, but it will typically be the same
+                    way in which the focus window for key events is determined.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkDeviceKey"/>struct GdkDeviceKey</title>
+<indexterm><primary>GdkDeviceKey</primary></indexterm><programlisting>struct GdkDeviceKey {
+
+  guint keyval;
+  GdkModifierType modifiers;
+};
+</programlisting>
+<para>
+The <structname>GdkDeviceKey</structname> structure contains information
+about the mapping of one device macro button onto a normal X key event. 
+It has the following fields:
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="guint">guint</link> <structfield>keyval</structfield></term>
+<listitem><simpara>the keyval to generate when the macro button is pressed.
+         If this is 0, no keypress will be generated.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkModifierType">GdkModifierType</link> <structfield>modifiers</structfield></term>
+<listitem><simpara>the modifiers set for the generated key event.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkDeviceAxis"/>struct GdkDeviceAxis</title>
+<indexterm><primary>GdkDeviceAxis</primary></indexterm><programlisting>struct GdkDeviceAxis {
+
+  GdkAxisUse use;
+  gdouble    min;
+  gdouble    max;
+};
+</programlisting>
+<para>
+The <structname>GdkDeviceAxis</structname> structure contains information
+about the range and mapping of a device axis.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GdkAxisUse">GdkAxisUse</link> <structfield>use</structfield></term>
+<listitem><simpara>specifies how the axis is used.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gdouble">gdouble</link> <structfield>min</structfield></term>
+<listitem><simpara>the minimal value that will be reported by this axis.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gdouble">gdouble</link> <structfield>max</structfield></term>
+<listitem><simpara>the maximal value that will be reported by this axis.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkAxisUse"/>enum GdkAxisUse</title>
+<indexterm><primary>GdkAxisUse</primary></indexterm><programlisting>typedef enum
+{
+  GDK_AXIS_IGNORE,
+  GDK_AXIS_X,
+  GDK_AXIS_Y,
+  GDK_AXIS_PRESSURE,
+  GDK_AXIS_XTILT,
+  GDK_AXIS_YTILT,
+  GDK_AXIS_WHEEL,
+  GDK_AXIS_LAST
+} GdkAxisUse;
+</programlisting>
+<para>
+An enumeration describing the way in which a device
+axis (valuator) maps onto the predefined valuator
+types that GTK+ understands.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_AXIS_IGNORE</literal></term>
+<listitem><simpara>the axis is ignored.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_X</literal></term>
+<listitem><simpara>the axis is used as the x axis.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_Y</literal></term>
+<listitem><simpara>the axis is used as the y axis.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_PRESSURE</literal></term>
+<listitem><simpara>the axis is used for pressure information.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_XTILT</literal></term>
+<listitem><simpara>the axis is used for x tilt information.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_YTILT</literal></term>
+<listitem><simpara>the axis is used for x tilt information.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_WHEEL</literal></term>
+<listitem><simpara>the axis is used for wheel information.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_AXIS_LAST</literal></term>
+<listitem><simpara>a constant equal to the numerically highest axis value.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-devices-list"/>gdk_devices_list ()</title>
+<indexterm><primary>gdk_devices_list</primary></indexterm><programlisting><link linkend="GList">GList</link>*      gdk_devices_list                (void);</programlisting>
+<para>
+Returns the list of available input devices for the default display.
+The list is statically allocated and should not be freed.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a list of <link linkend="GdkDevice"><type>GdkDevice</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-set-source"/>gdk_device_set_source ()</title>
+<indexterm><primary>gdk_device_set_source</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_device_set_source           (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkInputSource">GdkInputSource</link> source);</programlisting>
+<para>
+Sets the source type for an input device.
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkDevice"><type>GdkDevice</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>source</parameter>&nbsp;:</term>
+<listitem><simpara>the source type.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-set-mode"/>gdk_device_set_mode ()</title>
+<indexterm><primary>gdk_device_set_mode</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gdk_device_set_mode             (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkInputMode">GdkInputMode</link> mode);</programlisting>
+<para>
+Sets a the mode of an input device. The mode controls if the 
+device is active and whether the device's range is mapped to the
+entire screen or to a single window.
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkDevice"><type>GdkDevice</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mode</parameter>&nbsp;:</term>
+<listitem><simpara>the input mode.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal> if the mode was successfully changed.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-set-key"/>gdk_device_set_key ()</title>
+<indexterm><primary>gdk_device_set_key</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_device_set_key              (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="guint">guint</link> index_,
+                                             <link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifiers);</programlisting>
+<para>
+Specifies the X key event to generate when a macro button of a device
+is pressed.
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkDevice"><type>GdkDevice</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara>the index of the macro button to set.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>keyval</parameter>&nbsp;:</term>
+<listitem><simpara>the keyval to generate.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>modifiers</parameter>&nbsp;:</term>
+<listitem><simpara>the modifiers to set.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-set-axis-use"/>gdk_device_set_axis_use ()</title>
+<indexterm><primary>gdk_device_set_axis_use</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_device_set_axis_use         (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="guint">guint</link> index_,
+                                             <link linkend="GdkAxisUse">GdkAxisUse</link> use);</programlisting>
+<para>
+Specifies how an axis of a device is used.
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkDevice"><type>GdkDevice</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara>the index of the axis.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>use</parameter>&nbsp;:</term>
+<listitem><simpara>specifies how the axis is used.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-get-core-pointer"/>gdk_device_get_core_pointer ()</title>
+<indexterm><primary>gdk_device_get_core_pointer</primary></indexterm><programlisting><link linkend="GdkDevice">GdkDevice</link>*  gdk_device_get_core_pointer     (void);</programlisting>
+<para>
+Returns the core pointer device for the default display.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the core pointer device; this is owned by the
+  display and should not be freed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-get-state"/>gdk_device_get_state ()</title>
+<indexterm><primary>gdk_device_get_state</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_device_get_state            (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkWindow">GdkWindow</link> *window,
+                                             <link linkend="gdouble">gdouble</link> *axes,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> *mask);</programlisting>
+<para>
+Gets the current state of a device.
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkDevice"><type>GdkDevice</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>window</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkWindow"><type>GdkWindow</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>axes</parameter>&nbsp;:</term>
+<listitem><simpara>an array of doubles to store the values of the axes of <parameter>device</parameter> in, 
+  or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara>location to store the modifiers, or <literal>NULL</literal>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-get-history"/>gdk_device_get_history ()</title>
+<indexterm><primary>gdk_device_get_history</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gdk_device_get_history          (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="GdkWindow">GdkWindow</link> *window,
+                                             <link linkend="guint32">guint32</link> start,
+                                             <link linkend="guint32">guint32</link> stop,
+                                             <link linkend="GdkTimeCoord">GdkTimeCoord</link> ***events,
+                                             <link linkend="gint">gint</link> *n_events);</programlisting>
+<para>
+Obtains the motion history for a device; given a starting and
+ending timestamp, return all events in the motion history for
+the device in the given range of time. Some windowing systems
+do not support motion history, in which case, <literal>FALSE</literal> will
+be returned. (This is not distinguishable from the case where
+motion history is supported and no events were found.)</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkDevice"><type>GdkDevice</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>window</parameter>&nbsp;:</term>
+<listitem><simpara> the window with respect to which which the event coordinates will be reported
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start</parameter>&nbsp;:</term>
+<listitem><simpara> starting timestamp for range of events to return
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stop</parameter>&nbsp;:</term>
+<listitem><simpara> ending timestamp for the range of events to return
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>events</parameter>&nbsp;:</term>
+<listitem><simpara> location to store a newly-allocated array of <link linkend="GdkTimeCoord"><type>GdkTimeCoord</type></link>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_events</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the length of <parameter>events</parameter>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the windowing system supports motion history and
+ at least one event was found.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-free-history"/>gdk_device_free_history ()</title>
+<indexterm><primary>gdk_device_free_history</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_device_free_history         (<link linkend="GdkTimeCoord">GdkTimeCoord</link> **events,
+                                             <link linkend="gint">gint</link> n_events);</programlisting>
+<para>
+Frees an array of <link linkend="GdkTimeCoord"><type>GdkTimeCoord</type></link> that was returned by <link linkend="gdk-device-get-history"><function>gdk_device_get_history()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>events</parameter>&nbsp;:</term>
+<listitem><simpara>an array of <link linkend="GdkTimeCoord"><type>GdkTimeCoord</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_events</parameter>&nbsp;:</term>
+<listitem><simpara>the length of the array.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkTimeCoord"/>struct GdkTimeCoord</title>
+<indexterm><primary>GdkTimeCoord</primary></indexterm><programlisting>struct GdkTimeCoord {
+
+  guint32 time;
+  gdouble axes[GDK_MAX_TIMECOORD_AXES];
+};
+</programlisting>
+<para>
+The <link linkend="GdkTimeCoord"><type>GdkTimeCoord</type></link> structure stores a single event in a
+motion history. It contains the following fields:
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="guint32">guint32</link> <structfield>time</structfield></term>
+<listitem><simpara>The timestamp for this event.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gdouble">gdouble</link> <structfield>axes</structfield>[GDK_MAX_TIMECOORD_AXES]</term>
+<listitem><simpara>the values of the device's axes.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-device-get-axis"/>gdk_device_get_axis ()</title>
+<indexterm><primary>gdk_device_get_axis</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gdk_device_get_axis             (<link linkend="GdkDevice">GdkDevice</link> *device,
+                                             <link linkend="gdouble">gdouble</link> *axes,
+                                             <link linkend="GdkAxisUse">GdkAxisUse</link> use,
+                                             <link linkend="gdouble">gdouble</link> *value);</programlisting>
+<para>
+Interprets an array of double as axis values for a given device,
+and locates the value in the array for a given axis use.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>device</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkDevice"><type>GdkDevice</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>axes</parameter>&nbsp;:</term>
+<listitem><simpara> pointer to an array of axes
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>use</parameter>&nbsp;:</term>
+<listitem><simpara> the use to look for
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>value</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the found value.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the given axis use was found, otherwise <literal>FALSE</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-input-set-extension-events"/>gdk_input_set_extension_events ()</title>
+<indexterm><primary>gdk_input_set_extension_events</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_input_set_extension_events  (<link linkend="GdkWindow">GdkWindow</link> *window,
+                                             <link linkend="gint">gint</link> mask,
+                                             <link linkend="GdkExtensionMode">GdkExtensionMode</link> mode);</programlisting>
+<para>
+Turns extension events on or off for a particular window,
+and specifies the event mask for extension events.
+</para><variablelist role="params">
+<varlistentry><term><parameter>window</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkWindow"><type>GdkWindow</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara>the event mask
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mode</parameter>&nbsp;:</term>
+<listitem><simpara>the type of extension events that are desired.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkExtensionMode"/>enum GdkExtensionMode</title>
+<indexterm><primary>GdkExtensionMode</primary></indexterm><programlisting>typedef enum
+{
+  GDK_EXTENSION_EVENTS_NONE,
+  GDK_EXTENSION_EVENTS_ALL,
+  GDK_EXTENSION_EVENTS_CURSOR
+} GdkExtensionMode;
+</programlisting>
+<para>
+An enumeration used to specify which extension events
+are desired for a particular widget.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_EXTENSION_EVENTS_NONE</literal></term>
+<listitem><simpara>no extension events are desired.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_EXTENSION_EVENTS_ALL</literal></term>
+<listitem><simpara>all extension events are desired.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_EXTENSION_EVENTS_CURSOR</literal></term>
+<listitem><simpara>extension events are desired only if a cursor
+                              will be displayed for the device.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

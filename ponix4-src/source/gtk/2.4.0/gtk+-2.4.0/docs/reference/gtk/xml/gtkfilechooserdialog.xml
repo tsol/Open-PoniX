@@ -1,0 +1,209 @@
+<refentry id="GtkFileChooserDialog">
+<refmeta>
+<refentrytitle>GtkFileChooserDialog</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkFileChooserDialog</refname><refpurpose>A file chooser dialog, suitable for "File/Open" or "File/Save" commands.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkFileChooserDialog-struct">GtkFileChooserDialog</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-file-chooser-dialog-new">gtk_file_chooser_dialog_new</link>     (const <link linkend="gchar">gchar</link> *title,
+                                             <link linkend="GtkWindow">GtkWindow</link> *parent,
+                                             <link linkend="GtkFileChooserAction">GtkFileChooserAction</link> action,
+                                             const <link linkend="gchar">gchar</link> *first_button_text,
+                                             ...);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-file-chooser-dialog-new-with-backend">gtk_file_chooser_dialog_new_with_backend</link>
+                                            (const <link linkend="gchar">gchar</link> *title,
+                                             <link linkend="GtkWindow">GtkWindow</link> *parent,
+                                             <link linkend="GtkFileChooserAction">GtkFileChooserAction</link> action,
+                                             const <link linkend="gchar">gchar</link> *backend,
+                                             const <link linkend="gchar">gchar</link> *first_button_text,
+                                             ...);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkContainer">GtkContainer</link>
+                     +----<link linkend="GtkBin">GtkBin</link>
+                           +----<link linkend="GtkWindow">GtkWindow</link>
+                                 +----<link linkend="GtkDialog">GtkDialog</link>
+                                       +----GtkFileChooserDialog
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkFileChooserDialog implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link> and  <link linkend="GtkFileChooser">GtkFileChooser</link>.</para>
+
+</refsect1>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+    <para>
+      <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link> is a dialog box suitable for use with
+      "File/Open" or "File/Save as" commands.  This widget works by
+      putting a <link linkend="GtkFileChooserWidget"><type>GtkFileChooserWidget</type></link> inside a <link linkend="GtkDialog"><type>GtkDialog</type></link>.  It exposes
+      the <link linkend="GtkFileChooserIface"><type>GtkFileChooserIface</type></link> interface, so you can use all of the
+      <link linkend="GtkFileChooser"><type>GtkFileChooser</type></link> functions on the file chooser dialog as well as
+      those for <link linkend="GtkDialog"><type>GtkDialog</type></link>.
+    </para>
+
+    <para>
+      Note that <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link> does not have any methods of its
+      own.  Instead, you should use the functions that work on a
+      <link linkend="GtkFileChooser"><type>GtkFileChooser</type></link>.
+    </para>
+
+    <example id="gtkfilechooser-typical-usage">
+      <title>Typical usage</title>
+
+      <para>
+	In the simplest of cases, you can use <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link>
+	as in the following code:
+      </para>
+
+      <programlisting>
+GtkWidget *dialog;
+
+dialog = gtk_file_chooser_dialog_new ("Open File",
+				      parent_window,
+				      GTK_FILE_CHOOSER_ACTION_OPEN,
+				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      NULL);
+
+if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+  {
+    char *filename;
+
+    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    open_file (filename);
+    g_free (filename);
+  }
+
+gtk_widget_destroy (dialog);
+      </programlisting>
+    </example>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkFileChooserDialog-struct"/>struct GtkFileChooserDialog</title>
+<indexterm><primary>GtkFileChooserDialog</primary></indexterm><programlisting>struct GtkFileChooserDialog;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-file-chooser-dialog-new"/>gtk_file_chooser_dialog_new ()</title>
+<indexterm><primary>gtk_file_chooser_dialog_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_file_chooser_dialog_new     (const <link linkend="gchar">gchar</link> *title,
+                                             <link linkend="GtkWindow">GtkWindow</link> *parent,
+                                             <link linkend="GtkFileChooserAction">GtkFileChooserAction</link> action,
+                                             const <link linkend="gchar">gchar</link> *first_button_text,
+                                             ...);</programlisting>
+<para>
+Creates a new <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link>.  This function is analogous to
+<link linkend="gtk-dialog-new-with-buttons"><function>gtk_dialog_new_with_buttons()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>title</parameter>&nbsp;:</term>
+<listitem><simpara> Title of the dialog, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara> Transient parent of the dialog, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>action</parameter>&nbsp;:</term>
+<listitem><simpara> Open or save mode for the dialog
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>first_button_text</parameter>&nbsp;:</term>
+<listitem><simpara> stock ID or text to go in the first button, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara> response ID for the first button, then additional (button, id) pairs, ending with <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-file-chooser-dialog-new-with-backend"/>gtk_file_chooser_dialog_new_with_backend ()</title>
+<indexterm><primary>gtk_file_chooser_dialog_new_with_backend</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_file_chooser_dialog_new_with_backend
+                                            (const <link linkend="gchar">gchar</link> *title,
+                                             <link linkend="GtkWindow">GtkWindow</link> *parent,
+                                             <link linkend="GtkFileChooserAction">GtkFileChooserAction</link> action,
+                                             const <link linkend="gchar">gchar</link> *backend,
+                                             const <link linkend="gchar">gchar</link> *first_button_text,
+                                             ...);</programlisting>
+<para>
+Creates a new <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link> with a specified backend. This is
+especially useful if you use <link linkend="gtk-file-chooser-set-local-only"><function>gtk_file_chooser_set_local_only()</function></link> to allow
+non-local files and you use a more expressive vfs, such as gnome-vfs,
+to load files.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>title</parameter>&nbsp;:</term>
+<listitem><simpara> Title of the dialog, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara> Transient parent of the dialog, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>action</parameter>&nbsp;:</term>
+<listitem><simpara> Open or save mode for the dialog
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>backend</parameter>&nbsp;:</term>
+<listitem><simpara> The name of the specific filesystem backend to use.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>first_button_text</parameter>&nbsp;:</term>
+<listitem><simpara> stock ID or text to go in the first button, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara> response ID for the first button, then additional (button, id) pairs, ending with <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GtkFileChooserDialog"><type>GtkFileChooserDialog</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+    <para>
+      <link linkend="GtkFileChooser"><type>GtkFileChooser</type></link>, <link linkend="GtkDialog"><type>GtkDialog</type></link>
+    </para>
+</refsect1>
+
+</refentry>

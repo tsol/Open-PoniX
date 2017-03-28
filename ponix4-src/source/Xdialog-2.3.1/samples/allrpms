@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Installs all RPMs found into the directory passed as parameter.
+
+TITLE="Packages installation"
+
+# Change the following variable to suit your system (the main
+# reason for this variable is that we don't want to install
+# any source RPM (.src.rpm) present into the directory):
+ARCH="i?86"
+
+# Ignore any dependency issue, overwrite any conflicting file
+# and ignore previously installed packages version.
+RPM_OPTIONS="--force --nodeps --oldpackage"
+
+# This may change in the future...
+RPM_LEADING_MSG_LENGTH=28
+RPM_MAX_DOTS_NUMBER=50
+
+if [ -d $1 ] ; then
+	cd $1
+fi
+
+for file in *.$ARCH.rpm ; do
+	( rpm -Uvh $RPM_OPTIONS $file ; sleep 1 ) | \
+	Xdialog --title "$TITLE" --left \
+		--progress "RPM package being installed:\n\n" 0 0 \
+			   $RPM_MAX_DOTS_NUMBER $RPM_LEADING_MSG_LENGTH
+done
+
+Xdialog --title "$TITLE" --msgbox "All done !" 0 0

@@ -1,0 +1,1471 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Écriture de vos propres widgets </TITLE>
+ <LINK HREF="gtk_tut_fr-20.html" REL=next>
+ <LINK HREF="gtk_tut_fr-18.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc19" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-20.html">Page suivante</A>
+<A HREF="gtk_tut_fr-18.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc19">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s19">19. Écriture de vos propres widgets </A></H2>
+
+<P>
+<H2><A NAME="ss19.1">19.1 Vue d'ensemble</A>
+</H2>
+
+<P>Bien que la distribution GTK fournisse de nombreux types de widgets
+qui devraient couvrir la plupart des besoins de base, il peut arriver
+un moment où vous aurez besoin de créer votre propre type de
+widget. Comme GTK utilise l'héritage de widget de façon intensive et
+qu'il y a déjà un widget ressemblant à celui que vous voulez, il est
+souvent possible de créer un nouveau type de widget en seulement
+quelques lignes de code. Mais, avant de travailler sur un nouveau
+widget, il faut vérifier d'abord que quelqu'un ne l'a pas déjà
+écrit. Ceci éviter la duplication des efforts et maintient au minimum
+le nombre de widgets, ce qui permet de garder la cohérence du code et
+de l'interface des différentes applications. Un effet de bord est que,
+lorsque l'on a créé un nouveau widget, il faut l'annoncer afin que les
+autres puissent en bénéficier. Le meilleur endroit pour faire cela
+est, sans doute, la <CODE>gtk-list</CODE>.
+<P>
+<H2><A NAME="ss19.2">19.2 Anatomie d'un widget</A>
+</H2>
+
+<P>Afin de créer un nouveau widget, il importe de comprendre comment
+fonctionnent les objets GTK. Cette section ne se veut être qu'un
+rapide survol. Consultez la documentation de référence pour plus de
+détails.
+<P>
+<P>Les widgets sont implantés selon une méthode orientée
+objet. Cependant, ils sont écrits en C standard. Ceci améliore
+beaucoup la portabilité et la stabilité, par contre cela signifie que
+celui qui écrit des widgets doit faire attention à certains détails
+d'implantation. Les informations communes à toutes les instances d'une
+classe de widget (tous les widgets boutons, par exemple) sont stockées
+dans la <EM>structure de la classe</EM>.  Il n'y en a qu'une copie dans
+laquelle sont stockées les informations sur les signaux de la
+classe (fonctionnement identique aux fonctions virtuelles en C). Pour
+permettre l'héritage, le premier champ de la structure de classe doit
+être une copie de la structure de classe du père. La déclaration de la
+structure de classe de <EM>GtkButton</EM> ressemble à ceci&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkButtonClass
+{
+  GtkContainerClass parent_class;
+
+  void (* pressed)  (GtkButton *button);
+  void (* released) (GtkButton *button);
+  void (* clicked)  (GtkButton *button);
+  void (* enter)    (GtkButton *button);
+  void (* leave)    (GtkButton *button);
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Lorsqu'un bouton est traité comme un container (par exemple, lorsqu'il
+change de taille), sa structure de classe peut être convertie en
+<EM>GtkContainerClass</EM> et les champs adéquats utilisés pour gérer les
+signaux.
+<P>
+<P>Il y a aussi une structure pour chaque widget créé sur une base
+d'instance. Cette structure a des champs pour stocker les informations
+qui sont différentes pour chaque instance du widget. Nous l'appelerons
+<EM>structure d'objet</EM>. Pour la classe <EM>Button</EM>, elle ressemble
+à&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkButton
+{
+  GtkContainer container;
+
+  GtkWidget *child;
+
+  guint in_button : 1;
+  guint button_down : 1;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Notez que, comme pour la structure de classe, le premier champ est la
+structure d'objet de la classe parente, cette structure peut donc être
+convertie dans la structure d'objet de la classe parente si besoin
+est.
+<P>
+<H2><A NAME="ss19.3">19.3 Création d'un widget composé</A>
+</H2>
+
+<H3>Introduction</H3>
+
+<P>Un type de widget qui peut être intéressant à créer est un widget qui
+est simplement un agrégat d'autres widgets GTK. Ce type de widget ne
+fait rien qui ne pourrait être fait sans créer de nouveaux widgets,
+mais offre une méthode pratique pour empaqueter les éléments d'une
+interface utilisateur afin de la réutiliser facilement. Les widgets
+<EM>FileSelection</EM> et <EM>ColorSelection</EM> de la distribution standard
+sont des exemples de ce type de widget.
+<P>
+<P>L'exemple de widget que nous allons créer dans cette section créera un
+widget <EM>Tictactoe</EM>, un tableau de 3x3 boutons commutateurs qui
+déclenche un signal lorsque tous les boutons d'une ligne, d'une
+colonne, ou d'une diagonale sont pressés.
+<P>
+<H3>Choix d'une classe parent</H3>
+
+<P>La classe parent d'un widget composé est, typiquement, la classe
+container contenant tous les éléments du widget composé. Par exemple,
+la classe parent du widget <EM>FileSelection</EM> est la classe
+<EM>Dialog</EM>. Comme nos boutons seront mis sous la forme d'un tableau,
+il semble naturel d'utiliser la classe <EM>GtkTable</EM> comme
+parent. Malheureusement, cela ne peut marcher. La création d'un widget
+est divisée en deux fonctions -- <EM>WIDGETNAME_new()</EM> que
+l'utilisateur appelle, et <EM>WIDGETNAME_init()</EM> qui réalise le
+travail d'initialisation du widget indépendamment des paramètre passés
+à la fonction <CODE>_new()</CODE>. Les widgets fils n'appellent que la
+fonction <EM>_init</EM> de leur widget parent. Mais cette division du
+travail ne fonctionne pas bien avec les tableaux qui, lorsqu'ils sont
+créés, ont besoin de connaître leue nombre de lignes et de
+colonnes. Sauf à dupliquer la plupart des fonctionnalités de
+<EM>gtk_table_new()</EM> dans notre widget <EM>Tictactoe</EM>, nous ferions
+mieux d'éviter de le dériver de <EM>GtkTable</EM>. Pour cette raison, nous
+la dériverons plutôt de <EM>GtkVBox</EM> et nous placerons notre table
+dans la VBox.
+<P>
+<H3>The header file</H3>
+
+<P>Chaque classe de widget possède un fichier en-tête qui déclare les
+structures d'objet et de classe pour ce widget, en plus de fonctions
+publiques. Quelques caractéristiques méritent d'être indiquées. Afin
+d'éviter des définitions multiples, on enveloppe le fichier en-tête
+avec&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#ifndef __TICTACTOE_H__
+#define __TICTACTOE_H__
+.
+.
+.
+#endif /* __TICTACTOE_H__ */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Et, pour faire plaisir aux programmes C++ qui inclueront ce fichier, on l'enveloppe aussi dans&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+.
+.
+.
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>En plus des fonctions et structures, nous déclarons trois macros
+standard, <CODE>TICTACTOE(obj)</CODE>, <CODE>TICTACTOE_CLASS(class)</CODE>, et
+<CODE>IS_TICTACTOE(obj)</CODE>, qui, respectivement, convertissent un pointeur
+en un pointeur vers une structure d'objet ou de classe, et vérifient
+si un objet est un widget Tictactoe.
+<P>
+<P>Voici le fichier en-tête complet&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+#ifndef __TICTACTOE_H__
+#define __TICTACTOE_H__
+
+#include &lt;gdk/gdk.h>
+#include &lt;gtk/gtkvbox.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#define TICTACTOE(obj)          GTK_CHECK_CAST (obj, tictactoe_get_type (), Tictactoe)
+#define TICTACTOE_CLASS(klass)  GTK_CHECK_CLASS_CAST (klass, tictactoe_get_type (), TictactoeClass)
+#define IS_TICTACTOE(obj)       GTK_CHECK_TYPE (obj, tictactoe_get_type ())
+
+
+typedef struct _Tictactoe       Tictactoe;
+typedef struct _TictactoeClass  TictactoeClass;
+
+struct _Tictactoe
+{
+  GtkVBox vbox;
+  
+  GtkWidget *buttons[3][3];
+};
+
+struct _TictactoeClass
+{
+  GtkVBoxClass parent_class;
+
+  void (* tictactoe) (Tictactoe *ttt);
+};
+
+guint          tictactoe_get_type        (void);
+GtkWidget*     tictactoe_new             (void);
+void           tictactoe_clear           (Tictactoe *ttt);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TICTACTOE_H__ */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>La fonction  <CODE>_get_type()</CODE></H3>
+
+<P>Continuons maintenant avec l'implantation de notre widget. La fonction
+centrale pour chaque widget est <EM>WIDGETNAME_get_type()</EM>. Cette
+fonction, lorsqu'elle est appelée pour la première fois, informe le
+GTK de la classe et récupère un ID permettant d'identifier celle-ci de
+façon unique. Lors des appels suivants, elle ne fait que retourner cet
+ID.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint
+tictactoe_get_type ()
+{
+  static guint ttt_type = 0;
+
+  if (!ttt_type)
+    {
+      GtkTypeInfo ttt_info =
+      {
+        "Tictactoe",
+        sizeof (Tictactoe),
+        sizeof (TictactoeClass),
+        (GtkClassInitFunc) tictactoe_class_init,
+        (GtkObjectInitFunc) tictactoe_init,
+        (GtkArgFunc) NULL,
+      };
+
+      ttt_type = gtk_type_unique (gtk_vbox_get_type (), &amp;ttt_info);
+    }
+
+  return ttt_type;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>La structure <EM>GtkTypeInfo</EM> est définie de la façon suivante&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkTypeInfo
+{
+  gchar *type_name;
+  guint object_size;
+  guint class_size;
+  GtkClassInitFunc class_init_func;
+  GtkObjectInitFunc object_init_func;
+  GtkArgFunc arg_func;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Les champs de cette structure s'expliquent d'eux-mêmes. Nous
+ignorerons le champ <EM>arg_func</EM> ici&nbsp;: il a un rôle important
+permettant aux options des widgets d'être correctement initialisées à
+partir des langages interprétés, mais cette fonctionnalité est encore
+très peu implantée. Lorsque GTK dispose d'une copie correctement
+remplie de cette structure, il sait comment créer des objets d'un type
+particulier de widget.
+<P>
+<H3>La fonction <EM>_class_init()</EM></H3>
+
+<P>La fonction <EM>WIDGETNAME_class_init()</EM> initialise les champs de la
+structure de classe du widget et configure tous les signaux de cette
+classe. Pour notre widget Tictactoe, cet appel est&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+enum {
+  TICTACTOE_SIGNAL,
+  LAST_SIGNAL
+};
+
+static gint tictactoe_signals[LAST_SIGNAL] = { 0 };
+
+static void
+tictactoe_class_init (TictactoeClass *class)
+{
+  GtkObjectClass *object_class;
+
+  object_class = (GtkObjectClass*) class;
+  
+  tictactoe_signals[TICTACTOE_SIGNAL] = gtk_signal_new ("tictactoe",
+                                         GTK_RUN_FIRST,
+                                         object_class->type,
+                                         GTK_SIGNAL_OFFSET (TictactoeClass, tictactoe),
+                                         gtk_signal_default_marshaller, GTK_ARG_NONE, 0);
+
+
+  gtk_object_class_add_signals (object_class, tictactoe_signals, LAST_SIGNAL);
+
+  class->tictactoe = NULL;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Notre widget n'a qu'un signal&nbsp;: "tictactoe", invoqué lorsqu'une
+ligne, une colonne ou une diagonale est complètement remplie. Tous les
+widgets composés n'ont pas besoin de signaux. Si vous lisez ceci pour
+la première fois, vous pouvez passer directement à la section suivante
+car les choses vont se compliquer un peu
+<P>La fonction :
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint   gtk_signal_new                     (gchar               *name,
+                                           GtkSignalRunType     run_type,
+                                           gint                 object_type,
+                                           gint                 function_offset,
+                                           GtkSignalMarshaller  marshaller,
+                                           GtkArgType           return_val,
+                                           gint                 nparams,
+                                           ...);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>crée un nouveau signal. Les paramètres sont :
+<P>
+<UL>
+<LI> <EM>name</EM> : Le nom du signal signal.</LI>
+<LI> <EM>run_type</EM> : Indique si le gestionnaire par défaut doit être
+lancé avant ou après le gestionnaire de l'utilisateur. Le plus
+souvent, ce sera <CODE>GTK_RUN_FIRST</CODE>, ou <CODE>GTK_RUN_LAST</CODE>, bien qu'il
+y ait d'autres possibilités.
+</LI>
+<LI> <EM>object_type</EM> : L'ID de l'objet auquel s'applique ce signal
+(il s'appliquera aussi au descendants de l'objet).
+</LI>
+<LI> <EM>function_offset</EM> : L'offset d'un pointeur vers le
+gestionnaire par défaut dans la structure de classe.
+</LI>
+<LI> <EM>marshaller</EM> : Fonction utilisée pour invoquer le
+gestionnaire de signal. Pour les gestionnaires de signaux n'ayant pas
+d'autres paramètres que l'objet émetteur et les données utilisateur,
+on peut utiliser la fonction prédéfinie
+<EM>gtk_signal_default_marshaller()</EM>.
+</LI>
+<LI> <EM>return_val</EM> : Type de la valeur retournée.
+</LI>
+<LI> <EM>nparams</EM> : Nombre de paramètres du gestionnaire de signal
+(autres que les deux par défaut mentionnés plus haut).
+</LI>
+<LI> <EM>...</EM> : Types des paramètres.</LI>
+</UL>
+<P>Lorsque l'on spécifie les types, on utilise l'énumération
+<EM>GtkArgType</EM>&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+typedef enum
+{
+  GTK_ARG_INVALID,
+  GTK_ARG_NONE,
+  GTK_ARG_CHAR,
+  GTK_ARG_SHORT,
+  GTK_ARG_INT,
+  GTK_ARG_LONG,
+  GTK_ARG_POINTER,
+  GTK_ARG_OBJECT,
+  GTK_ARG_FUNCTION,
+  GTK_ARG_SIGNAL
+} GtkArgType;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P><EM>gtk_signal_new()</EM> retourne un identificateur entier pour le
+signal, que l'on stocke dans le tableau <EM>tictactoe_signals</EM>, indicé
+par une énumération (conventionnellement, les éléments de
+l'énumération sont le nom du signal, en majuscules, mais, ici, il y
+aurait un conflit avec la macro <CODE>TICTACTOE()</CODE>, nous l'appellerons
+donc <CODE>TICTACTOE_SIGNAL</CODE> à la place.
+<P>Après avoir créé nos signaux, nous devons demander à GTK d'associer
+ceux-ci à la classe Tictactoe. Ceci est fait en appelant
+<EM>gtk_object_class_add_signals()</EM>. Puis nous configurons le pointeur
+qui pointe sur le gestionnaire par défaut du signal "tictactoe" à
+NULL, pour indiquer qu'il n'y a pas d'action par défaut.
+<P>
+<H3>La fonction <EM>_init()</EM></H3>
+
+<P>
+<P>Chaque classe de widget a aussi besoin d'une fonction pour initialiser
+la structure d'objet. Habituellement, cette fonction a le rôle, plutôt
+limité, d'initialiser les champs de la structure avec des valeurs par
+défaut. Cependant, pour les widgets composés, cette fonction crée
+aussi les widgets composants.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+static void
+tictactoe_init (Tictactoe *ttt)
+{
+  GtkWidget *table;
+  gint i,j;
+  
+  table = gtk_table_new (3, 3, TRUE);
+  gtk_container_add (GTK_CONTAINER(ttt), table);
+  gtk_widget_show (table);
+
+  for (i=0;i&lt;3; i++)
+    for (j=0;j&lt;3; j++)
+      {
+        ttt->buttons[i][j] = gtk_toggle_button_new ();
+        gtk_table_attach_defaults (GTK_TABLE(table), ttt->buttons[i][j], 
+                                   i, i+1, j, j+1);
+        gtk_signal_connect (GTK_OBJECT (ttt->buttons[i][j]), "toggled",
+                            GTK_SIGNAL_FUNC (tictactoe_toggle), ttt);
+        gtk_widget_set_usize (ttt->buttons[i][j], 20, 20);
+        gtk_widget_show (ttt->buttons[i][j]);
+      }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Et le reste...</H3>
+
+<P>
+<P>Il reste une fonction que chaque widget (sauf pour les types widget de
+base, comme <EM>GtkBin</EM>, qui ne peuvent être instanciés) à besoin
+d'avoir -- celle que l'utilisateur appelle pour créer un objet de ce
+type. Elle est conventionnellement appelée <EM>WIDGETNAME_new()</EM>. Pour
+certains widgets, par pour ceux de Tictactoe, cette fonction prend des
+paramètres et réalise certaines initialisations dépendantes des
+paramètres. Les deux autres fonctions sont spécifiques au widget
+Tictactoe.
+<P>
+<P><EM>tictactoe_clear()</EM> est une fonction publique qui remet tous les
+boutons du widget en position relâchée. Notez l'utilisation de
+<EM>gtk_signal_handler_block_by_data()</EM> pour empêcher notre
+gestionnaire de signaux des boutons commutateurs d'être déclenché sans
+besoin.
+<P>
+<P><EM>tictactoe_toggle()</EM> est le gestionnaire de signal invoqué
+lorsqu'on clique sur un bouton. Il vérifie s'il y a des combinaisons
+gagnantes concernant le bouton qui vient d'être commuté et, si c'est
+le cas, émet le signal "tictactoe".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  
+GtkWidget*
+tictactoe_new ()
+{
+  return GTK_WIDGET ( gtk_type_new (tictactoe_get_type ()));
+}
+
+void           
+tictactoe_clear (Tictactoe *ttt)
+{
+  int i,j;
+
+  for (i=0;i&lt;3;i++)
+    for (j=0;j&lt;3;j++)
+      {
+        gtk_signal_handler_block_by_data (GTK_OBJECT(ttt->buttons[i][j]), ttt);
+        gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (ttt->buttons[i][j]),
+                                     FALSE);
+        gtk_signal_handler_unblock_by_data (GTK_OBJECT(ttt->buttons[i][j]), ttt);
+      }
+}
+
+static void
+tictactoe_toggle (GtkWidget *widget, Tictactoe *ttt)
+{
+  int i,k;
+
+  static int rwins[8][3] = { { 0, 0, 0 }, { 1, 1, 1 }, { 2, 2, 2 },
+                             { 0, 1, 2 }, { 0, 1, 2 }, { 0, 1, 2 },
+                             { 0, 1, 2 }, { 0, 1, 2 } };
+  static int cwins[8][3] = { { 0, 1, 2 }, { 0, 1, 2 }, { 0, 1, 2 },
+                             { 0, 0, 0 }, { 1, 1, 1 }, { 2, 2, 2 },
+                             { 0, 1, 2 }, { 2, 1, 0 } };
+
+  int success, found;
+
+  for (k=0; k&lt;8; k++)
+    {
+      success = TRUE;
+      found = FALSE;
+
+      for (i=0;i&lt;3;i++)
+        {
+          success = success &amp;&amp; 
+            GTK_TOGGLE_BUTTON(ttt->buttons[rwins[k][i]][cwins[k][i]])->active;
+          found = found ||
+            ttt->buttons[rwins[k][i]][cwins[k][i]] == widget;
+        }
+      
+      if (success &amp;&amp; found)
+        {
+          gtk_signal_emit (GTK_OBJECT (ttt), 
+                           tictactoe_signals[TICTACTOE_SIGNAL]);
+          break;
+        }
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<P>Enfin, un exemple de programme utilisant notre widget Tictactoe&nbsp;
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+#include "tictactoe.h"
+
+/* Invoqué lorsqu'une ligne, une colonne ou une diagonale est complète */
+
+void win (GtkWidget *widget, gpointer data)
+{
+  g_print ("Ouais !\n");
+  tictactoe_clear (TICTACTOE (widget));
+}
+
+int main (int argc, char *argv[])
+{
+  GtkWidget *window;
+  GtkWidget *ttt;
+  
+  gtk_init (&amp;argc, &amp;argv);
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  
+  gtk_window_set_title (GTK_WINDOW (window), "Aspect Frame");
+  
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_exit), NULL);
+  
+  gtk_container_border_width (GTK_CONTAINER (window), 10);
+
+  /* Création d'un widget Tictactoe */
+  ttt = tictactoe_new ();
+  gtk_container_add (GTK_CONTAINER (window), ttt);
+  gtk_widget_show (ttt);
+
+  /* On lui attache le signal "tictactoe" */
+  gtk_signal_connect (GTK_OBJECT (ttt), "tictactoe",
+                      GTK_SIGNAL_FUNC (win), NULL);
+
+  gtk_widget_show (window);
+  
+  gtk_main ();
+  
+  return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss19.4">19.4 Création d'un widget à partir de zéro</A>
+</H2>
+
+<H3>Introduction</H3>
+
+<P>
+<P>Dans cette section, nous en apprendrons plus sur la façon dont les
+widgets s'affichent eux-mêmes à l'écran et comment ils interagissent
+avec les événements. Comme exemple, nous créerons un widget d'appel
+télephonique interactif avec un pointeur que l'utilisateur pourra
+déplacer pour initialiser la valeur.
+<P>
+<H3>Afficher un widget à l'écran</H3>
+
+<P>Il y a plusieurs étapes mises en jeu lors de l'affichage. Lorsque le widget est
+créé par l'appel <EM>WIDGETNAME_new()</EM>, plusieurs autres fonctions
+supplémentaires sont requises.
+<P>
+<UL>
+<LI> <EM>WIDGETNAME_realize()</EM> s'occupe de créer une fenêtre X pour le
+widget, s'il en a une.</LI>
+<LI> <EM>WIDGETNAME_map()</EM> est invoquée après l'appel de
+<EM>gtk_widget_show()</EM>. Elle s'assure que le widget est bien tracé à l'écran
+(<EM>mappé</EM>). Dans le cas d'une classe container, elle doit aussi appeler des
+fonctions <EM>map()</EM>> pour chaque widget fils.</LI>
+<LI> <EM>WIDGETNAME_draw()</EM> est invoquée lorsque <EM>gtk_widget_draw()</EM> est
+appelé pour le widget ou l'un de ces ancêtres. Elle réalise les véritables
+appels aux fonctions de dessin pour tracer le widget à l'écran. Pour les
+widgets containers, cette fonction doit appeler <EM>gtk_widget_draw()</EM> pour ses
+widgets fils.</LI>
+<LI> <EM>WIDGETNAME_expose()</EM> est un gestionnaire pour les événements
+d'exposition du widget. Il réalise les appels nécessaires aux fonctions de
+dessin pour tracer la partie exposée à l'écran. Pour les widgets containers,
+cette fonction doit générer les événements d'exposition pour ses widgets
+enfants n'ayant pas leurs propres fenêtres (s'ils ont leurs propres fenêtres, X
+génèrera les événements d'exposition nécessaires).</LI>
+</UL>
+<P>
+<P>Vous avez pu noter que les deux dernières fonctions sont assez similaires --
+chacune se charge de tracer le widget à l'écran. En fait, de nombreux types de
+widgets ne se préoccupent pas vraiment de la différence entre les deux. La
+fonction <EM>draw()</EM> par défaut de la classe widget génère simplement un
+événement d'exposition synthétique pour la zone à redessiner. Cependant,
+certains types de widgets peuvent économiser du travail en faisant la
+différence entre les deux fonctions. Par exemple, si un widget a plusieurs
+fenêtres X et puisque les événements d'exposition identifient la fenêtre
+exposée, il peut redessiner seulement la fenêtre concernée, ce qui n'est pas
+possible avec des appels à <EM>draw()</EM>.
+<P>
+<P>Les widgets container, même s'ils ne se soucient pas eux-mêmes de la
+différence, ne peuvent pas utiliser simplement la fonction <EM>draw()</EM> car
+leurs widgets enfants tiennent compte de cette différence. Cependant, ce serait
+du gaspillage de dupliquer le code de tracé pour les deux
+fonctions. Conventionnellement, de tels widgets possèdent une fonction nommée
+<EM>WIDGETNAME_paint()</EM> qui réalise le véritable travail de tracé du widget et
+qui est appelée par les fonctions <CODE>draw()</CODE> et <CODE>expose()</CODE>.
+<P>
+<P>Dans notre exemple, comme le widget d'appel n'est pas un widget container et
+n'a qu'une fenêtre, nous pouvons utiliser l'approche la plus simple&nbsp;:
+utiliser la fonction <EM>draw()</EM> par défaut et n'implanter que la fonction
+<EM>expose()</EM>.
+<P>
+<H3>Origines du widget Dial</H3>
+
+<P>Exactement comme les animaux terrestres ne sont que des variantes des premiers
+amphibiens qui rampèrent hors de la boue, les widgets GTK sont des variantes
+d'autres widgets, déjà écrits. Ainsi, bien que cette section s'appelle « créer
+un widget à partir de zéro », le widget Dial commence réellement avec le code
+source du widget Range. Celui-ci a été pris comme point de départ car ce serait
+bien que notre Dial ait la même interface que les widgets Scale qui ne sont que
+des descendants spécialisés du widget Range. Par conséquent, bien que le code
+source soit présenté ci-dessous sous une forme achevée, cela n'implique pas
+qu'il a été écrit <EM>deus ex machina</EM>. De plus, si vous ne savez pas comment
+fonctionnent les widgets Scale du point de vue du programmeur de l'application,
+il est préférable de les étudier avant de continuer.
+<P>
+<H3>Les bases</H3>
+
+<P>Un petite partie de notre widget devrait ressembler au widget Tictactoe. Nous
+avons d'abord le fichier en-tête&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* GTK - The GIMP Toolkit
+ * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+#ifndef __GTK_DIAL_H__
+#define __GTK_DIAL_H__
+
+#include &lt;gdk/gdk.h>
+#include &lt;gtk/gtkadjustment.h>
+#include &lt;gtk/gtkwidget.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+
+#define GTK_DIAL(obj)          GTK_CHECK_CAST (obj, gtk_dial_get_type (), GtkDial)
+#define GTK_DIAL_CLASS(klass)  GTK_CHECK_CLASS_CAST (klass, gtk_dial_get_type (), GtkDialClass)
+#define GTK_IS_DIAL(obj)       GTK_CHECK_TYPE (obj, gtk_dial_get_type ())
+
+
+typedef struct _GtkDial        GtkDial;
+typedef struct _GtkDialClass   GtkDialClass;
+
+struct _GtkDial
+{
+  GtkWidget widget;
+
+  /* politique de mise à jour  
+     (GTK_UPDATE_[CONTINUOUS/DELAYED/DISCONTINUOUS]) */
+
+  guint policy : 2;
+
+  /* Le bouton qui est pressé, 0 si aucun */
+  guint8 button;
+
+  /* Dimensions des composants de dial */
+  gint radius;
+  gint pointer_width;
+
+  /* ID du timer de mise à jour, 0 si aucun */
+  guint32 timer;
+
+  /* Angle courant*/
+  gfloat angle;
+
+  /* Anciennes valeurs d'ajustement stockées. On sait donc quand quelque
+     chose change */
+  gfloat old_value;
+  gfloat old_lower;
+  gfloat old_upper;
+
+  /* L'objet ajustment qui stocke les données de cet appel */
+  GtkAdjustment *adjustment;
+};
+
+struct _GtkDialClass
+{
+  GtkWidgetClass parent_class;
+};
+
+
+GtkWidget*     gtk_dial_new                    (GtkAdjustment *adjustment);
+guint          gtk_dial_get_type               (void);
+GtkAdjustment* gtk_dial_get_adjustment         (GtkDial      *dial);
+void           gtk_dial_set_update_policy      (GtkDial      *dial,
+                                                GtkUpdateType  policy);
+
+void           gtk_dial_set_adjustment         (GtkDial      *dial,
+                                                GtkAdjustment *adjustment);
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+
+#endif /* __GTK_DIAL_H__ */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Comme il y a plus de choses à faire avec ce widget par rapport à l'autre, nous
+avons plus de champs dans la structure de données, mais à part ça, les choses
+sont plutôt similaires.
+<P>
+<P>
+<P>Puis, après avoir inclus les fichiers en-tête et déclaré quelques constantes,
+nous devons fournir quelques fonctions pour donner des informations sur le
+widget et pour l'initialiser&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;math.h>
+#include &lt;stdio.h>
+#include &lt;gtk/gtkmain.h>
+#include &lt;gtk/gtksignal.h>
+
+#include "gtkdial.h"
+
+#define SCROLL_DELAY_LENGTH  300
+#define DIAL_DEFAULT_SIZE 100
+
+/* Déclararations des prototypes */
+
+[ omis pour gagner de la place ]
+
+/* Données locales */
+
+static GtkWidgetClass *parent_class = NULL;
+
+guint
+gtk_dial_get_type ()
+{
+  static guint dial_type = 0;
+
+  if (!dial_type)
+    {
+      GtkTypeInfo dial_info =
+      {
+        "GtkDial",
+        sizeof (GtkDial),
+        sizeof (GtkDialClass),
+        (GtkClassInitFunc) gtk_dial_class_init,
+        (GtkObjectInitFunc) gtk_dial_init,
+        (GtkArgFunc) NULL,
+      };
+
+      dial_type = gtk_type_unique (gtk_widget_get_type (), &amp;dial_info);
+    }
+
+  return dial_type;
+}
+
+static void
+gtk_dial_class_init (GtkDialClass *class)
+{
+  GtkObjectClass *object_class;
+  GtkWidgetClass *widget_class;
+
+  object_class = (GtkObjectClass*) class;
+  widget_class = (GtkWidgetClass*) class;
+
+  parent_class = gtk_type_class (gtk_widget_get_type ());
+
+  object_class->destroy = gtk_dial_destroy;
+
+  widget_class->realize = gtk_dial_realize;
+  widget_class->expose_event = gtk_dial_expose;
+  widget_class->size_request = gtk_dial_size_request;
+  widget_class->size_allocate = gtk_dial_size_allocate;
+  widget_class->button_press_event = gtk_dial_button_press;
+  widget_class->button_release_event = gtk_dial_button_release;
+  widget_class->motion_notify_event = gtk_dial_motion_notify;
+}
+
+static void
+gtk_dial_init (GtkDial *dial)
+{
+  dial->button = 0;
+  dial->policy = GTK_UPDATE_CONTINUOUS;
+  dial->timer = 0;
+  dial->radius = 0;
+  dial->pointer_width = 0;
+  dial->angle = 0.0;
+  dial->old_value = 0.0;
+  dial->old_lower = 0.0;
+  dial->old_upper = 0.0;
+  dial->adjustment = NULL;
+}
+
+GtkWidget*
+gtk_dial_new (GtkAdjustment *adjustment)
+{
+  GtkDial *dial;
+
+  dial = gtk_type_new (gtk_dial_get_type ());
+
+  if (!adjustment)
+    adjustment = (GtkAdjustment*) gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+  gtk_dial_set_adjustment (dial, adjustment);
+
+  return GTK_WIDGET (dial);
+}
+
+static void
+gtk_dial_destroy (GtkObject *object)
+{
+  GtkDial *dial;
+
+  g_return_if_fail (object != NULL);
+  g_return_if_fail (GTK_IS_DIAL (object));
+
+  dial = GTK_DIAL (object);
+
+  if (dial->adjustment)
+    gtk_object_unref (GTK_OBJECT (dial->adjustment));
+
+  if (GTK_OBJECT_CLASS (parent_class)->destroy)
+    (* GTK_OBJECT_CLASS (parent_class)->destroy) (object);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Notez que cette fonction <EM>init()</EM> fait moins de choses que pour le widget
+Tictactoe car ce n'est pas un widget composé et que la fonction <EM>new()</EM> en
+fait plus car elle a maintenant un paramètre. Notez aussi que lorsque nous
+stockons un pointeur vers l'objet Adjustement, nous incrémentons son nombre de
+références (et nous le décrémentons lorsque nous ne l'utilisons plus) afin que
+GTK puisse savoir quand il pourra être détruit sans danger.
+<P>
+<P>Il y a aussi quelques fonctions pour manipuler les options du widget&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAdjustment*
+gtk_dial_get_adjustment (GtkDial *dial)
+{
+  g_return_val_if_fail (dial != NULL, NULL);
+  g_return_val_if_fail (GTK_IS_DIAL (dial), NULL);
+
+  return dial->adjustment;
+}
+
+void
+gtk_dial_set_update_policy (GtkDial      *dial,
+                             GtkUpdateType  policy)
+{
+  g_return_if_fail (dial != NULL);
+  g_return_if_fail (GTK_IS_DIAL (dial));
+
+  dial->policy = policy;
+}
+
+void
+gtk_dial_set_adjustment (GtkDial      *dial,
+                          GtkAdjustment *adjustment)
+{
+  g_return_if_fail (dial != NULL);
+  g_return_if_fail (GTK_IS_DIAL (dial));
+
+  if (dial->adjustment)
+    {
+      gtk_signal_disconnect_by_data (GTK_OBJECT (dial->adjustment), (gpointer) dial);
+      gtk_object_unref (GTK_OBJECT (dial->adjustment));
+    }
+
+  dial->adjustment = adjustment;
+  gtk_object_ref (GTK_OBJECT (dial->adjustment));
+
+  gtk_signal_connect (GTK_OBJECT (adjustment), "changed",
+                      (GtkSignalFunc) gtk_dial_adjustment_changed,
+                      (gpointer) dial);
+  gtk_signal_connect (GTK_OBJECT (adjustment), "value_changed",
+                      (GtkSignalFunc) gtk_dial_adjustment_value_changed,
+                      (gpointer) dial);
+
+  dial->old_value = adjustment->value;
+  dial->old_lower = adjustment->lower;
+  dial->old_upper = adjustment->upper;
+
+  gtk_dial_update (dial);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3><EM>gtk_dial_realize()</EM></H3>
+
+<P>Nous arrivons maintenant à quelques nouveaux types de fonctions. D'abord, nous
+avons une fonction qui réalise la création de la fenêtre X. Notez que l'on
+passe un masque à la fonction <EM>gdk_window_new()</EM> pour spécifier quels sont
+les champs de la structure GdkWindowAttr qui contiennent des données (les
+autres recevront des valeurs par défaut). Notez aussi la façon dont est créé le
+masque d'événement du widget. On appelle <EM>gtk_widget_get_events()</EM> pour
+récupérer le masque d'événement que l'utilisateur a spécifié pour ce widget
+(avec <EM>gtk_widget_set_events()</EM>) et ajouter les événements qui nous
+intéressent.
+<P>
+<P>Après avoir créé la fenêtre, nous configurons son style et son fond et mettons
+un pointeur vers le widget dans le champ user de la GdkWindow. Cette dernière
+étape permet à GTK de distribuer les événements pour cette fenêtre au widget
+correct.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static void
+gtk_dial_realize (GtkWidget *widget)
+{
+  GtkDial *dial;
+  GdkWindowAttr attributes;
+  gint attributes_mask;
+
+  g_return_if_fail (widget != NULL);
+  g_return_if_fail (GTK_IS_DIAL (widget));
+
+  GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+  dial = GTK_DIAL (widget);
+
+  attributes.x = widget->allocation.x;
+  attributes.y = widget->allocation.y;
+  attributes.width = widget->allocation.width;
+  attributes.height = widget->allocation.height;
+  attributes.wclass = GDK_INPUT_OUTPUT;
+  attributes.window_type = GDK_WINDOW_CHILD;
+  attributes.event_mask = gtk_widget_get_events (widget) | 
+    GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | 
+    GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK |
+    GDK_POINTER_MOTION_HINT_MASK;
+  attributes.visual = gtk_widget_get_visual (widget);
+  attributes.colormap = gtk_widget_get_colormap (widget);
+
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+  widget->window = gdk_window_new (widget->parent->window, &amp;attributes, attributes_mask);
+
+  widget->style = gtk_style_attach (widget->style, widget->window);
+
+  gdk_window_set_user_data (widget->window, widget);
+
+  gtk_style_set_background (widget->style, widget->window, GTK_STATE_ACTIVE);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Négotiation de la taille</H3>
+
+<P>Avant le premier affichage de la fenêtre contenant un widget et à chaque fois
+que la forme de la fenêtre change, GTK demande à chaque widget fils la taille
+qu'il désire avoir. Cette requête est gérée par la fonction
+<EM>gtk_dial_size_request()</EM>. Comme notre widget n'est pas un widget container,
+et n'a pas de contraintes réelles sur sa taille, nous ne faisons que retourner
+une valeur raisonnable par défaut.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static void 
+gtk_dial_size_request (GtkWidget      *widget,
+                       GtkRequisition *requisition)
+{
+  requisition->width = DIAL_DEFAULT_SIZE;
+  requisition->height = DIAL_DEFAULT_SIZE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Lorsque tous les widgets on demandé une taille idéale, le forme de la fenêtre
+est calculée et chaque widget fils est averti de sa taille. Habituellement, ce
+sera autant que la taille requise, mais si, par exemple, l'utilisateur a
+redimensionné la fenêtre, cette taille peut occasionnellement être plus petite
+que la taille requise. La notification de la taille est gérée par la fonction
+<EM>gtk_dial_size_allocate()</EM>. Notez qu'en même temps qu'elle calcule les
+tailles de certains composants pour une utilisation future, cette routine fait
+aussi le travail de base consistant à déplacer les widgets X Window dans leur
+nouvelles positions et tailles.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static void
+gtk_dial_size_allocate (GtkWidget     *widget,
+                        GtkAllocation *allocation)
+{
+  GtkDial *dial;
+
+  g_return_if_fail (widget != NULL);
+  g_return_if_fail (GTK_IS_DIAL (widget));
+  g_return_if_fail (allocation != NULL);
+
+  widget->allocation = *allocation;
+  if (GTK_WIDGET_REALIZED (widget))
+    {
+      dial = GTK_DIAL (widget);
+
+      gdk_window_move_resize (widget->window,
+                              allocation->x, allocation->y,
+                              allocation->width, allocation->height);
+
+      dial->radius = MAX(allocation->width,allocation->height) * 0.45;
+      dial->pointer_width = dial->radius / 5;
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+.
+<P>
+<H3><EM>gtk_dial_expose()</EM></H3>
+
+<P>Comme cela est mentionné plus haut, tout le dessin de ce widget est réalisé
+dans le gestionnaire pour les événements d'exposition. Il n'y a pas grand chose
+de plus à dire là dessus, sauf constater l'utilisation de la fonction
+<EM>gtk_draw_polygon</EM> pour dessiner le pointeur avec une forme en trois
+dimensions selon les couleurs stockées dans le style du widget. 
+style.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static gint
+gtk_dial_expose (GtkWidget      *widget,
+                 GdkEventExpose *event)
+{
+  GtkDial *dial;
+  GdkPoint points[3];
+  gdouble s,c;
+  gdouble theta;
+  gint xc, yc;
+  gint tick_length;
+  gint i;
+
+  g_return_val_if_fail (widget != NULL, FALSE);
+  g_return_val_if_fail (GTK_IS_DIAL (widget), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (event->count > 0)
+    return FALSE;
+  
+  dial = GTK_DIAL (widget);
+
+  gdk_window_clear_area (widget->window,
+                         0, 0,
+                         widget->allocation.width,
+                         widget->allocation.height);
+
+  xc = widget->allocation.width/2;
+  yc = widget->allocation.height/2;
+
+  /* Draw ticks */
+
+  for (i=0; i&lt;25; i++)
+    {
+      theta = (i*M_PI/18. - M_PI/6.);
+      s = sin(theta);
+      c = cos(theta);
+
+      tick_length = (i%6 == 0) ? dial->pointer_width : dial->pointer_width/2;
+      
+      gdk_draw_line (widget->window,
+                     widget->style->fg_gc[widget->state],
+                     xc + c*(dial->radius - tick_length),
+                     yc - s*(dial->radius - tick_length),
+                     xc + c*dial->radius,
+                     yc - s*dial->radius);
+    }
+
+  /* Draw pointer */
+
+  s = sin(dial->angle);
+  c = cos(dial->angle);
+
+
+  points[0].x = xc + s*dial->pointer_width/2;
+  points[0].y = yc + c*dial->pointer_width/2;
+  points[1].x = xc + c*dial->radius;
+  points[1].y = yc - s*dial->radius;
+  points[2].x = xc - s*dial->pointer_width/2;
+  points[2].y = yc - c*dial->pointer_width/2;
+
+  gtk_draw_polygon (widget->style,
+                    widget->window,
+                    GTK_STATE_NORMAL,
+                    GTK_SHADOW_OUT,
+                    points, 3,
+                    TRUE);
+  
+  return FALSE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Gestion des événements</H3>
+
+<P>Le reste du code du widget gère différents types d'événements et n'est pas
+trop différent de ce que l'on trouve dans la plupart des applications GTK. Deux
+types d'événements peuvent survenir -- l'utilisateur peut cliquer sur le widget
+avec la souris et faire glisser pour déplacer le pointeur, ou bien la valeur de
+l'objet Adjustment peut changer à cause d'une circonstance extérieure.
+<P>
+<P>Lorsque l'utilisateur clique sur le widget, on vérifie si le clic s'est bien
+passé près du pointeur et si c'est le cas, on stocke alors le bouton avec
+lequel l'utilisateur a cliqué dans le champ <EM>button</EM> de la structure du
+widget et on récupère tous les événements souris avec un appel à
+<EM>gtk_grab_add()</EM>. Un déplacement ultérieur de la souris provoque le recalcul
+de la valeur de contrôle (par la fonction <EM>gtk_dial_update_mouse</EM>). Selon la
+politique qui a été choisie, les événements "value_changed" sont, soit générés
+instantanément (<EM>GTK_UPDATE_CONTINUOUS</EM>), après un délai ajouté au timer
+avec <EM>gtk_timeout_add()</EM> (<EM>GTK_UPDATE_DELAYED</EM>), ou seulement lorsque le
+bouton est relâché (<EM>GTK_UPDATE_DISCONTINUOUS</EM>).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static gint
+gtk_dial_button_press (GtkWidget      *widget,
+                       GdkEventButton *event)
+{
+  GtkDial *dial;
+  gint dx, dy;
+  double s, c;
+  double d_parallel;
+  double d_perpendicular;
+
+  g_return_val_if_fail (widget != NULL, FALSE);
+  g_return_val_if_fail (GTK_IS_DIAL (widget), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  dial = GTK_DIAL (widget);
+
+  /* Détermine si le bouton pressé est dans la région du pointeur.
+     On fait cela en calculant les distances parallèle et perpendiculaire
+     du point où la souris a été pressée par rapport à la ligne passant
+     par le pointeur */
+  
+  dx = event->x - widget->allocation.width / 2;
+  dy = widget->allocation.height / 2 - event->y;
+  
+  s = sin(dial->angle);
+  c = cos(dial->angle);
+  
+  d_parallel = s*dy + c*dx;
+  d_perpendicular = fabs(s*dx - c*dy);
+  
+  if (!dial->button &amp;&amp;
+      (d_perpendicular &lt; dial->pointer_width/2) &amp;&amp;
+      (d_parallel > - dial->pointer_width))
+    {
+      gtk_grab_add (widget);
+
+      dial->button = event->button;
+
+      gtk_dial_update_mouse (dial, event->x, event->y);
+    }
+
+  return FALSE;
+}
+
+static gint
+gtk_dial_button_release (GtkWidget      *widget,
+                          GdkEventButton *event)
+{
+  GtkDial *dial;
+
+  g_return_val_if_fail (widget != NULL, FALSE);
+  g_return_val_if_fail (GTK_IS_DIAL (widget), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  dial = GTK_DIAL (widget);
+
+  if (dial->button == event->button)
+    {
+      gtk_grab_remove (widget);
+
+      dial->button = 0;
+
+      if (dial->policy == GTK_UPDATE_DELAYED)
+        gtk_timeout_remove (dial->timer);
+      
+      if ((dial->policy != GTK_UPDATE_CONTINUOUS) &amp;&amp;
+          (dial->old_value != dial->adjustment->value))
+        gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+    }
+
+  return FALSE;
+}
+
+static gint
+gtk_dial_motion_notify (GtkWidget      *widget,
+                         GdkEventMotion *event)
+{
+  GtkDial *dial;
+  GdkModifierType mods;
+  gint x, y, mask;
+
+  g_return_val_if_fail (widget != NULL, FALSE);
+  g_return_val_if_fail (GTK_IS_DIAL (widget), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  dial = GTK_DIAL (widget);
+
+  if (dial->button != 0)
+    {
+      x = event->x;
+      y = event->y;
+
+      if (event->is_hint || (event->window != widget->window))
+        gdk_window_get_pointer (widget->window, &amp;x, &amp;y, &amp;mods);
+
+      switch (dial->button)
+        {
+        case 1:
+          mask = GDK_BUTTON1_MASK;
+          break;
+        case 2:
+          mask = GDK_BUTTON2_MASK;
+          break;
+        case 3:
+          mask = GDK_BUTTON3_MASK;
+          break;
+        default:
+          mask = 0;
+          break;
+        }
+
+      if (mods &amp; mask)
+        gtk_dial_update_mouse (dial, x,y);
+    }
+
+  return FALSE;
+}
+
+static gint
+gtk_dial_timer (GtkDial *dial)
+{
+  g_return_val_if_fail (dial != NULL, FALSE);
+  g_return_val_if_fail (GTK_IS_DIAL (dial), FALSE);
+
+  if (dial->policy == GTK_UPDATE_DELAYED)
+    gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+
+  return FALSE;
+}
+
+static void
+gtk_dial_update_mouse (GtkDial *dial, gint x, gint y)
+{
+  gint xc, yc;
+  gfloat old_value;
+
+  g_return_if_fail (dial != NULL);
+  g_return_if_fail (GTK_IS_DIAL (dial));
+
+  xc = GTK_WIDGET(dial)->allocation.width / 2;
+  yc = GTK_WIDGET(dial)->allocation.height / 2;
+
+  old_value = dial->adjustment->value;
+  dial->angle = atan2(yc-y, x-xc);
+
+  if (dial->angle &lt; -M_PI/2.)
+    dial->angle += 2*M_PI;
+
+  if (dial->angle &lt; -M_PI/6)
+    dial->angle = -M_PI/6;
+
+  if (dial->angle > 7.*M_PI/6.)
+    dial->angle = 7.*M_PI/6.;
+
+  dial->adjustment->value = dial->adjustment->lower + (7.*M_PI/6 - dial->angle) *
+    (dial->adjustment->upper - dial->adjustment->lower) / (4.*M_PI/3.);
+
+  if (dial->adjustment->value != old_value)
+    {
+      if (dial->policy == GTK_UPDATE_CONTINUOUS)
+        {
+          gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+        }
+      else
+        {
+          gtk_widget_draw (GTK_WIDGET(dial), NULL);
+
+          if (dial->policy == GTK_UPDATE_DELAYED)
+            {
+              if (dial->timer)
+                gtk_timeout_remove (dial->timer);
+
+              dial->timer = gtk_timeout_add (SCROLL_DELAY_LENGTH,
+                                             (GtkFunction) gtk_dial_timer,
+                                             (gpointer) dial);
+            }
+        }
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Les changements de l'Adjustement par des moyens extérieurs sont communiqués à
+notre widget par les signaux "changed" et "value_changed". Les gestionnaires
+pour ces fonctions appellent <EM>gtk_dial_update()</EM> pour valider les
+paramètres, calculer le nouvel angle du pointeur et redessiner le widget (en
+appelant <EM>gtk_widget_draw()</EM>).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static void
+gtk_dial_update (GtkDial *dial)
+{
+  gfloat new_value;
+  
+  g_return_if_fail (dial != NULL);
+  g_return_if_fail (GTK_IS_DIAL (dial));
+
+  new_value = dial->adjustment->value;
+  
+  if (new_value &lt; dial->adjustment->lower)
+    new_value = dial->adjustment->lower;
+
+  if (new_value > dial->adjustment->upper)
+    new_value = dial->adjustment->upper;
+
+  if (new_value != dial->adjustment->value)
+    {
+      dial->adjustment->value = new_value;
+      gtk_signal_emit_by_name (GTK_OBJECT (dial->adjustment), "value_changed");
+    }
+
+  dial->angle = 7.*M_PI/6. - (new_value - dial->adjustment->lower) * 4.*M_PI/3. /
+    (dial->adjustment->upper - dial->adjustment->lower);
+
+  gtk_widget_draw (GTK_WIDGET(dial), NULL);
+}
+
+static void
+gtk_dial_adjustment_changed (GtkAdjustment *adjustment,
+                              gpointer       data)
+{
+  GtkDial *dial;
+
+  g_return_if_fail (adjustment != NULL);
+  g_return_if_fail (data != NULL);
+
+  dial = GTK_DIAL (data);
+
+  if ((dial->old_value != adjustment->value) ||
+      (dial->old_lower != adjustment->lower) ||
+      (dial->old_upper != adjustment->upper))
+    {
+      gtk_dial_update (dial);
+
+      dial->old_value = adjustment->value;
+      dial->old_lower = adjustment->lower;
+      dial->old_upper = adjustment->upper;
+    }
+}
+
+static void
+gtk_dial_adjustment_value_changed (GtkAdjustment *adjustment,
+                                    gpointer       data)
+{
+  GtkDial *dial;
+
+  g_return_if_fail (adjustment != NULL);
+  g_return_if_fail (data != NULL);
+
+  dial = GTK_DIAL (data);
+
+  if (dial->old_value != adjustment->value)
+    {
+      gtk_dial_update (dial);
+
+      dial->old_value = adjustment->value;
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Améliorations possibles</H3>
+
+<P>
+<P>Le widget Dial décrit jusqu'à maintenant exécute à peu près 670 lignes de
+code. Bien que cela puisse sembler beaucoup, nous en avons vraiment fait
+beaucoup avec ce code, notamment parce que la majeure partie de cette longueur
+est due aux en-têtes et à la préparation. Cependant, certaines améliorations
+peuvent être apportées à ce widget&nbsp;:
+<P>
+<UL>
+<LI> Si vous testez ce widget, vous vous apercevrez qu'il y a un peu de
+scintillement lorsque le pointeur est déplacé. Ceci est dû au fait que le
+widget entier est effacé, puis redessiné  à chaque mouvement du
+pointeur. Souvent, la meilleure façon de gérer ce problème est de dessiner sur
+un pixmap non affiché, puis de copier le résultat final sur l'écran en une
+seule étape (le widget <EM>ProgressBar</EM> se dessine de cette façon).
+</LI>
+<LI> L'utilisateur devrait pouvoir utiliser les flèches du curseur vers le
+haut et vers le bas pour incrémenter et décrémenter la valeur.
+</LI>
+<LI> Ce serait bien si le widget avait des boutons pour augmenter et diminuer
+la valeur dans de petites ou de grosses proportions. Bien qu'il serait possible
+d'utiliser les widgets <EM>Button</EM> pour cela, nous voudrions aussi que les
+boutons s'auto-répètent lorsqu'ils sont maintenus appuyés, comme font les
+flèches d'une barre de défilement. La majeure partie du code pour implanter ce
+type de comportement peut se trouver dans le widget <EM>GtkRange</EM>.
+</LI>
+<LI> Le widget Dial pourrait être fait dans un widget container avec un seul
+widget fils positionnée en bas, entre les boutons mentionnés
+ci-dessus. L'utilisateur pourrait alors ajouter au choix, un widget label ou
+entrée pour afficher la valeur courante de l'appel.
+</LI>
+</UL>
+<P>
+<H2><A NAME="ss19.5">19.5 En savoir plus</A>
+</H2>
+
+<P>Seule une petite partie des nombreux détails de la création des widgets a pu
+être décrite. Si vous désirez écrire vos propres widgets, la meilleure source
+d'exemples est le source de GTK lui-même. Posez-vous quelques questions sur les
+widgets que vous voulez écrire&nbsp;: est-ce un widget container ? possède-t-il
+sa propre fenêtre ? est-ce une modification d'un widget existant ? Puis,
+trouvez un widget identique et commencez à faire les modifications. Bonne
+chance !
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-20.html">Page suivante</A>
+<A HREF="gtk_tut_fr-18.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc19">Table des matières</A>
+</BODY>
+</HTML>

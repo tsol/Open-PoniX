@@ -1,0 +1,46 @@
+--- ../../alsa-kernel/pci/echoaudio/echoaudio.c	2010-01-29 23:17:31.000000000 +0100
++++ echoaudio.c	2010-01-29 23:28:45.000000000 +0100
+@@ -1943,6 +1943,7 @@ static __devinit int snd_echo_create(str
+ 	struct echoaudio *chip;
+ 	int err;
+ 	size_t sz;
++	u16 subsystem_device;
+ 	static struct snd_device_ops ops = {
+ 		.dev_free = snd_echo_dev_free,
+ 	};
+@@ -2014,7 +2015,12 @@ static __devinit int snd_echo_create(str
+ 	chip->comm_page_phys = chip->commpage_dma_buf.addr;
+ 	chip->comm_page = (struct comm_page *)chip->commpage_dma_buf.area;
+ 
+-	err = init_hw(chip, chip->pci->device, chip->pci->subsystem_device);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 3, 0)
++	subsystem_device = pci->subsystem_device;
++#else
++	pci_read_config_word(pci, PCI_SUBSYSTEM_ID, &subsystem_device);
++#endif
++	err = init_hw(chip, chip->pci->device, subsystem_device);
+ 	if (err >= 0)
+ 		err = set_mixer_defaults(chip);
+ 	if (err < 0) {
+@@ -2245,6 +2251,7 @@ static int snd_echo_resume(struct pci_de
+ 	struct comm_page *commpage, *commpage_bak;
+ 	u32 pipe_alloc_mask;
+ 	int err;
++	u16 subsystem_device;
+ 
+ 	DE_INIT(("resume start\n"));
+ 	pci_restore_state(pci);
+@@ -2252,7 +2259,12 @@ static int snd_echo_resume(struct pci_de
+ 	commpage = chip->comm_page;
+ 	memcpy(commpage_bak, commpage, sizeof(struct comm_page));
+ 
+-	err = init_hw(chip, chip->pci->device, chip->pci->subsystem_device);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 3, 0)
++	subsystem_device = pci->subsystem_device;
++#else
++	pci_read_config_word(pci, PCI_SUBSYSTEM_ID, &subsystem_device);
++#endif
++	err = init_hw(chip, chip->pci->device, subsystem_device);
+ 	if (err < 0) {
+ 		kfree(commpage_bak);
+ 		DE_INIT(("resume init_hw err=%d\n", err));

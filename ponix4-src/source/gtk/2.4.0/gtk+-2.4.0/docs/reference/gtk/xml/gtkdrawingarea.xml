@@ -1,0 +1,211 @@
+<refentry id="GtkDrawingArea">
+<refmeta>
+<refentrytitle>GtkDrawingArea</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkDrawingArea</refname><refpurpose>a widget for custom user interface elements.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkDrawingArea-struct">GtkDrawingArea</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-drawing-area-new">gtk_drawing_area_new</link>            (void);
+<link linkend="void">void</link>        <link linkend="gtk-drawing-area-size">gtk_drawing_area_size</link>           (<link linkend="GtkDrawingArea">GtkDrawingArea</link> *darea,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----GtkDrawingArea
+                     +----<link linkend="GtkCurve">GtkCurve</link>
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkDrawingArea implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+
+The <link linkend="GtkDrawingArea"><type>GtkDrawingArea</type></link> widget is used for creating custom user interface
+elements. It's essentially a blank widget; you can draw on
+<literal>widget-&gt;window</literal>. After creating a drawing area,
+the application may want to connect to:
+
+<itemizedlist>
+  <listitem>
+    <para>
+    Mouse and button press signals to respond to input from
+    the user. (Use <link linkend="gtk-widget-add-events"><function>gtk_widget_add_events()</function></link> to enable events 
+    you wish to receive.)
+    </para>
+  </listitem>
+  <listitem>
+    <para>
+    The "realize" signal to take any necessary actions
+    when the widget is instantiated on a particular display.
+    (Create GDK resources in response to this signal.)
+    </para>
+  </listitem>
+  <listitem>
+    <para>
+    The "configure_event" signal to take any necessary actions
+    when the widget changes size.
+    </para>
+  </listitem>
+  <listitem>
+    <para>
+    The "expose_event" signal to handle redrawing the
+    contents of the widget.
+    </para>
+  </listitem>
+</itemizedlist>
+</para>
+<para>
+The following code portion demonstrates using a drawing
+area to display a circle in the normal widget foreground 
+color.
+Note that GDK automatically clears the exposed area
+to the background color before sending the expose event, and 
+that drawing is implicitly clipped to the exposed area.
+</para>
+<example>
+<title>Simple <structname>GtkDrawingArea</structname> usage.</title>
+<programlisting>
+gboolean
+expose_event_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+  gdk_draw_arc (widget->window,
+                widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+                TRUE,
+                0, 0, widget->allocation.width, widget->allocation.height,
+                0, 64 * 360);
+ 
+  return TRUE;
+}
+[...]
+  GtkWidget *drawing_area = gtk_drawing_area_new (<!-- -->);
+  gtk_widget_set_size_request (drawing_area, 100, 100);
+  g_signal_connect (G_OBJECT (drawing_area), "expose_event",  
+                    G_CALLBACK (expose_event_callback), NULL);
+</programlisting>
+</example>
+
+<para>
+Expose events are normally delivered when a drawing area first comes
+onscreen, or when it's covered by another window and then uncovered
+(exposed). You can also force an expose event by adding to the "damage
+region" of the drawing area's window; <link linkend="gtk-widget-queue-draw-area"><function>gtk_widget_queue_draw_area()</function></link> and
+<link linkend="gdk-window-invalidate-rect"><function>gdk_window_invalidate_rect()</function></link> are equally good ways to do this. You'll
+then get an expose event for the invalid region.
+</para>
+
+<para>
+The available routines for drawing are documented on the <link
+linkend="gdk-Drawing-Primitives">GDK Drawing Primitives</link> page.
+See also <link linkend="gdk-pixbuf-render-to-drawable"><function>gdk_pixbuf_render_to_drawable()</function></link> for drawing a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>.
+</para>
+
+<para>
+To receive mouse events on a drawing area, you will need to enable
+them with <link linkend="gtk-widget-add-events"><function>gtk_widget_add_events()</function></link>. To receive keyboard events, you
+will need to set the <link linkend="GTK-CAN-FOCUS-CAPS"><type>GTK_CAN_FOCUS</type></link> flag on the drawing area, and
+should probably draw some user-visible indication that the drawing
+area is focused. Use the <link linkend="GTK-HAS-FOCUS-CAPS"><function>GTK_HAS_FOCUS()</function></link> macro in your expose event
+handler to decide whether to draw the focus indicator. See
+<link linkend="gtk-paint-focus"><function>gtk_paint_focus()</function></link> for one way to draw focus.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkDrawingArea-struct"/>struct GtkDrawingArea</title>
+<indexterm><primary>GtkDrawingArea</primary></indexterm><programlisting>struct GtkDrawingArea;</programlisting>
+<para>
+The <link linkend="GtkDrawingArea"><type>GtkDrawingArea</type></link> struct contains private data only, and
+should be accessed using the functions below.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-drawing-area-new"/>gtk_drawing_area_new ()</title>
+<indexterm><primary>gtk_drawing_area_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_drawing_area_new            (void);</programlisting>
+<para>
+Creates a new drawing area.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkDrawingArea"><type>GtkDrawingArea</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drawing-area-size"/>gtk_drawing_area_size ()</title>
+<indexterm><primary>gtk_drawing_area_size</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drawing_area_size           (<link linkend="GtkDrawingArea">GtkDrawingArea</link> *darea,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);</programlisting>
+<warning><para><literal>gtk_drawing_area_size</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+(Use <link linkend="gtk-widget-set-size-request"><function>gtk_widget_set_size_request()</function></link> instead.)
+Sets the size that the drawing area will request
+in response to a "size_request" signal. The 
+drawing area may actually be allocated a size
+larger than this depending on how it is packed
+within the enclosing containers.
+</para><variablelist role="params">
+<varlistentry><term><parameter>darea</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkDrawingArea"><type>GtkDrawingArea</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara>the width to request.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara>the height to request.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+Sometimes <link linkend="GtkImage"><type>GtkImage</type></link> is a useful alternative to a drawing area. 
+You can put a <link linkend="GdkPixmap"><type>GdkPixmap</type></link> in the <link linkend="GtkImage"><type>GtkImage</type></link> and draw to the <link linkend="GdkPixmap"><type>GdkPixmap</type></link>, 
+calling <link linkend="gtk-widget-queue-draw"><function>gtk_widget_queue_draw()</function></link> on the <link linkend="GtkImage"><type>GtkImage</type></link> when you want to 
+refresh to the screen.
+</para>
+</refsect1>
+
+</refentry>

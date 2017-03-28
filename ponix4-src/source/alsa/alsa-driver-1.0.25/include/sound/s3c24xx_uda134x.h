@@ -1,0 +1,1 @@
+../../alsa-kernel/include/s3c24xx_uda134x.h

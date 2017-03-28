@@ -1,0 +1,36 @@
+--- awesome keygrabber API
+-- @author Julien Danjou &lt;julien@danjou.info&gt;
+-- @copyright 2008-2009 Julien Danjou
+module("keygrabber")
+
+--- Grab keyboard and read pressed keys, calling callback function at each key
+-- pressed. The callback function must return a boolean value: true to
+-- continue grabbing, false to stop.
+-- The function is called with 3 arguments:
+-- a table containing modifiers keys, a string with the key pressed and a
+-- string with either "press" or "release" to indicate the event type.
+-- @param func A callback function as described above.
+-- @name run
+-- @class function
+-- @usage Following function can be bound to a key, and used to resize a client
+-- using keyboard.
+-- <p><code>
+-- function resize(c) <br/>
+--     keygrabber.run(function(mod, key, event) </br>
+--     if event == "release" then return true end </br><br/>
+--
+--     if     key == 'Up'   then awful.client.moveresize(0, 0, 0, 5, c) <br/>
+--     elseif key == 'Down' then awful.client.moveresize(0, 0, 0, -5, c) <br/>
+--     elseif key == 'Right' then awful.client.moveresize(0, 0, 5, 0, c) <br/>
+--     elseif key == 'Left'  then awful.client.moveresize(0, 0, -5, 0, c) <br/>
+--     else   keygrabber.stop() <br/>
+--     end <br/><br/>
+--
+--     return true <br/>
+-- end <br/>
+-- </code></p>
+
+--- Stop grabbing the keyboard.
+-- @param -
+-- @name stop
+-- @class function

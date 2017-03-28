@@ -1,0 +1,263 @@
+--- ../alsa-kernel/sparc/dbri.c	2008-09-01 11:20:14.000000000 +0200
++++ dbri.c	2008-09-01 12:05:55.000000000 +0200
+@@ -1,3 +1,4 @@
++#include "adriver.h"
+ /*
+  * Driver for DBRI sound chip found on Sparcs.
+  * Copyright (C) 2004, 2005 Martin Habets (mhabets@users.sourceforge.net)
+@@ -67,7 +68,11 @@
+ #include <sound/initval.h>
+ 
+ #include <linux/of.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ #include <linux/of_device.h>
++#else
++#include <asm/sbus.h>
++#endif
+ #include <asm/atomic.h>
+ 
+ MODULE_AUTHOR("Rudolf Koenig, Brent Baccala and Martin Habets");
+@@ -298,7 +303,11 @@
+ /* This structure holds the information for both chips (DBRI & CS4215) */
+ struct snd_dbri {
+ 	int regs_size, irq;	/* Needed for unload */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	struct of_device *op;	/* OF device info */
++#else
++	struct sbus_dev *sdev;	/* SBUS device info */
++#endif
+ 	spinlock_t lock;
+ 
+ 	struct dbri_dma *dma;	/* Pointer to our DMA block */
+@@ -2093,6 +2102,7 @@
+ 	/* hw_params can get called multiple times. Only map the DMA once.
+ 	 */
+ 	if (info->dvma_buffer == 0) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		if (DBRI_STREAMNO(substream) == DBRI_PLAY)
+ 			direction = DMA_TO_DEVICE;
+ 		else
+@@ -2103,6 +2113,17 @@
+ 				       runtime->dma_area,
+ 				       params_buffer_bytes(hw_params),
+ 				       direction);
++#else /* 2.6.28 */
++		if (DBRI_STREAMNO(substream) == DBRI_PLAY)
++			direction = SBUS_DMA_TODEVICE;
++		else
++			direction = SBUS_DMA_FROMDEVICE;
++
++		info->dvma_buffer = sbus_map_single(dbri->sdev,
++					runtime->dma_area,
++					params_buffer_bytes(hw_params),
++					direction);
++#endif /* 2.6.28 */
+ 	}
+ 
+ 	direction = params_buffer_bytes(hw_params);
+@@ -2122,6 +2143,7 @@
+ 	/* hw_free can get called multiple times. Only unmap the DMA once.
+ 	 */
+ 	if (info->dvma_buffer) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		if (DBRI_STREAMNO(substream) == DBRI_PLAY)
+ 			direction = DMA_TO_DEVICE;
+ 		else
+@@ -2130,6 +2152,16 @@
+ 		dma_unmap_single(&dbri->op->dev, info->dvma_buffer,
+ 				 substream->runtime->buffer_size, direction);
+ 		info->dvma_buffer = 0;
++#else /* 2.6.28 */
++		if (DBRI_STREAMNO(substream) == DBRI_PLAY)
++			direction = SBUS_DMA_TODEVICE;
++		else
++			direction = SBUS_DMA_FROMDEVICE;
++
++		sbus_unmap_single(dbri->sdev, info->dvma_buffer,
++				  substream->runtime->buffer_size, direction);
++		info->dvma_buffer = 0;
++#endif /* 2.6.28 */
+ 	}
+ 	if (info->pipe != -1) {
+ 		reset_pipe(dbri, info->pipe);
+@@ -2521,32 +2553,56 @@
+ static void snd_dbri_free(struct snd_dbri *dbri);
+ 
+ static int __devinit snd_dbri_create(struct snd_card *card,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 				     struct of_device *op,
++#else
++				     struct sbus_dev *sdev,
++#endif
+ 				     int irq, int dev)
+ {
+ 	struct snd_dbri *dbri = card->private_data;
+ 	int err;
+ 
+ 	spin_lock_init(&dbri->lock);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	dbri->op = op;
++#else
++	dbri->sdev = sdev;
++#endif
+ 	dbri->irq = irq;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	dbri->dma = dma_alloc_coherent(&op->dev,
+ 				       sizeof(struct dbri_dma),
+ 				       &dbri->dma_dvma, GFP_ATOMIC);
++#else
++	dbri->dma = sbus_alloc_consistent(sdev, sizeof(struct dbri_dma),
++					  &dbri->dma_dvma);
++#endif
+ 	memset((void *)dbri->dma, 0, sizeof(struct dbri_dma));
+ 
+ 	dprintk(D_GEN, "DMA Cmd Block 0x%p (0x%08x)\n",
+ 		dbri->dma, dbri->dma_dvma);
+ 
+ 	/* Map the registers into memory. */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	dbri->regs_size = resource_size(&op->resource[0]);
+ 	dbri->regs = of_ioremap(&op->resource[0], 0,
+ 				dbri->regs_size, "DBRI Registers");
++#else
++	dbri->regs_size = sdev->reg_addrs[0].reg_size;
++	dbri->regs = sbus_ioremap(&sdev->resource[0], 0,
++				  dbri->regs_size, "DBRI Registers");
++#endif
+ 	if (!dbri->regs) {
+ 		printk(KERN_ERR "DBRI: could not allocate registers\n");
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		dma_free_coherent(&op->dev, sizeof(struct dbri_dma),
+ 				  (void *)dbri->dma, dbri->dma_dvma);
++#else
++		sbus_free_consistent(sdev, sizeof(struct dbri_dma),
++				     (void *)dbri->dma, dbri->dma_dvma);
++#endif
+ 		return -EIO;
+ 	}
+ 
+@@ -2554,9 +2610,15 @@
+ 			  "DBRI audio", dbri);
+ 	if (err) {
+ 		printk(KERN_ERR "DBRI: Can't get irq %d\n", dbri->irq);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		of_iounmap(&op->resource[0], dbri->regs, dbri->regs_size);
+ 		dma_free_coherent(&op->dev, sizeof(struct dbri_dma),
+ 				  (void *)dbri->dma, dbri->dma_dvma);
++#else
++		sbus_iounmap(dbri->regs, dbri->regs_size);
++		sbus_free_consistent(sdev, sizeof(struct dbri_dma),
++				     (void *)dbri->dma, dbri->dma_dvma);
++#endif
+ 		return err;
+ 	}
+ 
+@@ -2579,17 +2641,30 @@
+ 	if (dbri->irq)
+ 		free_irq(dbri->irq, dbri);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	if (dbri->regs)
+ 		of_iounmap(&dbri->op->resource[0], dbri->regs, dbri->regs_size);
+-
++#else
++ 	if (dbri->regs)
++		sbus_iounmap(dbri->regs, dbri->regs_size);
++#endif
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	if (dbri->dma)
+ 		dma_free_coherent(&dbri->op->dev,
+ 				  sizeof(struct dbri_dma),
+ 				  (void *)dbri->dma, dbri->dma_dvma);
++#else
++	if (dbri->dma)
++		sbus_free_consistent(dbri->sdev, sizeof(struct dbri_dma),
++				     (void *)dbri->dma, dbri->dma_dvma);
++#endif
+ }
+ 
+ static int __devinit dbri_probe(struct of_device *op, const struct of_device_id *match)
+ {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	struct sbus_dev *sdev = to_sbus_device(&of_dev->dev);
++#endif
+ 	struct snd_dbri *dbri;
+ 	struct resource *rp;
+ 	struct snd_card *card;
+@@ -2604,7 +2679,11 @@
+ 		return -ENOENT;
+ 	}
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	irq = op->irqs[0];
++#else
++	irq = sdev->irqs[0];
++#endif
+ 	if (irq <= 0) {
+ 		printk(KERN_ERR "DBRI-%d: No IRQ.\n", dev);
+ 		return -ENODEV;
+@@ -2617,12 +2696,20 @@
+ 
+ 	strcpy(card->driver, "DBRI");
+ 	strcpy(card->shortname, "Sun DBRI");
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	rp = &op->resource[0];
++#else
++	rp = &sdev->resource[0];
++#endif
+ 	sprintf(card->longname, "%s at 0x%02lx:0x%016Lx, irq %d",
+ 		card->shortname,
+ 		rp->flags & 0xffL, (unsigned long long)rp->start, irq);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	err = snd_dbri_create(card, op, irq, dev);
++#else
++	err = snd_dbri_create(card, sdev, irq, dev);
++#endif
+ 	if (err < 0) {
+ 		snd_card_free(card);
+ 		return err;
+@@ -2639,15 +2726,24 @@
+ 
+ 	/* /proc file handling */
+ 	snd_dbri_proc(card);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	dev_set_drvdata(&op->dev, card);
+-
++#else
++	dev_set_drvdata(&of_dev->dev, card);
++#endif
+ 	err = snd_card_register(card);
+ 	if (err < 0)
+ 		goto _err;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	printk(KERN_INFO "audio%d at %p (irq %d) is DBRI(%c)+CS4215(%d)\n",
+ 	       dev, dbri->regs,
+ 	       dbri->irq, op->node->name[9], dbri->mm.version);
++#else
++	printk(KERN_INFO "audio%d at %p (irq %d) is DBRI(%c)+CS4215(%d)\n",
++	       dev, dbri->regs,
++	       dbri->irq, sdev->prom_name[9], dbri->mm.version);
++#endif
+ 	dev++;
+ 
+ 	return 0;
+@@ -2692,7 +2788,11 @@
+ /* Probe for the dbri chip and then attach the driver. */
+ static int __init dbri_init(void)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	return of_register_driver(&dbri_sbus_driver, &of_bus_type);
++#else
++	return of_register_driver(&dbri_sbus_driver, &sbus_bus_type);
++#endif
+ }
+ 
+ static void __exit dbri_exit(void)
+@@ -2702,3 +2802,4 @@
+ 
+ module_init(dbri_init);
+ module_exit(dbri_exit);
++EXPORT_NO_SYMBOLS;

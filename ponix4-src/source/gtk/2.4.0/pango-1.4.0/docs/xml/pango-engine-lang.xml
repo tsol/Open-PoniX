@@ -1,0 +1,150 @@
+<refentry id="PangoEngineLang">
+<refmeta>
+<refentrytitle>PangoEngineLang</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>PangoEngineLang</refname><refpurpose>Rendering-system independent script engines</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+struct      <link linkend="PangoEngineLang-struct">PangoEngineLang</link>;
+struct      <link linkend="PangoEngineLangClass">PangoEngineLangClass</link>;
+#define     <link linkend="PANGO-ENGINE-TYPE-LANG-CAPS">PANGO_ENGINE_TYPE_LANG</link>
+#define     <link linkend="PANGO-ENGINE-LANG-DEFINE-TYPE-CAPS">PANGO_ENGINE_LANG_DEFINE_TYPE</link>   (name, prefix, class_init, instance_init)
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="PangoEngine">PangoEngine</link>
+         +----PangoEngineLang
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="PangoEngineLang-struct"/>struct PangoEngineLang</title>
+<indexterm><primary>PangoEngineLang</primary></indexterm><programlisting>struct PangoEngineLang;</programlisting>
+<para>
+The <link linkend="PangoEngineLang"><type>PangoEngineLang</type></link> class is implemented by engines that
+customize the rendering-system independent part of the
+Pango pipeline for a particular script or language. For
+instance, a custom <link linkend="PangoEngineLang"><type>PangoEngineLang</type></link> could be provided for
+Thai to implement the dictionary-based word boundary
+lookups needed for that language.</para>
+<para>
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoEngineLangClass"/>struct PangoEngineLangClass</title>
+<indexterm><primary>PangoEngineLangClass</primary></indexterm><programlisting>struct PangoEngineLangClass {
+
+  void (*script_break) (PangoEngineLang *engine,
+			const char    *text,
+			int            len,
+			PangoAnalysis *analysis,
+			PangoLogAttr  *attrs,
+                        int            attrs_len);
+};
+</programlisting>
+<para>
+Class structure for <link linkend="PangoEngineLang"><type>PangoEngineLang</type></link></para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="void">void</link> (*<structfield>script_break</structfield>) (PangoEngineLang *engine,
+			const char    *text,
+			int            len,
+			PangoAnalysis *analysis,
+			PangoLogAttr  *attrs,
+                        int            attrs_len)</term>
+<listitem><simpara> Provides a custom implementation of <link linkend="pango-break"><function>pango_break()</function></link>.
+ if this is <literal>NULL</literal>, <link linkend="pango-default-break"><function>pango_default_break()</function></link> will be used.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-ENGINE-TYPE-LANG-CAPS"/>PANGO_ENGINE_TYPE_LANG</title>
+<indexterm><primary>PANGO_ENGINE_TYPE_LANG</primary></indexterm><programlisting>#define PANGO_ENGINE_TYPE_LANG "PangoEngineLang"
+</programlisting>
+<para>
+A string constant defining the engine type
+for <firstterm>language engines</firstterm>.
+These engines derive from <link linkend="PangoEngineLang"><type>PangoEngineLang</type></link>.
+</para></refsect2>
+<refsect2>
+<title><anchor id="PANGO-ENGINE-LANG-DEFINE-TYPE-CAPS"/>PANGO_ENGINE_LANG_DEFINE_TYPE()</title>
+<indexterm><primary>PANGO_ENGINE_LANG_DEFINE_TYPE</primary></indexterm><programlisting>#define     PANGO_ENGINE_LANG_DEFINE_TYPE(name, prefix, class_init, instance_init)</programlisting>
+<para>
+Outputs the necessary code for GObject type registration for a
+<link linkend="PangoEngineLang"><type>PangoEngineLang</type></link> class defined in a module. Two static symbols
+are defined.
+</para>
+<para>
+<programlisting>
+ static GType <replaceable>prefix</replaceable>_type;
+ static void <replaceable>prefix</replaceable>_register_type (GTypeModule module);
+</programlisting>
+</para>
+<para>
+The <function><replaceable>prefix</replaceable><link linkend="register-type"><function>_register_type()</function></link></function>
+function should be called in your <link linkend="script-engine-init"><function>script_engine_init()</function></link> function for
+each type that your module implements, and then your <link linkend="script-engine-create"><function>script_engine_create()</function></link>
+function can create instances of the object as follows:
+</para>
+<para>
+<informalexample><programlisting>
+ PangoEngine *engine = g_object_new (<replaceable>prefix</replaceable>_type, NULL);
+</programlisting></informalexample></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> Name of the the type to register (for example:, <literal>ArabicEngineFc</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>prefix</parameter>&nbsp;:</term>
+<listitem><simpara> Prefix for symbols that will be defined (for example:, <literal>arabic_engine_fc</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>class_init</parameter>&nbsp;:</term>
+<listitem><simpara> Class initialization function for the new type, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>instance_init</parameter>&nbsp;:</term>
+<listitem><simpara> Instance initialization function for the new type, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

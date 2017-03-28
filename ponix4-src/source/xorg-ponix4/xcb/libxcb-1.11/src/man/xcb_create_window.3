@@ -1,0 +1,189 @@
+.TH xcb_create_window 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_create_window \- Creates a window
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_create_window\fP(xcb_connection_t\ *\fIconn\fP, uint8_t\ \fIdepth\fP, xcb_window_t\ \fIwid\fP, xcb_window_t\ \fIparent\fP, int16_t\ \fIx\fP, int16_t\ \fIy\fP, uint16_t\ \fIwidth\fP, uint16_t\ \fIheight\fP, uint16_t\ \fIborder_width\fP, uint16_t\ \fI_class\fP, xcb_visualid_t\ \fIvisual\fP, uint32_t\ \fIvalue_mask\fP, const uint32_t\ *\fIvalue_list\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIdepth\fP 1i
+Specifies the new window's depth (TODO: what unit?).
+
+The special value \fIXCB_COPY_FROM_PARENT\fP means the depth is taken from the
+\fIparent\fP window.
+.IP \fIwid\fP 1i
+The ID with which you will refer to the new window, created by
+\fIxcb_generate_id\fP.
+.IP \fIparent\fP 1i
+The parent window of the new window.
+.IP \fIx\fP 1i
+The X coordinate of the new window.
+.IP \fIy\fP 1i
+The Y coordinate of the new window.
+.IP \fIwidth\fP 1i
+The width of the new window.
+.IP \fIheight\fP 1i
+The height of the new window.
+.IP \fIborder_width\fP 1i
+TODO:
+
+Must be zero if the \fIclass\fP is \fIInputOnly\fP or a \fIxcb_match_error_t\fP occurs.
+.IP \fI_class\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_WINDOW_CLASS_COPY_FROM_PARENT\fP 1i
+TODO: NOT YET DOCUMENTED.
+.IP \fIXCB_WINDOW_CLASS_INPUT_OUTPUT\fP 1i
+TODO: NOT YET DOCUMENTED.
+.IP \fIXCB_WINDOW_CLASS_INPUT_ONLY\fP 1i
+TODO: NOT YET DOCUMENTED.
+.RE
+.RS 1i
+
+
+.RE
+.IP \fIvisual\fP 1i
+Specifies the id for the new window's visual.
+
+The special value \fIXCB_COPY_FROM_PARENT\fP means the visual is taken from the
+\fIparent\fP window.
+.IP \fIvalue_mask\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_CW_BACK_PIXMAP\fP 1i
+Overrides the default background-pixmap. The background pixmap and window must
+have the same root and same depth. Any size pixmap can be used, although some
+sizes may be faster than others.
+
+If \fIXCB_BACK_PIXMAP_NONE\fP is specified, the window has no defined background.
+The server may fill the contents with the previous screen contents or with
+contents of its own choosing.
+
+If \fIXCB_BACK_PIXMAP_PARENT_RELATIVE\fP is specified, the parent's background is
+used, but the window must have the same depth as the parent (or a Match error
+results).   The parent's background is tracked, and the current version is
+used each time the window background is required.
+.IP \fIXCB_CW_BACK_PIXEL\fP 1i
+Overrides \fIBackPixmap\fP. A pixmap of undefined size filled with the specified
+background pixel is used for the background. Range-checking is not performed,
+the background pixel is truncated to the appropriate number of bits.
+.IP \fIXCB_CW_BORDER_PIXMAP\fP 1i
+Overrides the default border-pixmap. The border pixmap and window must have the
+same root and the same depth. Any size pixmap can be used, although some sizes
+may be faster than others.
+
+The special value \fIXCB_COPY_FROM_PARENT\fP means the parent's border pixmap is
+copied (subsequent changes to the parent's border attribute do not affect the
+child), but the window must have the same depth as the parent.
+.IP \fIXCB_CW_BORDER_PIXEL\fP 1i
+Overrides \fIBorderPixmap\fP. A pixmap of undefined size filled with the specified
+border pixel is used for the border. Range checking is not performed on the
+border-pixel value, it is truncated to the appropriate number of bits.
+.IP \fIXCB_CW_BIT_GRAVITY\fP 1i
+Defines which region of the window should be retained if the window is resized.
+.IP \fIXCB_CW_WIN_GRAVITY\fP 1i
+Defines how the window should be repositioned if the parent is resized (see
+\fIConfigureWindow\fP).
+.IP \fIXCB_CW_BACKING_STORE\fP 1i
+A backing-store of \fIWhenMapped\fP advises the server that maintaining contents of
+obscured regions when the window is mapped would be beneficial. A backing-store
+of \fIAlways\fP advises the server that maintaining contents even when the window
+is unmapped would be beneficial. In this case, the server may generate an
+exposure event when the window is created. A value of \fINotUseful\fP advises the
+server that maintaining contents is unnecessary, although a server may still
+choose to maintain contents while the window is mapped. Note that if the server
+maintains contents, then the server should maintain complete contents not just
+the region within the parent boundaries, even if the window is larger than its
+parent. While the server maintains contents, exposure events will not normally
+be generated, but the server may stop maintaining contents at any time.
+.IP \fIXCB_CW_BACKING_PLANES\fP 1i
+The backing-planes indicates (with bits set to 1) which bit planes of the
+window hold dynamic data that must be preserved in backing-stores and during
+save-unders.
+.IP \fIXCB_CW_BACKING_PIXEL\fP 1i
+The backing-pixel specifies what value to use in planes not covered by
+backing-planes. The server is free to save only the specified bit planes in the
+backing-store or save-under and regenerate the remaining planes with the
+specified pixel value. Any bits beyond the specified depth of the window in
+these values are simply ignored.
+.IP \fIXCB_CW_OVERRIDE_REDIRECT\fP 1i
+The override-redirect specifies whether map and configure requests on this
+window should override a SubstructureRedirect on the parent, typically to
+inform a window manager not to tamper with the window.
+.IP \fIXCB_CW_SAVE_UNDER\fP 1i
+If 1, the server is advised that when this window is mapped, saving the
+contents of windows it obscures would be beneficial.
+.IP \fIXCB_CW_EVENT_MASK\fP 1i
+The event-mask defines which events the client is interested in for this window
+(or for some event types, inferiors of the window).
+.IP \fIXCB_CW_DONT_PROPAGATE\fP 1i
+The do-not-propagate-mask defines which events should not be propagated to
+ancestor windows when no client has the event type selected in this window.
+.IP \fIXCB_CW_COLORMAP\fP 1i
+The colormap specifies the colormap that best reflects the true colors of the window. Servers
+capable of supporting multiple hardware colormaps may use this information, and window man-
+agers may use it for InstallColormap requests. The colormap must have the same visual type
+and root as the window (or a Match error results). If CopyFromParent is specified, the parent's
+colormap is copied (subsequent changes to the parent's colormap attribute do not affect the child).
+However, the window must have the same visual type as the parent (or a Match error results),
+and the parent must not have a colormap of None (or a Match error results). For an explanation
+of None, see FreeColormap request. The colormap is copied by sharing the colormap object
+between the child and the parent, not by making a complete copy of the colormap contents.
+.IP \fIXCB_CW_CURSOR\fP 1i
+If a cursor is specified, it will be used whenever the pointer is in the window. If None is speci-
+fied, the parent's cursor will be used when the pointer is in the window, and any change in the
+parent's cursor will cause an immediate change in the displayed cursor.
+.RE
+.RS 1i
+TODO: NOT YET DOCUMENTED.
+.RE
+.IP \fIvalue_list\fP 1i
+TODO: NOT YET DOCUMENTED.
+.SH DESCRIPTION
+Creates an unmapped window as child of the specified \fIparent\fP window. A
+CreateNotify event will be generated. The new window is placed on top in the
+stacking order with respect to siblings.
+
+The coordinate system has the X axis horizontal and the Y axis vertical with
+the origin [0, 0] at the upper-left corner. Coordinates are integral, in terms
+of pixels, and coincide with pixel centers. Each window and pixmap has its own
+coordinate system. For a window, the origin is inside the border at the inside,
+upper-left corner.
+
+The created window is not yet displayed (mapped), call \fIxcb_map_window\fP to
+display it.
+
+The created window will initially use the same cursor as its parent.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_create_window_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_alloc_error_t\fP 1i
+The X server could not allocate the requested resources (no memory?).
+.IP \fIxcb_colormap_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_cursor_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_match_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_pixmap_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_value_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_window_error_t\fP 1i
+TODO: reasons?
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb_create_notify_event_t (3),
+.BR xcb_map_window (3),
+.BR xcb_generate_id (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

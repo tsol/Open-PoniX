@@ -1,0 +1,43 @@
+From c18c8444655d7c32d11fb7715b81ae02e976ac1d Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Date: Wed, 26 Sep 2012 12:09:40 +0530
+Subject: [PATCH 3/4] ath9k: Fix chainmask selection for AR9462
+
+Force chain 1 to be used for CCK rates since the target power
+table stored in EEPROM is too high to transmit with both chains.
+This is needed to avoid regulatory violation.
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+---
+ drivers/net/wireless/ath/ath9k/ath9k.h | 2 ++
+ drivers/net/wireless/ath/ath9k/xmit.c  | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -173,6 +173,8 @@ void ath_descdma_cleanup(struct ath_soft
+ 
+ #define ATH_AN_2_TID(_an, _tidno)  (&(_an)->tid[(_tidno)])
+ 
++#define IS_CCK_RATE(rate) ((rate >= 0x18) && (rate <= 0x1e))
++
+ #define ATH_TX_COMPLETE_POLL_INT	1000
+ 
+ enum ATH_AGGR_STATUS {
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -1819,10 +1819,14 @@ u8 ath_txchainmask_reduction(struct ath_
+ {
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	struct ath9k_channel *curchan = ah->curchan;
++
+ 	if ((ah->caps.hw_caps & ATH9K_HW_CAP_APM) &&
+ 	    (curchan->channelFlags & CHANNEL_5GHZ) &&
+ 	    (chainmask == 0x7) && (rate < 0x90))
+ 		return 0x3;
++	else if (AR_SREV_9462(ah) && ath9k_hw_btcoex_is_enabled(ah) &&
++		 IS_CCK_RATE(rate))
++		return 0x2;
+ 	else
+ 		return chainmask;
+ }

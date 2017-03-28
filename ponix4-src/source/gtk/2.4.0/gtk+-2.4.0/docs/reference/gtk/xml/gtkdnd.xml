@@ -1,0 +1,824 @@
+<refentry id="gtk-Drag-and-Drop">
+<refmeta>
+<refentrytitle>Drag and Drop</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Drag and Drop</refname><refpurpose>Functions for controlling drag and drop handling</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+enum        <link linkend="GtkDestDefaults">GtkDestDefaults</link>;
+enum        <link linkend="GtkTargetFlags">GtkTargetFlags</link>;
+
+<link linkend="void">void</link>        <link linkend="gtk-drag-dest-set">gtk_drag_dest_set</link>               (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkDestDefaults">GtkDestDefaults</link> flags,
+                                             const <link linkend="GtkTargetEntry">GtkTargetEntry</link> *targets,
+                                             <link linkend="gint">gint</link> n_targets,
+                                             <link linkend="GdkDragAction">GdkDragAction</link> actions);
+<link linkend="void">void</link>        <link linkend="gtk-drag-dest-set-proxy">gtk_drag_dest_set_proxy</link>         (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkWindow">GdkWindow</link> *proxy_window,
+                                             <link linkend="GdkDragProtocol">GdkDragProtocol</link> protocol,
+                                             <link linkend="gboolean">gboolean</link> use_coordinates);
+<link linkend="void">void</link>        <link linkend="gtk-drag-dest-unset">gtk_drag_dest_unset</link>             (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="GdkAtom">GdkAtom</link>     <link linkend="gtk-drag-dest-find-target">gtk_drag_dest_find_target</link>       (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *target_list);
+<link linkend="GtkTargetList">GtkTargetList</link>* <link linkend="gtk-drag-dest-get-target-list">gtk_drag_dest_get_target_list</link>
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="void">void</link>        <link linkend="gtk-drag-dest-set-target-list">gtk_drag_dest_set_target_list</link>   (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *target_list);
+<link linkend="void">void</link>        <link linkend="gtk-drag-finish">gtk_drag_finish</link>                 (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="gboolean">gboolean</link> success,
+                                             <link linkend="gboolean">gboolean</link> del,
+                                             <link linkend="guint32">guint32</link> time_);
+<link linkend="void">void</link>        <link linkend="gtk-drag-get-data">gtk_drag_get_data</link>               (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GdkAtom">GdkAtom</link> target,
+                                             <link linkend="guint32">guint32</link> time_);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-drag-get-source-widget">gtk_drag_get_source_widget</link>      (<link linkend="GdkDragContext">GdkDragContext</link> *context);
+<link linkend="void">void</link>        <link linkend="gtk-drag-highlight">gtk_drag_highlight</link>              (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="void">void</link>        <link linkend="gtk-drag-unhighlight">gtk_drag_unhighlight</link>            (<link linkend="GtkWidget">GtkWidget</link> *widget);
+
+<link linkend="GdkDragContext">GdkDragContext</link>* <link linkend="gtk-drag-begin">gtk_drag_begin</link>              (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *targets,
+                                             <link linkend="GdkDragAction">GdkDragAction</link> actions,
+                                             <link linkend="gint">gint</link> button,
+                                             <link linkend="GdkEvent">GdkEvent</link> *event);
+<link linkend="void">void</link>        <link linkend="gtk-drag-set-icon-widget">gtk_drag_set_icon_widget</link>        (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);
+<link linkend="void">void</link>        <link linkend="gtk-drag-set-icon-pixmap">gtk_drag_set_icon_pixmap</link>        (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);
+<link linkend="void">void</link>        <link linkend="gtk-drag-set-icon-pixbuf">gtk_drag_set_icon_pixbuf</link>        (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);
+<link linkend="void">void</link>        <link linkend="gtk-drag-set-icon-stock">gtk_drag_set_icon_stock</link>         (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             const <link linkend="gchar">gchar</link> *stock_id,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);
+<link linkend="void">void</link>        <link linkend="gtk-drag-set-icon-default">gtk_drag_set_icon_default</link>       (<link linkend="GdkDragContext">GdkDragContext</link> *context);
+<link linkend="void">void</link>        <link linkend="gtk-drag-set-default-icon">gtk_drag_set_default_icon</link>       (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-drag-check-threshold">gtk_drag_check_threshold</link>        (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> start_x,
+                                             <link linkend="gint">gint</link> start_y,
+                                             <link linkend="gint">gint</link> current_x,
+                                             <link linkend="gint">gint</link> current_y);
+<link linkend="void">void</link>        <link linkend="gtk-drag-source-set">gtk_drag_source_set</link>             (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> start_button_mask,
+                                             const <link linkend="GtkTargetEntry">GtkTargetEntry</link> *targets,
+                                             <link linkend="gint">gint</link> n_targets,
+                                             <link linkend="GdkDragAction">GdkDragAction</link> actions);
+<link linkend="void">void</link>        <link linkend="gtk-drag-source-set-icon">gtk_drag_source_set_icon</link>        (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask);
+<link linkend="void">void</link>        <link linkend="gtk-drag-source-set-icon-pixbuf">gtk_drag_source_set_icon_pixbuf</link> (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+<link linkend="void">void</link>        <link linkend="gtk-drag-source-set-icon-stock">gtk_drag_source_set_icon_stock</link>  (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             const <link linkend="gchar">gchar</link> *stock_id);
+<link linkend="void">void</link>        <link linkend="gtk-drag-source-unset">gtk_drag_source_unset</link>           (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="void">void</link>        <link linkend="gtk-drag-source-set-target-list">gtk_drag_source_set_target_list</link> (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *target_list);
+<link linkend="GtkTargetList">GtkTargetList</link>* <link linkend="gtk-drag-source-get-target-list">gtk_drag_source_get_target_list</link>
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+GTK+ has a rich set of functions for doing inter-process
+communication via the drag-and-drop metaphor. GTK+
+can do drag-and-drop (DND) via multiple protocols.
+The currently supported protocols are the Xdnd and
+Motif protocols.
+
+As well as the functions listed here, applications
+may need to use some facilities provided for
+<link linkend="gtk-Selections">Selections</link>.
+Also, the Drag and Drop API makes use of signals
+in the <link linkend="GtkWidget"><type>GtkWidget</type></link> class.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkDestDefaults"/>enum GtkDestDefaults</title>
+<indexterm><primary>GtkDestDefaults</primary></indexterm><programlisting>typedef enum {
+  GTK_DEST_DEFAULT_MOTION     = 1 &lt;&lt; 0, /* respond to "drag_motion" */
+  GTK_DEST_DEFAULT_HIGHLIGHT  = 1 &lt;&lt; 1, /* auto-highlight */
+  GTK_DEST_DEFAULT_DROP       = 1 &lt;&lt; 2, /* respond to "drag_drop" */
+  GTK_DEST_DEFAULT_ALL        = 0x07
+} GtkDestDefaults;
+</programlisting>
+<para>
+The <link linkend="GtkDestDefaults"><type>GtkDestDefaults</type></link> enumeration specifies the various
+types of action that will be taken on behalf
+of the user for a drag destination site.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GTK_DEST_DEFAULT_MOTION</literal></term>
+<listitem><simpara>
+   If set for a widget, GTK+, during a drag over this
+   widget will check if the drag matches this widget's
+   list of possible targets and actions.
+   GTK+ will then call <link linkend="gdk-drag-status"><function>gdk_drag_status()</function></link> as appropriate.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_DEST_DEFAULT_HIGHLIGHT</literal></term>
+<listitem><simpara>
+   If set for a widget, GTK+ will draw a highlight on
+   this widget as long as a drag is over this widget
+   and the widget drag format and action are acceptable.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_DEST_DEFAULT_DROP</literal></term>
+<listitem><simpara>
+   If set for a widget, when a drop occurs, GTK+ will
+   will check if the drag matches this widget's
+   list of possible targets and actions. If so, 
+   GTK+ will call <link linkend="gtk-drag-get-data"><function>gtk_drag_get_data()</function></link> on behalf 
+   of the widget. Whether or not the drop is successful,
+   GTK+ will call <link linkend="gtk-drag-finish"><function>gtk_drag_finish()</function></link>. If the action
+   was a move, then if the drag was successful, then
+   <literal>TRUE</literal> will be passed for the <parameter>delete</parameter> parameter
+   to <link linkend="gtk-drag-finish"><function>gtk_drag_finish()</function></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_DEST_DEFAULT_ALL</literal></term>
+<listitem><simpara>
+   If set, specifies that all default actions should
+   be taken.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkTargetFlags"/>enum GtkTargetFlags</title>
+<indexterm><primary>GtkTargetFlags</primary></indexterm><programlisting>typedef enum {
+  GTK_TARGET_SAME_APP = 1 &lt;&lt; 0,    /*&lt; nick=same-app &gt;*/
+  GTK_TARGET_SAME_WIDGET = 1 &lt;&lt; 1  /*&lt; nick=same-widget &gt;*/
+} GtkTargetFlags;
+</programlisting>
+<para>
+The <link linkend="GtkTargetFlags"><type>GtkTargetFlags</type></link> enumeration is used to specify
+constraints on an entry in a <link linkend="GtkTargetTable"><type>GtkTargetTable</type></link>. 
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GTK_TARGET_SAME_APP</literal></term>
+<listitem><simpara>
+   If this is set, the target will only be selected
+   for drags within a single application.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_TARGET_SAME_WIDGET</literal></term>
+<listitem><simpara>
+   If this is set, the target will only be selected
+   for drags within a single widget.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-dest-set"/>gtk_drag_dest_set ()</title>
+<indexterm><primary>gtk_drag_dest_set</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_dest_set               (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkDestDefaults">GtkDestDefaults</link> flags,
+                                             const <link linkend="GtkTargetEntry">GtkTargetEntry</link> *targets,
+                                             <link linkend="gint">gint</link> n_targets,
+                                             <link linkend="GdkDragAction">GdkDragAction</link> actions);</programlisting>
+<para>
+Sets a widget as a potential drop destination.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>flags</parameter>&nbsp;:</term>
+<listitem><simpara>the flags that specify what actions GTK+ should take
+ on behalf of a widget for drops onto that widget. The <parameter>targets</parameter>
+ and <parameter>actions</parameter> fields only are used if <literal>GTK_DEST_DEFAULT_MOTION</literal>
+ or <literal>GTK_DEST_DEFAULT_DROP</literal> are given.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>targets</parameter>&nbsp;:</term>
+<listitem><simpara>a pointer to an array of <link linkend="GtkTargetEntry"><type>GtkTargetEntry</type></link><!-- -->s indicating
+ the drop types that this widget will accept.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_targets</parameter>&nbsp;:</term>
+<listitem><simpara>the number of entries in <parameter>targets</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>actions</parameter>&nbsp;:</term>
+<listitem><simpara>a bitmask of possible actions for a drop onto this
+ widget.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-dest-set-proxy"/>gtk_drag_dest_set_proxy ()</title>
+<indexterm><primary>gtk_drag_dest_set_proxy</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_dest_set_proxy         (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkWindow">GdkWindow</link> *proxy_window,
+                                             <link linkend="GdkDragProtocol">GdkDragProtocol</link> protocol,
+                                             <link linkend="gboolean">gboolean</link> use_coordinates);</programlisting>
+<para>
+Sets this widget as a proxy for drops to another window.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>proxy_window</parameter>&nbsp;:</term>
+<listitem><simpara>the window to which to forward drag events
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>protocol</parameter>&nbsp;:</term>
+<listitem><simpara>the drag protocol which the <parameter>proxy_window</parameter> accepts
+           (You can use <link linkend="gdk-drag-get-protocol"><function>gdk_drag_get_protocol()</function></link> to determine this)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>use_coordinates</parameter>&nbsp;:</term>
+<listitem><simpara>If <literal>TRUE</literal>, send the same coordinates to the
+                  destination, because it is an embedded 
+                  subwindow.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-dest-unset"/>gtk_drag_dest_unset ()</title>
+<indexterm><primary>gtk_drag_dest_unset</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_dest_unset             (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Clears information about a drop destination set with
+<link linkend="gtk-drag-dest-set"><function>gtk_drag_dest_set()</function></link>. The widget will no longer receive
+notification of drags.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-dest-find-target"/>gtk_drag_dest_find_target ()</title>
+<indexterm><primary>gtk_drag_dest_find_target</primary></indexterm><programlisting><link linkend="GdkAtom">GdkAtom</link>     gtk_drag_dest_find_target       (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *target_list);</programlisting>
+<para>
+Looks for a match between <parameter>context->targets</parameter> and the
+<parameter>dest_target_list</parameter>, returning the first matching target, otherwise
+returning <literal>GDK_NONE</literal>. <parameter>dest_target_list</parameter> should usually be the return
+value from <link linkend="gtk-drag-dest-get-target-list"><function>gtk_drag_dest_get_target_list()</function></link>, but some widgets may
+have different valid targets for different parts of the widget; in
+that case, they will have to implement a drag_motion handler that
+passes the correct target list to this function.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> drag destination widget
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara> drag context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>target_list</parameter>&nbsp;:</term>
+<listitem><simpara> list of droppable targets, or <literal>NULL</literal> to use
+   gtk_drag_dest_get_target_list (<parameter>widget</parameter>).
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> first target that the source offers and the dest can accept, or <literal>GDK_NONE</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-dest-get-target-list"/>gtk_drag_dest_get_target_list ()</title>
+<indexterm><primary>gtk_drag_dest_get_target_list</primary></indexterm><programlisting><link linkend="GtkTargetList">GtkTargetList</link>* gtk_drag_dest_get_target_list
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Returns the list of targets this widget can accept from
+drag-and-drop.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the <link linkend="GtkTargetList"><type>GtkTargetList</type></link>, or <literal>NULL</literal> if none
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-dest-set-target-list"/>gtk_drag_dest_set_target_list ()</title>
+<indexterm><primary>gtk_drag_dest_set_target_list</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_dest_set_target_list   (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *target_list);</programlisting>
+<para>
+Sets the target types that this widget can accept from drag-and-drop.
+The widget must first be made into a drag destination with
+<link linkend="gtk-drag-dest-set"><function>gtk_drag_dest_set()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link> that's a drag destination
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>target_list</parameter>&nbsp;:</term>
+<listitem><simpara> list of droppable targets, or <literal>NULL</literal> for none
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-finish"/>gtk_drag_finish ()</title>
+<indexterm><primary>gtk_drag_finish</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_finish                 (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="gboolean">gboolean</link> success,
+                                             <link linkend="gboolean">gboolean</link> del,
+                                             <link linkend="guint32">guint32</link> time_);</programlisting>
+<para>
+Informs the drag source that the drop is finished, and
+that the data of the drag will no longer be required.
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara>the drag context.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>success</parameter>&nbsp;:</term>
+<listitem><simpara>a flag indicating whether the drop was successful
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>del</parameter>&nbsp;:</term>
+<listitem><simpara>a flag indicating whether the source should delete the
+      original data. (This should be <literal>TRUE</literal> for a move)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>time_</parameter>&nbsp;:</term>
+<listitem><simpara>the timestamp from the "drag_data_drop" signal.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-get-data"/>gtk_drag_get_data ()</title>
+<indexterm><primary>gtk_drag_get_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_get_data               (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GdkAtom">GdkAtom</link> target,
+                                             <link linkend="guint32">guint32</link> time_);</programlisting>
+<para>
+Gets the data associated with a drag. When the data
+is received or the retrieval fails, GTK+ will emit a 
+"drag_data_received" signal. Failure of the retrieval
+is indicated by the length field of the <parameter>selection_data</parameter>
+signal parameter being negative. However, when <link linkend="gtk-drag-get-data"><function>gtk_drag_get_data()</function></link> 
+is called implicitely because the <literal>GTK_DEST_DEFAULT_DROP</literal> was set, 
+then the widget will not receive notification of failed
+drops.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the widget that will receive the "drag_data_received"
+ signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara>the drag context
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>target</parameter>&nbsp;:</term>
+<listitem><simpara>the target (form of the data) to retrieve.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>time_</parameter>&nbsp;:</term>
+<listitem><simpara>a timestamp for retrieving the data. This will
+       generally be the time received in a "drag_data_motion"
+       or "drag_data_drop" signal.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-get-source-widget"/>gtk_drag_get_source_widget ()</title>
+<indexterm><primary>gtk_drag_get_source_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_drag_get_source_widget      (<link linkend="GdkDragContext">GdkDragContext</link> *context);</programlisting>
+<para>
+Determines the source widget for a drag.
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara>a (destination side) drag context.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>if the drag is occurring within a single application,
+          a pointer to the source widget. Otherwise, <literal>NULL</literal>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-highlight"/>gtk_drag_highlight ()</title>
+<indexterm><primary>gtk_drag_highlight</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_highlight              (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Draws a highlight around a widget. This will attach
+handlers to  "expose_event" and "draw", so the highlight
+will continue to be displayed until <link linkend="gtk-drag-unhighlight"><function>gtk_drag_unhighlight()</function></link>
+is called.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a widget to highlight
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-unhighlight"/>gtk_drag_unhighlight ()</title>
+<indexterm><primary>gtk_drag_unhighlight</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_unhighlight            (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Removes a highlight set by <link linkend="gtk-drag-highlight"><function>gtk_drag_highlight()</function></link> from
+a widget.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a widget to remove the highlight from.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-begin"/>gtk_drag_begin ()</title>
+<indexterm><primary>gtk_drag_begin</primary></indexterm><programlisting><link linkend="GdkDragContext">GdkDragContext</link>* gtk_drag_begin              (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *targets,
+                                             <link linkend="GdkDragAction">GdkDragAction</link> actions,
+                                             <link linkend="gint">gint</link> button,
+                                             <link linkend="GdkEvent">GdkEvent</link> *event);</programlisting>
+<para>
+Initiates a drag on the source side. The function
+only needs to be used when the application is
+starting drags itself, and is not needed when
+<link linkend="gtk-drag-source-set"><function>gtk_drag_source_set()</function></link> is used.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> the source widget.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>targets</parameter>&nbsp;:</term>
+<listitem><simpara> The targets (data formats) in which the
+   source can provide the data.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>actions</parameter>&nbsp;:</term>
+<listitem><simpara> A bitmask of the allowed drag actions for this drag.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>button</parameter>&nbsp;:</term>
+<listitem><simpara> The button the user clicked to start the drag.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>event</parameter>&nbsp;:</term>
+<listitem><simpara> The event that triggered the start of the drag.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the context for this drag.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-set-icon-widget"/>gtk_drag_set_icon_widget ()</title>
+<indexterm><primary>gtk_drag_set_icon_widget</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_set_icon_widget        (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);</programlisting>
+<para>
+Changes the icon for a widget to a given widget. GTK+
+will not destroy the icon, so if you don't want
+it to persist, you should connect to the "drag_end" 
+signal and destroy it yourself.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara> the context for a drag. (This must be called 
+          with a  context for the source side of a drag)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a toplevel window to use as an icon.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_x</parameter>&nbsp;:</term>
+<listitem><simpara> the X offset within <parameter>widget</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_y</parameter>&nbsp;:</term>
+<listitem><simpara> the Y offset within <parameter>widget</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-set-icon-pixmap"/>gtk_drag_set_icon_pixmap ()</title>
+<indexterm><primary>gtk_drag_set_icon_pixmap</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_set_icon_pixmap        (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);</programlisting>
+<para>
+Sets <parameter>pixmap</parameter> as the icon for a given drag. GTK+ retains
+references for the arguments, and will release them when
+they are no longer needed. In general, <link linkend="gtk-drag-set-icon-pixbuf"><function>gtk_drag_set_icon_pixbuf()</function></link>
+will be more convenient to use.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara> the context for a drag. (This must be called 
+           with a  context for the source side of a drag)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> the colormap of the icon 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara> the image data for the icon 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara> the transparency mask for the icon
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_x</parameter>&nbsp;:</term>
+<listitem><simpara> the X offset within <parameter>pixmap</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_y</parameter>&nbsp;:</term>
+<listitem><simpara> the Y offset within <parameter>pixmap</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-set-icon-pixbuf"/>gtk_drag_set_icon_pixbuf ()</title>
+<indexterm><primary>gtk_drag_set_icon_pixbuf</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_set_icon_pixbuf        (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);</programlisting>
+<para>
+Sets <parameter>pixbuf</parameter> as the icon for a given drag.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara> the context for a drag. (This must be called 
+           with a  context for the source side of a drag)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> to use as the drag icon.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_x</parameter>&nbsp;:</term>
+<listitem><simpara> the X offset within <parameter>widget</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_y</parameter>&nbsp;:</term>
+<listitem><simpara> the Y offset within <parameter>widget</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-set-icon-stock"/>gtk_drag_set_icon_stock ()</title>
+<indexterm><primary>gtk_drag_set_icon_stock</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_set_icon_stock         (<link linkend="GdkDragContext">GdkDragContext</link> *context,
+                                             const <link linkend="gchar">gchar</link> *stock_id,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);</programlisting>
+<para>
+Sets the the icon for a given drag from a stock ID.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara> the context for a drag. (This must be called 
+           with a  context for the source side of a drag)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stock_id</parameter>&nbsp;:</term>
+<listitem><simpara> the ID of the stock icon to use for the drag.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_x</parameter>&nbsp;:</term>
+<listitem><simpara> the X offset within the icon of the hotspot.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_y</parameter>&nbsp;:</term>
+<listitem><simpara> the Y offset within the icon of the hotspot.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-set-icon-default"/>gtk_drag_set_icon_default ()</title>
+<indexterm><primary>gtk_drag_set_icon_default</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_set_icon_default       (<link linkend="GdkDragContext">GdkDragContext</link> *context);</programlisting>
+<para>
+Sets the icon for a particular drag to the default
+icon.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>context</parameter>&nbsp;:</term>
+<listitem><simpara> the context for a drag. (This must be called 
+             with a  context for the source side of a drag)
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-set-default-icon"/>gtk_drag_set_default_icon ()</title>
+<indexterm><primary>gtk_drag_set_default_icon</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_set_default_icon       (<link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask,
+                                             <link linkend="gint">gint</link> hot_x,
+                                             <link linkend="gint">gint</link> hot_y);</programlisting>
+<warning><para><literal>gtk_drag_set_default_icon</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Changes the default drag icon. GTK+ retains references for the
+arguments, and will release them when they are no longer needed.
+This function is obsolete. The default icon should now be changed
+via the stock system by changing the stock pixbuf for <link linkend="GTK-STOCK-DND-CAPS"><type>GTK_STOCK_DND</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> the colormap of the icon
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara> the image data for the icon
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara> the transparency mask for an image.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_x</parameter>&nbsp;:</term>
+<listitem><simpara> The X offset within <parameter>widget</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>hot_y</parameter>&nbsp;:</term>
+<listitem><simpara> The Y offset within <parameter>widget</parameter> of the hotspot.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-check-threshold"/>gtk_drag_check_threshold ()</title>
+<indexterm><primary>gtk_drag_check_threshold</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_drag_check_threshold        (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> start_x,
+                                             <link linkend="gint">gint</link> start_y,
+                                             <link linkend="gint">gint</link> current_x,
+                                             <link linkend="gint">gint</link> current_y);</programlisting>
+<para>
+Checks to see if a mouse drag starting at (<parameter>start_x</parameter>, <parameter>start_y</parameter>) and ending
+at (<parameter>current_x</parameter>, <parameter>current_y</parameter>) has passed the GTK+ drag threshold, and thus
+should trigger the beginning of a drag-and-drop operation.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start_x</parameter>&nbsp;:</term>
+<listitem><simpara> X coordinate of start of drag
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start_y</parameter>&nbsp;:</term>
+<listitem><simpara> Y coordinate of start of drag
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>current_x</parameter>&nbsp;:</term>
+<listitem><simpara> current X coordinate
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>current_y</parameter>&nbsp;:</term>
+<listitem><simpara> current Y coordinate
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the drag threshold has been passed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-set"/>gtk_drag_source_set ()</title>
+<indexterm><primary>gtk_drag_source_set</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_source_set             (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> start_button_mask,
+                                             const <link linkend="GtkTargetEntry">GtkTargetEntry</link> *targets,
+                                             <link linkend="gint">gint</link> n_targets,
+                                             <link linkend="GdkDragAction">GdkDragAction</link> actions);</programlisting>
+<para>
+Sets up a widget so that GTK+ will start a drag
+operation when the user clicks and drags on the
+widget. The widget must have a window.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start_button_mask</parameter>&nbsp;:</term>
+<listitem><simpara>the bitmask of buttons that can start the drag
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>targets</parameter>&nbsp;:</term>
+<listitem><simpara>the table of targets that the drag will support
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_targets</parameter>&nbsp;:</term>
+<listitem><simpara>the number of items in <parameter>targets</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>actions</parameter>&nbsp;:</term>
+<listitem><simpara>the bitmask of possible actions for a drag from this
+ widget.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-set-icon"/>gtk_drag_source_set_icon ()</title>
+<indexterm><primary>gtk_drag_source_set_icon</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_source_set_icon        (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkColormap">GdkColormap</link> *colormap,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask);</programlisting>
+<para>
+Sets the icon that will be used for drags from a particular widget
+from a pixmap/mask. GTK+ retains references for the arguments, and 
+will release them when they are no longer needed.
+Use <link linkend="gtk-drag-source-set-icon-pixbuf"><function>gtk_drag_source_set_icon_pixbuf()</function></link> instead.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> the colormap of the icon
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara> the image data for the icon
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara> the transparency mask for an image.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-set-icon-pixbuf"/>gtk_drag_source_set_icon_pixbuf ()</title>
+<indexterm><primary>gtk_drag_source_set_icon_pixbuf</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_source_set_icon_pixbuf (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<para>
+Sets the icon that will be used for drags from a particular widget
+from a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>. GTK+ retains a reference for <parameter>pixbuf</parameter> and will 
+release it when it is no longer needed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> for the drag icon
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-set-icon-stock"/>gtk_drag_source_set_icon_stock ()</title>
+<indexterm><primary>gtk_drag_source_set_icon_stock</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_source_set_icon_stock  (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             const <link linkend="gchar">gchar</link> *stock_id);</programlisting>
+<para>
+Sets the icon that will be used for drags from a particular source
+to a stock icon.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>stock_id</parameter>&nbsp;:</term>
+<listitem><simpara> the ID of the stock icon to use
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-unset"/>gtk_drag_source_unset ()</title>
+<indexterm><primary>gtk_drag_source_unset</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_source_unset           (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Undoes the effects of <link linkend="gtk-drag-source-set"><function>gtk_drag_source_set()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-set-target-list"/>gtk_drag_source_set_target_list ()</title>
+<indexterm><primary>gtk_drag_source_set_target_list</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_drag_source_set_target_list (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GtkTargetList">GtkTargetList</link> *target_list);</programlisting>
+<para>
+Changes the target types that this widget offers for drag-and-drop.
+The widget must first be made into a drag source with
+<link linkend="gtk-drag-source-set"><function>gtk_drag_source_set()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link> that's a drag source
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>target_list</parameter>&nbsp;:</term>
+<listitem><simpara> list of draggable targets, or <literal>NULL</literal> for none
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-drag-source-get-target-list"/>gtk_drag_source_get_target_list ()</title>
+<indexterm><primary>gtk_drag_source_get_target_list</primary></indexterm><programlisting><link linkend="GtkTargetList">GtkTargetList</link>* gtk_drag_source_get_target_list
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Gets the list of targets this widget can provide for
+drag-and-drop.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the <link linkend="GtkTargetList"><type>GtkTargetList</type></link>, or <literal>NULL</literal> if none
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

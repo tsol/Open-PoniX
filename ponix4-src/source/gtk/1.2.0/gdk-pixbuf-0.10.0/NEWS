@@ -1,0 +1,219 @@
+Version 0.10.0 "Dance the ghost with me"
+----------------------------------------
+
+* New XBM file loader (John).
+
+* We now have our own poor man's implementation of XParseColor() so
+  that the XPM loader can work for both GdK and Xlib (John).
+
+* Completely re-written PNM loader (Jeff, Pavel, Frédéric).
+
+* Memory leak fixes for the PNG loader (Iain).
+
+* Fixes to gdk-pixbuf.m4 (Mathieu).
+
+* Updates for the new gdk_image_get() API return value (Ramiro).
+
+* Offset computation fixes for the compositing functions (Larry,
+  Mitsuru, Helmethead, Federico).
+
+* Compositing fixes for greater accuracy (Federico).
+
+* Fixed the GDK_PIXBUF_LIBS output so that image libraries are not
+  linked with programs that use gdk-pixbuf (Miguel).
+
+Version 0.9.0
+-------------
+
+* Integrated John Harper's patch to provide an Xlib-only version of
+  gdk-pixbuf.  Now plain Xlib apps such as Sawfish can use gdk-pixbuf
+  (John Harper, Federico).
+
+* Animation bounding box fixes (Larry).
+
+* Important error-handling fixes to the JPEG and PNG loaders (Michael,
+  Larry).
+
+* Miscellaneous build fixes (Darin, Frank, Mathieu).
+
+* New flashy demo program of the scaling and compositing functions
+  (Federico).
+
+* New appendix in the programmer's documentation describing how to
+  port applications from Imlib to gdk-pixbuf (Federico).
+
+Version 0.8.0
+-------------
+
+* Fixed offsetting in scaling functions (Owen).
+
+* Fixed compositing and bit-mangling bugs (Darin).
+
+* Many build and configuration-related fixes (James, Tomasz, Karl).
+
+Version 0.7.0
+-------------
+
+* The gdk-pixbuf library no longer requires Libart.  So we have some
+  new types, such as GdkColorspace and GdkInterpType for (currently
+  only) RGB colorspaces and all the interpolation modes for the
+  scaling functions, respectively (Havoc).
+
+* All structures that had public fields have been made opaque.  You
+  will have to use the provided accessor functions instead (Havoc,
+  Federico).
+
+* The reference counting mechanism has been expanded so that you can
+  hook to the last unref operation.  This means that instead of
+  unconditionally finalizing the pixbuf, you can do something else.
+  This lets applications implement a pixbuf cache in a nice fashion,
+  as the rest of the application can use gdk_pixbuf_unref() as usual
+  and everything will happen magically in the last unref handler (Tim,
+  Darin, Federico).
+
+* gdk_pixbuf_new_from_data() now takes a bits_per_sample
+  argument, which must be 8 (Federico).
+
+* Due to these changes, I decided to increase the libtool
+  version number so that old compiled applications will keep
+  using the old libraries instead of crashing with the new
+  ones.  The loaders were renamed as well (Federico).
+
+* gdk_pixbuf_render_pixmap_and_mask() will set the mask to
+  NULL if the pixbuf does not have an alpha channel, instead
+  of creating a solid mask rectangle (Federico).
+
+* Fixed a bug where the `frame' argument of the
+  GdkPixbufLoader::frame_done signal was not being specified in the
+  call to gtk_signal_new() (Federico).
+
+* The functions in gdk-pixbuf-scale.c now have some
+  preconditions and sanity checks (Federico).
+
+* The gdk_pixbuf_*_simple() functions now fail gracefully if
+  they cannot allocate enough memory for the new pixbuf
+  (Federico).
+
+
+Version 0.6
+-----------
+
+* The gdk-pixbuf library can now be built as a single static library
+  by passing the "--disable-modules" option to the configure script;
+  all the image format modules will be linked in (Miguel).
+
+* The progressive GIF loader should load multi-frame files correctly
+  now (Michael).
+
+* The GIF loader now handles an initial transparent colormap entry
+  correctly (Jonathan).
+
+* The XPM loader now handles the "g" color type correctly (Mark).
+
+* Fixes for the scaling functions (Owen, Peter).
+
+* Constification patches for pixbuf and image data arguments (Michael,
+  Elliot).
+
+* New sanity checks for the rendering functions (Ettore, Federico).
+
+* Minor fixes to the testpixbuf-drawable program (David, Federico).
+
+* Added an appendix to the documentation describing the configure
+  options specific to the gdk-pixbuf module (Federico).
+
+* Misc. documentation fixes (Alexander, Federico).
+
+* Misc. installation fixes (Mark, Alan, Telsa, Havoc, Federico).
+
+
+Version 0.5
+-----------
+
+* Support for GIF animations has been added.  We can even load
+  animations progressively.  Thanks a lot to Jonathan for writing
+  this; send a beer to this dude.
+
+* We now have some obscenely fast functions to do scaling with
+  interpolation and composition of pixbufs.  On ix86 machines these
+  functions will use MMX if it is available.  Owen deserves a beer as
+  well for writing this.
+
+* New functions to convert Gdk drawable information to RGB format for
+  pixbufs (Michael, Cody).
+
+* New BMP image loader for Windows bitmaps (Arjan).
+
+* New ICO image loader for Windows icons and cursors (Arjan, who
+  deserves a beer as well for his excellent work on the loaders).
+
+* New PNM image loader (DrMike).
+
+* New utility functions for adding an alpha channel to a pixbuf and
+  for extracting regions from pixbufs (Cody).
+
+* API fixes, correctness fixes, and performance enhancements for the
+  GnomeCanvasPixbuf item (Larry, Federico).
+
+* Lots of fixes to the image loaders (Jonathan, Havoc, Arjan, DrMike,
+  Mark, Federico).
+
+* Installation, versioning, and library separation enhancements
+  (Elliot).
+
+* Miscellaneous build fixes and include file fixes (Raja, Havoc,
+  Jacob, Federico).
+
+* Compilation of gdk-pixbuf now produces two libraries, libgdk-pixbuf
+  and libgnomecanvaspixbuf.  The latter contains only the
+  GnomeCanvasPixbuf item; it was made separate so that the brave
+  hackers who work on the HEAD branch of gnome-libs will not have
+  symbol clashes.  People who use the pixbuf canvas item in their
+  programs now have to pass an extra "gnomecanvaspixbuf" argument to
+  the "--libs" or "--includes" flags of the gnome-config program.
+
+
+Version 0.4
+-----------
+
+* Progressive loading support via GdkPixbufLoader.
+
+* Completely new PNG, JPEG, TIFF, GIF, PNM, XPM, and RAS loaders.
+
+* New GnomeCanvasPixbuf item for the GNOME canvas.
+
+* New convenience functions to render pixbufs to drawables.
+
+* Integrated gtk-doc framework; reference docs are almost finished.
+
+
+Version 0.3
+-----------
+
+* Added a libtool version number to the library.
+
+* Changed the API function names to something more consistent.
+
+* Removed the saving interfaces, since it is very hard to support the
+  saving idiosyncrasies of every file format.
+
+* Correctness and robustness fixes for the loaders.
+
+* Fixed memory management with respect to user-supplied buffers.  Now
+  the user has to supply a libart destroy notification function for
+  when a pixbuf's reference count drops to zero.
+
+* Added inline documentation comments for exported functions.  The
+  DocBook documentation framework is still missing.
+
+
+Version 0.2
+-----------
+
+* Upgraded libtool version.
+
+
+Version 0.1
+-----------
+
+* First public development release.

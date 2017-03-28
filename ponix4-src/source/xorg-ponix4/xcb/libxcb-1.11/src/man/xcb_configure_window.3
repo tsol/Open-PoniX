@@ -1,0 +1,70 @@
+.TH xcb_configure_window 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_configure_window \- Configures window attributes
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_configure_window\fP(xcb_connection_t\ *\fIconn\fP, xcb_window_t\ \fIwindow\fP, uint16_t\ \fIvalue_mask\fP, const uint32_t\ *\fIvalue_list\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIwindow\fP 1i
+The window to configure.
+.IP \fIvalue_mask\fP 1i
+Bitmask of attributes to change.
+.IP \fIvalue_list\fP 1i
+New values, corresponding to the attributes in value_mask. The order has to
+correspond to the order of possible \fIvalue_mask\fP bits. See the example.
+.SH DESCRIPTION
+Configures a window's size, position, border width and stacking order.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_configure_window_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_match_error_t\fP 1i
+You specified a Sibling without also specifying StackMode or the window is not
+actually a Sibling.
+.IP \fIxcb_value_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_window_error_t\fP 1i
+The specified window does not exist. TODO: any other reason?
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Configures the given window to the left upper corner
+ * with a size of 1024x768 pixels.
+ *
+ */
+void my_example(xcb_connection *c, xcb_window_t window) {
+    uint16_t mask = 0;
+
+    mask |= XCB_CONFIG_WINDOW_X;
+    mask |= XCB_CONFIG_WINDOW_Y;
+    mask |= XCB_CONFIG_WINDOW_WIDTH;
+    mask |= XCB_CONFIG_WINDOW_HEIGHT;
+
+    const uint32_t values[] = {
+        0,    /* x */
+        0,    /* y */
+        1024, /* width */
+        768   /* height */
+    };
+
+    xcb_configure_window(c, window, mask, values);
+    xcb_flush(c);
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3),
+.BR xcb_expose_event_t (3),
+.BR xcb_map_notify_event_t (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

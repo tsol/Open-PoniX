@@ -1,0 +1,27 @@
+From e1ecad78e5c5c32f331925f340141a38aaa64cef Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 18 Jun 2012 19:02:38 +0530
+Subject: [PATCH 69/90] ath9k: fix mci_is_enabled utility
+
+During driver stop, btcoex is disabled and also btcoex_hw.enabled
+is set to false. Afterwards mci_is_enabled returns false so that
+BT is not gaining SPDT control on WLAN sleep. Fix that.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/hw.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/hw.h
++++ b/drivers/net/wireless/ath/ath9k/hw.h
+@@ -1030,7 +1030,8 @@ static inline bool ath9k_hw_btcoex_is_en
+ }
+ static inline bool ath9k_hw_mci_is_enabled(struct ath_hw *ah)
+ {
+-	return ah->btcoex_hw.enabled && (ah->caps.hw_caps & ATH9K_HW_CAP_MCI);
++	return ah->common.btcoex_enabled &&
++	       (ah->caps.hw_caps & ATH9K_HW_CAP_MCI);
+ 
+ }
+ void ath9k_hw_btcoex_enable(struct ath_hw *ah);

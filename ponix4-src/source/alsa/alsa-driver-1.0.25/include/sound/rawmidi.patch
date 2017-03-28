@@ -1,0 +1,21 @@
+--- ../../alsa-kernel/include/rawmidi.h	2009-12-18 14:00:10.000000000 +0100
++++ rawmidi.h	2011-03-04 15:42:22.000000000 +0100
+@@ -98,9 +98,18 @@
+ 	struct snd_rawmidi_str *pstr;
+ 	char name[32];
+ 	struct snd_rawmidi_runtime *runtime;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33)
+ 	struct pid *pid;
++#endif
+ 	/* hardware layer */
+ 	struct snd_rawmidi_ops *ops;
++
++	/* appended below for ABI compatibility */
++#ifndef __GENKSYMS__
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
++	struct pid *pid;
++#endif
++#endif
+ };
+ 
+ struct snd_rawmidi_file {

@@ -1,0 +1,126 @@
+NAME
+    quomod - assign quotient and remainder to two lvalues
+
+SYNOPSIS
+    quomod(x, y, Q, R [, rnd])
+
+TYPES
+    x		real
+    y		real
+    Q		null-or-real-valued lvalue with assign-to permission
+    R		null-or-real-valued lvalue with assign-to permission
+    rnd		nonnegative integer, defaults to config("quomod")
+
+    return	0 or 1
+
+DESCRIPTION
+    If y is nonzero and x/y is an integer q, this function assigns
+    q to Q and zero to R, and returns zero.
+
+    If y is zero, zero is assigned to Q, x to R and 0 or 1 returned
+    according as x is zero or nonzero.
+
+    In the remaining case, y nonzero and x/y not an intger, there
+    are two pairs (q,r) for which x = q * y + r, q is an integer, and
+    abs(r) < abs(y).  Depending on the low 5 bits of rnd, the q and r
+    of one of these pairs will be assigned to Q and R respectively,
+    and the number 1 returned. The effects of rnd can be described in
+    terms of the way q is related to x/y, e.g. by rounding down,
+    rounding towards zero, rounding to a nearest integeri, etc. or
+    by properties of the remainder r, e.g. positive, negative,
+    smallest, etc. The effects of the most commonly used values of
+    rnd are described in the following table:
+
+       rnd	        q			      r
+
+	0   round down. q = floor(x/y)	   same sign as y
+	1   round up, q = ceil(x/y)	   opposite sign to y
+	2   round to zero, q = int(x/y)	   same sign as x, r = y * frac(x/y)
+	3   round from zero		   oppsite sign to x
+	4				   positive
+	5				   negative
+	6				   same sign as x/y
+	7				   opposite sigh to x/y
+
+	8   to nearest even
+	9   to nearest odd
+
+    For 16 <= rnd < 32, the rounding is to the nearest integer and r
+    is the smallest (in absolute value) remainder except when x/y is
+    halfway between consecutive integers, in which case the rounding
+    is as given by the 4 low bits of rnd. Using rnd = 24 gives the
+    cpmmonly used principle of rounding: round to the nearest integer,
+    but take the even integer when there are two equally close integers.
+
+    For more detail on the effects of rnd for values other than those
+    listed above, see "help quo" and "help mod".
+
+    In all cases, the values assigned to Q and R by quomod(x, y, Q, R, rnd)
+    are the same as those given by Q = quo(x,y,rnd), R = mod(x,y,rnd).
+    If config("quo") == rnd, Q is also given by quo(x,y) or x // y.
+    If config("mod") == rnd, R is also given by mod(x,y) or x % y.
+
+    The rounding used by the C language for x / y  and x % y corresponds
+    to rnd = 2.
+
+    An error values is returned and the values of Q and R are not changed
+    if Q and R are not both lvalues, or if the current value of any
+    argument is not as specified above, or if Q or R has no-assign-to
+    prptection, e.g. after protect(Q,1).
+
+
+EXAMPLE
+    ; global u, v;
+    ; global mat M[2];
+    ; print quomod(13,5,u,v), u, v, quomod(15.6,5.2,M[0],M[1]), M[0], M[1];
+    1 2 3 0 3 0
+
+    ; A = assoc();
+    ; print quomod(13, 5, A[1], A[2]), A[1], A[2]
+    ; 1 2 3
+
+    ; print quomod(10, -3, u, v), u, v;
+    1 -4 -2
+    ; print quomod(10, -3, u, v, 0), u, v;
+    1 -4 -2
+    ; print quomod(10, -3, u, v, 1), u, v;
+    1 -3 1
+    ; print quomod(10, -3, u, v, 2), u, v;
+    1 -3 1
+    ; print quomod(-10, -3, u, v, 2), u, v;
+    1 3 -1
+
+LIMITS
+    rnd < 2^31
+
+LINK LIBRARY
+    BOOL qquomod(NUMBER *q1, NUMBER *q2, NUMBER **quo, NUMBER **mod)
+
+SEE ALSO
+    //,	 %, quo, mod, floor. ceil, int. frac
+
+## Copyright (C) 1999-2006  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: quomod,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/quomod,v $
+##
+## Under source code control:	1995/05/07 03:17:03
+## File existed as early as:	1995
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

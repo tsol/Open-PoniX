@@ -1,0 +1,81 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Running GLib Applications</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GLib Reference Manual"><link rel="up" href="glib.html" title="GLib Overview"><link rel="previous" href="glib-compiling.html" title="Compiling GLib Applications"><link rel="next" href="glib-changes.html" title="Changes to GLib"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="glib-compiling.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="glib.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GLib Reference Manual</th><td><a accesskey="n" href="glib-changes.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="glib-running"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Running GLib Applications</span></h2><p>Running GLib Applications &#8212; 
+How to run and debug your GLib application
+</p></div><div class="refsect1" lang="en"><h2>Running and debugging GLib Applications</h2><div class="refsect2" lang="en"><h3>Environment variables</h3><p> 
+GLib inspects a few of environment variables in addition to standard
+variables like <tt class="envar">LANG</tt>, <tt class="envar">PATH</tt> or <tt class="envar">HOME</tt>. 
+</p><p><b><tt class="envar">G_FILENAME_ENCODING</tt>. </b>
+    This environment variable can be set to a comma-separated list of character
+    set names. GLib assumes that filenames are encoded in the first character 
+    set from that list rather than in UTF-8. The special token "@locale" can be
+    used to specify the character set for the current locale.
+  </p><p><b><tt class="envar">G_BROKEN_FILENAMES</tt>. </b>
+    If this environment variable is set, GLib assumes that filenames are in 
+    the locale encoding rather than in UTF-8. G_FILENAME_ENCODING takes
+    priority over G_BROKEN_FILENAMES. 
+  </p><p><b><tt class="envar">G_MESSAGES_PREFIXED</tt>. </b>
+    A list of log levels for which messages should be prefixed by the 
+    program name and PID of the application. The default is to prefix
+    everything except <tt class="literal">G_LOG_LEVEL_MESSAGE</tt> and <tt class="literal">G_LOG_LEVEL_INFO</tt>. 
+  </p><p><b><tt class="envar">G_DEBUG</tt>. </b>
+    If GLib has been configured with <tt class="option">--enable-debug=yes</tt>,
+    this variable can be set to a list of debug options, which cause GLib
+    to print out different types of debugging information.
+    </p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term">fatal_warnings</span></td><td><p>Causes GLib to abort the program at the first call
+           to <a href="glib-Message-Logging.html#g-warning">g_warning</a>(). This option is 
+           special in that it doesn't require GLib to be configured with 
+           debugging support.</p></td></tr></tbody></table></div><p>
+  </p><p><b><tt class="envar">G_RANDOM_VERSION</tt>. </b>
+    If this environment variable is set to '2.0', the outdated
+    pseudo-random number seeding and generation algorithms from
+    GLib-2.0 are used instead of the new better ones. Use the GLib-2.0
+    algorithms only if you have sequences of numbers generated with
+    Glib-2.0 that you need to reproduce exactly.  
+  </p></div><hr><div class="refsect2" lang="en"><h3>Traps and traces</h3><p>
+Some code portions contain trap variables that can be set during debugging 
+time if GLib has been configured with <tt class="option">--enable-debug=yes</tt>. 
+Such traps lead to immediate code halts to examine the current program state 
+and backtrace.
+</p><p>
+Currently, the following trap variables exist:
+</p><pre class="programlisting">
+static volatile gulong g_trap_free_size;
+static volatile gulong g_trap_realloc_size;
+static volatile gulong g_trap_malloc_size;
+</pre><p>
+If set to a size &gt; 0, <a href="glib-Memory-Allocation.html#g-free">g_free</a>(), 
+<a href="glib-Memory-Allocation.html#g-realloc">g_realloc</a>() and 
+<a href="glib-Memory-Allocation.html#g-malloc">g_malloc</a>() will be intercepted if the size 
+matches the size of the corresponding memory block. This will only work with 
+<tt class="literal">g_mem_set_vtable (glib_mem_profiler_table)</tt> upon startup 
+though, because memory profiling is required to match on the memory block sizes.
+</p></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="glib-compiling.html"><b>&lt;&lt; Compiling GLib Applications</b></a></td><td align="right"><a accesskey="n" href="glib-changes.html"><b>Changes to GLib &gt;&gt;</b></a></td></tr></table></body></html>

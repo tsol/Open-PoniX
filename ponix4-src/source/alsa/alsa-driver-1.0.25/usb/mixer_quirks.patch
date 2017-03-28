@@ -1,0 +1,20 @@
+--- ../alsa-kernel/usb/mixer_quirks.c	2010-03-12 12:21:47.911524364 +0100
++++ mixer_quirks.c	2010-03-12 12:35:31.835272055 +0100
+@@ -1,3 +1,4 @@
++#include "mixer.inc"
+ /*
+  *   USB Audio Driver for ALSA
+  *
+@@ -62,7 +63,12 @@
+ 	{ USB_ID(0x041e, 0x3048), 2, 2, 6, 6,  2,  0x6e91 }, /* Toshiba SB0500 */
+ };
+ 
++#if !defined(OLD_USB) && !defined(CONFIG_SND_NEW_IRQ_HANDLER)
++static void snd_usb_soundblaster_remote_complete(struct urb *urb,
++						 struct pt_regs *regs)
++#else
+ static void snd_usb_soundblaster_remote_complete(struct urb *urb)
++#endif
+ {
+ 	struct usb_mixer_interface *mixer = urb->context;
+ 	const struct rc_config *rc = mixer->rc_cfg;

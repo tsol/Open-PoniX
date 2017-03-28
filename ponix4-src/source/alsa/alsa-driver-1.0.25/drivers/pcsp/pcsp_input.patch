@@ -1,0 +1,38 @@
+--- ../../alsa-kernel/drivers/pcsp/pcsp_input.c	2010-05-21 16:36:59.457637275 +0200
++++ pcsp_input.c	2010-05-31 12:37:43.411686497 +0200
+@@ -1,3 +1,17 @@
++#include "adriver.h"
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
++#define pcsp_spin_lock			raw_spin_lock
++#define pcsp_spin_unlock		raw_spin_unlock
++#define pcsp_spin_lock_irqsave		raw_spin_lock_irqsave
++#define pcsp_spin_unlock_irqrestore	raw_spin_unlock_irqrestore
++#else
++#define pcsp_spin_lock			spin_lock
++#define pcsp_spin_unlock		spin_unlock
++#define pcsp_spin_lock_irqsave		spin_lock_irqsave
++#define pcsp_spin_unlock_irqrestore	spin_unlock_irqrestore
++#endif
++
+ /*
+  *  PC Speaker beeper driver for Linux
+  *
+@@ -21,7 +35,7 @@
+ {
+ 	unsigned long flags;
+ 
+-	raw_spin_lock_irqsave(&i8253_lock, flags);
++	pcsp_spin_lock_irqsave(&i8253_lock, flags);
+ 
+ 	if (count) {
+ 		/* set command for counter 2, 2 byte write */
+@@ -36,7 +50,7 @@
+ 		outb(inb_p(0x61) & 0xFC, 0x61);
+ 	}
+ 
+-	raw_spin_unlock_irqrestore(&i8253_lock, flags);
++	pcsp_spin_unlock_irqrestore(&i8253_lock, flags);
+ }
+ 
+ void pcspkr_stop_sound(void)

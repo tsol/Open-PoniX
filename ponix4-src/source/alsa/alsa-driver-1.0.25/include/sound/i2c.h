@@ -1,0 +1,1 @@
+../../alsa-kernel/include/i2c.h

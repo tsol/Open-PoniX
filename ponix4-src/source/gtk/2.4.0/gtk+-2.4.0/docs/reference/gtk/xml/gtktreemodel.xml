@@ -1,0 +1,1768 @@
+<refentry id="GtkTreeModel">
+<refmeta>
+<refentrytitle>GtkTreeModel</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkTreeModel</refname><refpurpose>The tree interface used by <link linkend="GtkTreeView"><type>GtkTreeView</type></link></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkTreeModel-struct">GtkTreeModel</link>;
+struct      <link linkend="GtkTreeIter">GtkTreeIter</link>;
+struct      <link linkend="GtkTreePath">GtkTreePath</link>;
+struct      <link linkend="GtkTreeRowReference">GtkTreeRowReference</link>;
+struct      <link linkend="GtkTreeModelIface">GtkTreeModelIface</link>;
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkTreeModelForeachFunc">*GtkTreeModelForeachFunc</link>)      (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);
+enum        <link linkend="GtkTreeModelFlags">GtkTreeModelFlags</link>;
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-path-new">gtk_tree_path_new</link>              (void);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-path-new-from-string">gtk_tree_path_new_from_string</link>  (const <link linkend="gchar">gchar</link> *path);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-path-new-from-indices">gtk_tree_path_new_from_indices</link> (<link linkend="gint">gint</link> first_index,
+                                             ...);
+<link linkend="gchar">gchar</link>*      <link linkend="gtk-tree-path-to-string">gtk_tree_path_to_string</link>         (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-path-new-first">gtk_tree_path_new_first</link>        (void);
+#define     <link linkend="gtk-tree-path-new-root">gtk_tree_path_new_root</link>          ()
+<link linkend="void">void</link>        <link linkend="gtk-tree-path-append-index">gtk_tree_path_append_index</link>      (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="gint">gint</link> index_);
+<link linkend="void">void</link>        <link linkend="gtk-tree-path-prepend-index">gtk_tree_path_prepend_index</link>     (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="gint">gint</link> index_);
+<link linkend="gint">gint</link>        <link linkend="gtk-tree-path-get-depth">gtk_tree_path_get_depth</link>         (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gint">gint</link>*       <link linkend="gtk-tree-path-get-indices">gtk_tree_path_get_indices</link>       (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-path-free">gtk_tree_path_free</link>              (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-path-copy">gtk_tree_path_copy</link>             (const <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gint">gint</link>        <link linkend="gtk-tree-path-compare">gtk_tree_path_compare</link>           (const <link linkend="GtkTreePath">GtkTreePath</link> *a,
+                                             const <link linkend="GtkTreePath">GtkTreePath</link> *b);
+<link linkend="void">void</link>        <link linkend="gtk-tree-path-next">gtk_tree_path_next</link>              (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-path-prev">gtk_tree_path_prev</link>              (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-path-up">gtk_tree_path_up</link>                (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-path-down">gtk_tree_path_down</link>              (<link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-path-is-ancestor">gtk_tree_path_is_ancestor</link>       (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *descendant);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-path-is-descendant">gtk_tree_path_is_descendant</link>     (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *ancestor);
+<link linkend="GtkTreeRowReference">GtkTreeRowReference</link>* <link linkend="gtk-tree-row-reference-new">gtk_tree_row_reference_new</link>
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="GtkTreeRowReference">GtkTreeRowReference</link>* <link linkend="gtk-tree-row-reference-new-proxy">gtk_tree_row_reference_new_proxy</link>
+                                            (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-row-reference-get-path">gtk_tree_row_reference_get_path</link>
+                                            (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-row-reference-valid">gtk_tree_row_reference_valid</link>    (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);
+<link linkend="void">void</link>        <link linkend="gtk-tree-row-reference-free">gtk_tree_row_reference_free</link>     (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);
+<link linkend="GtkTreeRowReference">GtkTreeRowReference</link>* <link linkend="gtk-tree-row-reference-copy">gtk_tree_row_reference_copy</link>
+                                            (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);
+<link linkend="void">void</link>        <link linkend="gtk-tree-row-reference-inserted">gtk_tree_row_reference_inserted</link> (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-row-reference-deleted">gtk_tree_row_reference_deleted</link>  (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-row-reference-reordered">gtk_tree_row_reference_reordered</link>
+                                            (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gint">gint</link> *new_order);
+<link linkend="GtkTreeIter">GtkTreeIter</link>* <link linkend="gtk-tree-iter-copy">gtk_tree_iter_copy</link>             (<link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-iter-free">gtk_tree_iter_free</link>              (<link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="GtkTreeModelFlags">GtkTreeModelFlags</link> <link linkend="gtk-tree-model-get-flags">gtk_tree_model_get_flags</link>  (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model);
+<link linkend="gint">gint</link>        <link linkend="gtk-tree-model-get-n-columns">gtk_tree_model_get_n_columns</link>    (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model);
+<link linkend="GType">GType</link>       <link linkend="gtk-tree-model-get-column-type">gtk_tree_model_get_column_type</link>  (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="gint">gint</link> index_);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-get-iter">gtk_tree_model_get_iter</link>         (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-get-iter-from-string">gtk_tree_model_get_iter_from_string</link>
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             const <link linkend="gchar">gchar</link> *path_string);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-get-iter-first">gtk_tree_model_get_iter_first</link>   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+#define     <link linkend="gtk-tree-model-get-iter-root">gtk_tree_model_get_iter_root</link>    (tree_model, iter)
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-model-get-path">gtk_tree_model_get_path</link>        (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-get-value">gtk_tree_model_get_value</link>        (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GValue">GValue</link> *value);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-iter-next">gtk_tree_model_iter_next</link>        (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-iter-children">gtk_tree_model_iter_children</link>    (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *parent);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-iter-has-child">gtk_tree_model_iter_has_child</link>   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="gint">gint</link>        <link linkend="gtk-tree-model-iter-n-children">gtk_tree_model_iter_n_children</link>  (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-iter-nth-child">gtk_tree_model_iter_nth_child</link>   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *parent,
+                                             <link linkend="gint">gint</link> n);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-model-iter-parent">gtk_tree_model_iter_parent</link>      (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *child);
+<link linkend="gchar">gchar</link>*      <link linkend="gtk-tree-model-get-string-from-iter">gtk_tree_model_get_string_from_iter</link>
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-ref-node">gtk_tree_model_ref_node</link>         (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-unref-node">gtk_tree_model_unref_node</link>       (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-get">gtk_tree_model_get</link>              (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             ...);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-get-valist">gtk_tree_model_get_valist</link>       (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="va-list">va_list</link> var_args);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-foreach">gtk_tree_model_foreach</link>          (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreeModelForeachFunc">GtkTreeModelForeachFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> user_data);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-row-changed">gtk_tree_model_row_changed</link>      (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-row-inserted">gtk_tree_model_row_inserted</link>     (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-row-has-child-toggled">gtk_tree_model_row_has_child_toggled</link>
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-row-deleted">gtk_tree_model_row_deleted</link>      (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-rows-reordered">gtk_tree_model_rows_reordered</link>   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gint">gint</link> *new_order);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GInterface">GInterface</link>
+   +----GtkTreeModel
+</synopsis>
+
+</refsect1>
+
+<refsect1>
+<title>Prerequisites</title>
+<para>
+GtkTreeModel requires
+ <link linkend="GObject">GObject</link>.</para>
+
+</refsect1>
+
+<refsect1>
+<title>Known Derived Interfaces</title>
+<para>
+GtkTreeModel is required by
+ <link linkend="GtkTreeSortable">GtkTreeSortable</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Known Implementations</title>
+<para>
+GtkTreeModel is implemented by
+ <link linkend="GtkTreeModelSort">GtkTreeModelSort</link>,  <link linkend="GtkTreeStore">GtkTreeStore</link>,  <link linkend="GtkListStore">GtkListStore</link> and  <link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkTreeModel-row-changed">row-changed</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTreeModel-row-deleted">row-deleted</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTreeModel-row-has-child-toggled">row-has-child-toggled</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTreeModel-row-inserted">row-inserted</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTreeModel-rows-reordered">rows-reordered</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> arg3,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link> interface defines a generic tree interface for use by
+the <link linkend="GtkTreeView"><type>GtkTreeView</type></link> widget.  It is an abstract interface, and is designed
+to be usable with any appropriate data structure.  The programmer just
+has to implement this interface on their own data type for it to be
+viewable by a <link linkend="GtkTreeView"><type>GtkTreeView</type></link> widget.
+</para>
+
+<para>
+The model is represented as a hierarchical tree of strongly-typed,
+columned data.  In other words, the model can be seen as a tree where
+every node has different values depending on which column is being
+queried.  The type of data found in a column is determined by using the
+GType system (ie. <link linkend="G-TYPE-INT-CAPS"><type>G_TYPE_INT</type></link>, <link linkend="GTK-TYPE-BUTTON-CAPS"><type>GTK_TYPE_BUTTON</type></link>, <link linkend="G-TYPE-POINTER-CAPS"><type>G_TYPE_POINTER</type></link>, etc.).
+The types are homogeneous per column across all nodes.  It is important
+to note that this interface only provides a way of examining a model and
+observing changes.  The implementation of each individual model decides
+how and if changes are made.
+</para>
+
+<para>
+In order to make life simpler for programmers who do not need to write
+their own specialized model, two generic models are provided &mdash; the
+<link linkend="GtkTreeStore"><type>GtkTreeStore</type></link> and the <link linkend="GtkListStore"><type>GtkListStore</type></link>.  To use these, the developer simply
+pushes data into these models as necessary.  These models provide the
+data structure as well as all appropriate tree interfaces.  As a result,
+implementing drag and drop, sorting, and storing data is trivial.  For
+the vast majority of trees and lists, these two models are sufficient.
+</para>
+
+<para>
+Models are accessed on a node/column level of granularity.  One can
+query for the value of a model at a certain node and a certain column
+on that node.  There are two structures used to reference a particular
+node in a model.  They are the <link linkend="GtkTreePath"><type>GtkTreePath</type></link> and the <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>
+<footnote>
+<para>
+Here, <abbrev>iter</abbrev> is short for <quote>iterator</quote>
+</para>
+</footnote>
+Most of the interface consists of operations on a <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</para>
+
+<para>
+A path is essentially a potential node.  It is a location on a model
+that may or may not actually correspond to a node on a specific model.
+The <link linkend="GtkTreePath"><type>GtkTreePath</type></link> struct can be converted into either an array of
+unsigned integers or a string.  The string form is a list of numbers
+separated by a colon.  Each number refers to the offset at that level.
+Thus, the path <quote>0</quote> refers to the root node and the path
+<quote>2:4</quote> refers to the fifth child of the third node.
+</para>
+
+<para>
+By contrast, a <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> is a reference to a specific node on a
+specific model.  It is a generic struct with an integer and three
+generic pointers.  These are filled in by the model in a model-specific
+way.  One can convert a path to an iterator by calling
+<link linkend="gtk-tree-model-get-iter"><function>gtk_tree_model_get_iter()</function></link>.  These iterators are the primary way of
+accessing a model and are similar to the iterators used by
+<link linkend="GtkTextBuffer"><type>GtkTextBuffer</type></link>.  They are generally statically allocated on the heap and
+only used for a short time.  The model interface defines a set of
+operations using them for navigating the model.
+</para>
+
+<para>
+It is expected that models fill in the iterator with private data.  For
+example, the <link linkend="GtkListStore"><type>GtkListStore</type></link> model, which is internally a simple linked
+list, stores a list node in one of the pointers.  The <link linkend="GtkTreeModelSort"><type>GtkTreeModelSort</type></link>
+stores an array and an offset in two of the pointers.  Additionally,
+there is an integer field.  This field is generally filled with a unique
+stamp per model.  This stamp is for catching errors resulting from using
+invalid iterators with a model.
+</para>
+
+<para>
+The lifecycle of an iterator can be a little confusing at first.
+Iterators are expected to always be valid for as long as the model is
+unchanged (and doesn't emit a signal).  The model is considered to own
+all outstanding iterators and nothing needs to be done to free them from
+the user's point of view.  Additionally, some models guarantee that an
+iterator is valid for as long as the node it refers to is valid (most
+notably the <link linkend="GtkTreeStore"><type>GtkTreeStore</type></link> and <link linkend="GtkListStore"><type>GtkListStore</type></link>).  Although generally
+uninteresting, as one always has to allow for the case where iterators
+do not persist beyond a signal, some very important performance
+enhancements were made in the sort model.  As a result, the
+<link linkend="GTK-TREE-MODEL-ITERS-PERSIST-CAPS"><type>GTK_TREE_MODEL_ITERS_PERSIST</type></link> flag was added to indicate this behavior.
+</para>
+
+<para>
+To help show some common operation of a model, some examples are
+provided.  The first example shows three ways of getting the iter at the
+location <quote>3:2:5</quote>.  While the first method shown is easier,
+the second is much more common, as you often get paths from callbacks.
+</para>
+<para>
+<example>
+<title>Acquiring a <structname>GtkTreeIter</structname></title>
+<programlisting>
+/* Three ways of getting the iter pointing to the location
+ */
+{
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  GtkTreeIter parent_iter;
+
+  /* get the iterator from a string */
+  gtk_tree_model_get_iter_from_string (model, &amp;iter, "3:2:5");
+
+  /* get the iterator from a path */
+  path = gtk_tree_path_new_from_string ("3:2:5");
+  gtk_tree_model_get_iter (model, &amp;iter, path);
+  gtk_tree_path_free (path);
+
+
+  /* walk the tree to find the iterator */
+  gtk_tree_model_get_nth_child (model, &amp;iter, NULL, 3);
+  parent_iter = iter;
+  gtk_tree_model_get_nth_child (model, &amp;iter, &amp;parent_iter, 2);
+  parent_iter = iter;
+  gtk_tree_model_get_nth_child (model, &amp;iter, &amp;parent_iter, 5);
+}
+</programlisting>
+</example>
+</para>
+
+<para>
+This second example shows a quick way of iterating through a list and
+getting a string and an integer from each row.  The
+<function>populate_model</function> function used below is not shown, as
+it is specific to the <link linkend="GtkListStore"><type>GtkListStore</type></link>.  For information on how to write
+such a function, see the <link linkend="GtkListStore"><type>GtkListStore</type></link> documentation.
+<example>
+<title>Reading data from a <structname>GtkTreeModel</structname></title>
+<programlisting>
+enum
+{
+  STRING_COLUMN,
+  INT_COLUMN,
+  N_COLUMNS
+};
+
+{
+  GtkTreeModel *list_store;
+  GtkTreeIter iter;
+  gboolean valid;
+  gint row_count = 0;
+
+  /* make a new list_store */
+  list_store = gtk_list_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_INT);
+
+  /* Fill the list store with data */
+  populate_model (list_store);
+
+  /* Get the first iter in the list */
+  valid = gtk_tree_model_get_iter_first (list_store, &amp;iter);
+
+  while (valid)
+    {
+      /* Walk through the list, reading each row */
+      gchar *str_data;
+      gint   int_data;
+
+      /* Make sure you terminate calls to gtk_tree_model_get(<!-- -->)
+       * with a '-1' value
+       */
+      gtk_tree_model_get (list_store, &amp;iter, 
+                          STRING_COLUMN, &amp;str_data,
+                          INT_COLUMN, &amp;int_data,
+                          -1);
+
+      /* Do something with the data */
+      g_print ("Row &percnt;d: (&percnt;s,&percnt;d)\n", row_count, str_data, int_data);
+      g_free (str_data);
+
+      row_count ++;
+      valid = gtk_tree_model_iter_next (list_store, &amp;iter);
+    }
+}
+</programlisting>
+</example>
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkTreeModel-struct"/>struct GtkTreeModel</title>
+<indexterm><primary>GtkTreeModel</primary></indexterm><programlisting>struct GtkTreeModel;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeIter"/>struct GtkTreeIter</title>
+<indexterm><primary>GtkTreeIter</primary></indexterm><programlisting>struct GtkTreeIter {
+
+  gint stamp;
+  gpointer user_data;
+  gpointer user_data2;
+  gpointer user_data3;
+};
+</programlisting>
+<para>
+The <structname>GtkTreeIter</structname> is the primary structure for
+accessing a structure.  Models are expected to put a unique integer in
+the <structfield>stamp</structfield> member, and put model-specific
+data in the three <structfield>user_data</structfield> members.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>stamp</structfield></term>
+<listitem><simpara>A unique stamp to catch invalid iterators
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gpointer">gpointer</link> <structfield>user_data</structfield></term>
+<listitem><simpara>Model specific data
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gpointer">gpointer</link> <structfield>user_data2</structfield></term>
+<listitem><simpara>Model specific data
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gpointer">gpointer</link> <structfield>user_data3</structfield></term>
+<listitem><simpara>Model specific data
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkTreePath"/>struct GtkTreePath</title>
+<indexterm><primary>GtkTreePath</primary></indexterm><programlisting>struct GtkTreePath;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeRowReference"/>struct GtkTreeRowReference</title>
+<indexterm><primary>GtkTreeRowReference</primary></indexterm><programlisting>struct GtkTreeRowReference;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeModelIface"/>struct GtkTreeModelIface</title>
+<indexterm><primary>GtkTreeModelIface</primary></indexterm><programlisting>struct GtkTreeModelIface {
+
+  GTypeInterface g_iface;
+
+  /* Signals */
+  void         (* row_changed)           (GtkTreeModel *tree_model,
+					  GtkTreePath  *path,
+					  GtkTreeIter  *iter);
+  void         (* row_inserted)          (GtkTreeModel *tree_model,
+					  GtkTreePath  *path,
+					  GtkTreeIter  *iter);
+  void         (* row_has_child_toggled) (GtkTreeModel *tree_model,
+					  GtkTreePath  *path,
+					  GtkTreeIter  *iter);
+  void         (* row_deleted)           (GtkTreeModel *tree_model,
+					  GtkTreePath  *path);
+  void         (* rows_reordered)        (GtkTreeModel *tree_model,
+					  GtkTreePath  *path,
+					  GtkTreeIter  *iter,
+					  gint         *new_order);
+
+  /* Virtual Table */
+  GtkTreeModelFlags (* get_flags)  (GtkTreeModel *tree_model);   
+
+  gint         (* get_n_columns)   (GtkTreeModel *tree_model);
+  GType        (* get_column_type) (GtkTreeModel *tree_model,
+				    gint          index_);
+  gboolean     (* get_iter)        (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter,
+				    GtkTreePath  *path);
+  GtkTreePath *(* get_path)        (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
+  void         (* get_value)       (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter,
+				    gint          column,
+				    GValue       *value);
+  gboolean     (* iter_next)       (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
+  gboolean     (* iter_children)   (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter,
+				    GtkTreeIter  *parent);
+  gboolean     (* iter_has_child)  (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
+  gint         (* iter_n_children) (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
+  gboolean     (* iter_nth_child)  (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter,
+				    GtkTreeIter  *parent,
+				    gint          n);
+  gboolean     (* iter_parent)     (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter,
+				    GtkTreeIter  *child);
+  void         (* ref_node)        (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
+  void         (* unref_node)      (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeModelForeachFunc"/>GtkTreeModelForeachFunc ()</title>
+<indexterm><primary>GtkTreeModelForeachFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkTreeModelForeachFunc)      (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeModelFlags"/>enum GtkTreeModelFlags</title>
+<indexterm><primary>GtkTreeModelFlags</primary></indexterm><programlisting>typedef enum
+{
+  GTK_TREE_MODEL_ITERS_PERSIST = 1 &lt;&lt; 0,
+  GTK_TREE_MODEL_LIST_ONLY = 1 &lt;&lt; 1
+} GtkTreeModelFlags;
+</programlisting>
+<para>
+These flags indicate various properties of a <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.  They are
+returned by <link linkend="gtk-tree-model-get-flags"><function>gtk_tree_model_get_flags()</function></link>, and must be static for the
+lifetime of the object.  A more complete description of
+<link linkend="GTK-TREE-MODEL-ITERS-PERSIST-CAPS"><type>GTK_TREE_MODEL_ITERS_PERSIST</type></link> can be found in the overview of this
+section.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GTK_TREE_MODEL_ITERS_PERSIST</literal></term>
+<listitem><simpara>Iterators survive all signals emitted by the tree.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_TREE_MODEL_LIST_ONLY</literal></term>
+<listitem><simpara>The model is a list only, and never has children
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-new"/>gtk_tree_path_new ()</title>
+<indexterm><primary>gtk_tree_path_new</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_path_new              (void);</programlisting>
+<para>
+Creates a new <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.  This structure refers to a row.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly created <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-new-from-string"/>gtk_tree_path_new_from_string ()</title>
+<indexterm><primary>gtk_tree_path_new_from_string</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_path_new_from_string  (const <link linkend="gchar">gchar</link> *path);</programlisting>
+<para>
+Creates a new <link linkend="GtkTreePath"><type>GtkTreePath</type></link> initialized to <parameter>path</parameter>.  <parameter>path</parameter> is expected to be a
+colon separated list of numbers.  For example, the string "10:4:0" would
+create a path of depth 3 pointing to the 11th child of the root node, the 5th
+child of that 11th child, and the 1st child of that 5th child.  If an invalid
+path string is passed in, <literal>NULL</literal> is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The string representation of a path.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created <link linkend="GtkTreePath"><type>GtkTreePath</type></link>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-new-from-indices"/>gtk_tree_path_new_from_indices ()</title>
+<indexterm><primary>gtk_tree_path_new_from_indices</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_path_new_from_indices (<link linkend="gint">gint</link> first_index,
+                                             ...);</programlisting>
+<para>
+Creates a new path with <parameter>first_index</parameter> and <parameter>varargs</parameter> as indices.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>first_index</parameter>&nbsp;:</term>
+<listitem><simpara> first integer
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara> list of integers terminated by -1
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly created GtkTreePath.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-to-string"/>gtk_tree_path_to_string ()</title>
+<indexterm><primary>gtk_tree_path_to_string</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*      gtk_tree_path_to_string         (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Generates a string representation of the path.  This string is a ':'
+separated list of numbers.  For example, "4:10:0:3" would be an acceptable return value for this string.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-allocated string.  Must be freed with <link linkend="g-free"><function>g_free()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-new-first"/>gtk_tree_path_new_first ()</title>
+<indexterm><primary>gtk_tree_path_new_first</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_path_new_first        (void);</programlisting>
+<para>
+Creates a new <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.  The string representation of this path is "0"</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A new <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-new-root"/>gtk_tree_path_new_root()</title>
+<indexterm><primary>gtk_tree_path_new_root</primary></indexterm><programlisting>#define gtk_tree_path_new_root() gtk_tree_path_new_first()
+</programlisting>
+<warning><para><literal>gtk_tree_path_new_root</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+An alternate name for <link linkend="gtk-tree-path-new-iter"><function>gtk_tree_path_new_iter()</function></link> provided for
+compatibility reasons; this macro will be deprecated in future
+versions of GTK+.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A new <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-append-index"/>gtk_tree_path_append_index ()</title>
+<indexterm><primary>gtk_tree_path_append_index</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_path_append_index      (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="gint">gint</link> index_);</programlisting>
+<para>
+Appends a new index to a path.  As a result, the depth of the path is
+increased.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara> The index.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-prepend-index"/>gtk_tree_path_prepend_index ()</title>
+<indexterm><primary>gtk_tree_path_prepend_index</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_path_prepend_index     (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="gint">gint</link> index_);</programlisting>
+<para>
+Prepends a new index to a path.  As a result, the depth of the path is
+increased.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara> The index.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-get-depth"/>gtk_tree_path_get_depth ()</title>
+<indexterm><primary>gtk_tree_path_get_depth</primary></indexterm><programlisting><link linkend="gint">gint</link>        gtk_tree_path_get_depth         (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Returns the current depth of <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The depth of <parameter>path</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-get-indices"/>gtk_tree_path_get_indices ()</title>
+<indexterm><primary>gtk_tree_path_get_indices</primary></indexterm><programlisting><link linkend="gint">gint</link>*       gtk_tree_path_get_indices       (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Returns the current indices of <parameter>path</parameter>.  This is an array of integers, each
+representing a node in a tree.  This value should not be freed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The current indices, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-free"/>gtk_tree_path_free ()</title>
+<indexterm><primary>gtk_tree_path_free</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_path_free              (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Frees <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-copy"/>gtk_tree_path_copy ()</title>
+<indexterm><primary>gtk_tree_path_copy</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_path_copy             (const <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Creates a new <link linkend="GtkTreePath"><type>GtkTreePath</type></link> as a copy of <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A new <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-compare"/>gtk_tree_path_compare ()</title>
+<indexterm><primary>gtk_tree_path_compare</primary></indexterm><programlisting><link linkend="gint">gint</link>        gtk_tree_path_compare           (const <link linkend="GtkTreePath">GtkTreePath</link> *a,
+                                             const <link linkend="GtkTreePath">GtkTreePath</link> *b);</programlisting>
+<para>
+Compares two paths.  If <parameter>a</parameter> appears before <parameter>b</parameter> in a tree, then -1 is returned.
+If <parameter>b</parameter> appears before <parameter>a</parameter>, then 1 is returned.  If the two nodes are equal,
+then 0 is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>a</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>b</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to compare with.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The relative positions of <parameter>a</parameter> and <parameter>b</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-next"/>gtk_tree_path_next ()</title>
+<indexterm><primary>gtk_tree_path_next</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_path_next              (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Moves the <parameter>path</parameter> to point to the next node at the current depth.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-prev"/>gtk_tree_path_prev ()</title>
+<indexterm><primary>gtk_tree_path_prev</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_path_prev              (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Moves the <parameter>path</parameter> to point to the previous node at the current depth, if it exists.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>path</parameter> has a previous node, and the move was made.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-up"/>gtk_tree_path_up ()</title>
+<indexterm><primary>gtk_tree_path_up</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_path_up                (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Moves the <parameter>path</parameter> to point to its parent node, if it has a parent.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>path</parameter> has a parent, and the move was made.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-down"/>gtk_tree_path_down ()</title>
+<indexterm><primary>gtk_tree_path_down</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_path_down              (<link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Moves <parameter>path</parameter> to point to the first child of the current path.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-is-ancestor"/>gtk_tree_path_is_ancestor ()</title>
+<indexterm><primary>gtk_tree_path_is_ancestor</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_path_is_ancestor       (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *descendant);</programlisting>
+<para>
+Returns <literal>TRUE</literal> if <parameter>descendant</parameter> is a descendant of <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkTreePath"><type>GtkTreePath</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>descendant</parameter>&nbsp;:</term>
+<listitem><simpara> another <link linkend="GtkTreePath"><type>GtkTreePath</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>descendant</parameter> is contained inside <parameter>path</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-path-is-descendant"/>gtk_tree_path_is_descendant ()</title>
+<indexterm><primary>gtk_tree_path_is_descendant</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_path_is_descendant     (<link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *ancestor);</programlisting>
+<para>
+Returns <literal>TRUE</literal> if <parameter>path</parameter> is a descendant of <parameter>ancestor</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkTreePath"><type>GtkTreePath</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ancestor</parameter>&nbsp;:</term>
+<listitem><simpara> another <link linkend="GtkTreePath"><type>GtkTreePath</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>ancestor</parameter> contains <parameter>path</parameter> somewhere below it
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-new"/>gtk_tree_row_reference_new ()</title>
+<indexterm><primary>gtk_tree_row_reference_new</primary></indexterm><programlisting><link linkend="GtkTreeRowReference">GtkTreeRowReference</link>* gtk_tree_row_reference_new
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Creates a row reference based on <parameter>path</parameter>.  This reference will keep pointing to
+the node pointed to by <parameter>path</parameter>, so long as it exists.  It listens to all
+signals emitted by <parameter>model</parameter>, and updates its path appropriately.  If <parameter>path</parameter>
+isn't a valid path in <parameter>model</parameter>, then <literal>NULL</literal> is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to monitor
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly allocated <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-new-proxy"/>gtk_tree_row_reference_new_proxy ()</title>
+<indexterm><primary>gtk_tree_row_reference_new_proxy</primary></indexterm><programlisting><link linkend="GtkTreeRowReference">GtkTreeRowReference</link>* gtk_tree_row_reference_new_proxy
+                                            (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+You do not need to use this function.  Creates a row reference based on
+<parameter>path</parameter>.  This reference will keep pointing to the node pointed to by <parameter>path</parameter>, so
+long as it exists.  If <parameter>path</parameter> isn't a valid path in <parameter>model</parameter>, then <literal>NULL</literal> is
+returned.  However, unlike references created with
+<link linkend="gtk-tree-row-reference-new"><function>gtk_tree_row_reference_new()</function></link>, it does not listen to the model for changes.
+The creator of the row reference must do this explicitly using
+<link linkend="gtk-tree-row-reference-inserted"><function>gtk_tree_row_reference_inserted()</function></link>, <link linkend="gtk-tree-row-reference-deleted"><function>gtk_tree_row_reference_deleted()</function></link>,
+<link linkend="gtk-tree-row-reference-reordered"><function>gtk_tree_row_reference_reordered()</function></link>.
+</para>
+<para>
+These functions must be called exactly once per proxy when the
+corresponding signal on the model is emitted. This single call
+updates all row references for that proxy. Since built-in GTK+
+objects like <link linkend="GtkTreeView"><type>GtkTreeView</type></link> already use this mechanism internally,
+using them as the proxy object will produce unpredictable results.
+Further more, passing the same object as <parameter>model</parameter> and <parameter>proxy</parameter>
+doesn't work for reasons of internal implementation.
+</para>
+<para>
+This type of row reference is primarily meant by structures that need to
+carefully monitor exactly when a row_reference updates itself, and is not
+generally needed by most applications.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>proxy</parameter>&nbsp;:</term>
+<listitem><simpara> A proxy <link linkend="GObject"><type>GObject</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to monitor
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly allocated <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-get-path"/>gtk_tree_row_reference_get_path ()</title>
+<indexterm><primary>gtk_tree_row_reference_get_path</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_row_reference_get_path
+                                            (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);</programlisting>
+<para>
+Returns a path that the row reference currently points to, or <literal>NULL</literal> if the
+path pointed to is no longer valid.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>reference</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A current path, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-valid"/>gtk_tree_row_reference_valid ()</title>
+<indexterm><primary>gtk_tree_row_reference_valid</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_row_reference_valid    (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);</programlisting>
+<para>
+Returns TRUE if the <literal>reference</literal> is non-NULL and refers to a current valid
+path.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>reference</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>, or NULL
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> TRUE if <literal>reference</literal> points to a valid path.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-free"/>gtk_tree_row_reference_free ()</title>
+<indexterm><primary>gtk_tree_row_reference_free</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_row_reference_free     (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);</programlisting>
+<para>
+Free's <literal>reference</literal>.  <literal>reference</literal> may be NULL.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>reference</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>, or NULL
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-copy"/>gtk_tree_row_reference_copy ()</title>
+<indexterm><primary>gtk_tree_row_reference_copy</primary></indexterm><programlisting><link linkend="GtkTreeRowReference">GtkTreeRowReference</link>* gtk_tree_row_reference_copy
+                                            (<link linkend="GtkTreeRowReference">GtkTreeRowReference</link> *reference);</programlisting>
+<para>
+Copies a <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>reference</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a copy of <parameter>reference</parameter>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-inserted"/>gtk_tree_row_reference_inserted ()</title>
+<indexterm><primary>gtk_tree_row_reference_inserted</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_row_reference_inserted (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Lets a set of row reference created by <link linkend="gtk-tree-row-reference-new-proxy"><function>gtk_tree_row_reference_new_proxy()</function></link>
+know that the model emitted the "row_inserted" signal.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>proxy</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GObject"><type>GObject</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The row position that was inserted
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-deleted"/>gtk_tree_row_reference_deleted ()</title>
+<indexterm><primary>gtk_tree_row_reference_deleted</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_row_reference_deleted  (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Lets a set of row reference created by <link linkend="gtk-tree-row-reference-new-proxy"><function>gtk_tree_row_reference_new_proxy()</function></link>
+know that the model emitted the "row_deleted" signal.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>proxy</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GObject"><type>GObject</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The path position that was deleted
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-row-reference-reordered"/>gtk_tree_row_reference_reordered ()</title>
+<indexterm><primary>gtk_tree_row_reference_reordered</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_row_reference_reordered
+                                            (<link linkend="GObject">GObject</link> *proxy,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gint">gint</link> *new_order);</programlisting>
+<para>
+Lets a set of row reference created by <link linkend="gtk-tree-row-reference-new-proxy"><function>gtk_tree_row_reference_new_proxy()</function></link>
+know that the model emitted the "rows_reordered" signal.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>proxy</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GObject"><type>GObject</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The parent path of the reordered signal
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The iter pointing to the parent of the reordered
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_order</parameter>&nbsp;:</term>
+<listitem><simpara> The new order of rows
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-iter-copy"/>gtk_tree_iter_copy ()</title>
+<indexterm><primary>gtk_tree_iter_copy</primary></indexterm><programlisting><link linkend="GtkTreeIter">GtkTreeIter</link>* gtk_tree_iter_copy             (<link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Creates a dynamically allocated tree iterator as a copy of <parameter>iter</parameter>.  This
+function is not intended for use in applications, because you can just copy
+the structs by value (<literal>GtkTreeIter new_iter = iter;</literal>).  You
+must free this iter with <link linkend="gtk-tree-iter-free"><function>gtk_tree_iter_free()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a newly-allocated copy of <parameter>iter</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-iter-free"/>gtk_tree_iter_free ()</title>
+<indexterm><primary>gtk_tree_iter_free</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_iter_free              (<link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Frees an iterator that has been allocated on the heap.  This function is
+mainly used for language bindings.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A dynamically allocated tree iterator.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-flags"/>gtk_tree_model_get_flags ()</title>
+<indexterm><primary>gtk_tree_model_get_flags</primary></indexterm><programlisting><link linkend="GtkTreeModelFlags">GtkTreeModelFlags</link> gtk_tree_model_get_flags  (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model);</programlisting>
+<para>
+Returns a set of flags supported by this interface.  The flags are a bitwise
+combination of <link linkend="GtkTreeModelFlags"><type>GtkTreeModelFlags</type></link>.  The flags supported should not change
+during the lifecycle of the tree_model.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The flags supported by this interface.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-n-columns"/>gtk_tree_model_get_n_columns ()</title>
+<indexterm><primary>gtk_tree_model_get_n_columns</primary></indexterm><programlisting><link linkend="gint">gint</link>        gtk_tree_model_get_n_columns    (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model);</programlisting>
+<para>
+Returns the number of columns supported by <parameter>tree_model</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The number of columns.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-column-type"/>gtk_tree_model_get_column_type ()</title>
+<indexterm><primary>gtk_tree_model_get_column_type</primary></indexterm><programlisting><link linkend="GType">GType</link>       gtk_tree_model_get_column_type  (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="gint">gint</link> index_);</programlisting>
+<para>
+Returns the type of the column.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara> The column index.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The type of the column.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-iter"/>gtk_tree_model_get_iter ()</title>
+<indexterm><primary>gtk_tree_model_get_iter</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_get_iter         (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to a valid iterator pointing to <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The uninitialized <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>iter</parameter> was set.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-iter-from-string"/>gtk_tree_model_get_iter_from_string ()</title>
+<indexterm><primary>gtk_tree_model_get_iter_from_string</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_get_iter_from_string
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             const <link linkend="gchar">gchar</link> *path_string);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to a valid iterator pointing to <parameter>path_string</parameter>, if it
+exists. Otherwise, <parameter>iter</parameter> is left invalid and <literal>FALSE</literal> is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> An uninitialized <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path_string</parameter>&nbsp;:</term>
+<listitem><simpara> A string representation of a <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>iter</parameter> was set.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-iter-first"/>gtk_tree_model_get_iter_first ()</title>
+<indexterm><primary>gtk_tree_model_get_iter_first</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_get_iter_first   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Initializes <parameter>iter</parameter> with the first iterator in the tree (the one at the path
+"0") and returns <literal>TRUE</literal>.  Returns <literal>FALSE</literal> if the tree is empty.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The uninitialized <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>iter</parameter> was set.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-iter-root"/>gtk_tree_model_get_iter_root()</title>
+<indexterm><primary>gtk_tree_model_get_iter_root</primary></indexterm><programlisting>#define gtk_tree_model_get_iter_root(tree_model, iter) gtk_tree_model_get_iter_first(tree_model, iter)
+</programlisting>
+<warning><para><literal>gtk_tree_model_get_iter_root</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+A alternate name for <link linkend="gtk-tree-model-get-iter-first"><function>gtk_tree_model_get_iter_first()</function></link> provided for
+compatibility reasons; this macro will be deprecated in future
+versions of GTK+.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara>uninitialized <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>iter</parameter> was set.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-path"/>gtk_tree_model_get_path ()</title>
+<indexterm><primary>gtk_tree_model_get_path</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_model_get_path        (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Returns a newly-created <link linkend="GtkTreePath"><type>GtkTreePath</type></link> referenced by <parameter>iter</parameter>.  This path should
+be freed with <link linkend="gtk-tree-path-free"><function>gtk_tree_path_free()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a newly-created <link linkend="GtkTreePath"><type>GtkTreePath</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-value"/>gtk_tree_model_get_value ()</title>
+<indexterm><primary>gtk_tree_model_get_value</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_get_value        (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GValue">GValue</link> *value);</programlisting>
+<para>
+Sets initializes and sets <parameter>value</parameter> to that at <parameter>column</parameter>.  When done with <parameter>value</parameter>,
+<link linkend="g-value-unset"><function>g_value_unset()</function></link> needs to be called to free any allocated memory.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara> The column to lookup the value at.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>value</parameter>&nbsp;:</term>
+<listitem><simpara> An empty <link linkend="GValue"><type>GValue</type></link> to set.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-iter-next"/>gtk_tree_model_iter_next ()</title>
+<indexterm><primary>gtk_tree_model_iter_next</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_iter_next        (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to point to the node following it at the current level.  If there
+is no next <parameter>iter</parameter>, <literal>FALSE</literal> is returned and <parameter>iter</parameter> is set to be invalid.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>iter</parameter> has been changed to the next node.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-iter-children"/>gtk_tree_model_iter_children ()</title>
+<indexterm><primary>gtk_tree_model_iter_children</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_iter_children    (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *parent);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to point to the first child of <parameter>parent</parameter>.  If <parameter>parent</parameter> has no children,
+<literal>FALSE</literal> is returned and <parameter>iter</parameter> is set to be invalid.  <parameter>parent</parameter> will remain a valid
+node after this function has been called.
+</para>
+<para>
+If <parameter>parent</parameter> is <literal>NULL</literal> returns the first node, equivalent to
+<literal>gtk_tree_model_get_iter_first (tree_model, iter);</literal></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The new <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to be set to the child.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>child</parameter> has been set to the first child.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-iter-has-child"/>gtk_tree_model_iter_has_child ()</title>
+<indexterm><primary>gtk_tree_model_iter_has_child</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_iter_has_child   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Returns <literal>TRUE</literal> if <parameter>iter</parameter> has children, <literal>FALSE</literal> otherwise.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to test for children.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>iter</parameter> has children.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-iter-n-children"/>gtk_tree_model_iter_n_children ()</title>
+<indexterm><primary>gtk_tree_model_iter_n_children</primary></indexterm><programlisting><link linkend="gint">gint</link>        gtk_tree_model_iter_n_children  (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Returns the number of children that <parameter>iter</parameter> has.  As a special case, if <parameter>iter</parameter>
+is <literal>NULL</literal>, then the number of toplevel nodes is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The number of children of <parameter>iter</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-iter-nth-child"/>gtk_tree_model_iter_nth_child ()</title>
+<indexterm><primary>gtk_tree_model_iter_nth_child</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_iter_nth_child   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *parent,
+                                             <link linkend="gint">gint</link> n);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to be the child of <parameter>parent</parameter>, using the given index.  The first
+index is 0.  If <parameter>n</parameter> is too big, or <parameter>parent</parameter> has no children, <parameter>iter</parameter> is set
+to an invalid iterator and <literal>FALSE</literal> is returned.  <parameter>parent</parameter> will remain a valid
+node after this function has been called.  As a special case, if <parameter>parent</parameter> is
+<literal>NULL</literal>, then the <parameter>n</parameter><!-- -->th root node is set.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to set to the nth child.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to get the child from, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n</parameter>&nbsp;:</term>
+<listitem><simpara> Then index of the desired child.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>parent</parameter> has an <parameter>n</parameter><!-- -->th child.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-iter-parent"/>gtk_tree_model_iter_parent ()</title>
+<indexterm><primary>gtk_tree_model_iter_parent</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_model_iter_parent      (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *child);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to be the parent of <parameter>child</parameter>.  If <parameter>child</parameter> is at the toplevel, and
+doesn't have a parent, then <parameter>iter</parameter> is set to an invalid iterator and <literal>FALSE</literal>
+is returned.  <parameter>child</parameter> will remain a valid node after this function has been
+called.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The new <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to set to the parent.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>child</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>iter</parameter> is set to the parent of <parameter>child</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-string-from-iter"/>gtk_tree_model_get_string_from_iter ()</title>
+<indexterm><primary>gtk_tree_model_get_string_from_iter</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*      gtk_tree_model_get_string_from_iter
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Generates a string representation of the iter. This string is a ':'
+separated list of numbers. For example, "4:10:0:3" would be an
+acceptable return value for this string.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> An <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-allocated string. Must be freed with <link linkend="g-free"><function>g_free()</function></link>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-ref-node"/>gtk_tree_model_ref_node ()</title>
+<indexterm><primary>gtk_tree_model_ref_node</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_ref_node         (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Lets the tree ref the node.  This is an optional method for models to
+implement.  To be more specific, models may ignore this call as it exists
+primarily for performance reasons.
+</para>
+<para>
+This function is primarily meant as a way for views to let caching model know
+when nodes are being displayed (and hence, whether or not to cache that
+node.)  For example, a file-system based model would not want to keep the
+entire file-hierarchy in memory, just the sections that are currently being
+displayed by every current view.
+</para>
+<para>
+A model should be expected to be able to get an iter independent of its
+reffed state.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-unref-node"/>gtk_tree_model_unref_node ()</title>
+<indexterm><primary>gtk_tree_model_unref_node</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_unref_node       (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Lets the tree unref the node.  This is an optional method for models to
+implement.  To be more specific, models may ignore this call as it exists
+primarily for performance reasons.
+</para>
+<para>
+For more information on what this means, see <link linkend="gtk-tree-model-ref-node"><function>gtk_tree_model_ref_node()</function></link>.
+Please note that nodes that are deleted are not unreffed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get"/>gtk_tree_model_get ()</title>
+<indexterm><primary>gtk_tree_model_get</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_get              (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             ...);</programlisting>
+<para>
+Gets the value of one or more cells in the row referenced by <parameter>iter</parameter>.
+The variable argument list should contain integer column numbers,
+each column number followed by a place to store the value being
+retrieved.  The list is terminated by a -1. For example, to get a
+value from column 0 with type <literal>G_TYPE_STRING</literal>, you would
+write: <literal>gtk_tree_model_get (model, iter, 0, &amp;place_string_here, -1)</literal>,
+where <literal>place_string_here</literal> is a <type>gchar*</type> to be 
+filled with the string.
+If appropriate, the returned values have to be freed or unreferenced.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> a row in <parameter>tree_model</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara> pairs of column number and value return locations, terminated by -1
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-get-valist"/>gtk_tree_model_get_valist ()</title>
+<indexterm><primary>gtk_tree_model_get_valist</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_get_valist       (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="va-list">va_list</link> var_args);</programlisting>
+<para>
+See <link linkend="gtk-tree-model-get"><function>gtk_tree_model_get()</function></link>, this version takes a <type>va_list</type> 
+for language bindings to use.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> a row in <parameter>tree_model</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>var_args</parameter>&nbsp;:</term>
+<listitem><simpara> <type>va_list</type> of column/return location pairs
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-foreach"/>gtk_tree_model_foreach ()</title>
+<indexterm><primary>gtk_tree_model_foreach</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_foreach          (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreeModelForeachFunc">GtkTreeModelForeachFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Calls func on each node in model in a depth-first fashion.  If func returns
+<literal>TRUE</literal>, then the tree ceases to be walked, and <link linkend="gtk-tree-model-foreach"><function>gtk_tree_model_foreach()</function></link> returns.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> A function to be called on each row
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara> User data to passed to func.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-row-changed"/>gtk_tree_model_row_changed ()</title>
+<indexterm><primary>gtk_tree_model_row_changed</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_row_changed      (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Emits the "row_changed" signal on <parameter>tree_model</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> pointing to the changed row
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to the changed row
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-row-inserted"/>gtk_tree_model_row_inserted ()</title>
+<indexterm><primary>gtk_tree_model_row_inserted</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_row_inserted     (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Emits the "row_inserted" signal on <parameter>tree_model</parameter></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> pointing to the inserted row
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to the inserted row
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-row-has-child-toggled"/>gtk_tree_model_row_has_child_toggled ()</title>
+<indexterm><primary>gtk_tree_model_row_has_child_toggled</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_row_has_child_toggled
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Emits the "row_has_child_toggled" signal on <parameter>tree_model</parameter>.  This should be
+called by models after the child state of a node changes.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> pointing to the changed row
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to the changed row
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-row-deleted"/>gtk_tree_model_row_deleted ()</title>
+<indexterm><primary>gtk_tree_model_row_deleted</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_row_deleted      (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Emits the "row_deleted" signal on <parameter>tree_model</parameter>.  This should be called by
+models after a row has been removed.  The location pointed to by <parameter>path</parameter> should
+be the location that the row previously was at.  It may not be a valid
+location anymore.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> pointing to the previous location of the deleted row.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-rows-reordered"/>gtk_tree_model_rows_reordered ()</title>
+<indexterm><primary>gtk_tree_model_rows_reordered</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_rows_reordered   (<link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gint">gint</link> *new_order);</programlisting>
+<para>
+Emits the "rows_reordered" signal on <parameter>tree_model</parameter>.  This should be called by
+models when their rows have been reordered.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> pointing to the tree node whose children have been reordered
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to the node whose children have been reordered
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_order</parameter>&nbsp;:</term>
+<listitem><simpara> an array of integers mapping the current position of each child
+     to its old position before the re-ordering,
+     i.e. <parameter>new_order</parameter><literal>[newpos] = oldpos</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkTreeModel-row-changed"/>The &quot;row-changed&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>treemodel</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg2</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTreeModel-row-deleted"/>The &quot;row-deleted&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>treemodel</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTreeModel-row-has-child-toggled"/>The &quot;row-has-child-toggled&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>treemodel</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg2</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTreeModel-row-inserted"/>The &quot;row-inserted&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>treemodel</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg2</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTreeModel-rows-reordered"/>The &quot;rows-reordered&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTreeModel">GtkTreeModel</link> *treemodel,
+                                            <link linkend="GtkTreePath">GtkTreePath</link> *arg1,
+                                            <link linkend="GtkTreeIter">GtkTreeIter</link> *arg2,
+                                            <link linkend="gpointer">gpointer</link> arg3,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>treemodel</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg1</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg2</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg3</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="GtkTreeView"><type>GtkTreeView</type></link>, <link linkend="GtkTreeStore"><type>GtkTreeStore</type></link>, <link linkend="GtkListStore"><type>GtkListStore</type></link>, <link linkend="gtk-GtkTreeView-drag-and-drop">GtkTreeDnd</link>, <link linkend="GtkTreeSortable"><type>GtkTreeSortable</type></link>
+</para>
+</refsect1>
+
+</refentry>

@@ -1,0 +1,243 @@
+<refentry id="gdk-pixbuf-refcounting" revision="27 Aug 2000">
+<refmeta>
+<refentrytitle>Reference Counting and Memory Mangement</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Reference Counting and Memory Mangement</refname><refpurpose>
+Functions to perform reference counting and memory management on a
+<link linkend="GdkPixbuf">GdkPixbuf</link>.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+void        (<link linkend="GdkPixbufDestroyNotify">*GdkPixbufDestroyNotify</link>)       (<link linkend="guchar">guchar</link> *pixels,
+                                             <link linkend="gpointer">gpointer</link> data);
+void        (<link linkend="GdkPixbufLastUnref">*GdkPixbufLastUnref</link>)           (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-ref">gdk_pixbuf_ref</link>                  (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+void        <link linkend="gdk-pixbuf-unref">gdk_pixbuf_unref</link>                (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+void        <link linkend="gdk-pixbuf-set-last-unref-handler">gdk_pixbuf_set_last_unref_handler</link>
+                                            (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="GdkPixbufLastUnref">GdkPixbufLastUnref</link> last_unref_fn,
+                                             <link linkend="gpointer">gpointer</link> last_unref_fn_data);
+void        <link linkend="gdk-pixbuf-finalize">gdk_pixbuf_finalize</link>             (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    <link linkend="GdkPixbuf">GdkPixbuf</link> structures are reference counted.  This means that
+    an application can share a single pixbuf among many parts of the
+    code.  When a piece of the program needs to keep a pointer to a
+    pixbuf, it should add a reference to it.  When it no longer needs
+    the pixbuf, it should subtract a reference.  The pixbuf will be
+    destroyed when its reference count drops to zero.  Newly-created
+    <link linkend="GdkPixbuf">GdkPixbuf</link> structures start with a reference count of one.
+  </para>
+
+  <para>
+    <emphasis>Finalizing</emphasis> a pixbuf means to free its pixel
+    data and to free the <link linkend="GdkPixbuf">GdkPixbuf</link> structure itself.  Most of the
+    library functions that create <link linkend="GdkPixbuf">GdkPixbuf</link> structures create the
+    pixel data by themselves and define the way it should be freed;
+    you do not need to worry about those.  The only function that lets
+    you specify how to free the pixel data is
+    <link linkend="gdk-pixbuf-new-from-data">gdk_pixbuf_new_from_data</link>().  Since you pass it a pre-allocated
+    pixel buffer, you must also specify a way to free that data.  This
+    is done with a function of type <link linkend="GdkPixbufDestroyNotify">GdkPixbufDestroyNotify</link>.  When a
+    pixbuf created with <link linkend="gdk-pixbuf-new-from-data">gdk_pixbuf_new_from_data</link>() is finalized, your
+    destroy notification function will be called, and it is its
+    responsibility to free the pixel array.
+  </para>
+
+  <para>
+    As an extension to traditional reference counting, <link linkend="GdkPixbuf">GdkPixbuf</link>
+    structures support defining a handler for the last unref
+    operation.  If <link linkend="gdk-pixbuf-unref">gdk_pixbuf_unref</link>() is called on a <link linkend="GdkPixbuf">GdkPixbuf</link>
+    structure that has a reference count of 1, i.e. its last
+    reference, then the pixbuf's last unref handler function will be
+    called.  It is up to this function to determine whether to
+    finalize the pixbuf using <link linkend="gdk-pixbuf-finalize">gdk_pixbuf_finalize</link>() or to just
+    continue execution.  This can be used to implement a pixbuf cache
+    efficiently; please see the programmer's documentation for
+    details.
+  </para>
+
+<!-- FIXME: link the last sentence above to the relevant section of
+     the programmer's docs.
+-->
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkPixbufDestroyNotify">GdkPixbufDestroyNotify ()</title>
+<programlisting>void        (*GdkPixbufDestroyNotify)       (<link linkend="guchar">guchar</link> *pixels,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+  <para>
+    A function of this type is responsible for freeing the pixel array
+    of a pixbuf.  The <link linkend="gdk-pixbuf-new-from-data">gdk_pixbuf_new_from_data</link>() function lets you
+    pass in a pre-allocated pixel array so that a pixbuf can be
+    created from it; in this case you will need to pass in a function
+    of <link linkend="GdkPixbufDestroyNotify">GdkPixbufDestroyNotify</link> so that the pixel data can be freed
+    when the pixbuf is finalized.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>pixels</parameter>&nbsp;:</entry>
+<entry>The pixel array of the pixbuf that is being finalized.
+</entry></row>
+<row><entry align="right"><parameter>data</parameter>&nbsp;:</entry>
+<entry>User closure data.
+
+
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="GdkPixbufLastUnref">GdkPixbufLastUnref ()</title>
+<programlisting>void        (*GdkPixbufLastUnref)           (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+  <para>
+    A function of this type can be used to override the default
+    operation when a pixbuf loses its last reference, i.e. when
+    <link linkend="gdk-pixbuf-unref">gdk_pixbuf_unref</link>() is called on a <link linkend="GdkPixbuf">GdkPixbuf</link> structure that has a
+    reference count of 1.  This function should determine whether to
+    finalize the pixbuf by calling <link linkend="gdk-pixbuf-finalize">gdk_pixbuf_finalize</link>(), or whether
+    to just resume normal execution.  The last unref handler for a
+    <link linkend="GdkPixbuf">GdkPixbuf</link> can be set using the
+    <link linkend="gdk-pixbuf-set-last-unref-handler">gdk_pixbuf_set_last_unref_handler</link>() function.  By default, pixbufs
+    will be finalized automatically if no last unref handler has been
+    defined.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>pixbuf</parameter>&nbsp;:</entry>
+<entry>The pixbuf that is losing its last reference.
+</entry></row>
+<row><entry align="right"><parameter>data</parameter>&nbsp;:</entry>
+<entry>User closure data.
+
+
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-ref">gdk_pixbuf_ref ()</title>
+<programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_ref                  (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<para>
+Adds a reference to a pixbuf.  It must be released afterwards using
+<link linkend="gdk-pixbuf-unref">gdk_pixbuf_unref</link>().</para>
+  <para>
+
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>pixbuf</parameter>&nbsp;:</entry>
+<entry> A pixbuf.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> The same as the <parameter>pixbuf</parameter> argument.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-unref">gdk_pixbuf_unref ()</title>
+<programlisting>void        gdk_pixbuf_unref                (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<para>
+Removes a reference from a pixbuf.  If this is the last reference for the
+<parameter>pixbuf</parameter>, then its last unref handler function will be called; if no handler
+has been defined, then the pixbuf will be finalized.
+</para>
+<para>
+See also: <link linkend="gdk-pixbuf-set-last-unref-handler">gdk_pixbuf_set_last_unref_handler</link>().</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>pixbuf</parameter>&nbsp;:</entry>
+<entry> A pixbuf.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-set-last-unref-handler">gdk_pixbuf_set_last_unref_handler ()</title>
+<programlisting>void        gdk_pixbuf_set_last_unref_handler
+                                            (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf,
+                                             <link linkend="GdkPixbufLastUnref">GdkPixbufLastUnref</link> last_unref_fn,
+                                             <link linkend="gpointer">gpointer</link> last_unref_fn_data);</programlisting>
+<para>
+Sets the handler function for the <parameter>pixbuf</parameter>'s last unref handler.  When
+<link linkend="gdk-pixbuf-unref">gdk_pixbuf_unref</link>() is called on this pixbuf and it has a reference count of
+1, i.e. its last reference, then the last unref handler will be called.  This
+function should determine whether to finalize the pixbuf or just continue.
+If it wishes to finalize the pixbuf, it should do so by calling
+<link linkend="gdk-pixbuf-finalize">gdk_pixbuf_finalize</link>().
+</para>
+<para>
+See also: <link linkend="gdk-pixbuf-finalize">gdk_pixbuf_finalize</link>().</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>pixbuf</parameter>&nbsp;:</entry>
+<entry> A pixbuf.
+</entry></row>
+<row><entry align="right"><parameter>last_unref_fn</parameter>&nbsp;:</entry>
+<entry> Handler function for the last unref.
+</entry></row>
+<row><entry align="right"><parameter>last_unref_fn_data</parameter>&nbsp;:</entry>
+<entry> Closure data to pass to the last unref handler function.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-finalize">gdk_pixbuf_finalize ()</title>
+<programlisting>void        gdk_pixbuf_finalize             (<link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<para>
+Finalizes a pixbuf by calling its destroy notification function to free the
+pixel data and freeing the pixbuf itself.  This function is meant to be
+called only from within a <link linkend="GdkPixbufLastUnref">GdkPixbufLastUnref</link> handler function, and the
+specified <parameter>pixbuf</parameter> must have a reference count of 1, i.e. its last reference.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>pixbuf</parameter>&nbsp;:</entry>
+<entry> A pixbuf with a reference count of 1.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="GdkPixbuf">GdkPixbuf</link>, <link linkend="gdk-pixbuf-new-from-data">gdk_pixbuf_new_from_data</link>().
+  </para>
+</refsect1>
+
+</refentry>

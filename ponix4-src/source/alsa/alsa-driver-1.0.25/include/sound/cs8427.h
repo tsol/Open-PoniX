@@ -1,0 +1,1 @@
+../../alsa-kernel/include/cs8427.h

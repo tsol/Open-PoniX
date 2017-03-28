@@ -1,0 +1,231 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Compiling the GLib package</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GLib Reference Manual"><link rel="up" href="glib.html" title="GLib Overview"><link rel="previous" href="glib.html" title="GLib Overview"><link rel="next" href="glib-cross-compiling.html" title="Cross-compiling the GLib package"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="glib.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="glib.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GLib Reference Manual</th><td><a accesskey="n" href="glib-cross-compiling.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="glib-building"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Compiling the GLib package</span></h2><p>Compiling the GLib Package &#8212; 
+How to compile GLib itself
+</p></div><div class="refsect1" lang="en"><a name="building"></a><h2>Building the Library on UNIX</h2><p>
+        On UNIX, GLib uses the standard GNU build system,
+        using <span class="application">autoconf</span> for package
+        configuration and resolving portability issues,
+        <span class="application">automake</span> for building makefiles
+        that comply with the GNU Coding Standards, and
+        <span class="application">libtool</span> for building shared
+        libraries on multiple platforms.  The normal sequence for
+        compiling and installing the GLib library is thus:
+
+        </p><div class="literallayout"><p><br>
+          <b class="userinput"><tt>./configure</tt></b><br>
+          <b class="userinput"><tt>make</tt></b><br>
+          <b class="userinput"><tt>make install</tt></b><br>
+        </p></div><p>
+      </p><p>
+        The standard options provided by <span class="application">GNU
+        autoconf</span> may be passed to the
+        <b class="command">configure</b> script.  Please see the
+        <span class="application">autoconf</span> documentation or run
+        <b class="command">./configure --help</b> for information about
+        the standard options.
+      </p><p>
+        The GTK+ documentation contains 
+        <a href="../gtk/gtk-building.html" target="_top">further details</a> 
+	about the build process and ways to influence it. 
+      </p></div><div class="refsect1" lang="en"><a name="dependencies"></a><h2>Dependencies</h2><p>
+        Before you can compile the GLib library, you need to have
+        various other tools and libraries installed on your
+        system. The two tools needed during the build process (as
+        differentiated from the tools used in when creating GLib
+        mentioned above such as <span class="application">autoconf</span>)
+        are <b class="command">pkg-config</b> and GNU make.
+      </p><div class="itemizedlist"><ul type="disc"><li><p>
+	    <a href="http://www.freedesktop.org/software/pkgconfig/" target="_top">pkg-config</a>
+	    is a tool for tracking the compilation flags needed for
+	    libraries that are used by the GLib library. (For each
+	    library, a small <tt class="literal">.pc</tt> text file is 
+            installed in a standard location that contains the compilation 
+            flags needed for that library along with version number 
+            information.)  The version of <b class="command">pkg-config</b> 
+            needed to build GLib is mirrored in the 
+	    <tt class="filename">dependencies</tt> directory
+	    on the <a href="ftp://ftp.gtk.org/pub/gtk/v2.2/" target="_top">GTK+ FTP
+	    site.</a>
+	  </p></li><li><p>
+	    The GTK+ makefiles will mostly work with different versions
+	    of <b class="command">make</b>, however, there tends to be
+	    a few incompatibilities, so the GTK+ team recommends
+	    installing <a href="http://www.gnu.org/software/make" target="_top">GNU
+	    make</a> if you don't already have it on your system
+	    and using it. (It may be called <b class="command">gmake</b>
+	    rather than <b class="command">make</b>.)
+	  </p></li></ul></div><p>
+        GLib depends on a number of other libraries.
+      </p><div class="itemizedlist"><ul type="disc"><li><p>
+	  The <a href="http://www.gnu.org/software/libiconv/" target="_top">GNU
+	  libiconv library</a> is needed to build GLib if your
+	  system doesn't have the <tt class="function">iconv()</tt>
+	  function for doing conversion between character
+	  encodings. Most modern systems should have
+	  <tt class="function">iconv()</tt>, however many older systems lack 
+	  an <tt class="function">iconv()</tt> implementation. On such systems, 
+	  you must install the libiconv library. This can be found at:
+	  <a href="http://www.gnu.org/software/libiconv" target="_top">http://www.gnu.org/software/libiconv</a>.	  
+	</p><p>
+	  If your system has an <tt class="function">iconv()</tt> implementation but
+	  you want to use libiconv instead, you can pass the
+	  --with-libiconv option to configure. This forces
+	  libiconv to be used.  
+	</p><p>
+	  Note that if you have libiconv installed in your default include
+	  search path (for instance, in <tt class="filename">/usr/local/</tt>), but
+	  don't enable it, you will get an error while compiling GLib because
+	  the <tt class="filename">iconv.h</tt> that libiconv installs hides the
+	  system iconv. 
+	</p><p>
+	  If you are using the native iconv implementation on Solaris
+	  instead of libiconv, you'll need to make sure that you have 
+	  the converters between locale encodings and UTF-8 installed.
+	  At a minimum you'll need the SUNWuiu8 package. You probably
+	  should also install the SUNWciu8, SUNWhiu8, SUNWjiu8, and
+	  SUNWkiu8 packages.
+	</p><p>
+	  The native iconv on Compaq Tru64 doesn't contain support for
+	  UTF-8, so you'll need to use GNU libiconv instead. (When
+	  using GNU libiconv for GLib, you'll need to use GNU libiconv
+	  for GNU gettext as well.) This probably applies to related
+	  operating systems as well.
+	</p></li><li><p>
+	  The libintl library from the <a href="http://www.gtk.org/software/gettext" target="_top">GNU gettext
+	  package</a> is needed if your system doesn't have the
+	  <tt class="function">gettext()</tt> functionality for handling
+	  message translation databases.
+	</p></li><li><p>
+	  A thread implementation is needed, unless you want to compile GLib
+	  without thread support, which is not recommended. The thread support
+	  in GLib can be based upon several native thread implementations,
+	  e.g. POSIX threads, DCE threads or Solaris threads. 
+	</p></li></ul></div></div><div class="refsect1" lang="en"><a name="extra-configuration-options"></a><h2>Extra Configuration Options</h2><p>
+        In addition to the normal options, the
+        <b class="command">configure</b> script in the GLib
+        library supports these additional arguments:
+
+        </p><div class="cmdsynopsis"><p><tt class="command">configure</tt>  [[--enable-debug=[no|minimum|yes]]] [[--disable-gc-friendly] |  [--enable-gc-friendly]] [[--disable-mem-pools] |  [--enable-mem-pools]] [[--disable-threads] |  [--enable-threads]] [[--with-threads=[none|posix|dce|solaris|win32]]] [[--disable-included-printf] |  [--enable-included-printf]] [[--disable-gtk-doc] |  [--enable-gtk-doc]]</p></div><p>
+      </p><p><b><tt class="systemitem">--enable-debug</tt>. </b>
+         Turns on various amounts of debugging support. Setting this to 'no'
+         disables g_assert(), g_return_if_fail(), g_return_val_if_fail() and
+         all cast checks between different object types. Setting it to 'minimum'         disables only cast checks. Setting it to 'yes' enables
+         runtime debugging.
+         The default is 'minimum'.
+         Note that 'no' is fast, but dangerous as it tends to destabilize
+         even mostly bug-free software by changing the effect of many bugs
+         from simple warnings into fatal crashes. Thus
+         <tt class="option">--enable-debug=no</tt> should <span class="emphasis"><em>not</em></span>
+         be used for stable releases of GLib.
+        </p><p><b><tt class="systemitem">--disable-gc-friendly</tt> and
+          <tt class="systemitem">--enable-gc-friendly</tt>. </b>
+          When enabled all memory freed by the application,
+          but retained by GLib for performance reasons
+          is set to zero, thus making deployed garbage
+          collection or memory profiling tools detect
+          unlinked memory correctly. This will make GLib
+          slightly slower and is thus disabled by default.
+        </p><p><b><tt class="systemitem">--disable-mem-pools</tt> and
+          <tt class="systemitem">--enable-mem-pools</tt>. </b>
+        Many small chunks of memory are often allocated via collective pools
+        in GLib and are cached after release to speed up reallocations.
+        For sparse memory systems this behaviour is often inferior, so
+        memory pools can be disabled to avoid excessive caching and force
+        atomic maintenance of chunks through the <tt class="function">g_malloc()</tt>
+        and <tt class="function">g_free()</tt> functions. Code currently affected by 
+        this:
+        </p><div class="itemizedlist"><ul type="disc"><li><p>
+         <span class="structname">GList</span>, <span class="structname">GSList</span>,
+         <span class="structname">GNode</span>, <span class="structname">GHash</span> 
+         allocations
+        </p></li><li><p>
+        <span class="structname">GMemChunk</span>s become basically non-effective
+        </p></li><li><p>
+         <span class="structname">GSignal</span> disables all caching (potentially 
+         very slow)
+        </p></li><li><p>
+         <span class="structname">GType</span> doesn't honour the 
+         <span class="structname">GTypeInfo</span> 
+         <i class="structfield"><tt>n_preallocs</tt></i> field anymore
+        </p></li><li><p>
+         the <span class="structname">GBSearchArray</span> flag 
+         <tt class="literal">G_BSEARCH_ALIGN_POWER2</tt> becomes non-functional
+        </p></li></ul></div><p>
+      </p><p><b><tt class="systemitem">--disable-threads</tt> and
+          <tt class="systemitem">--enable-threads</tt>. </b>
+           Do not compile GLib to be multi thread safe. GLib
+           will be slightly faster then. This is however not
+           recommended, as many programs rely on GLib being
+           multi thread safe.
+        </p><p><b><tt class="systemitem">--with-threads</tt>. </b>
+          Specify a thread implementation to use.
+          </p><div class="itemizedlist"><ul type="disc"><li><p>
+                'posix' and 'dce' can be used interchangeable
+                to mean the different versions of Posix
+                threads. configure tries to find out, which
+                one is installed.
+              </p></li><li><p>
+                'solaris' uses the native Solaris thread implementation.
+              </p></li><li><p>
+                'none' means that GLib will be thread safe,
+                but does not have a default thread
+                implementation. This has to be supplied to
+                <tt class="function">g_thread_init()</tt> by the programmer.
+              </p></li></ul></div><p>
+
+        </p><p><b><tt class="systemitem">--disable-included-printf</tt> and
+           <tt class="systemitem">--enable-included-printf</tt>. </b>
+          By default the <b class="command">configure</b> script will try
+          to auto-detect whether the C library provides a suitable set
+	  of <tt class="function">printf()</tt> functions. In detail, 
+	  <b class="command">configure</b> checks that the semantics of
+          <tt class="function">snprintf()</tt> are as specified by C99 and
+	  that positional parameters as specified in the Single Unix
+	  Specification are supported. If this not the case, GLib will
+	  include an implementation of the <tt class="function">printf()</tt> 
+          family.
+          These options can be used to explicitly control whether
+          an implementation fo the <tt class="function">printf()</tt> family
+          should be included or not.
+        </p><p><b><tt class="systemitem">--disable-gtk-doc</tt> and
+          <tt class="systemitem">--enable-gtk-doc</tt>. </b>
+          By default the <b class="command">configure</b> script will try
+          to auto-detect whether the
+          <span class="application">gtk-doc</span> package is installed.  If
+          it is, then it will use it to extract and build the
+          documentation for the GLib library.  These options
+          can be used to explicitly control whether
+          <span class="application">gtk-doc</span> should be
+          used or not.  If it is not used, the distributed,
+          pre-generated HTML files will be installed instead of
+          building them on your machine.
+        </p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="glib.html"><b>&lt;&lt; GLib Overview</b></a></td><td align="right"><a accesskey="n" href="glib-cross-compiling.html"><b>Cross-compiling the GLib package &gt;&gt;</b></a></td></tr></table></body></html>

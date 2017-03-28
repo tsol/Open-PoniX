@@ -1,0 +1,46 @@
+for x in xf86-input-evdev-2.7.3 \
+xf86-input-vmmouse-12.9.0 \
+xf86-input-keyboard-1.6.2 \
+xf86-input-mouse-1.8.1 \
+xf86-input-synaptics-1.6.2 \
+xf86-input-void-1.4.0 \
+xf86-video-sisusb-0.9.6 \
+xf86-video-sunffb-1.2.1 \
+xf86-video-v4l-0.2.0 \
+xf86-video-geode-2.11.14 \
+xf86-video-i740-1.3.4 \
+xf86-video-intel-2.20.15 \
+xf86-video-ark-0.7.5 \
+xf86-video-ast-0.97.0 \
+xf86-video-ati-7.0.0 \
+xf86-video-chips-1.2.5 \
+xf86-video-cirrus-1.5.1 \
+xf86-video-dummy-0.3.6 \
+xf86-video-fbdev-0.4.3 \
+xf86-video-glide-1.2.1 \
+xf86-video-glint-1.2.8 \
+xf86-video-i128-1.3.6 \
+xf86-video-mach64-6.9.3 \
+xf86-video-mga-1.9.100 \
+xf86-video-neomagic-1.2.7 \
+xf86-video-newport-0.2.4 \
+xf86-video-qxl-0.1.0 \
+xf86-video-r128-6.9.1 \
+xf86-video-rendition-4.2.5 \
+xf86-video-savage-2.3.6 \
+xf86-video-siliconmotion-1.7.7 \
+xf86-video-sis-0.10.7 \
+xf86-video-tdfx-1.4.5 \
+xf86-video-tga-1.2.2 \
+xf86-video-trident-1.3.6 \
+xf86-video-tseng-1.2.5 \
+xf86-video-vesa-2.3.2 \
+xf86-video-vmware-12.0.2 \
+xf86-video-voodoo-1.2.5 \
+xf86-video-apm-1.2.5 \
+xf86-video-s3-0.6.5 \
+xf86-video-s3virge-1.10.6 \
+xf86-video-openchrome-0.3.1 \
+xf86-video-nouveau-1.0.4 \ 
+do wget http://xorg.freedesktop.org/releases/individual/driver/$x.tar.bz2
+done

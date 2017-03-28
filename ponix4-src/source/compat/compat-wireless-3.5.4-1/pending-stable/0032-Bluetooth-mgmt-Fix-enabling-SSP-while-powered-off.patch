@@ -1,0 +1,43 @@
+From 3d1cbdd6aefff711bcf389fdabc4af9bc22e8201 Mon Sep 17 00:00:00 2001
+From: Andrzej Kaczmarek <andrzej.kaczmarek@tieto.com>
+Date: Wed, 29 Aug 2012 10:02:08 +0200
+Subject: [PATCH 32/39] Bluetooth: mgmt: Fix enabling SSP while powered off
+
+When new BT USB adapter is plugged in it's configured while still being powered
+off (HCI_AUTO_OFF flag is set), thus Set SSP will only set dev_flags but won't
+write changes to controller. As a result remote devices won't use Secure Simple
+Pairing with our device due to SSP Host Support flag disabled in extended
+features and may also reject SSP attempt from our side (with possible fallback
+to legacy pairing).
+
+This patch ensures HCI Write Simple Pairing Mode is sent when Set Powered is
+called to power on controller and clear HCI_AUTO_OFF flag.
+
+Signed-off-by: Andrzej Kaczmarek <andrzej.kaczmarek@tieto.com>
+Cc: stable@vger.kernel.org
+Acked-by: Johan Hedberg <johan.hedberg@intel.com>
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+---
+ net/bluetooth/mgmt.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index ad6613d..f943bbf 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -2875,6 +2875,12 @@ int mgmt_powered(struct hci_dev *hdev, u8 powered)
+ 		if (scan)
+ 			hci_send_cmd(hdev, HCI_OP_WRITE_SCAN_ENABLE, 1, &scan);
+ 
++		if (test_bit(HCI_SSP_ENABLED, &hdev->dev_flags)) {
++			u8 ssp = 1;
++
++			hci_send_cmd(hdev, HCI_OP_WRITE_SSP_MODE, 1, &ssp);
++		}
++
+ 		update_class(hdev);
+ 		update_name(hdev, hdev->dev_name);
+ 		update_eir(hdev);
+-- 
+1.7.10.4
+

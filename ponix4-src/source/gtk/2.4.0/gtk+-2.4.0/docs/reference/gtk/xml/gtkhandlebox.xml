@@ -1,0 +1,363 @@
+<refentry id="GtkHandleBox">
+<refmeta>
+<refentrytitle>GtkHandleBox</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkHandleBox</refname><refpurpose>a widget for  detachable window portions.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkHandleBox-struct">GtkHandleBox</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-handle-box-new">gtk_handle_box_new</link>              (void);
+<link linkend="void">void</link>        <link linkend="gtk-handle-box-set-shadow-type">gtk_handle_box_set_shadow_type</link>  (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box,
+                                             <link linkend="GtkShadowType">GtkShadowType</link> type);
+<link linkend="void">void</link>        <link linkend="gtk-handle-box-set-handle-position">gtk_handle_box_set_handle_position</link>
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box,
+                                             <link linkend="GtkPositionType">GtkPositionType</link> position);
+<link linkend="void">void</link>        <link linkend="gtk-handle-box-set-snap-edge">gtk_handle_box_set_snap_edge</link>    (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box,
+                                             <link linkend="GtkPositionType">GtkPositionType</link> edge);
+<link linkend="GtkPositionType">GtkPositionType</link> <link linkend="gtk-handle-box-get-handle-position">gtk_handle_box_get_handle_position</link>
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box);
+<link linkend="GtkShadowType">GtkShadowType</link> <link linkend="gtk-handle-box-get-shadow-type">gtk_handle_box_get_shadow_type</link>
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box);
+<link linkend="GtkPositionType">GtkPositionType</link> <link linkend="gtk-handle-box-get-snap-edge">gtk_handle_box_get_snap_edge</link>
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkContainer">GtkContainer</link>
+                     +----<link linkend="GtkBin">GtkBin</link>
+                           +----GtkHandleBox
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkHandleBox implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkHandleBox--handle-position">handle-position</link>&quot;      <link linkend="GtkPositionType">GtkPositionType</link>      : Read / Write
+  &quot;<link linkend="GtkHandleBox--shadow">shadow</link>&quot;               <link linkend="GtkShadowType">GtkShadowType</link>        : Read / Write
+  &quot;<link linkend="GtkHandleBox--shadow-type">shadow-type</link>&quot;          <link linkend="GtkShadowType">GtkShadowType</link>        : Read / Write
+  &quot;<link linkend="GtkHandleBox--snap-edge">snap-edge</link>&quot;            <link linkend="GtkPositionType">GtkPositionType</link>      : Read / Write
+  &quot;<link linkend="GtkHandleBox--snap-edge-set">snap-edge-set</link>&quot;        <link linkend="gboolean">gboolean</link>             : Read / Write
+</synopsis>
+</refsect1>
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkHandleBox-child-attached">child-attached</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkHandleBox">GtkHandleBox</link> *handlebox,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkHandleBox-child-detached">child-detached</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkHandleBox">GtkHandleBox</link> *handlebox,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link> widget allows a portion of a window to be "torn
+off". It is a bin widget which displays its child and a handle that
+the user can drag to tear off a separate window (the <firstterm>float
+window</firstterm>) containing the child widget. A thin
+<firstterm>ghost</firstterm> is drawn in the original location of the
+handlebox. By dragging the separate window back to its original
+location, it can be reattached.
+</para>
+<para>
+When reattaching, the ghost and float window, must be aligned
+along one of the edges, the <firstterm>snap edge</firstterm>.
+This either can be specified by the application programmer
+explicitely, or GTK+ will pick a reasonable default based
+on the handle position.
+</para>
+<para>
+To make detaching and reattaching the handlebox as minimally confusing
+as possible to the user, it is important to set the snap edge so that
+the snap edge does not move when the handlebox is deattached. For
+instance, if the handlebox is packed at the bottom of a VBox, then
+when the handlebox is detached, the bottom edge of the handlebox's
+allocation will remain fixed as the height of the handlebox shrinks,
+so the snap edge should be set to <literal>GTK_POS_BOTTOM</literal>.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkHandleBox-struct"/>struct GtkHandleBox</title>
+<indexterm><primary>GtkHandleBox</primary></indexterm><programlisting>struct GtkHandleBox;</programlisting>
+<para>
+The <link linkend="GtkHandleBox-struct"><type>GtkHandleBox-struct</type></link> struct contains the following fields.
+(These fields should be considered read-only. They should never be set by
+an application.)
+
+<informaltable pgwide="1" frame="none" role="struct">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry>GtkShadowType shadow_type;</entry>
+<entry>The shadow type for the entry. (See <link linkend="gtk-handle-box-set-shadow-type"><function>gtk_handle_box_set_shadow_type()</function></link>).</entry>
+</row>
+
+<row>
+<entry>GtkPositionType handle_position;</entry>
+<entry>The position of the handlebox's handle with respect
+to the child. (See <link linkend="gtk-handle-box-set-handle-position"><function>gtk_handle_box_set_handle_position()</function></link>)</entry>
+</row>
+
+<row>
+<entry>gint snap_edge;</entry>
+<entry>A value of type <link linkend="GtkPosition"><type>GtkPosition</type></link> type indicating snap edge for the widget.
+(See gtk_handle_box_set_snap_edge). The value of -1 indicates
+that this value has not been set.</entry>
+</row>
+
+<row>
+<entry><link linkend="gboolean"><type>gboolean</type></link> child_detached;</entry>
+<entry>A boolean value indicating whether the handlebox's
+child is attached or detached.</entry>
+</row>
+
+</tbody>
+</tgroup>
+</informaltable>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-new"/>gtk_handle_box_new ()</title>
+<indexterm><primary>gtk_handle_box_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_handle_box_new              (void);</programlisting>
+<para>
+Create a new handle box.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-set-shadow-type"/>gtk_handle_box_set_shadow_type ()</title>
+<indexterm><primary>gtk_handle_box_set_shadow_type</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_handle_box_set_shadow_type  (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box,
+                                             <link linkend="GtkShadowType">GtkShadowType</link> type);</programlisting>
+<para>
+Sets the type of shadow to be drawn around the border 
+of the handle box.
+</para><variablelist role="params">
+<varlistentry><term><parameter>handle_box</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the shadow type.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-set-handle-position"/>gtk_handle_box_set_handle_position ()</title>
+<indexterm><primary>gtk_handle_box_set_handle_position</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_handle_box_set_handle_position
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box,
+                                             <link linkend="GtkPositionType">GtkPositionType</link> position);</programlisting>
+<para>
+Sets the side of the handlebox where the handle is drawn.
+</para><variablelist role="params">
+<varlistentry><term><parameter>handle_box</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>position</parameter>&nbsp;:</term>
+<listitem><simpara>the side of the handlebox where the handle should be drawn.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-set-snap-edge"/>gtk_handle_box_set_snap_edge ()</title>
+<indexterm><primary>gtk_handle_box_set_snap_edge</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_handle_box_set_snap_edge    (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box,
+                                             <link linkend="GtkPositionType">GtkPositionType</link> edge);</programlisting>
+<para>
+Sets the snap edge of a handlebox. The snap edge is
+the edge of the detached child that must be aligned
+with the corresponding edge of the "ghost" left
+behind when the child was detached to reattach
+the torn-off window. Usually, the snap edge should
+be chosen so that it stays in the same place on
+the screen when the handlebox is torn off.
+</para>
+<para>
+If the snap edge is not set, then an appropriate value
+will be guessed from the handle position. If the
+handle position is <literal>GTK_POS_RIGHT</literal> or <literal>GTK_POS_LEFT</literal>,
+then the snap edge will be <literal>GTK_POS_TOP</literal>, otherwise
+it will be <literal>GTK_POS_LEFT</literal>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>handle_box</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>edge</parameter>&nbsp;:</term>
+<listitem><simpara>the snap edge, or -1 to unset the value; in which
+case GTK+ will try to guess an appropriate value
+in the future.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-get-handle-position"/>gtk_handle_box_get_handle_position ()</title>
+<indexterm><primary>gtk_handle_box_get_handle_position</primary></indexterm><programlisting><link linkend="GtkPositionType">GtkPositionType</link> gtk_handle_box_get_handle_position
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box);</programlisting>
+<para>
+Gets the handle position of the handle box. See
+<link linkend="gtk-handle-box-set-handle-position"><function>gtk_handle_box_set_handle_position()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>handle_box</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the current handle position.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-get-shadow-type"/>gtk_handle_box_get_shadow_type ()</title>
+<indexterm><primary>gtk_handle_box_get_shadow_type</primary></indexterm><programlisting><link linkend="GtkShadowType">GtkShadowType</link> gtk_handle_box_get_shadow_type
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box);</programlisting>
+<para>
+Gets the type of shadow drawn around the handle box. See
+<link linkend="gtk-handle-box-set-shadow-type"><function>gtk_handle_box_set_shadow_type()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>handle_box</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the type of shadow currently drawn around the handle box.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-handle-box-get-snap-edge"/>gtk_handle_box_get_snap_edge ()</title>
+<indexterm><primary>gtk_handle_box_get_snap_edge</primary></indexterm><programlisting><link linkend="GtkPositionType">GtkPositionType</link> gtk_handle_box_get_snap_edge
+                                            (<link linkend="GtkHandleBox">GtkHandleBox</link> *handle_box);</programlisting>
+<para>
+Gets the edge used for determining reattachment of the handle box. See
+<link linkend="gtk-handle-box-set-snap-edge"><function>gtk_handle_box_set_snap_edge()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>handle_box</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkHandleBox"><type>GtkHandleBox</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the edge used for determining reattachment, or (GtkPositionType)-1 if this
+              is determined (as per default) from the handle position. 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkHandleBox--handle-position"/>&quot;<literal>handle-position</literal>&quot; (<link linkend="GtkPositionType">GtkPositionType</link> : Read / Write)</term>
+<listitem>
+<para>Position of the handle relative to the child widget.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkHandleBox--shadow"/>&quot;<literal>shadow</literal>&quot; (<link linkend="GtkShadowType">GtkShadowType</link> : Read / Write)</term>
+<listitem>
+<para>Deprecated property, use shadow_type instead.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkHandleBox--shadow-type"/>&quot;<literal>shadow-type</literal>&quot; (<link linkend="GtkShadowType">GtkShadowType</link> : Read / Write)</term>
+<listitem>
+<para>Appearance of the shadow that surrounds the container.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkHandleBox--snap-edge"/>&quot;<literal>snap-edge</literal>&quot; (<link linkend="GtkPositionType">GtkPositionType</link> : Read / Write)</term>
+<listitem>
+<para>Side of the handlebox that's lined up with the docking point to dock the handlebox.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkHandleBox--snap-edge-set"/>&quot;<literal>snap-edge-set</literal>&quot; (<link linkend="gboolean">gboolean</link> : Read / Write)</term>
+<listitem>
+<para>Whether to use the value from the snap_edge property or a value derived from handle_position.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkHandleBox-child-attached"/>The &quot;child-attached&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkHandleBox">GtkHandleBox</link> *handlebox,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+This signal is emitted when the contents of the
+handlebox are reattached to the main window.
+</para><variablelist role="params">
+<varlistentry><term><parameter>handlebox</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the child widget of the handlebox.
+         (this argument provides no extra information
+          and is here only for backwards-compatibility)
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkHandleBox-child-detached"/>The &quot;child-detached&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkHandleBox">GtkHandleBox</link> *handlebox,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+This signal is emitted when the contents of the
+handlebox are detached from the main window.
+</para><variablelist role="params">
+<varlistentry><term><parameter>handlebox</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the child widget of the handlebox. 
+         (this argument provides no extra information
+          and is here only for backwards-compatibility)
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+
+</refentry>

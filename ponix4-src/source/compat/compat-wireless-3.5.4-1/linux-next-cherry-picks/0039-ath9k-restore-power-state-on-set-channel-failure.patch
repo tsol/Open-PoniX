@@ -1,0 +1,23 @@
+From 8389fb3fd7c0bbe3289578f698917f594e0b6fc9 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 11 Jun 2012 12:19:30 +0530
+Subject: [PATCH 39/57] ath9k: restore power state on set channel failure
+
+Not doing so, could cause imbalance in powersave count.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/main.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -1240,6 +1240,7 @@ static int ath9k_config(struct ieee80211
+ 		if (ath_set_channel(sc, hw, &sc->sc_ah->channels[pos]) < 0) {
+ 			ath_err(common, "Unable to set channel\n");
+ 			mutex_unlock(&sc->mutex);
++			ath9k_ps_restore(sc);
+ 			return -EINVAL;
+ 		}
+ 

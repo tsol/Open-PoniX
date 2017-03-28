@@ -1,0 +1,850 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Widgets divers</TITLE>
+ <LINK HREF="gtk_tut_fr-8.html" REL=next>
+ <LINK HREF="gtk_tut_fr-6.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc7" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-8.html">Page suivante</A>
+<A HREF="gtk_tut_fr-6.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc7">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s7">7. Widgets divers</A></H2>
+
+<P>
+<H2><A NAME="ss7.1">7.1 Labels</A>
+</H2>
+
+<P>Les labels sont très utilisés dans GTK et sont relativement
+simples. Ils n'émettent pas de signaux car ils n'ont pas de fenêtre X
+qui leur est associée. Si vous avez besoin de capturer des signaux ou
+de faire des coupures (« clippings »), utilisez un widget EventBox.
+<P>Pour créer un label, on utilise&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_label_new (char *str);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Où l'unique paramètre est la chaîne de caractères que l'on veut que le
+label affiche.
+<P>Pour changer le texte d'un label après sa création, on utilise la fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_label_set (GtkLabel  *label,
+                    char      *str);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>où le premier paramètre est le label que l'on veut modifier, que l'on
+convertit en utilisant la macro GTK_LABEL(), et le second est la
+nouvelle chaîne.
+<P>L'espace nécessaire à la nouvelle chaîne sera automatiquement ajusté
+si nécessaire.
+<P>Pour récupérer la chaîne courante, on utilise la fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_label_get (GtkLabel  *label,
+                    char     **str);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>où le premier paramètre est le label dont on veut récupérer la chaîne
+et le second sert à retourner cette chaîne.
+<P>
+<H2><A NAME="ss7.2">7.2 Le widget bulle d'aide</A>
+</H2>
+
+<P>Ce sont les petits textes qui surgissent lorsque vous laissez votre
+pointeur sur un bouton ou un autre widget pendant quelques secondes.
+Ils sont faciles à utiliser, on ne donnera donc pas d'exemple. Si vous
+voulez voir du code, consultez le programme <EM>testgtk.c</EM> distribué
+avec GTK.
+<P>Certains widgets (comme les labels) ne fonctionnent pas avec les
+bulles d'aide.
+<P>Le premier appel que vous utiliserez sera pour créer une nouvelle
+bulle d'aide. Vous n'avez besoin que de le faire une fois dans une
+fonction donnée. Le <EM>GtkTooltip</EM> que cette fonction retourne peut
+être utilisé pour créer plusieurs bulles d'aide.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTooltips *gtk_tooltips_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Lorsque vous avez créé une nouvelle bulle d'aide et le widget sur lequel vous
+voulez l'utiliser, vous n'avez qu'à faire cet appel pour la configurer&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_set_tips   (GtkTooltips *tooltips,
+                              GtkWidget   *widget,
+                              gchar       *tips_text);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Les paramètres sont la bulle d'aide déjà créée, suivi du widget pour
+lequel vous voulez voir apparaître cette bulle et le texte que vous
+voulez qu'elle contienne.
+<P>Voici un petit exemple&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTooltips *tooltips;
+GtkWidget *button;
+...
+tooltips = gtk_tooltips_new ();
+button = gtk_button_new_with_label ("bouton 1");
+...
+gtk_tooltips_set_tips (tooltips, button, "C'est le bouton 1");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>D'autres fonctions peuvent être utilisées avec les bulles d'aide. Je ne ferais que les énumérer et les décrire brièvement.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_destroy    (GtkTooltips *tooltips);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Destruction de bulles d'aide.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_enable     (GtkTooltips *tooltips);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Activation d'un ensemble de bulles d'aide désactivées.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_disable    (GtkTooltips *tooltips);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Désactivation d'un ensemble de bulles d'aide activées.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_set_delay  (GtkTooltips *tooltips,
+                              gint         delay);
+</PRE>
+</CODE></BLOCKQUOTE>
+ Configure le nombre de millisecondes pendant lequel
+le pointeur soit se trouver sur le widget avant que la bulle d'aide
+n'apparaisse. Par défaut, ce délai est de 1000 millisecondes, soit 1
+seconde.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void      gtk_tooltips_set_tips (GtkTooltips *tooltips,
+                                 GtkWidget   *widget,
+                                 gchar    *tips_text);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Change le texte d'une bulle d'aide déjà créée.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_set_colors (GtkTooltips *tooltips,
+                              GdkColor    *background,
+                              GdkColor    *foreground);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Configure les couleurs de fond et de premier plan des bulles
+d'aides. Je ne sais toujours pas comment spécifier les couleurs...
+<P>Et c'est tout concernant les fonctions associées aux bulles
+d'aide. C'est plus que vous ne vouliez sûrement en savoir :)
+<P>
+<H2><A NAME="ss7.3">7.3 Barres de progression</A>
+</H2>
+
+<P>Les barres de progression sont utilisées pour afficher la progression
+d'une opération. Elles sont très simple à utiliser comme vous pourrez
+le constater en étudiant le code ci-dessous. Commençons d'abord par
+l'appel permettant de créer une nouvelle barre.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_progress_bar_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Maintenant que la barre est créée, nous pouvons l'utiliser. 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_bar_update (GtkProgressBar *pbar, gfloat percentage);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le premier paramètre est la barre de progression sur laquelle on veut
+agir, et le second est le pourcentage « effectué », signifiant le
+remplissage de la barres de 0 à 100 % (réel compris entre 0 et 1).
+<P>Les barres de progression sont généralement utilisées avec les délais
+d'expiration ou autres fonctions identiques (voir la section sur 
+<A HREF="gtk_tut_fr-15.html#sec_timeouts">Expirations, fonctions d'E/S et d'attente</A>)
+pour donner l'illusion du multi-tâches. Toutes emploient la fonction
+<EM>gtk_progress_bar_update</EM> de la même façon.
+<P>Voici un exemple de barre de progression mise à jour par des
+expirations. Ce code montre aussi comment réinitialiser une barre.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+
+static int ptimer = 0;
+int pstat = TRUE;
+
+/* Cette fonction incrémente et met à jour la barre de progression,
+ * elle la réinitialise si pstat vaut FALSE */
+
+gint progress (gpointer data)
+{
+    gfloat pvalue;
+    
+    /* récupération de la valeur courante de la barre */
+
+    pvalue = GTK_PROGRESS_BAR (data)->percentage;
+    
+    if ((pvalue >= 1.0) || (pstat == FALSE)) {
+        pvalue = 0.0;
+        pstat = TRUE;
+    }
+    pvalue += 0.01;
+    
+    gtk_progress_bar_update (GTK_PROGRESS_BAR (data), pvalue);
+    
+    return TRUE;
+}
+
+/* Cette fonction signale une réinitialisation de la barre */
+
+void progress_r (void)
+{  
+    pstat = FALSE;  
+}
+
+void destroy (GtkWidget *widget, gpointer *data)
+{
+    gtk_main_quit ();
+}
+
+int main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *label;
+    GtkWidget *table;
+    GtkWidget *pbar;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (destroy), NULL);
+    
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+    
+    table = gtk_table_new(3,2,TRUE);
+    gtk_container_add (GTK_CONTAINER (window), table);
+    
+    label = gtk_label_new ("Exemple de barre de progression");
+    gtk_table_attach_defaults(GTK_TABLE(table), label, 0,2,0,1);
+    gtk_widget_show(label);
+    
+    /* Crée une barre, la place dans la table et l'affiche */
+
+    pbar = gtk_progress_bar_new ();
+    gtk_table_attach_defaults(GTK_TABLE(table), pbar, 0,2,1,2);
+    gtk_widget_show (pbar);
+    
+    /* Configure le délai d'expiration pour gérer automatiquement la
+     *  mise à jour de la barre */ 
+
+    ptimer = gtk_timeout_add (100, progress, pbar);
+    
+    /* Ce bouton indique à la barre qu'elle doit se réinitialiser */
+
+    button = gtk_button_new_with_label ("Reset");
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (progress_r), NULL);
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 0,1,2,3);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("Annuler");
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (destroy), NULL);
+    
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 1,2,2,3);
+    gtk_widget_show (button);
+    
+    gtk_widget_show(table);
+    gtk_widget_show(window);
+    
+    gtk_main ();
+    
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Dans ce petit programme, il y a quatre parties concernant le
+fonctionnement général des barres de progression, nous les étudierons
+dans l'ordre de leurs appels.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+pbar = gtk_progress_bar_new ();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cet appel crée une nouvelle barre, nommée <EM>pbar</EM>.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+ptimer = gtk_timeout_add (100, progress, pbar);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cet appel utilise des délais d'expiration pour permettre un intervalle
+de temps constant. ces délais ne sont pas nécessaires à l'utilisation
+des barres de progression.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+pvalue = GTK_PROGRESS_BAR (data)->percentage;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ce code assigne à <EM>pvalue</EM> la valeur du pourcentage de la barre.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_progress_bar_update (GTK_PROGRESS_BAR (data), pvalue);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Finalement, ce code met à jour la barre avec la valeur de <EM>pvalue</EM>.
+<P>Et c'est tout ce qu'il y a à savoir sur les barres de
+progression. Amusez-vous bien.
+<P>
+<H2><A NAME="ss7.4">7.4 Boîtes de dialogue</A>
+</H2>
+
+<P>
+<P>Les widgets boîtes de dialogue sont très simples&nbsp;: ce sont
+simplement des fenêtres avec plusieurs choses déjà placées dedans. La
+structure d'une boîte de dialogue est&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct GtkDialog
+{
+      GtkWindow window;
+    
+      GtkWidget *vbox;
+      GtkWidget *action_area;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Comme vous le voyez, cela crée simplement une fenêtre et la place dans
+une vbox suivie d'un séparateur et d'une hbox pour la « zone d'action ».
+<P>Le widget boîte de dialogue peut servir à produire des messages pour
+l'utilisateur ainsi qu'à d'autres tâches. Il est vraiment rudimentaire
+et il n'y a qu'une seule fonction pour les boîtes de dialogue&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_dialog_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ainsi, pour créer un nouveau dialogue, on utilise&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget window;
+window = gtk_dialog_new ();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ceci créera la boîte de dialogue et c'est maintenant à vous de
+l'utiliser. Vous pouvez, par exemple, placer un bouton dans la zone
+d'action en faisant quelque chose comme&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+button = ...
+gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->action_area), button,
+                    TRUE, TRUE, 0);
+gtk_widget_show (button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Et vous pouvez aussi ajouter un label à la zone de la vboxb&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+label = gtk_label_new ("Les boîtes de dialogues sont pratiques");
+gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), label, TRUE,
+                    TRUE, 0);
+gtk_widget_show (label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Comme exemple d'utilisation d'une boîte de dialogue, vous pourriez
+mettre deux boutons dans la zone d'action (un bouton « Annuler » et un
+bouton « Ok ») et un label dans la zone de la vbox posant une question
+à l'utilisateur ou signalant une erreur, etc. Vous pouvez alors
+attacher un signal différent à chacun des boutons et réaliser
+l'opération que l'utilisateur a choisie.
+<P>
+<P>
+<H2><A NAME="ss7.5">7.5 Pixmaps</A>
+</H2>
+
+<P>Les pixmaps sont des structures de données contenant des
+images. Celles-ci peuvent être utilisées à différents endroits, mais
+le plus souvent comme icônes dans le bureau X Window. Un bitmap est un
+pixmap de 2 couleurs.
+<P>Pour utiliser des pixmaps avec GTK, on doit d'abord construire une
+structure <EM>GdkPixmap</EM> en utilisant les fonctions de la couche
+GDK. Les pixmaps peuvent soit être créés à partir de données en
+memoire, ou à partir de données lues dans un fichier. Nous utiliserons
+chacun des appels pour créer un pixmap.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap *gdk_bitmap_create_from_data( GdkWindow *window,
+                                        gchar     *data,
+                                        gint      width,
+                                        gint      height );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cette fonction sert à créer un pixmap mono-plan (2 couleurs) à partir
+de données en mémoire. Chaque bit de la donnée <EM>data</EM>. <EM>width</EM>
+et <EM>height</EM> sont exprimés en pixels. Le pointeur vers un
+<EM>GdkWindow</EM> pointe sur la fenêtre courante car les ressources d'un
+pixmap n'ont de signification que dans le contexte de l'écran où il
+doit s'afficher.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap* gdk_pixmap_create_from_data( GdkWindow  *window,
+                                        gchar      *data,
+                                        gint        width,
+                                        gint        height,
+                                        gint        depth,
+                                        GdkColor   *fg,
+                                        GdkColor   *bg );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cette fonction est utilisée pour créer un pixmap d'une profondeur
+donnée (nombre de couleurs) à partir de la donnée spécifiée pas
+<EM>data</EM>. <EM>fg</EM> et <EM>bg</EM> sont les couleurs à utiliser pour
+l'avant et l'arrière-plan.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap* gdk_pixmap_create_from_xpm( GdkWindow  *window,
+                                       GdkBitmap **mask,
+                                       GdkColor   *transparent_color,
+                                       const gchar *filename );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le format XPM est une représentation des pixmaps reconnue par le système X Window. Il est largement utilisé et de nombreux utilitaires pour créer des fichiers d'images à ce format sont disponibles. Le fichier <EM>filename</EM> doit contenir une image dans ce format qui sera chargée dans la structure pixmap. Le masque <EM>mask</EM> indique quels sont les bits opaques du pixmap. Tous les autres bits sont colorisés en utilisant la couleur spécifiée par <EM>transparent_color</EM>. Un exemple d'utilisation est présenté ci-dessous.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap* gdk_pixmap_create_from_xpm_d (GdkWindow  *window,
+                                         GdkBitmap **mask,
+                                         GdkColor   *transparent_color,
+                                         gchar     **data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>De petites images peuvent être intégrées dans un programme sous la forme de
+données <EM>data</EM> au format XPM. Un pixmap est créé en utilisant ces données au
+lieu de les lire dans un fichier. Un exemple de telles données est&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* XPM */
+static const char * xpm_data[] = {
+"16 16 3 1",
+"       c None",
+".      c #000000000000",
+"X      c #FFFFFFFFFFFF",
+"                ",
+"   ......       ",
+"   .XXX.X.      ",
+"   .XXX.XX.     ",
+"   .XXX.XXX.    ",
+"   .XXX.....    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .........    ",
+"                ",
+"                "};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gdk_pixmap_destroy( GdkPixmap  *pixmap );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Lorsqu'on a utilisé un pixmap et que l'on en a plus besoin tout de suite, il est préférable de libérer la ressource en utilisant un appel à <EM>gdk_pixmap_destroy</EM>.  Les pixmaps doivent être considérées comme une ressource précieuse.
+<P>Quand le pixmap est créé, on peut l'afficher comme un widget GTK. On
+doit créer un widget pixmap qui contiendra le pixmap GDK. Ceci est
+réalisé de la façon suivante&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_pixmap_new( GdkPixmap  *pixmap,
+                           GdkBitmap  *mask );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Les autres fonctions pour les widgets pixmap sont&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_pixmap_get_type( void );
+void  gtk_pixmap_set( GtkPixmap  *pixmap,
+                      GdkPixmap  *val,
+                      GdkBitmap  *mask);
+void  gtk_pixmap_get( GtkPixmap  *pixmap,
+                      GdkPixmap **val,
+                      GdkBitmap **mask);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><EM>gtk_pixmap_set</EM> sert à changer le pixmap pris en charge par le widget. <EM>val</EM> est le pixmap créé par le GDK.
+<P>Voici un exemple illustrant l'utilisation d'un pixmap dans un bouton&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+#include &lt;gtk/gtk.h>
+
+
+/* données XPM d'une icône "Ouvrir fichier" */
+static const char * xpm_data[] = {
+"16 16 3 1",
+"       c None",
+".      c #000000000000",
+"X      c #FFFFFFFFFFFF",
+"                ",
+"   ......       ",
+"   .XXX.X.      ",
+"   .XXX.XX.     ",
+"   .XXX.XXX.    ",
+"   .XXX.....    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .........    ",
+"                ",
+"                "};
+
+
+/* Termine l'application lorsqu'elle est appelée 
+ * via le signal "delete_event" */
+
+void close_application( GtkWidget *widget, GdkEvent *event, gpointer *data ) 
+{
+    gtk_main_quit();
+}
+
+
+/* Invoquée lorsque le bouton est cliqué. Affiche simplement 
+ * un message. */
+
+void button_clicked( GtkWidget *widget, gpointer *data ) 
+{
+    printf( "bouton cliqué\n" );
+}
+
+
+int main( int argc, char *argv[] )
+{
+    /* GtkWidget est le type pour déclarer les widgets */
+
+    GtkWidget *window, *pixmapwid, *button;
+    GdkPixmap *pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+    
+    /* Crée la fenêtre principale et attache le signal "delete_event" pour 
+     * terminer l'application */
+
+    gtk_init( &amp;argc, &amp;argv );
+    window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+    gtk_signal_connect( GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (close_application), NULL );
+    gtk_container_border_width( GTK_CONTAINER (window), 10 );
+    gtk_widget_show( window );
+
+    /* Utilisation de GDK pour créer le pixmap */
+
+    style = gtk_widget_get_style( window );
+    pixmap = gdk_pixmap_create_from_xpm_d( window->window,  &amp;mask,
+                                           &amp;style->bg[GTK_STATE_NORMAL],
+                                           (gchar **)xpm_data );
+
+    /* Création d'un widget pixmap GTK pour contenir le pixmap GDK */
+
+    pixmapwid = gtk_pixmap_new( pixmap, mask );
+    gtk_widget_show( pixmapwid );
+
+    /* Création d'un bouton pour contenir le widget pixmap */
+
+    button = gtk_button_new();
+    gtk_container_add( GTK_CONTAINER(button), pixmapwid );
+    gtk_container_add( GTK_CONTAINER(window), button );
+    gtk_widget_show( button );
+
+    gtk_signal_connect( GTK_OBJECT(button), "clicked",
+                        GTK_SIGNAL_FUNC(button_clicked), NULL );
+
+    /* Affichage de la fenêtre */
+    gtk_main ();
+          
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Pour charger un fichier à partir d'un fichier XPM appelé
+<EM>icon0.xpm</EM> se trouvant dans le répertoire courant, on aurait créé
+le pixmap ainsi&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    /* Charge un pixmap à partir d'un fichier */
+
+    pixmap = gdk_pixmap_create_from_xpm( window->window, &amp;mask,
+                                         &amp;style->bg[GTK_STATE_NORMAL],
+                                         "./icon0.xpm" );
+    pixmapwid = gtk_pixmap_new( pixmap, mask );
+    gtk_widget_show( pixmapwid );
+    gtk_container_add( GTK_CONTAINER(window), pixmapwid );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Utilisation des formes
+<P>Un désavantage de l'utilisation des pixmaps est que l'objet affiché
+est toujours rectangulaire, quelle que soit l'image. On voudrait
+pouvoir créer des bureaux et des applications avec des icônes ayant
+des formes plus naturelles. Par exemple, pour une interface de jeu, on
+aimerait avoir des boutons ronds à pousser. Pour faire cela, on doit
+utiliser des fenêtres avec des formes.
+<P>Une fenêtre avec forme est simplement un pixmap dont les pixels du
+fond sont transparents. Ainsi, lorsque l'image d'arrière-plan est
+multicolore, on ne la cache pas avec le bord de notre icône. L'exemple
+suivant affiche une image de brouette sur le bureau.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+#include &lt;gtk/gtk.h>
+
+/* XPM */
+static char * WheelbarrowFull_xpm[] = {
+"48 48 64 1",
+"       c None",
+".      c #DF7DCF3CC71B",
+"X      c #965875D669A6",
+"o      c #71C671C671C6",
+"O      c #A699A289A699",
+"+      c #965892489658",
+"@      c #8E38410330C2",
+"#      c #D75C7DF769A6",
+"$      c #F7DECF3CC71B",
+"%      c #96588A288E38",
+"&amp;      c #A69992489E79",
+"*      c #8E3886178E38",
+"=      c #104008200820",
+"-      c #596510401040",
+";      c #C71B30C230C2",
+":      c #C71B9A699658",
+">      c #618561856185",
+",      c #20811C712081",
+"&lt;      c #104000000000",
+"1      c #861720812081",
+"2      c #DF7D4D344103",
+"3      c #79E769A671C6",
+"4      c #861782078617",
+"5      c #41033CF34103",
+"6      c #000000000000",
+"7      c #49241C711040",
+"8      c #492445144924",
+"9      c #082008200820",
+"0      c #69A618611861",
+"q      c #B6DA71C65144",
+"w      c #410330C238E3",
+"e      c #CF3CBAEAB6DA",
+"r      c #71C6451430C2",
+"t      c #EFBEDB6CD75C",
+"y      c #28A208200820",
+"u      c #186110401040",
+"i      c #596528A21861",
+"p      c #71C661855965",
+"a      c #A69996589658",
+"s      c #30C228A230C2",
+"d      c #BEFBA289AEBA",
+"f      c #596545145144",
+"g      c #30C230C230C2",
+"h      c #8E3882078617",
+"j      c #208118612081",
+"k      c #38E30C300820",
+"l      c #30C2208128A2",
+"z      c #38E328A238E3",
+"x      c #514438E34924",
+"c      c #618555555965",
+"v      c #30C2208130C2",
+"b      c #38E328A230C2",
+"n      c #28A228A228A2",
+"m      c #41032CB228A2",
+"M      c #104010401040",
+"N      c #492438E34103",
+"B      c #28A2208128A2",
+"V      c #A699596538E3",
+"C      c #30C21C711040",
+"Z      c #30C218611040",
+"A      c #965865955965",
+"S      c #618534D32081",
+"D      c #38E31C711040",
+"F      c #082000000820",
+"                                                ",
+"          .XoO                                  ",
+"         +@#$%o&amp;                                ",
+"         *=-;#::o+                              ",
+"           >,&lt;12#:34                            ",
+"             45671#:X3                          ",
+"               +89&lt;02qwo                        ",
+"e*                >,67;ro                       ",
+"ty>                 459@>+&amp;&amp;                    ",
+"$2u+                  >&lt;ipas8*                  ",
+"%$;=*                *3:.Xa.dfg>                ",
+"Oh$;ya             *3d.a8j,Xe.d3g8+             ",
+" Oh$;ka          *3d$a8lz,,xxc:.e3g54           ",
+"  Oh$;kO       *pd$%svbzz,sxxxxfX..&amp;wn>         ",
+"   Oh$@mO    *3dthwlsslszjzxxxxxxx3:td8M4       ",
+"    Oh$@g&amp; *3d$XNlvvvlllm,mNwxxxxxxxfa.:,B*     ",
+"     Oh$@,Od.czlllllzlmmqV@V#V@fxxxxxxxf:%j5&amp;   ",
+"      Oh$1hd5lllslllCCZrV#r#:#2AxxxxxxxxxcdwM*  ",
+"       OXq6c.%8vvvllZZiqqApA:mq:Xxcpcxxxxxfdc9* ",
+"        2r&lt;6gde3bllZZrVi7S@SV77A::qApxxxxxxfdcM ",
+"        :,q-6MN.dfmZZrrSS:#riirDSAX@Af5xxxxxfevo",
+"         +A26jguXtAZZZC7iDiCCrVVii7Cmmmxxxxxx%3g",
+"          *#16jszN..3DZZZZrCVSA2rZrV7Dmmwxxxx&amp;en",
+"           p2yFvzssXe:fCZZCiiD7iiZDiDSSZwwxx8e*>",
+"           OA1&lt;jzxwwc:$d%NDZZZZCCCZCCZZCmxxfd.B ",
+"            3206Bwxxszx%et.eaAp77m77mmmf3&amp;eeeg* ",
+"             @26MvzxNzvlbwfpdettttttttttt.c,n&amp;  ",
+"             *;16=lsNwwNwgsvslbwwvccc3pcfu&lt;o    ",
+"              p;&lt;69BvwwsszslllbBlllllllu&lt;5+     ",
+"              OS0y6FBlvvvzvzss,u=Blllj=54       ",
+"               c1-699Blvlllllu7k96MMMg4         ",
+"               *10y8n6FjvllllB&lt;166668           ",
+"                S-kg+>666&lt;M&lt;996-y6n&lt;8*          ",
+"                p71=4 m69996kD8Z-66698&amp;&amp;        ",
+"                &amp;i0ycm6n4 ogk17,0&lt;6666g         ",
+"                 N-k-&lt;>     >=01-kuu666>        ",
+"                 ,6ky&amp;      &amp;46-10ul,66,        ",
+"                 Ou0&lt;>       o66y&lt;ulw&lt;66&amp;       ",
+"                  *kk5       >66By7=xu664       ",
+"                   &lt;&lt;M4      466lj&lt;Mxu66o       ",
+"                   *>>       +66uv,zN666*       ",
+"                              566,xxj669        ",
+"                              4666FF666>        ",
+"                               >966666M         ",
+"                                oM6668+         ",
+"                                  *4            ",
+"                                                ",
+"                                                "};
+
+
+/* Termine l'application lorsqu'elle est appelée 
+ * (via le signal "delete_event"). */
+
+void close_application( GtkWidget *widget, GdkEvent *event, gpointer *data ) 
+{
+    gtk_main_quit();
+}
+
+
+int main (int argc, char *argv[])
+{
+    GtkWidget *window, *pixmap, *fixed;
+    GdkPixmap *gdk_pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+    GdkGC *gc;
+    
+    /* crée la fenêtre principale et attache le signal "delete_event"
+     * pour terminer l'application. On notera que la fenêtre principale
+     * n'a pas de barre de titre car nous la faisons surgir. */
+
+    gtk_init (&amp;argc, &amp;argv);
+    window = gtk_window_new( GTK_WINDOW_POPUP );
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (close_application), NULL);
+    gtk_widget_show (window);
+
+    /* Création du pixmap et du widget pixmap */
+
+    style = gtk_widget_get_default_style();
+    gc = style->black_gc;
+    gdk_pixmap = gdk_pixmap_create_from_xpm_d( window->window, &amp;mask,
+                                             &amp;style->bg[GTK_STATE_NORMAL],
+                                             WheelbarrowFull_xpm );
+    pixmap = gtk_pixmap_new( gdk_pixmap, mask );
+    gtk_widget_show( pixmap );
+
+    /* Pour afficher le pixmap, on utilise un widget fixe pour placer
+     * le pixmap */
+
+    fixed = gtk_fixed_new();
+    gtk_widget_set_usize( fixed, 200, 200 );
+    gtk_fixed_put( GTK_FIXED(fixed), pixmap, 0, 0 );
+    gtk_container_add( GTK_CONTAINER(window), fixed );
+    gtk_widget_show( fixed );
+
+    /* On masque tout sauf l'image elle-même */
+
+    gtk_widget_shape_combine_mask( window, mask, 0, 0 );
+    
+    /* Affichage de la fenêtre */
+
+    gtk_widget_set_uposition( window, 20, 400 );
+    gtk_widget_show( window );
+    gtk_main ();
+          
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Pour rendre l'image de la brouette sensible aux clics, on peut lui
+attacher le signal "button_press_event" pour lui faire faire quelque
+chose. Les quelques lignes suivantes font que l'image sera sensible à
+un clic souris qui provoquera l'arrêt de l'application.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_widget_set_events( window,
+                       gtk_widget_get_events( window ) |
+                       GDK_BUTTON_PRESS_MASK );
+
+gtk_signal_connect( GTK_OBJECT(window), "button_press_event",
+                    GTK_SIGNAL_FUNC(close_application), NULL );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-8.html">Page suivante</A>
+<A HREF="gtk_tut_fr-6.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc7">Table des matières</A>
+</BODY>
+</HTML>

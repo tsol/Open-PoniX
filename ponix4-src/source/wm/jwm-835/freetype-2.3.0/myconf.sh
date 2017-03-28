@@ -1,0 +1,1 @@
+./configure --prefix=/source/wm/jwm-581/ --enable-shared=no --enable-static

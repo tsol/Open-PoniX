@@ -1,0 +1,28 @@
+From f02b45dc2aa6022765a18cea7ce6acff31f59897 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 15 Oct 2012 15:29:51 +0530
+Subject: [PATCH 07/11] ath9k_hw: Fix max rx rate drop for AR9565
+
+Whenever i_coff of IQ calibration is too high, AR9565 drops max
+rx rate to MCS4. Skipping IQ update at this time can avoid this
+problem for AR9565.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_calib.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_calib.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_calib.c
+@@ -276,6 +276,11 @@ static void ar9003_hw_iqcalibrate(struct
+ 				offset_array[i],
+ 				REG_READ(ah, offset_array[i]));
+ 
++			if (AR_SREV_9565(ah) &&
++			    (iCoff == 63 || qCoff == 63 ||
++			     iCoff == -63 || qCoff == -63))
++				return;
++
+ 			REG_RMW_FIELD(ah, offset_array[i],
+ 				      AR_PHY_RX_IQCAL_CORR_IQCORR_Q_I_COFF,
+ 				      iCoff);

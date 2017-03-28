@@ -1,0 +1,25 @@
+--- ../alsa-kernel/firewire/cmp.c	2011-06-02 19:52:48.422892370 +0200
++++ cmp.c	2011-06-03 16:46:28.299118061 +0200
+@@ -1,3 +1,8 @@
++#define __NO_VERSION__
++#include "adriver.h"
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 39)
++#include "iso-resources-old.h"
++#endif
+ /*
+  * Connection Management Procedures (IEC 61883-1) helper functions
+  *
+@@ -51,7 +56,12 @@
+ 	struct fw_device *device = fw_parent_device(c->resources.unit);
+ 	int generation = c->resources.generation;
+ 	int rcode, errors = 0;
+-	__be32 old_arg, buffer[2];
++	__be32 old_arg;
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39)
++	__be32 buffer[2];
++#else
++	__be32 *buffer = c->resources.buffer;
++#endif
+ 	int err;
+ 
+ 	buffer[0] = c->last_pcr_value;

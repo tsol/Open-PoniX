@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Text Widget</TITLE>
+ <LINK HREF="gtk_tut-15.html" REL=next>
+ <LINK HREF="gtk_tut-13.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc14" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-15.html">Next</A>
+<A HREF="gtk_tut-13.html">Previous</A>
+<A HREF="gtk_tut.html#toc14">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s14">14. Text Widget</A></H2>
+
+<P>The Text widget allows multiple lines of text to be displayed and
+edited. It supports both multi-colored and multi-font text, allowing
+them to be mixed in any way we wish. It also has a wide set of key
+based text editing commands, which are compatible with Emacs.
+<P>The text widget supports full cut-and-paste facilities, including the
+use of double- and triple-click to select a word and a whole line,
+respectively.
+<P>
+<H2><A NAME="ss14.1">14.1 Creating and Configuring a Text box</A>
+</H2>
+
+<P>There is only one function for creating a new Text widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_text_new( GtkAdjustment *hadj,
+                         GtkAdjustment *vadj );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The arguments allow us to give the Text widget pointers to Adjustments
+that can be used to track the viewing position of the widget. Passing
+NULL values to either or both of these arguments will cause the
+gtk_text_new function to create its own.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_adjustments( GtkText       *text,
+                               GtkAdjustment *hadj,
+                               GtkAdjustment *vadj );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The above function allows the horizontal and vertical adjustments of a
+text widget to be changed at any time.
+<P>The text widget will not automatically create its own scrollbars when
+the amount of text to be displayed is too long for the display
+window. We therefore have to create and add them to the display layout
+ourselves.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  vscrollbar = gtk_vscrollbar_new (GTK_TEXT(text)->vadj);
+  gtk_box_pack_start(GTK_BOX(hbox), vscrollbar, FALSE, FALSE, 0);
+  gtk_widget_show (vscrollbar);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The above code snippet creates a new vertical scrollbar, and attaches
+it to the vertical adjustment of the text widget, <CODE>text</CODE>. It then
+packs it into a box in the normal way.
+<P>Note, currently the Text widget does not support horizontal
+scrollbars.
+<P>There are two main ways in which a Text widget can be used: to allow
+the user to edit a body of text, or to allow us to display multiple
+lines of text to the user. In order for us to switch between these
+modes of operation, the text widget has the following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_editable( GtkText *text,
+                            gint     editable );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>editable</CODE> argument is a TRUE or FALSE value that specifies
+whether the user is permitted to edit the contents of the Text
+widget. When the text widget is editable, it will display a cursor at
+the current insertion point.
+<P>You are not, however, restricted to just using the text widget in
+these two modes. You can toggle the editable state of the text widget
+at any time, and can insert text at any time.
+<P>The text widget wraps lines of text that are too long to fit onto a
+single line of the display window. Its default behaviour is to break
+words across line breaks. This can be changed using the next function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_word_wrap( GtkText *text,
+                             gint     word_wrap );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Using this function allows us to specify that the text widget should
+wrap long lines on word boundaries. The <CODE>word_wrap</CODE> argument is a
+TRUE or FALSE value.
+<P>
+<H2><A NAME="ss14.2">14.2 Text Manipulation</A>
+</H2>
+
+<P>The current insertion point of a Text widget can be set using
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_set_point( GtkText *text,
+                         guint    index );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>where <CODE>index</CODE> is the position to set the insertion point.
+<P>Analogous to this is the function for getting the current insertion
+point:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_text_get_point( GtkText *text );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A function that is useful in combination with the above two functions
+is
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_text_get_length( GtkText *text );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>which returns the current length of the Text widget. The length is the
+number of characters that are within the text block of the widget,
+including characters such as newline, which marks the end of
+lines.
+<P>In order to insert text at the current insertion point of a Text
+widget, the function gtk_text_insert is used, which also allows us to
+specify background and foreground colors and a font for the text.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_insert( GtkText    *text,
+                      GdkFont    *font,
+                      GdkColor   *fore,
+                      GdkColor   *back,
+                      const char *chars,
+                      gint        length );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Passing a value of <CODE>NULL</CODE> in as the value for the foreground color,
+background color or font will result in the values set within the
+widget style to be used. Using a value of <CODE>-1</CODE> for the length
+parameter will result in the whole of the text string given being
+inserted.
+<P>The text widget is one of the few within GTK that redraws itself
+dynamically, outside of the gtk_main function. This means that all
+changes to the contents of the text widget take effect
+immediately. This may be undesirable when performing multiple changes
+to the text widget. In order to allow us to perform multiple updates
+to the text widget without it continuously redrawing, we can freeze
+the widget, which temporarily stops it from automatically redrawing
+itself every time it is changed. We can then thaw the widget after our
+updates are complete.
+<P>The following two functions perform this freeze and thaw action:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_text_freeze( GtkText *text );
+
+void gtk_text_thaw( GtkText *text );         
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Text is deleted from the text widget relative to the current insertion
+point by the following two functions. The return value is a TRUE or
+FALSE indicator of whether the operation was successful.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_text_backward_delete( GtkText *text,
+                               guint    nchars );
+
+gint gtk_text_forward_delete ( GtkText *text,
+                               guint    nchars );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If you want to retrieve the contents of the text widget, then the
+macro <CODE>GTK_TEXT_INDEX(t, index)</CODE> allows you to retrieve the
+character at position <CODE>index</CODE> within the text widget <CODE>t</CODE>.
+<P>To retrieve larger blocks of text, we can use the function
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *gtk_editable_get_chars( GtkEditable *editable,
+                               gint         start_pos,
+                               gint         end_pos );   
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is a function of the parent class of the text widget. A value of
+-1 as <CODE>end_pos</CODE> signifies the end of the text. The index of the
+text starts at 0.
+<P>The function allocates a new chunk of memory for the text block, so
+don't forget to free it with a call to g_free when you have finished
+with it.
+<P>
+<H2><A NAME="ss14.3">14.3 Keyboard Shortcuts</A>
+</H2>
+
+<P>The text widget has a number of pre-installed keyboard shortcuts for
+common editing, motion and selection functions. These are accessed
+using Control and Alt key combinations.
+<P>In addition to these, holding down the Control key whilst using cursor
+key movement will move the cursor by words rather than
+characters. Holding down Shift whilst using cursor movement will
+extend the selection.
+<P>
+<H3>Motion Shortcuts</H3>
+
+<P>
+<UL>
+<LI> Ctrl-A   Beginning of line</LI>
+<LI> Ctrl-E   End of line</LI>
+<LI> Ctrl-N   Next Line</LI>
+<LI> Ctrl-P   Previous Line</LI>
+<LI> Ctrl-B   Backward one character</LI>
+<LI> Ctrl-F   Forward one character</LI>
+<LI> Alt-B    Backward one word</LI>
+<LI> Alt-F    Forward one word</LI>
+</UL>
+<P>
+<H3>Editing Shortcuts</H3>
+
+<P>
+<UL>
+<LI> Ctrl-H   Delete Backward Character (Backspace)</LI>
+<LI> Ctrl-D   Delete Forward Character (Delete)</LI>
+<LI> Ctrl-W   Delete Backward Word</LI>
+<LI> Alt-D    Delete Forward Word</LI>
+<LI> Ctrl-K   Delete to end of line</LI>
+<LI> Ctrl-U   Delete line</LI>
+</UL>
+<P>
+<H3>Selection Shortcuts</H3>
+
+<P>
+<UL>
+<LI> Ctrl-X   Cut to clipboard</LI>
+<LI> Ctrl-C   Copy to clipboard</LI>
+<LI> Ctrl-V   Paste from clipboard</LI>
+</UL>
+<P>
+<H2><A NAME="ss14.4">14.4 A GtkText Example</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start text text.c */
+
+/* text.c */
+
+#include &lt;stdio.h>
+#include &lt;gtk/gtk.h>
+
+void text_toggle_editable (GtkWidget *checkbutton,
+                           GtkWidget *text)
+{
+  gtk_text_set_editable(GTK_TEXT(text),
+                        GTK_TOGGLE_BUTTON(checkbutton)->active);
+}
+
+void text_toggle_word_wrap (GtkWidget *checkbutton,
+                            GtkWidget *text)
+{
+  gtk_text_set_word_wrap(GTK_TEXT(text),
+                         GTK_TOGGLE_BUTTON(checkbutton)->active);
+}
+
+void close_application( GtkWidget *widget,
+                        gpointer   data )
+{
+       gtk_main_quit();
+}
+
+int main( int argc,
+          char *argv[] )
+{
+  GtkWidget *window;
+  GtkWidget *box1;
+  GtkWidget *box2;
+  GtkWidget *hbox;
+  GtkWidget *button;
+  GtkWidget *check;
+  GtkWidget *separator;
+  GtkWidget *table;
+  GtkWidget *vscrollbar;
+  GtkWidget *text;
+  GdkColormap *cmap;
+  GdkColor color;
+  GdkFont *fixed_font;
+
+  FILE *infile;
+
+  gtk_init (&amp;argc, &amp;argv);
+ 
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_widget_set_usize (window, 600, 500);
+  gtk_window_set_policy (GTK_WINDOW(window), TRUE, TRUE, FALSE);  
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC(close_application),
+                      NULL);
+  gtk_window_set_title (GTK_WINDOW (window), "Text Widget Example");
+  gtk_container_set_border_width (GTK_CONTAINER (window), 0);
+  
+  
+  box1 = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (window), box1);
+  gtk_widget_show (box1);
+  
+  
+  box2 = gtk_vbox_new (FALSE, 10);
+  gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+  gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+  gtk_widget_show (box2);
+  
+  
+  table = gtk_table_new (2, 2, FALSE);
+  gtk_table_set_row_spacing (GTK_TABLE (table), 0, 2);
+  gtk_table_set_col_spacing (GTK_TABLE (table), 0, 2);
+  gtk_box_pack_start (GTK_BOX (box2), table, TRUE, TRUE, 0);
+  gtk_widget_show (table);
+  
+  /* Create the GtkText widget */
+  text = gtk_text_new (NULL, NULL);
+  gtk_text_set_editable (GTK_TEXT (text), TRUE);
+  gtk_table_attach (GTK_TABLE (table), text, 0, 1, 0, 1,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0);
+  gtk_widget_show (text);
+
+  /* Add a vertical scrollbar to the GtkText widget */
+  vscrollbar = gtk_vscrollbar_new (GTK_TEXT (text)->vadj);
+  gtk_table_attach (GTK_TABLE (table), vscrollbar, 1, 2, 0, 1,
+                    GTK_FILL, GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0);
+  gtk_widget_show (vscrollbar);
+
+  /* Get the system color map and allocate the color red */
+  cmap = gdk_colormap_get_system();
+  color.red = 0xffff;
+  color.green = 0;
+  color.blue = 0;
+  if (!gdk_color_alloc(cmap, &amp;color)) {
+    g_error("couldn't allocate color");
+  }
+
+  /* Load a fixed font */
+  fixed_font = gdk_font_load ("-misc-fixed-medium-r-*-*-*-140-*-*-*-*-*-*");
+
+  /* Realizing a widget creates a window for it,
+   * ready for us to insert some text */
+  gtk_widget_realize (text);
+
+  /* Freeze the text widget, ready for multiple updates */
+  gtk_text_freeze (GTK_TEXT (text));
+  
+  /* Insert some colored text */
+  gtk_text_insert (GTK_TEXT (text), NULL, &amp;text->style->black, NULL,
+                   "Supports ", -1);
+  gtk_text_insert (GTK_TEXT (text), NULL, &amp;color, NULL,
+                   "colored ", -1);
+  gtk_text_insert (GTK_TEXT (text), NULL, &amp;text->style->black, NULL,
+                   "text and different ", -1);
+  gtk_text_insert (GTK_TEXT (text), fixed_font, &amp;text->style->black, NULL,
+                   "fonts\n\n", -1);
+  
+  /* Load the file text.c into the text window */
+
+  infile = fopen("text.c", "r");
+  
+  if (infile) {
+    char buffer[1024];
+    int nchars;
+    
+    while (1)
+      {
+        nchars = fread(buffer, 1, 1024, infile);
+        gtk_text_insert (GTK_TEXT (text), fixed_font, NULL,
+                         NULL, buffer, nchars);
+        
+        if (nchars &lt; 1024)
+          break;
+      }
+    
+    fclose (infile);
+  }
+
+  /* Thaw the text widget, allowing the updates to become visible */  
+  gtk_text_thaw (GTK_TEXT (text));
+  
+  hbox = gtk_hbutton_box_new ();
+  gtk_box_pack_start (GTK_BOX (box2), hbox, FALSE, FALSE, 0);
+  gtk_widget_show (hbox);
+
+  check = gtk_check_button_new_with_label("Editable");
+  gtk_box_pack_start (GTK_BOX (hbox), check, FALSE, FALSE, 0);
+  gtk_signal_connect (GTK_OBJECT(check), "toggled",
+                      GTK_SIGNAL_FUNC(text_toggle_editable), text);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check), TRUE);
+  gtk_widget_show (check);
+  check = gtk_check_button_new_with_label("Wrap Words");
+  gtk_box_pack_start (GTK_BOX (hbox), check, FALSE, TRUE, 0);
+  gtk_signal_connect (GTK_OBJECT(check), "toggled",
+                      GTK_SIGNAL_FUNC(text_toggle_word_wrap), text);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check), FALSE);
+  gtk_widget_show (check);
+
+  separator = gtk_hseparator_new ();
+  gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 0);
+  gtk_widget_show (separator);
+
+  box2 = gtk_vbox_new (FALSE, 10);
+  gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+  gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, TRUE, 0);
+  gtk_widget_show (box2);
+  
+  button = gtk_button_new_with_label ("close");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                      GTK_SIGNAL_FUNC(close_application),
+                      NULL);
+  gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+  gtk_widget_grab_default (button);
+  gtk_widget_show (button);
+
+  gtk_widget_show (window);
+
+  gtk_main ();
+  
+  return(0);       
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-15.html">Next</A>
+<A HREF="gtk_tut-13.html">Previous</A>
+<A HREF="gtk_tut.html#toc14">Contents</A>
+</BODY>
+</HTML>

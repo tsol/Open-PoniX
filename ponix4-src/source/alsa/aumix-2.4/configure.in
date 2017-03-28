@@ -1,0 +1,208 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(src/common.c)
+dnl	AC_INIT recommended by autoscan, but causes GNU m4 to hog
+dnl	CPU and give warning
+dnl	AM_INIT(intl/bindtextdom.c)
+AM_INIT_AUTOMAKE(aumix, 2.4)
+AM_CONFIG_HEADER(config.h)
+
+dnl Set of available languages.
+dnl
+dnl #### This kind of sucks.  Shouldn't the configure process
+dnl determine this automagically by scanning `.po' files in `po/'?
+ALL_LINGUAS="de es fr gl pl pt_BR ru uk"
+
+dnl Checks for programs.
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+dnl Checks for libraries.
+
+dnl for NetBSD and OpenBSD
+AC_CHECK_HEADERS(sys/audioio.h, audioio_head=on, audioio_head=off)
+if (test $audioio_head = on) then
+  LIBS="$LIBS -lossaudio"
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(ncurses.h curses.h fcntl.h limits.h malloc.h strings.h sys/ioctl.h sys/time.h unistd.h machine/console.h)
+
+dnl Additional configure options
+AC_ARG_WITH(ncurses,
+   [  --without-ncurses       compile with no ncurses or mouse support],
+  AC_MSG_RESULT([Compiling without ncurses support]),
+  dnl Checks for ncurses library.
+  AC_CHECK_LIB(ncurses, initscr, initscr=on, initscr=off)
+  if (test $initscr = on) then
+    CURSLIB="ncurses"
+    LIBS="-l$CURSLIB $LIBS"
+    AC_DEFINE(HAVE_LIBNCURSES)
+    AC_DEFINE(HAVE_CURSES)
+  else
+    AC_CHECK_LIB(curses, initscr, initscr=on, initscr=off)
+    if (test $initscr = on) then
+      CURSLIB="curses"
+      LIBS="-l$CURSLIB $LIBS"
+      AC_DEFINE(HAVE_LIBCURSES)
+      AC_DEFINE(HAVE_CURSES)
+    fi
+  fi
+  if test x$CURSLIB != x; then
+    AC_CHECK_LIB($CURSLIB, getmouse, cursmouse=on, cursmouse=off)
+    if (test $cursmouse = on) then
+      AC_DEFINE(HAVE_GETMOUSE)
+    fi
+    AC_CHECK_LIB($CURSLIB, use_default_colors, cursdflt=on, cursdflt=off)
+    if (test $cursdflt = on) then
+      AC_DEFINE(HAVE_USEDEFAULT)
+    fi
+    AC_CACHE_CHECK(for private member _use_keypad in WINDOW,
+      aumix_cv_struct_window_usekeypad,
+      [AC_TRY_COMPILE([#ifdef HAVE_NCURSES_H
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif], [WINDOW w; w._use_keypad;],
+      aumix_cv_struct_window_usekeypad=yes, aumix_cv_struct_window_usekeypad=no)])
+    if test $aumix_cv_struct_window_usekeypad = yes; then
+      AC_DEFINE(HAVE_USEKEYPAD)
+    fi
+  fi
+  AC_ARG_WITH(gpm,
+    [  --without-gpm                Compile only without GPM support],
+    AC_MSG_RESULT([Compiling without GPM support]),
+    dnl Checks for GPM library.
+    AC_CHECK_LIB(gpm, Gpm_Repeat)
+  )
+  AC_ARG_WITH(sysmouse,
+    [  --without-sysmouse           Compile only without sysmouse support],
+    AC_MSG_RESULT([Compiling without sysmouse support]),
+    dnl Checks for sysmouse availability.
+    AC_CACHE_CHECK(for CONS_MOUSECTL in machine/console.h,
+      aumix_cv_cons_mousectl,
+      [AC_EGREP_CPP([A mouse is a mouse is a mouse],
+      [#ifdef HAVE_MACHINE_CONSOLE_H
+#include <machine/console.h>
+#ifdef CONS_MOUSECTL
+A mouse is a mouse is a mouse
+#endif
+#endif], aumix_cv_cons_mousectl=yes, aumix_cv_cons_mousectl=no)])
+    if test $aumix_cv_cons_mousectl = yes; then
+      AC_DEFINE(HAVE_SYSMOUSE)
+    fi
+  )
+)
+AC_SUBST(CURSLIB)
+
+dnl The built-in labels may not match up to the actual sound driver, so
+dnl turning this off is the most conservative thing.
+AC_MSG_CHECKING([whether built-in label text is requested])
+AC_ARG_ENABLE(own-labels,
+  [  --enable-own-labels     use built-in label text (may not match system) ],
+  own_labels=$enableval, own_labels=no)
+AC_MSG_RESULT($own_labels)
+if (test $own_labels = yes); then
+  AC_DEFINE(USE_OWN_LABELS)
+fi
+
+AC_ARG_WITH(alsa,
+  [  --without-alsa	  compile without hardware mute supported by ALSA ],
+  alsa_must=off, alsa_must=on)
+if (test $alsa_must = on); then
+  dnl Checks for ALSA library
+  AC_CHECK_HEADER(sys/asoundlib.h, alsa_head=on, alsa_head=off)
+  AC_CHECK_LIB(asound, snd_mixer_open, alsa_lib=on, alsa_lib=off)
+  if (test $alsa_head = on && test $alsa_lib = on); then
+    AC_DEFINE(HAVE_ALSA_DISABLED)
+dnl LIBS="$LIBS -lasound"
+  fi
+else
+  AC_MSG_RESULT([Compiling without hardware mute supported by ALSA])
+fi
+
+AC_ARG_WITH(gtk,
+  [  --without-gtk           compile without GTK+ interface],
+  gtk_must=off, gtk_must=on)
+if (test $gtk_must = on); then
+  dnl from gftp 
+  AC_CHECK_PROG(GTK_CONFIG, gtk-config, yes, no)
+  if test "$GTK_CONFIG" = "no"; then
+    echo "gtk-config not found--compiling without GTK+." ; 
+  else
+    echo "gtk-config found--compiling with GTK+." ; 
+    AC_DEFINE(HAVE_GTK)
+    dnl from GIMP 1.1.6
+    dnl Check for GTK+
+    AM_PATH_GTK(1.2.0,,AC_MSG_ERROR(Test for GTK failed. See the file 'INSTALL' for help.))
+    dnl Evil stuff to extract GLIB stuff from gtk-config output
+    dnl (we want to make sure it matches with the gtk we're using)
+    GLIB_CFLAGS=`echo $GTK_CFLAGS | sed 's/^.*\(-I[^ ]*glib[^ ]*  *-I[^ ]*\).*$/\1/'`
+    GLIB_LDFLAGS=`echo $GTK_LIBS | sed -e 's/^.*-lgdk[^ ]* *\(-L[^ ]*\).*$/\1/' -e 's/^.* -lgdk[^ ]* .*$//'`
+    if test -z "$GLIB_LDFLAGS" ; then
+      GLIB_LDFLAGS=`echo $GTK_LIBS | sed 's/^ *\(-L[^ ]*\) .*$/\1/'`
+    fi
+    GLIB_LIBS="$GLIB_LDFLAGS `echo $GTK_LIBS | sed 's/^.*\(-lglib[^ ]*\).*$/\1/'`"
+    AC_SUBST(GLIB_CFLAGS)
+    AC_SUBST(GLIB_LIBS)
+    LDFLAGS="$LDFLAGS `echo $GTK_LIBS | sed 's/\(.*\)\(-lgtk.*\)/\1/'`"
+    LIBS="$LIBS $GTK_LIBS"
+#    dnl end of GIMP stuff
+  fi
+else
+  AC_MSG_RESULT([Compiling without GTK+.])
+fi
+
+AC_MSG_CHECKING([whether dummy mixer is requested])
+AC_ARG_ENABLE(dummy-mixer,
+  [  --enable-dummy-mixer	  emulate mixer device internally, for debugging ],
+  dummy_mixer=$enableval, dummy_mixer=no)
+AC_MSG_RESULT($dummy_mixer)
+if (test $dummy_mixer = yes); then
+  AC_DEFINE(DUMMY_MIXER)
+fi
+
+dnl internationalization macros
+AUMIX_WITH_NLS
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+
+dnl Checks for library functions.
+AC_FUNC_ALLOCA 
+AC_FUNC_MMAP  
+dnl	recommended by autoscan, but gives a warning
+dnl	AC_FUNC_SETVBUF_REVERSED
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(getcwd getwd putenv select)
+
+dnl Internationalization macros
+dnl This is a null macro which makes automake generate i11l support
+dnl ud_GNU_GETTEXT
+AM_GNU_GETTEXT
+AC_LINK_FILES($nls_cv_header_libgt, $nls_cv_header_intl)
+dnl AC_DEFINE_UNQUOTED(USE_INCLUDED_LIBINTL,no)
+
+USE_INCLUDED_LIBINTL=no
+AC_DEFINE(USE_INCLUDED_LIBINTL,no)
+AC_SUBST(USE_INCLUDED_LIBINTL)
+
+USE_NLS=yes
+AC_DEFINE(USE_NLS,yes)
+AC_SUBST(USE_NLS)
+
+dnl AC_OUTPUT(Makefile)
+dnl AC_OUTPUT([Makefile intl/Makefile.in po/Makefile.in],
+dnl [AUMIX_PROCESS_PO test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
+
+dnl AC_OUTPUT([intl/Makefile po/Makefile.in doc/Makefile data/Makefile src/Makefile Makefile],
+dnl          [AUMIX_PROCESS_PO test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
+AC_OUTPUT([intl/Makefile po/Makefile.in doc/Makefile data/Makefile src/Makefile Makefile],
+          [sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in >po/Makefile || echo timestamp > stamp-h])

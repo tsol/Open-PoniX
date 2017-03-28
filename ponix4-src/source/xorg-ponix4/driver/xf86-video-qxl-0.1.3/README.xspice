@@ -1,0 +1,114 @@
+1. Introduction
+2. Building
+2.1 Building from source on fedora
+2.2 Building from source with your own Xserver
+3. Running
+
+= 1. Introduction =
+Xspice is an X server and Spice server in one. It consists of a wrapper script
+for executing Xorg with the right parameters and environment variables, a
+module names spiceqxl_drv.so implementing three drivers: a video mostly
+code identical to the guest qxl X driver, and keyboard and mouse reading from
+the spice inputs channel.
+
+Xspice allows regular X connections, while a spice client provides the keyboard
+and mouse and video output.
+
+Spice client disconnections don't impact X client connections.
+
+Xserver's select loop is reused to service spice client sockets
+and the qxl driver is reused together with some of the qemu qxl device code
+
+The following changes have been done to the qxl driver.
+ * it creates only one memslot, covering the whole of memory (much like
+  spice does in simple display mode, i.e. vga, and the tester does)
+ * it invokes the whole of the qxl device from qemu, patching in both
+  directions.
+  * io becomes a function call instead of iob
+  * irq becomes a function call instead of setting a flag
+  * it runs spice server directly
+   * it is linked with spice-server.
+
+The protocol is unchanged.
+
+= 2. Building =
+== 2.1 Building from source on fedora ==
+
+The changes for ubuntu/debian should be minimal:
+ * location of drivers for Xorg (just where you put any qxl_drv.so etc.)
+ * location of Xorg config files
+
+In fedora they are: (note the lib64 - replace with lib if running on 32 bit
+fedora)
+
+DRV_DIR=/usr/lib64/xorg/modules/drivers
+XORG_CONF_DIR=/etc/X11
+
+git clone git://anongit.freedesktop.org/xorg/driver/xf86-video-qxl
+sudo yum install spice-server-devel spice-protocol
+
+cd xspice
+autoreconf -i && ./configure --enable-xspice && make
+sudo cp src/.libs/spiceqxl_drv.so $DRV_DIR
+sudo cp spiceqxl.xorg $XORG_CONF_DIR
+
+Note: spiceqxl.org is copied to $XORG_CONF_DIR because Xorg only looks in a
+very particular config file path, and "." is not there (nor are absolute file
+names allowed unless Xorg is run as root).
+
+== 2.2 Building from source with your own Xserver ==
+
+Building the whole xserver is lengthier but can be done without
+any root permissions.
+
+This assumes you already have spice-protocol and spice-server
+installed into $TEST prefix below.
+
+TEST=/store/test
+grab xserver, xspice, xextproto and xkbcomp
+
+for src in git://anongit.freedesktop.org/xorg/proto/xextproto \
+git://anongit.freedesktop.org/xorg/app/xkbcomp \
+git://anongit.freedesktop.org/xorg/xserver \
+git://anongit.freedesktop.org/xorg/lib/libxkbfile \
+git://git.freedesktop.org/git/spice/spice-protocol
+git://anongit.freedesktop.org/xorg/driver/xf86-video-qxl; do git clone $src; done
+
+build and install into some non common prefix (not to overwrite
+your existing server) - note that this is just for testing. This
+should all work with the default server as well, but that server
+requires root generally and this is undesireable for testing (and
+running actually).
+
+export PKG_CONFIG_PATH=${TEST}/lib/pkgconfig
+(cd xextproto; ./autogen.sh --prefix=$TEST --without-xmlto && make install)
+(cd xserver; ./autogen.sh --prefix=$TEST && make install)
+(cd xkbcomp; ./autogen.sh --prefix=$TEST && make install)
+(cd libxkbfile; ./autogen.sh --prefix=$TEST && make install)
+(cd spice-protocol; ./autogen.sh --prefix=$TEST  --datadir=$TEST/lib && make install)
+(cd xspice; ./autogen.sh --prefix=$TEST && make install)
+
+mkdir -p $TEST/etc/X11
+
+place the tested config below in $TEST/etc/X11/spiceqxl.xorg.conf.
+
+last bit is a little ugly (FIXME), copy over the xkb bits from the existing X11
+installation:
+mkdir -p $TEST/share/X11
+cp -R /usr/share/X11/xkb $TEST/share/X11
+
+= 3. Running =
+$XORG is either your own built $TEST/bin/Xorg or just the default Xorg
+
+Run server with:
+export XSPICE_PORT=5900
+$XORG -noreset -config spiceqxl.xorg.conf :3.0
+
+Or equivalently:
+./xspice --port 5900 :3.0
+
+Run X clients as usual by setting DISPLAY=:3.0
+
+Run a spice client:
+spicec -h localhost -p 5900
+

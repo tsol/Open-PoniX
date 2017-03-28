@@ -1,0 +1,3468 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Miscellaneous Widgets</TITLE>
+ <LINK HREF="gtk_tut-10.html" REL=next>
+ <LINK HREF="gtk_tut-8.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc9" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-10.html">Next</A>
+<A HREF="gtk_tut-8.html">Previous</A>
+<A HREF="gtk_tut.html#toc9">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s9">9. Miscellaneous Widgets</A></H2>
+
+<H2><A NAME="ss9.1">9.1 Labels</A>
+</H2>
+
+<P>Labels are used a lot in GTK, and are relatively simple. Labels emit
+no signals as they do not have an associated X window. If you need to
+catch signals, or do clipping, place it inside a 
+<A HREF="gtk_tut-10.html#sec_EventBox">EventBox</A> widget or a Button widget.
+<P>To create a new label, use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_label_new( char *str );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The sole argument is the string you wish the label to display.
+<P>To change the label's text after creation, use the function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_label_set_text( GtkLabel *label,
+                         char     *str );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first argument is the label you created previously (cast
+using the <CODE>GTK_LABEL()</CODE> macro), and the second is the new string.
+<P>The space needed for the new string will be automatically adjusted if
+needed. You can produce multi-line labels by putting line breaks in
+the label string.
+<P>To retrieve the current string, use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_label_get( GtkLabel  *label,
+                    char     **str );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first argument is the label you've created, and the second,
+the return for the string. Do not free the return string, as it is
+used internally by GTK.
+<P>The label text can be justified using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_label_set_justify( GtkLabel         *label,
+                            GtkJustification  jtype );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Values for <CODE>jtype</CODE> are:
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_JUSTIFY_LEFT
+  GTK_JUSTIFY_RIGHT
+  GTK_JUSTIFY_CENTER (the default)
+  GTK_JUSTIFY_FILL
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The label widget is also capable of line wrapping the text
+automatically. This can be activated using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_label_set_line_wrap (GtkLabel *label,
+                              gboolean  wrap);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>wrap</CODE> argument takes a TRUE or FALSE value.
+<P>If you want your label underlined, then you can set a pattern on the
+label:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void       gtk_label_set_pattern   (GtkLabel          *label,
+                                    const gchar       *pattern);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The pattern argument indicates how the underlining should look. It
+consists of a string of underscore and space characters. An underscore
+indicates that the corresponding character in the label should be
+underlined. For example, the string 
+<PRE>
+"__     __"
+</PRE>
+ would underline the
+first two characters and eight and ninth characters.
+<P>Below is a short example to illustrate these functions. This example
+makes use of the Frame widget to better demonstrate the label
+styles. You can ignore this for now as the 
+<A HREF="gtk_tut-10.html#sec_Frames">Frame</A> widget is explained later on.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start label label.c */
+
+#include &lt;gtk/gtk.h>
+
+int main( int   argc,
+          char *argv[] )
+{
+  static GtkWidget *window = NULL;
+  GtkWidget *hbox;
+  GtkWidget *vbox;
+  GtkWidget *frame;
+  GtkWidget *label;
+
+  /* Initialise GTK */
+  gtk_init(&amp;argc, &amp;argv);
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC(gtk_main_quit),
+                      NULL);
+
+  gtk_window_set_title (GTK_WINDOW (window), "Label");
+  vbox = gtk_vbox_new (FALSE, 5);
+  hbox = gtk_hbox_new (FALSE, 5);
+  gtk_container_add (GTK_CONTAINER (window), hbox);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (window), 5);
+  
+  frame = gtk_frame_new ("Normal Label");
+  label = gtk_label_new ("This is a Normal label");
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+  
+  frame = gtk_frame_new ("Multi-line Label");
+  label = gtk_label_new ("This is a Multi-line label.\nSecond line\n" \
+                         "Third line");
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+  
+  frame = gtk_frame_new ("Left Justified Label");
+  label = gtk_label_new ("This is a Left-Justified\n" \
+                         "Multi-line label.\nThird      line");
+  gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+  
+  frame = gtk_frame_new ("Right Justified Label");
+  label = gtk_label_new ("This is a Right-Justified\nMulti-line label.\n" \
+                         "Fourth line, (j/k)");
+  gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_RIGHT);
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+
+  vbox = gtk_vbox_new (FALSE, 5);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 0);
+  frame = gtk_frame_new ("Line wrapped label");
+  label = gtk_label_new ("This is an example of a line-wrapped label.  It " \
+                         "should not be taking up the entire             " /* big space to test spacing */\
+                         "width allocated to it, but automatically " \
+                         "wraps the words to fit.  " \
+                         "The time has come, for all good men, to come to " \
+                         "the aid of their party.  " \
+                         "The sixth sheik's six sheep's sick.\n" \
+                         "     It supports multiple paragraphs correctly, " \
+                         "and  correctly   adds "\
+                         "many          extra  spaces. ");
+  gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+  
+  frame = gtk_frame_new ("Filled, wrapped label");
+  label = gtk_label_new ("This is an example of a line-wrapped, filled label.  " \
+                         "It should be taking "\
+                         "up the entire              width allocated to it.  " \
+                         "Here is a sentence to prove "\
+                         "my point.  Here is another sentence. "\
+                         "Here comes the sun, do de do de do.\n"\
+                         "    This is a new paragraph.\n"\
+                         "    This is another newer, longer, better " \
+                         "paragraph.  It is coming to an end, "\
+                         "unfortunately.");
+  gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_FILL);
+  gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+  
+  frame = gtk_frame_new ("Underlined label");
+  label = gtk_label_new ("This label is underlined!\n"
+                         "This one is underlined in quite a funky fashion");
+  gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_label_set_pattern (GTK_LABEL (label),
+                         "_________________________ _ _________ _ ______     __ _______ ___");
+  gtk_container_add (GTK_CONTAINER (frame), label);
+  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+  
+  gtk_widget_show_all (window);
+
+  gtk_main ();
+  
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.2">9.2 Arrows</A>
+</H2>
+
+<P>The Arrow widget draws an arrowhead, facing in a number of possible
+directions and having a number of possible styles. It can be very
+useful when placed on a button in many applications. Like the Label
+widget, it emits no signals.
+<P>There are only two functions for manipulating an Arrow widget:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_arrow_new( GtkArrowType   arrow_type,
+                          GtkShadowType  shadow_type );
+
+void gtk_arrow_set( GtkArrow      *arrow,
+                    GtkArrowType   arrow_type,
+                    GtkShadowType  shadow_type );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first creates a new arrow widget with the indicated type and
+appearance. The second allows these values to be altered
+retrospectively. The <CODE>arrow_type</CODE> argument may take one of the
+following values:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_ARROW_UP
+  GTK_ARROW_DOWN
+  GTK_ARROW_LEFT
+  GTK_ARROW_RIGHT
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>These values obviously indicate the direction in which the arrow will
+point. The <CODE>shadow_type</CODE> argument may take one of these values:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_SHADOW_IN
+  GTK_SHADOW_OUT (the default)
+  GTK_SHADOW_ETCHED_IN
+  GTK_SHADOW_ETCHED_OUT
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here's a brief example to illustrate their use.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start arrow arrow.c */
+
+#include &lt;gtk/gtk.h>
+
+/* Create an Arrow widget with the specified parameters
+ * and pack it into a button */
+GtkWidget *create_arrow_button( GtkArrowType  arrow_type,
+                                GtkShadowType shadow_type )
+{
+  GtkWidget *button;
+  GtkWidget *arrow;
+
+  button = gtk_button_new();
+  arrow = gtk_arrow_new (arrow_type, shadow_type);
+
+  gtk_container_add (GTK_CONTAINER (button), arrow);
+  
+  gtk_widget_show(button);
+  gtk_widget_show(arrow);
+
+  return(button);
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+  /* GtkWidget is the storage type for widgets */
+  GtkWidget *window;
+  GtkWidget *button;
+  GtkWidget *box;
+
+  /* Initialize the toolkit */
+  gtk_init (&amp;argc, &amp;argv);
+
+  /* Create a new window */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+  gtk_window_set_title (GTK_WINDOW (window), "Arrow Buttons");
+
+  /* It's a good idea to do this for all windows. */
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+
+  /* Sets the border width of the window. */
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  /* Create a box to hold the arrows/buttons */
+  box = gtk_hbox_new (FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+  gtk_container_add (GTK_CONTAINER (window), box);
+
+  /* Pack and show all our widgets */
+  gtk_widget_show(box);
+
+  button = create_arrow_button(GTK_ARROW_UP, GTK_SHADOW_IN);
+  gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 3);
+
+  button = create_arrow_button(GTK_ARROW_DOWN, GTK_SHADOW_OUT);
+  gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 3);
+  
+  button = create_arrow_button(GTK_ARROW_LEFT, GTK_SHADOW_ETCHED_IN);
+  gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 3);
+  
+  button = create_arrow_button(GTK_ARROW_RIGHT, GTK_SHADOW_ETCHED_OUT);
+  gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 3);
+  
+  gtk_widget_show (window);
+  
+  /* Rest in gtk_main and wait for the fun to begin! */
+  gtk_main ();
+  
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.3">9.3 The Tooltips Object</A>
+</H2>
+
+<P>These are the little text strings that pop up when you leave your
+pointer over a button or other widget for a few seconds. They are easy
+to use, so I will just explain them without giving an example. If you
+want to see some code, take a look at the testgtk.c program
+distributed with GTK.
+<P>Widgets that do not receive events (widgets that do not have their
+own window) will not work with tooltips.
+<P>The first call you will use creates a new tooltip. You only need to do
+this once for a set of tooltips as the <CODE>GtkTooltips</CODE> object this
+function returns can be used to create multiple tooltips.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTooltips *gtk_tooltips_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Once you have created a new tooltip, and the widget you wish to use it
+on, simply use this call to set it:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_set_tip( GtkTooltips *tooltips,
+                           GtkWidget   *widget,
+                           const gchar *tip_text,
+                           const gchar *tip_private );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first argument is the tooltip you've already created, followed by
+the widget you wish to have this tooltip pop up for, and the text you
+wish it to say. The last argument is a text string that can be used as
+an identifier when using GtkTipsQuery to implement context sensitive
+help. For now, you can set it to NULL.
+<P>
+<P>Here's a short example:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTooltips *tooltips;
+GtkWidget *button;
+.
+.
+.
+tooltips = gtk_tooltips_new ();
+button = gtk_button_new_with_label ("button 1");
+.
+.
+.
+gtk_tooltips_set_tip (tooltips, button, "This is button 1", NULL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There are other calls that can be used with tooltips. I will just list
+them with a brief description of what they do.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_enable( GtkTooltips *tooltips );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Enable a disabled set of tooltips.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_disable( GtkTooltips *tooltips );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Disable an enabled set of tooltips.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_set_delay( GtkTooltips *tooltips,
+                             gint         delay );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Sets how many milliseconds you have to hold your pointer over the
+widget before the tooltip will pop up. The default is 500
+milliseconds (half a second).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tooltips_set_colors( GtkTooltips *tooltips,
+                              GdkColor    *background,
+                              GdkColor    *foreground );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Set the foreground and background color of the tooltips.
+<P>And that's all the functions associated with tooltips. More than
+you'll ever want to know :-)
+<P>
+<H2><A NAME="sec_ProgressBar"></A> <A NAME="ss9.4">9.4 Progress Bars </A>
+</H2>
+
+<P>Progress bars are used to show the status of an operation. They are
+pretty easy to use, as you will see with the code below. But first
+lets start out with the calls to create a new progress bar.
+<P>There are two ways to create a progress bar, one simple that takes
+no arguments, and one that takes an Adjustment object as an
+argument. If the former is used, the progress bar creates its own
+adjustment object.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_progress_bar_new( void );
+
+GtkWidget *gtk_progress_bar_new_with_adjustment( GtkAdjustment *adjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The second method has the advantage that we can use the adjustment
+object to specify our own range parameters for the progress bar.
+<P>The adjustment of a progress object can be changed dynamically using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_set_adjustment( GtkProgress   *progress,
+                                  GtkAdjustment *adjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Now that the progress bar has been created we can use it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_bar_update( GtkProgressBar *pbar,
+                              gfloat          percentage );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first argument is the progress bar you wish to operate on, and the
+second argument is the amount "completed", meaning the amount the
+progress bar has been filled from 0-100%. This is passed to the
+function as a real number ranging from 0 to 1.
+<P>GTK v1.2 has added new functionality to the progress bar that enables
+it to display its value in different ways, and to inform the user of
+its current value and its range.
+<P>A progress bar may be set to one of a number of orientations using the
+function
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_bar_set_orientation( GtkProgressBar *pbar,
+                                       GtkProgressBarOrientation orientation );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>orientation</CODE> argument may take one of the following
+values to indicate the direction in which the progress bar moves:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_PROGRESS_LEFT_TO_RIGHT
+  GTK_PROGRESS_RIGHT_TO_LEFT
+  GTK_PROGRESS_BOTTOM_TO_TOP
+  GTK_PROGRESS_TOP_TO_BOTTOM
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>When used as a measure of how far a process has progressed, the
+ProgressBar can be set to display its value in either a continuous
+or discrete mode. In continuous mode, the progress bar is updated for
+each value. In discrete mode, the progress bar is updated in a number
+of discrete blocks. The number of blocks is also configurable.
+<P>The style of a progress bar can be set using the following function.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_bar_set_bar_style( GtkProgressBar      *pbar,
+                                     GtkProgressBarStyle  style );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>style</CODE> parameter can take one of two values:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_PROGRESS_CONTINUOUS
+  GTK_PROGRESS_DISCRETE
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The number of discrete blocks can be set by calling
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_bar_set_discrete_blocks( GtkProgressBar *pbar,
+                                           guint           blocks );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As well as indicating the amount of progress that has occured, the
+progress bar may be set to just indicate that there is some
+activity. This can be useful in situations where progress cannot be
+measured against a value range. Activity mode is not effected by the
+bar style that is described above, and overrides it. This mode is
+either TRUE or FALSE, and is selected by the following function.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_set_activity_mode( GtkProgress *progress,
+                                     guint        activity_mode );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The step size of the activity indicator, and the number of blocks are
+set using the following functions.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_bar_set_activity_step( GtkProgressBar *pbar,
+                                         guint           step );
+
+void gtk_progress_bar_set_activity_blocks( GtkProgressBar *pbar,
+                                           guint           blocks );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>When in continuous mode, the progress bar can also display a
+configurable text string within its trough, using the following
+function.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_set_format_string( GtkProgress *progress,
+                                     gchar       *format);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>format</CODE> argument is similiar to one that would be used in a C
+<CODE>printf</CODE> statement. The following directives may be used within the
+format string:
+<P>
+<UL>
+<LI> %p - percentage</LI>
+<LI> %v - value</LI>
+<LI> %l - lower range value</LI>
+<LI> %u - upper range value</LI>
+</UL>
+<P>The displaying of this text string can be toggled using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_set_show_text( GtkProgress *progress,
+                                 gint         show_text );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>show_text</CODE> argument is a boolean TRUE/FALSE value. The
+appearance of the text can be modified further using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_set_text_alignment( GtkProgress   *progress,
+                                      gfloat         x_align,
+                                      gfloat         y_align );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>x_align</CODE> and <CODE>y_align</CODE> arguments take values between 0.0
+and 1.0. Their values indicate the position of the text string within
+the trough. Values of 0.0 for both would place the string in the top
+left hand corner; values of 0.5 (the default) centres the text, and
+values of 1.0 places the text in the lower right hand corner.
+<P>The current text setting of a progress object can be retrieved using
+the current or a specified adjustment value using the following two
+functions. The character string returned by these functions should be
+freed by the application (using the g_free() function). These
+functions return the formatted string that would be displayed within
+the trough.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *gtk_progress_get_current_text( GtkProgress   *progress );
+
+gchar *gtk_progress_get_text_from_value( GtkProgress *progress,
+                                         gfloat       value );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There is yet another way to change the range and value of a progress
+object using the following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_configure( GtkProgress  *progress,
+                             gfloat        value,
+                             gfloat        min,
+                             gfloat        max );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function provides quite a simple interface to the range and value
+of a progress object.
+<P>The remaining functions can be used to get and set the current value
+of a progess object in various types and formats:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_progress_set_percentage( GtkProgress *progress,
+                                  gfloat       percentage );
+
+void gtk_progress_set_value( GtkProgress *progress,
+                             gfloat       value );
+
+gfloat gtk_progress_get_value( GtkProgress *progress );
+
+gfloat gtk_progress_get_current_percentage( GtkProgress *progress );
+
+gfloat gtk_progress_get_percentage_from_value( GtkProgress *progress,
+                                               gfloat       value );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>These functions are pretty self explanatory. The last function uses
+the the adjustment of the specified progess object to compute the
+percentage value of the given range value.
+<P>Progress Bars are usually used with timeouts or other such functions
+(see section on 
+<A HREF="gtk_tut-17.html#sec_timeouts">Timeouts, I/O and Idle Functions</A>) to give the illusion of multitasking. All will employ the
+gtk_progress_bar_update function in the same manner.
+<P>Here is an example of the progress bar, updated using timeouts. This
+code also shows you how to reset the Progress Bar.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start progressbar progressbar.c */
+
+#include &lt;gtk/gtk.h>
+
+typedef struct _ProgressData {
+    GtkWidget *window;
+    GtkWidget *pbar;
+    int timer;
+} ProgressData;
+
+/* Update the value of the progress bar so that we get
+ * some movement */
+gint progress_timeout( gpointer data )
+{
+    gfloat new_val;
+    GtkAdjustment *adj;
+
+    /* Calculate the value of the progress bar using the
+     * value range set in the adjustment object */
+
+    new_val = gtk_progress_get_value( GTK_PROGRESS(data) ) + 1;
+
+    adj = GTK_PROGRESS (data)->adjustment;
+    if (new_val > adj->upper)
+      new_val = adj->lower;
+
+    /* Set the new value */
+    gtk_progress_set_value (GTK_PROGRESS (data), new_val);
+
+    /* As this is a timeout function, return TRUE so that it
+     * continues to get called */
+    return(TRUE);
+} 
+
+/* Callback that toggles the text display within the progress
+ * bar trough */
+void toggle_show_text( GtkWidget    *widget,
+                       ProgressData *pdata )
+{
+    gtk_progress_set_show_text (GTK_PROGRESS (pdata->pbar),
+                                GTK_TOGGLE_BUTTON (widget)->active);
+}
+
+/* Callback that toggles the activity mode of the progress
+ * bar */
+void toggle_activity_mode( GtkWidget    *widget,
+                           ProgressData *pdata )
+{
+    gtk_progress_set_activity_mode (GTK_PROGRESS (pdata->pbar),
+                                    GTK_TOGGLE_BUTTON (widget)->active);
+}
+
+/* Callback that toggles the continuous mode of the progress
+ * bar */
+void set_continuous_mode( GtkWidget    *widget,
+                          ProgressData *pdata )
+{
+    gtk_progress_bar_set_bar_style (GTK_PROGRESS_BAR (pdata->pbar),
+                                    GTK_PROGRESS_CONTINUOUS);
+}
+
+/* Callback that toggles the discrete mode of the progress
+ * bar */
+void set_discrete_mode( GtkWidget    *widget,
+                        ProgressData *pdata )
+{
+    gtk_progress_bar_set_bar_style (GTK_PROGRESS_BAR (pdata->pbar),
+                                    GTK_PROGRESS_DISCRETE);
+}
+ 
+/* Clean up allocated memory and remove the timer */
+void destroy_progress( GtkWidget     *widget,
+                       ProgressData *pdata)
+{
+    gtk_timeout_remove (pdata->timer);
+    pdata->timer = 0;
+    pdata->window = NULL;
+    g_free(pdata);
+    gtk_main_quit();
+}
+
+int main( int   argc,
+          char *argv[])
+{
+    ProgressData *pdata;
+    GtkWidget *align;
+    GtkWidget *separator;
+    GtkWidget *table;
+    GtkAdjustment *adj;
+    GtkWidget *button;
+    GtkWidget *check;
+    GtkWidget *vbox;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* Allocate memory for the data that is passwd to the callbacks */
+    pdata = g_malloc( sizeof(ProgressData) );
+  
+    pdata->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_policy (GTK_WINDOW (pdata->window), FALSE, FALSE, TRUE);
+
+    gtk_signal_connect (GTK_OBJECT (pdata->window), "destroy",
+                        GTK_SIGNAL_FUNC (destroy_progress),
+                        pdata);
+    gtk_window_set_title (GTK_WINDOW (pdata->window), "GtkProgressBar");
+    gtk_container_set_border_width (GTK_CONTAINER (pdata->window), 0);
+
+    vbox = gtk_vbox_new (FALSE, 5);
+    gtk_container_set_border_width (GTK_CONTAINER (vbox), 10);
+    gtk_container_add (GTK_CONTAINER (pdata->window), vbox);
+    gtk_widget_show(vbox);
+  
+    /* Create a centering alignment object */
+    align = gtk_alignment_new (0.5, 0.5, 0, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), align, FALSE, FALSE, 5);
+    gtk_widget_show(align);
+
+    /* Create a Adjusment object to hold the range of the
+     * progress bar */
+    adj = (GtkAdjustment *) gtk_adjustment_new (0, 1, 150, 0, 0, 0);
+
+    /* Create the GtkProgressBar using the adjustment */
+    pdata->pbar = gtk_progress_bar_new_with_adjustment (adj);
+
+    /* Set the format of the string that can be displayed in the
+     * trough of the progress bar:
+     * %p - percentage
+     * %v - value
+     * %l - lower range value
+     * %u - upper range value */
+    gtk_progress_set_format_string (GTK_PROGRESS (pdata->pbar),
+                                    "%v from [%l-%u] (=%p%%)");
+    gtk_container_add (GTK_CONTAINER (align), pdata->pbar);
+    gtk_widget_show(pdata->pbar);
+
+    /* Add a timer callback to update the value of the progress bar */
+    pdata->timer = gtk_timeout_add (100, progress_timeout, pdata->pbar);
+
+    separator = gtk_hseparator_new ();
+    gtk_box_pack_start (GTK_BOX (vbox), separator, FALSE, FALSE, 0);
+    gtk_widget_show(separator);
+
+    /* rows, columns, homogeneous */
+    table = gtk_table_new (2, 3, FALSE);
+    gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, TRUE, 0);
+    gtk_widget_show(table);
+
+    /* Add a check button to select displaying of the trough text */
+    check = gtk_check_button_new_with_label ("Show text");
+    gtk_table_attach (GTK_TABLE (table), check, 0, 1, 0, 1,
+                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
+                      5, 5);
+    gtk_signal_connect (GTK_OBJECT (check), "clicked",
+                        GTK_SIGNAL_FUNC (toggle_show_text),
+                        pdata);
+    gtk_widget_show(check);
+
+    /* Add a check button to toggle activity mode */
+    check = gtk_check_button_new_with_label ("Activity mode");
+    gtk_table_attach (GTK_TABLE (table), check, 0, 1, 1, 2,
+                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
+                      5, 5);
+    gtk_signal_connect (GTK_OBJECT (check), "clicked",
+                        GTK_SIGNAL_FUNC (toggle_activity_mode),
+                        pdata);
+    gtk_widget_show(check);
+
+    separator = gtk_vseparator_new ();
+    gtk_table_attach (GTK_TABLE (table), separator, 1, 2, 0, 2,
+                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
+                      5, 5);
+    gtk_widget_show(separator);
+
+    /* Add a radio button to select continuous display mode */
+    button = gtk_radio_button_new_with_label (NULL, "Continuous");
+    gtk_table_attach (GTK_TABLE (table), button, 2, 3, 0, 1,
+                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
+                      5, 5);
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_continuous_mode),
+                        pdata);
+    gtk_widget_show (button);
+
+    /* Add a radio button to select discrete display mode */
+    button = gtk_radio_button_new_with_label(
+               gtk_radio_button_group (GTK_RADIO_BUTTON (button)),
+               "Discrete");
+    gtk_table_attach (GTK_TABLE (table), button, 2, 3, 1, 2,
+                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
+                      5, 5);
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_discrete_mode),
+                        pdata);
+    gtk_widget_show (button);
+
+    separator = gtk_hseparator_new ();
+    gtk_box_pack_start (GTK_BOX (vbox), separator, FALSE, FALSE, 0);
+    gtk_widget_show(separator);
+
+    /* Add a button to exit the program */
+    button = gtk_button_new_with_label ("close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (pdata->window));
+    gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+
+    /* This makes it so the button is the default. */
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+
+    /* This grabs this button to be the default button. Simply hitting
+     * the "Enter" key will cause this button to activate. */
+    gtk_widget_grab_default (button);
+    gtk_widget_show(button);
+
+    gtk_widget_show (pdata->window);
+
+    gtk_main ();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.5">9.5 Dialogs</A>
+</H2>
+
+<P>The Dialog widget is very simple, and is actually just a window with a
+few things pre-packed into it for you. The structure for a Dialog is:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct GtkDialog
+{
+      GtkWindow window;
+    
+      GtkWidget *vbox;
+      GtkWidget *action_area;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>So you see, it simply creates a window, and then packs a vbox into the
+top, which contains a separator and then an hbox called the
+"action_area".
+<P>The Dialog widget can be used for pop-up messages to the user, and
+other similar tasks. It is really basic, and there is only one
+function for the dialog box, which is:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_dialog_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>So to create a new dialog box, use,
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    GtkWidget *window;
+    window = gtk_dialog_new ();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This will create the dialog box, and it is now up to you to use it.
+You could pack a button in the action_area by doing something like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    button = ...
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->action_area),
+                        button, TRUE, TRUE, 0);
+    gtk_widget_show (button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>And you could add to the vbox area by packing, for instance, a label 
+in it, try something like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    label = gtk_label_new ("Dialogs are groovy");
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox),
+                        label, TRUE, TRUE, 0);
+    gtk_widget_show (label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As an example in using the dialog box, you could put two buttons in
+the action_area, a Cancel button and an Ok button, and a label in the
+vbox area, asking the user a question or giving an error etc. Then
+you could attach a different signal to each of the buttons and perform
+the operation the user selects.
+<P>If the simple functionality provided by the default vertical and
+horizontal boxes in the two areas doesn't give you enough control for
+your application, then you can simply pack another layout widget into
+the boxes provided. For example, you could pack a table into the
+vertical box.
+<P>
+<H2><A NAME="sec_Pixmaps"></A> <A NAME="ss9.6">9.6 Pixmaps </A>
+</H2>
+
+<P>Pixmaps are data structures that contain pictures. These pictures can
+be used in various places, but most commonly as icons on the X
+desktop, or as cursors.
+<P>A pixmap which only has 2 colors is called a bitmap, and there are a
+few additional routines for handling this common special case.
+<P>To understand pixmaps, it would help to understand how X window
+system works. Under X, applications do not need to be running on the
+same computer that is interacting with the user. Instead, the various
+applications, called "clients", all communicate with a program which
+displays the graphics and handles the keyboard and mouse. This
+program which interacts directly with the user is called a "display
+server" or "X server." Since the communication might take place over
+a network, it's important to keep some information with the X server.
+Pixmaps, for example, are stored in the memory of the X server. This
+means that once pixmap values are set, they don't need to keep getting
+transmitted over the network; instead a command is sent to "display
+pixmap number XYZ here." Even if you aren't using X with GTK
+currently, using constructs such as Pixmaps will make your programs
+work acceptably under X.
+<P>To use pixmaps in GTK, we must first build a GdkPixmap structure using
+routines from the GDK layer. Pixmaps can either be created from
+in-memory data, or from data read from a file. We'll go through each
+of the calls to create a pixmap.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap *gdk_bitmap_create_from_data( GdkWindow *window,
+                                        gchar     *data,
+                                        gint       width,
+                                        gint       height );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This routine is used to create a single-plane pixmap (2 colors) from
+data in memory. Each bit of the data represents whether that pixel is
+off or on. Width and height are in pixels. The GdkWindow pointer is to
+the current window, since a pixmap's resources are meaningful only in
+the context of the screen where it is to be displayed.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap *gdk_pixmap_create_from_data( GdkWindow *window,
+                                        gchar     *data,
+                                        gint       width,
+                                        gint       height,
+                                        gint       depth,
+                                        GdkColor  *fg,
+                                        GdkColor  *bg );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is used to create a pixmap of the given depth (number of colors) from
+the bitmap data specified. <CODE>fg</CODE> and <CODE>bg</CODE> are the foreground and
+background color to use.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap *gdk_pixmap_create_from_xpm( GdkWindow   *window,
+                                       GdkBitmap  **mask,
+                                       GdkColor    *transparent_color,
+                                       const gchar *filename );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>XPM format is a readable pixmap representation for the X Window
+System. It is widely used and many different utilities are available
+for creating image files in this format. The file specified by
+filename must contain an image in that format and it is loaded into
+the pixmap structure. The mask specifies which bits of the pixmap are
+opaque. All other bits are colored using the color specified by
+transparent_color. An example using this follows below.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap *gdk_pixmap_create_from_xpm_d( GdkWindow  *window,
+                                         GdkBitmap **mask,
+                                         GdkColor   *transparent_color,
+                                         gchar     **data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Small images can be incorporated into a program as data in the XPM
+format. A pixmap is created using this data, instead of reading it
+from a file. An example of such data is
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* XPM */
+static const char * xpm_data[] = {
+"16 16 3 1",
+"       c None",
+".      c #000000000000",
+"X      c #FFFFFFFFFFFF",
+"                ",
+"   ......       ",
+"   .XXX.X.      ",
+"   .XXX.XX.     ",
+"   .XXX.XXX.    ",
+"   .XXX.....    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .........    ",
+"                ",
+"                "};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>When we're done using a pixmap and not likely to reuse it again soon,
+it is a good idea to release the resource using
+gdk_pixmap_unref(). Pixmaps should be considered a precious resource,
+because they take up memory in the end-user's X server process. Even
+though the X client you write may run on a powerful "server" computer,
+the user may be running the X server on a small personal computer.
+<P>Once we've created a pixmap, we can display it as a GTK widget. We
+must create a GTK pixmap widget to contain the GDK pixmap. This is
+done using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_pixmap_new( GdkPixmap *pixmap,
+                           GdkBitmap *mask );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The other pixmap widget calls are
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_pixmap_get_type( void );
+
+void  gtk_pixmap_set( GtkPixmap  *pixmap,
+                      GdkPixmap  *val,
+                      GdkBitmap  *mask );
+
+void  gtk_pixmap_get( GtkPixmap  *pixmap,
+                      GdkPixmap **val,
+                      GdkBitmap **mask);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>gtk_pixmap_set is used to change the pixmap that the widget is currently
+managing. Val is the pixmap created using GDK.
+<P>The following is an example of using a pixmap in a button.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start pixmap pixmap.c */
+
+#include &lt;gtk/gtk.h>
+
+
+/* XPM data of Open-File icon */
+static const char * xpm_data[] = {
+"16 16 3 1",
+"       c None",
+".      c #000000000000",
+"X      c #FFFFFFFFFFFF",
+"                ",
+"   ......       ",
+"   .XXX.X.      ",
+"   .XXX.XX.     ",
+"   .XXX.XXX.    ",
+"   .XXX.....    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .........    ",
+"                ",
+"                "};
+
+
+/* when invoked (via signal delete_event), terminates the application.
+ */
+gint close_application( GtkWidget *widget,
+                        GdkEvent  *event,
+                        gpointer   data )
+{
+    gtk_main_quit();
+    return(FALSE);
+}
+
+
+/* is invoked when the button is clicked.  It just prints a message.
+ */
+void button_clicked( GtkWidget *widget,
+                     gpointer   data ) {
+    g_print( "button clicked\n" );
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+    /* GtkWidget is the storage type for widgets */
+    GtkWidget *window, *pixmapwid, *button;
+    GdkPixmap *pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+    
+    /* create the main window, and attach delete_event signal to terminating
+       the application */
+    gtk_init( &amp;argc, &amp;argv );
+    window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+    gtk_signal_connect( GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (close_application), NULL );
+    gtk_container_set_border_width( GTK_CONTAINER (window), 10 );
+    gtk_widget_show( window );
+
+    /* now for the pixmap from gdk */
+    style = gtk_widget_get_style( window );
+    pixmap = gdk_pixmap_create_from_xpm_d( window->window,  &amp;mask,
+                                           &amp;style->bg[GTK_STATE_NORMAL],
+                                           (gchar **)xpm_data );
+
+    /* a pixmap widget to contain the pixmap */
+    pixmapwid = gtk_pixmap_new( pixmap, mask );
+    gtk_widget_show( pixmapwid );
+
+    /* a button to contain the pixmap widget */
+    button = gtk_button_new();
+    gtk_container_add( GTK_CONTAINER(button), pixmapwid );
+    gtk_container_add( GTK_CONTAINER(window), button );
+    gtk_widget_show( button );
+
+    gtk_signal_connect( GTK_OBJECT(button), "clicked",
+                        GTK_SIGNAL_FUNC(button_clicked), NULL );
+
+    /* show the window */
+    gtk_main ();
+          
+    return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To load a file from an XPM data file called icon0.xpm in the current
+directory, we would have created the pixmap thus
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    /* load a pixmap from a file */
+    pixmap = gdk_pixmap_create_from_xpm( window->window, &amp;mask,
+                                         &amp;style->bg[GTK_STATE_NORMAL],
+                                         "./icon0.xpm" );
+    pixmapwid = gtk_pixmap_new( pixmap, mask );
+    gtk_widget_show( pixmapwid );
+    gtk_container_add( GTK_CONTAINER(window), pixmapwid );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A disadvantage of using pixmaps is that the displayed object is always
+rectangular, regardless of the image. We would like to create desktops
+and applications with icons that have more natural shapes. For
+example, for a game interface, we would like to have round buttons to
+push. The way to do this is using shaped windows.
+<P>A shaped window is simply a pixmap where the background pixels are
+transparent. This way, when the background image is multi-colored, we
+don't overwrite it with a rectangular, non-matching border around our
+icon. The following example displays a full wheelbarrow image on the
+desktop.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start wheelbarrow wheelbarrow.c */
+
+#include &lt;gtk/gtk.h>
+
+/* XPM */
+static char * WheelbarrowFull_xpm[] = {
+"48 48 64 1",
+"       c None",
+".      c #DF7DCF3CC71B",
+"X      c #965875D669A6",
+"o      c #71C671C671C6",
+"O      c #A699A289A699",
+"+      c #965892489658",
+"@      c #8E38410330C2",
+"#      c #D75C7DF769A6",
+"$      c #F7DECF3CC71B",
+"%      c #96588A288E38",
+"&amp;      c #A69992489E79",
+"*      c #8E3886178E38",
+"=      c #104008200820",
+"-      c #596510401040",
+";      c #C71B30C230C2",
+":      c #C71B9A699658",
+">      c #618561856185",
+",      c #20811C712081",
+"&lt;      c #104000000000",
+"1      c #861720812081",
+"2      c #DF7D4D344103",
+"3      c #79E769A671C6",
+"4      c #861782078617",
+"5      c #41033CF34103",
+"6      c #000000000000",
+"7      c #49241C711040",
+"8      c #492445144924",
+"9      c #082008200820",
+"0      c #69A618611861",
+"q      c #B6DA71C65144",
+"w      c #410330C238E3",
+"e      c #CF3CBAEAB6DA",
+"r      c #71C6451430C2",
+"t      c #EFBEDB6CD75C",
+"y      c #28A208200820",
+"u      c #186110401040",
+"i      c #596528A21861",
+"p      c #71C661855965",
+"a      c #A69996589658",
+"s      c #30C228A230C2",
+"d      c #BEFBA289AEBA",
+"f      c #596545145144",
+"g      c #30C230C230C2",
+"h      c #8E3882078617",
+"j      c #208118612081",
+"k      c #38E30C300820",
+"l      c #30C2208128A2",
+"z      c #38E328A238E3",
+"x      c #514438E34924",
+"c      c #618555555965",
+"v      c #30C2208130C2",
+"b      c #38E328A230C2",
+"n      c #28A228A228A2",
+"m      c #41032CB228A2",
+"M      c #104010401040",
+"N      c #492438E34103",
+"B      c #28A2208128A2",
+"V      c #A699596538E3",
+"C      c #30C21C711040",
+"Z      c #30C218611040",
+"A      c #965865955965",
+"S      c #618534D32081",
+"D      c #38E31C711040",
+"F      c #082000000820",
+"                                                ",
+"          .XoO                                  ",
+"         +@#$%o&amp;                                ",
+"         *=-;#::o+                              ",
+"           >,&lt;12#:34                            ",
+"             45671#:X3                          ",
+"               +89&lt;02qwo                        ",
+"e*                >,67;ro                       ",
+"ty>                 459@>+&amp;&amp;                    ",
+"$2u+                  >&lt;ipas8*                  ",
+"%$;=*                *3:.Xa.dfg>                ",
+"Oh$;ya             *3d.a8j,Xe.d3g8+             ",
+" Oh$;ka          *3d$a8lz,,xxc:.e3g54           ",
+"  Oh$;kO       *pd$%svbzz,sxxxxfX..&amp;wn>         ",
+"   Oh$@mO    *3dthwlsslszjzxxxxxxx3:td8M4       ",
+"    Oh$@g&amp; *3d$XNlvvvlllm,mNwxxxxxxxfa.:,B*     ",
+"     Oh$@,Od.czlllllzlmmqV@V#V@fxxxxxxxf:%j5&amp;   ",
+"      Oh$1hd5lllslllCCZrV#r#:#2AxxxxxxxxxcdwM*  ",
+"       OXq6c.%8vvvllZZiqqApA:mq:Xxcpcxxxxxfdc9* ",
+"        2r&lt;6gde3bllZZrVi7S@SV77A::qApxxxxxxfdcM ",
+"        :,q-6MN.dfmZZrrSS:#riirDSAX@Af5xxxxxfevo",
+"         +A26jguXtAZZZC7iDiCCrVVii7Cmmmxxxxxx%3g",
+"          *#16jszN..3DZZZZrCVSA2rZrV7Dmmwxxxx&amp;en",
+"           p2yFvzssXe:fCZZCiiD7iiZDiDSSZwwxx8e*>",
+"           OA1&lt;jzxwwc:$d%NDZZZZCCCZCCZZCmxxfd.B ",
+"            3206Bwxxszx%et.eaAp77m77mmmf3&amp;eeeg* ",
+"             @26MvzxNzvlbwfpdettttttttttt.c,n&amp;  ",
+"             *;16=lsNwwNwgsvslbwwvccc3pcfu&lt;o    ",
+"              p;&lt;69BvwwsszslllbBlllllllu&lt;5+     ",
+"              OS0y6FBlvvvzvzss,u=Blllj=54       ",
+"               c1-699Blvlllllu7k96MMMg4         ",
+"               *10y8n6FjvllllB&lt;166668           ",
+"                S-kg+>666&lt;M&lt;996-y6n&lt;8*          ",
+"                p71=4 m69996kD8Z-66698&amp;&amp;        ",
+"                &amp;i0ycm6n4 ogk17,0&lt;6666g         ",
+"                 N-k-&lt;>     >=01-kuu666>        ",
+"                 ,6ky&amp;      &amp;46-10ul,66,        ",
+"                 Ou0&lt;>       o66y&lt;ulw&lt;66&amp;       ",
+"                  *kk5       >66By7=xu664       ",
+"                   &lt;&lt;M4      466lj&lt;Mxu66o       ",
+"                   *>>       +66uv,zN666*       ",
+"                              566,xxj669        ",
+"                              4666FF666>        ",
+"                               >966666M         ",
+"                                oM6668+         ",
+"                                  *4            ",
+"                                                ",
+"                                                "};
+
+
+/* When invoked (via signal delete_event), terminates the application */
+gint close_application( GtkWidget *widget,
+                        GdkEvent  *event,
+                        gpointer   data )
+{
+    gtk_main_quit();
+    return(FALSE);
+}
+
+int main (int argc,
+          char *argv[] )
+{
+    /* GtkWidget is the storage type for widgets */
+    GtkWidget *window, *pixmap, *fixed;
+    GdkPixmap *gdk_pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+    GdkGC *gc;
+    
+    /* Create the main window, and attach delete_event signal to terminate
+     * the application.  Note that the main window will not have a titlebar
+     * since we're making it a popup. */
+    gtk_init (&amp;argc, &amp;argv);
+    window = gtk_window_new( GTK_WINDOW_POPUP );
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (close_application), NULL);
+    gtk_widget_show (window);
+
+    /* Now for the pixmap and the pixmap widget */
+    style = gtk_widget_get_default_style();
+    gc = style->black_gc;
+    gdk_pixmap = gdk_pixmap_create_from_xpm_d( window->window, &amp;mask,
+                                             &amp;style->bg[GTK_STATE_NORMAL],
+                                             WheelbarrowFull_xpm );
+    pixmap = gtk_pixmap_new( gdk_pixmap, mask );
+    gtk_widget_show( pixmap );
+
+    /* To display the pixmap, we use a fixed widget to place the pixmap */
+    fixed = gtk_fixed_new();
+    gtk_widget_set_usize( fixed, 200, 200 );
+    gtk_fixed_put( GTK_FIXED(fixed), pixmap, 0, 0 );
+    gtk_container_add( GTK_CONTAINER(window), fixed );
+    gtk_widget_show( fixed );
+
+    /* This masks out everything except for the image itself */
+    gtk_widget_shape_combine_mask( window, mask, 0, 0 );
+    
+    /* show the window */
+    gtk_widget_set_uposition( window, 20, 400 );
+    gtk_widget_show( window );
+    gtk_main ();
+          
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To make the wheelbarrow image sensitive, we could attach the button
+press event signal to make it do something. The following few lines
+would make the picture sensitive to a mouse button being pressed which
+makes the application terminate.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_widget_set_events( window,
+                          gtk_widget_get_events( window ) |
+                          GDK_BUTTON_PRESS_MASK );
+
+   gtk_signal_connect( GTK_OBJECT(window), "button_press_event",
+                       GTK_SIGNAL_FUNC(close_application), NULL );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.7">9.7 Rulers</A>
+</H2>
+
+<P>Ruler widgets are used to indicate the location of the mouse pointer
+in a given window. A window can have a vertical ruler spanning across
+the width and a horizontal ruler spanning down the height. A small
+triangular indicator on the ruler shows the exact location of the
+pointer relative to the ruler.
+<P>A ruler must first be created. Horizontal and vertical rulers are
+created using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_hruler_new( void );    /* horizontal ruler */
+
+GtkWidget *gtk_vruler_new( void );    /* vertical ruler   */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Once a ruler is created, we can define the unit of measurement. Units
+of measure for rulers can be<CODE>GTK_PIXELS</CODE>, <CODE>GTK_INCHES</CODE> or
+<CODE>GTK_CENTIMETERS</CODE>. This is set using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_ruler_set_metric( GtkRuler      *ruler,
+                           GtkMetricType  metric );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The default measure is <CODE>GTK_PIXELS</CODE>.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_ruler_set_metric( GTK_RULER(ruler), GTK_PIXELS );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Other important characteristics of a ruler are how to mark the units
+of scale and where the position indicator is initially placed. These
+are set for a ruler using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_ruler_set_range( GtkRuler *ruler,
+                          gfloat    lower,
+                          gfloat    upper,
+                          gfloat    position,
+                          gfloat    max_size );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The lower and upper arguments define the extent of the ruler, and
+max_size is the largest possible number that will be displayed.
+Position defines the initial position of the pointer indicator within
+the ruler.
+<P>A vertical ruler can span an 800 pixel wide window thus
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_ruler_set_range( GTK_RULER(vruler), 0, 800, 0, 800);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The markings displayed on the ruler will be from 0 to 800, with a
+number for every 100 pixels. If instead we wanted the ruler to range
+from 7 to 16, we would code
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_ruler_set_range( GTK_RULER(vruler), 7, 16, 0, 20);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The indicator on the ruler is a small triangular mark that indicates
+the position of the pointer relative to the ruler. If the ruler is
+used to follow the mouse pointer, the motion_notify_event signal
+should be connected to the motion_notify_event method of the ruler.
+To follow all mouse movements within a window area, we would use
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#define EVENT_METHOD(i, x) GTK_WIDGET_CLASS(GTK_OBJECT(i)->klass)->x
+
+    gtk_signal_connect_object( GTK_OBJECT(area), "motion_notify_event",
+           (GtkSignalFunc)EVENT_METHOD(ruler, motion_notify_event),
+           GTK_OBJECT(ruler) );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The following example creates a drawing area with a horizontal ruler
+above it and a vertical ruler to the left of it. The size of the
+drawing area is 600 pixels wide by 400 pixels high. The horizontal
+ruler spans from 7 to 13 with a mark every 100 pixels, while the
+vertical ruler spans from 0 to 400 with a mark every 100 pixels.
+Placement of the drawing area and the rulers is done using a table.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start rulers rulers.c */
+
+#include &lt;gtk/gtk.h>
+
+#define EVENT_METHOD(i, x) GTK_WIDGET_CLASS(GTK_OBJECT(i)->klass)->x
+
+#define XSIZE  600
+#define YSIZE  400
+
+/* This routine gets control when the close button is clicked */
+gint close_application( GtkWidget *widget,
+                        GdkEvent  *event,
+                        gpointer   data )
+{
+    gtk_main_quit();
+    return(FALSE);
+}
+
+/* The main routine */
+int main( int   argc,
+          char *argv[] ) {
+    GtkWidget *window, *table, *area, *hrule, *vrule;
+
+    /* Initialize GTK and create the main window */
+    gtk_init( &amp;argc, &amp;argv );
+
+    window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+            GTK_SIGNAL_FUNC( close_application ), NULL);
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+    /* Create a table for placing the ruler and the drawing area */
+    table = gtk_table_new( 3, 2, FALSE );
+    gtk_container_add( GTK_CONTAINER(window), table );
+
+    area = gtk_drawing_area_new();
+    gtk_drawing_area_size( (GtkDrawingArea *)area, XSIZE, YSIZE );
+    gtk_table_attach( GTK_TABLE(table), area, 1, 2, 1, 2,
+                      GTK_EXPAND|GTK_FILL, GTK_FILL, 0, 0 );
+    gtk_widget_set_events( area, GDK_POINTER_MOTION_MASK |
+                                 GDK_POINTER_MOTION_HINT_MASK );
+
+    /* The horizontal ruler goes on top. As the mouse moves across the
+     * drawing area, a motion_notify_event is passed to the
+     * appropriate event handler for the ruler. */
+    hrule = gtk_hruler_new();
+    gtk_ruler_set_metric( GTK_RULER(hrule), GTK_PIXELS );
+    gtk_ruler_set_range( GTK_RULER(hrule), 7, 13, 0, 20 );
+    gtk_signal_connect_object( GTK_OBJECT(area), "motion_notify_event",
+                               (GtkSignalFunc)EVENT_METHOD(hrule,
+                                                        motion_notify_event),
+                               GTK_OBJECT(hrule) );
+    /*  GTK_WIDGET_CLASS(GTK_OBJECT(hrule)->klass)->motion_notify_event, */
+    gtk_table_attach( GTK_TABLE(table), hrule, 1, 2, 0, 1,
+                      GTK_EXPAND|GTK_SHRINK|GTK_FILL, GTK_FILL, 0, 0 );
+    
+    /* The vertical ruler goes on the left. As the mouse moves across
+     * the drawing area, a motion_notify_event is passed to the
+     * appropriate event handler for the ruler. */
+    vrule = gtk_vruler_new();
+    gtk_ruler_set_metric( GTK_RULER(vrule), GTK_PIXELS );
+    gtk_ruler_set_range( GTK_RULER(vrule), 0, YSIZE, 10, YSIZE );
+    gtk_signal_connect_object( GTK_OBJECT(area), "motion_notify_event",
+                               (GtkSignalFunc)
+                                  GTK_WIDGET_CLASS(GTK_OBJECT(vrule)->klass)->
+                                                         motion_notify_event,
+                               GTK_OBJECT(vrule) );
+    gtk_table_attach( GTK_TABLE(table), vrule, 0, 1, 1, 2,
+                      GTK_FILL, GTK_EXPAND|GTK_SHRINK|GTK_FILL, 0, 0 );
+
+    /* Now show everything */
+    gtk_widget_show( area );
+    gtk_widget_show( hrule );
+    gtk_widget_show( vrule );
+    gtk_widget_show( table );
+    gtk_widget_show( window );
+    gtk_main();
+
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.8">9.8 Statusbars</A>
+</H2>
+
+<P>Statusbars are simple widgets used to display a text message. They
+keep a stack of the messages pushed onto them, so that popping the
+current message will re-display the previous text message.
+<P>In order to allow different parts of an application to use the same
+statusbar to display messages, the statusbar widget issues Context
+Identifiers which are used to identify different "users". The message
+on top of the stack is the one displayed, no matter what context it is
+in. Messages are stacked in last-in-first-out order, not context
+identifier order.
+<P>A statusbar is created with a call to:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_statusbar_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A new Context Identifier is requested using a call to the following 
+function with a short textual description of the context:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_statusbar_get_context_id( GtkStatusbar *statusbar,
+                                    const gchar  *context_description );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There are three functions that can operate on statusbars:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_statusbar_push( GtkStatusbar *statusbar,
+                          guint         context_id,
+                          gchar        *text );
+
+void gtk_statusbar_pop( GtkStatusbar *statusbar)
+                        guint         context_id );
+
+void gtk_statusbar_remove( GtkStatusbar *statusbar,
+                           guint         context_id,
+                           guint         message_id ); 
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first, gtk_statusbar_push, is used to add a new message to the
+statusbar.  It returns a Message Identifier, which can be passed later
+to the function gtk_statusbar_remove to remove the message with the
+given Message and Context Identifiers from the statusbar's stack.
+<P>The function gtk_statusbar_pop removes the message highest in the
+stack with the given Context Identifier.
+<P>The following example creates a statusbar and two buttons, one for
+pushing items onto the statusbar, and one for popping the last item
+back off.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start statusbar statusbar.c */
+
+#include &lt;gtk/gtk.h>
+#include &lt;glib.h>
+
+GtkWidget *status_bar;
+
+void push_item( GtkWidget *widget,
+                gpointer   data )
+{
+  static int count = 1;
+  char buff[20];
+
+  g_snprintf(buff, 20, "Item %d", count++);
+  gtk_statusbar_push( GTK_STATUSBAR(status_bar), GPOINTER_TO_INT(data), buff);
+
+  return;
+}
+
+void pop_item( GtkWidget *widget,
+               gpointer   data )
+{
+  gtk_statusbar_pop( GTK_STATUSBAR(status_bar), GPOINTER_TO_INT(data) );
+  return;
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+
+    GtkWidget *window;
+    GtkWidget *vbox;
+    GtkWidget *button;
+
+    gint context_id;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* create a new window */
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_usize( GTK_WIDGET (window), 200, 100);
+    gtk_window_set_title(GTK_WINDOW (window), "GTK Statusbar Example");
+    gtk_signal_connect(GTK_OBJECT (window), "delete_event",
+                       (GtkSignalFunc) gtk_exit, NULL);
+ 
+    vbox = gtk_vbox_new(FALSE, 1);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+    gtk_widget_show(vbox);
+          
+    status_bar = gtk_statusbar_new();      
+    gtk_box_pack_start (GTK_BOX (vbox), status_bar, TRUE, TRUE, 0);
+    gtk_widget_show (status_bar);
+
+    context_id = gtk_statusbar_get_context_id(
+                          GTK_STATUSBAR(status_bar), "Statusbar example");
+
+    button = gtk_button_new_with_label("push item");
+    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+        GTK_SIGNAL_FUNC (push_item), GINT_TO_POINTER(context_id) );
+    gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 2);
+    gtk_widget_show(button);              
+
+    button = gtk_button_new_with_label("pop last item");
+    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+        GTK_SIGNAL_FUNC (pop_item), GINT_TO_POINTER(context_id) );
+    gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 2);
+    gtk_widget_show(button);              
+
+    /* always display the window as the last step so it all splashes on
+     * the screen at once. */
+    gtk_widget_show(window);
+
+    gtk_main ();
+
+    return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.9">9.9 Text Entries</A>
+</H2>
+
+<P>The Entry widget allows text to be typed and displayed in a single line
+text box. The text may be set with function calls that allow new text
+to replace, prepend or append the current contents of the Entry widget.
+<P>There are two functions for creating Entry widgets:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_entry_new( void );
+
+GtkWidget *gtk_entry_new_with_max_length( guint16 max );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first just creates a new Entry widget, whilst the second creates a
+new Entry and sets a limit on the length of the text within the Entry.
+<P>There are several functions for altering the text which is currently
+within the Entry widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_entry_set_text( GtkEntry    *entry,
+                         const gchar *text );
+
+void gtk_entry_append_text( GtkEntry    *entry,
+                            const gchar *text );
+
+void gtk_entry_prepend_text( GtkEntry    *entry,
+                             const gchar *text );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The function gtk_entry_set_text sets the contents of the Entry widget,
+replacing the current contents. The functions gtk_entry_append_text
+and gtk_entry_prepend_text allow the current contents to be appended
+and prepended to.
+<P>The next function allows the current insertion point to be set.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_entry_set_position( GtkEntry *entry,
+                             gint      position );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The contents of the Entry can be retrieved by using a call to the
+following function. This is useful in the callback functions described below.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *gtk_entry_get_text( GtkEntry *entry );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The value returned by this function is used internally, and must not
+be freed using either free() or g_free()
+<P>If we don't want the contents of the Entry to be changed by someone typing
+into it, we can change its editable state.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_entry_set_editable( GtkEntry *entry,
+                             gboolean  editable );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The function above allows us to toggle the editable state of the
+Entry widget by passing in a TRUE or FALSE value for the <CODE>editable</CODE>
+argument.
+<P>If we are using the Entry where we don't want the text entered to be
+visible, for example when a password is being entered, we can use the
+following function, which also takes a boolean flag.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_entry_set_visibility( GtkEntry *entry,
+                               gboolean  visible );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A region of the text may be set as selected by using the following
+function. This would most often be used after setting some default
+text in an Entry, making it easy for the user to remove it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_entry_select_region( GtkEntry *entry,
+                              gint      start,
+                              gint      end );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If we want to catch when the user has entered text, we can connect to
+the <CODE>activate</CODE> or <CODE>changed</CODE> signal. Activate is raised when the
+user hits the enter key within the Entry widget. Changed is raised
+when the text changes at all, e.g., for every character entered or
+removed.
+<P>The following code is an example of using an Entry widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start entry entry.c */
+
+#include &lt;stdio.h>
+#include &lt;gtk/gtk.h>
+
+void enter_callback( GtkWidget *widget,
+                     GtkWidget *entry )
+{
+  gchar *entry_text;
+  entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+  printf("Entry contents: %s\n", entry_text);
+}
+
+void entry_toggle_editable( GtkWidget *checkbutton,
+                            GtkWidget *entry )
+{
+  gtk_entry_set_editable(GTK_ENTRY(entry),
+                         GTK_TOGGLE_BUTTON(checkbutton)->active);
+}
+
+void entry_toggle_visibility( GtkWidget *checkbutton,
+                              GtkWidget *entry )
+{
+  gtk_entry_set_visibility(GTK_ENTRY(entry),
+                         GTK_TOGGLE_BUTTON(checkbutton)->active);
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+
+    GtkWidget *window;
+    GtkWidget *vbox, *hbox;
+    GtkWidget *entry;
+    GtkWidget *button;
+    GtkWidget *check;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* create a new window */
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_usize( GTK_WIDGET (window), 200, 100);
+    gtk_window_set_title(GTK_WINDOW (window), "GTK Entry");
+    gtk_signal_connect(GTK_OBJECT (window), "delete_event",
+                       (GtkSignalFunc) gtk_exit, NULL);
+
+    vbox = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (window), vbox);
+    gtk_widget_show (vbox);
+
+    entry = gtk_entry_new_with_max_length (50);
+    gtk_signal_connect(GTK_OBJECT(entry), "activate",
+                       GTK_SIGNAL_FUNC(enter_callback),
+                       entry);
+    gtk_entry_set_text (GTK_ENTRY (entry), "hello");
+    gtk_entry_append_text (GTK_ENTRY (entry), " world");
+    gtk_entry_select_region (GTK_ENTRY (entry),
+                             0, GTK_ENTRY(entry)->text_length);
+    gtk_box_pack_start (GTK_BOX (vbox), entry, TRUE, TRUE, 0);
+    gtk_widget_show (entry);
+
+    hbox = gtk_hbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (vbox), hbox);
+    gtk_widget_show (hbox);
+                                  
+    check = gtk_check_button_new_with_label("Editable");
+    gtk_box_pack_start (GTK_BOX (hbox), check, TRUE, TRUE, 0);
+    gtk_signal_connect (GTK_OBJECT(check), "toggled",
+                        GTK_SIGNAL_FUNC(entry_toggle_editable), entry);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check), TRUE);
+    gtk_widget_show (check);
+    
+    check = gtk_check_button_new_with_label("Visible");
+    gtk_box_pack_start (GTK_BOX (hbox), check, TRUE, TRUE, 0);
+    gtk_signal_connect (GTK_OBJECT(check), "toggled",
+                        GTK_SIGNAL_FUNC(entry_toggle_visibility), entry);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check), TRUE);
+    gtk_widget_show (check);
+                                   
+    button = gtk_button_new_with_label ("Close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC(gtk_exit),
+                               GTK_OBJECT (window));
+    gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_widget_grab_default (button);
+    gtk_widget_show (button);
+    
+    gtk_widget_show(window);
+
+    gtk_main();
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.10">9.10 Spin Buttons</A>
+</H2>
+
+<P>The Spin Button widget is generally used to allow the user to select a
+value from a range of numeric values. It consists of a text
+entry box with up and down arrow buttons attached to the
+side. Selecting one of the buttons causes the value to "spin" up and
+down the range of possible values. The entry box may also be edited
+directly to enter a specific value.
+<P>The Spin Button allows the value to have zero or a number of decimal
+places and to be incremented/decremented in configurable steps. The
+action of holding down one of the buttons optionally results in an
+acceleration of change in the value according to how long it is
+depressed.
+<P>The Spin Button uses an 
+<A HREF="gtk_tut-7.html#sec_Adjustment">Adjustment</A>
+object to hold information about the range of values that the spin
+button can take. This makes for a powerful Spin Button widget.
+<P>Recall that an adjustment widget is created with the following
+function, which illustrates the information that it holds:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkObject *gtk_adjustment_new( gfloat value,
+                               gfloat lower,
+                               gfloat upper,
+                               gfloat step_increment,
+                               gfloat page_increment,
+                               gfloat page_size );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>These attributes of an Adjustment are used by the Spin Button in the
+following way:
+<P>
+<UL>
+<LI> <CODE>value</CODE>: initial value for the Spin Button</LI>
+<LI> <CODE>lower</CODE>: lower range value</LI>
+<LI> <CODE>upper</CODE>: upper range value</LI>
+<LI> <CODE>step_increment</CODE>: value to increment/decrement when pressing
+mouse button 1 on a button</LI>
+<LI> <CODE>page_increment</CODE>: value to increment/decrement when pressing
+mouse button 2 on a button</LI>
+<LI> <CODE>page_size</CODE>: unused</LI>
+</UL>
+<P>Additionally, mouse button 3 can be used to jump directly to the
+<CODE>upper</CODE> or <CODE>lower</CODE> values when used to select one of the
+buttons. Lets look at how to create a Spin Button:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_spin_button_new( GtkAdjustment *adjustment,
+                                gfloat         climb_rate,
+                                guint          digits );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>climb_rate</CODE> argument take a value between 0.0 and 1.0 and
+indicates the amount of acceleration that the Spin Button has. The
+<CODE>digits</CODE> argument specifies the number of decimal places to which
+the value will be displayed.
+<P>A Spin Button can be reconfigured after creation using the following
+function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_configure( GtkSpinButton *spin_button,
+                                GtkAdjustment *adjustment,
+                                gfloat         climb_rate,
+                                guint          digits );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>spin_button</CODE> argument specifies the Spin Button widget that is
+to be reconfigured. The other arguments are as specified above.
+<P>The adjustment can be set and retrieved independantly using the
+following two functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_adjustment( GtkSpinButton  *spin_button,
+                                     GtkAdjustment  *adjustment );
+
+GtkAdjustment *gtk_spin_button_get_adjustment( GtkSpinButton *spin_button );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The number of decimal places can also be altered using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_digits( GtkSpinButton *spin_button,
+                                 guint          digits) ;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The value that a Spin Button is currently displaying can be changed
+using the following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_value( GtkSpinButton *spin_button,
+                                gfloat         value );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The current value of a Spin Button can be retrieved as either a
+floating point or integer value with the following functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gfloat gtk_spin_button_get_value_as_float( GtkSpinButton *spin_button );
+
+gint gtk_spin_button_get_value_as_int( GtkSpinButton *spin_button );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If you want to alter the value of a Spin Value relative to its current
+value, then the following function can be used:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_spin( GtkSpinButton *spin_button,
+                           GtkSpinType    direction,
+                           gfloat         increment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>direction</CODE> parameter can take one of the following values:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_SPIN_STEP_FORWARD
+  GTK_SPIN_STEP_BACKWARD
+  GTK_SPIN_PAGE_FORWARD
+  GTK_SPIN_PAGE_BACKWARD
+  GTK_SPIN_HOME
+  GTK_SPIN_END
+  GTK_SPIN_USER_DEFINED
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function packs in quite a bit of functionality, which I will
+attempt to clearly explain. Many of these settings use values from the
+Adjustment object that is associated with a Spin Button.
+<P><CODE>GTK_SPIN_STEP_FORWARD</CODE> and <CODE>GTK_SPIN_STEP_BACKWARD</CODE> change the
+value of the Spin Button by the amount specified by <CODE>increment</CODE>,
+unless <CODE>increment</CODE> is equal to 0, in which case the value is
+changed by the value of <CODE>step_increment</CODE> in theAdjustment.
+<P><CODE>GTK_SPIN_PAGE_FORWARD</CODE> and <CODE>GTK_SPIN_PAGE_BACKWARD</CODE> simply
+alter the value of the Spin Button by <CODE>increment</CODE>.
+<P><CODE>GTK_SPIN_HOME</CODE> sets the value of the Spin Button to the bottom of
+the Adjustments range.
+<P><CODE>GTK_SPIN_END</CODE> sets the value of the Spin Button to the top of the
+Adjustments range.
+<P><CODE>GTK_SPIN_USER_DEFINED</CODE> simply alters the value of the Spin Button
+by the specified amount.
+<P>We move away from functions for setting and retreving the range attributes
+of the Spin Button now, and move onto functions that effect the
+appearance and behaviour of the Spin Button widget itself.
+<P>The first of these functions is used to constrain the text box of the
+Spin Button such that it may only contain a numeric value. This
+prevents a user from typing anything other than numeric values into
+the text box of a Spin Button:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_numeric( GtkSpinButton *spin_button,
+                                  gboolean       numeric );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You can set whether a Spin Button will wrap around between the upper
+and lower range values with the following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_wrap( GtkSpinButton *spin_button,
+                               gboolean       wrap );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You can set a Spin Button to round the value to the nearest
+<CODE>step_increment</CODE>, which is set within the Adjustment object used
+with the Spin Button. This is accomplished with the following
+function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_snap_to_ticks( GtkSpinButton  *spin_button,
+                                        gboolean        snap_to_ticks );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The update policy of a Spin Button can be changed with the following
+function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_update_policy( GtkSpinButton  *spin_button,
+                                    GtkSpinButtonUpdatePolicy policy );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>The possible values of <CODE>policy</CODE> are either <CODE>GTK_UPDATE_ALWAYS</CODE> or
+<CODE>GTK_UPDATE_IF_VALID</CODE>.
+<P>These policies affect the behavior of a Spin Button when parsing
+inserted text and syncing its value with the values of the
+Adjustment.
+<P>In the case of <CODE>GTK_UPDATE_IF_VALID</CODE> the Spin Button only value
+gets changed if the text input is a numeric value that is within the
+range specified by the Adjustment. Otherwise the text is reset to the
+current value.
+<P>In case of <CODE>GTK_UPDATE_ALWAYS</CODE> we ignore errors while converting
+text into a numeric value.
+<P>The appearance of the buttons used in a Spin Button can be changed
+using the following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_set_shadow_type( GtkSpinButton *spin_button,
+                                      GtkShadowType  shadow_type );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As usual, the <CODE>shadow_type</CODE> can be one of:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_SHADOW_IN
+  GTK_SHADOW_OUT
+  GTK_SHADOW_ETCHED_IN
+  GTK_SHADOW_ETCHED_OUT
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Finally, you can explicitly request that a Spin Button update itself:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_spin_button_update( GtkSpinButton  *spin_button );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>It's example time again.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start spinbutton spinbutton.c */
+
+#include &lt;stdio.h>
+#include &lt;gtk/gtk.h>
+
+static GtkWidget *spinner1;
+
+void toggle_snap( GtkWidget     *widget,
+                  GtkSpinButton *spin )
+{
+  gtk_spin_button_set_snap_to_ticks (spin, GTK_TOGGLE_BUTTON (widget)->active);
+}
+
+void toggle_numeric( GtkWidget *widget,
+                     GtkSpinButton *spin )
+{
+  gtk_spin_button_set_numeric (spin, GTK_TOGGLE_BUTTON (widget)->active);
+}
+
+void change_digits( GtkWidget *widget,
+                    GtkSpinButton *spin )
+{
+  gtk_spin_button_set_digits (GTK_SPIN_BUTTON (spinner1),
+                              gtk_spin_button_get_value_as_int (spin));
+}
+
+void get_value( GtkWidget *widget,
+                gpointer data )
+{
+  gchar buf[32];
+  GtkLabel *label;
+  GtkSpinButton *spin;
+
+  spin = GTK_SPIN_BUTTON (spinner1);
+  label = GTK_LABEL (gtk_object_get_user_data (GTK_OBJECT (widget)));
+  if (GPOINTER_TO_INT (data) == 1)
+    sprintf (buf, "%d", gtk_spin_button_get_value_as_int (spin));
+  else
+    sprintf (buf, "%0.*f", spin->digits,
+             gtk_spin_button_get_value_as_float (spin));
+  gtk_label_set_text (label, buf);
+}
+
+
+int main( int   argc,
+          char *argv[] )
+{
+  GtkWidget *window;
+  GtkWidget *frame;
+  GtkWidget *hbox;
+  GtkWidget *main_vbox;
+  GtkWidget *vbox;
+  GtkWidget *vbox2;
+  GtkWidget *spinner2;
+  GtkWidget *spinner;
+  GtkWidget *button;
+  GtkWidget *label;
+  GtkWidget *val_label;
+  GtkAdjustment *adj;
+
+  /* Initialise GTK */
+  gtk_init(&amp;argc, &amp;argv);
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_main_quit),
+                      NULL);
+
+  gtk_window_set_title (GTK_WINDOW (window), "Spin Button");
+
+  main_vbox = gtk_vbox_new (FALSE, 5);
+  gtk_container_set_border_width (GTK_CONTAINER (main_vbox), 10);
+  gtk_container_add (GTK_CONTAINER (window), main_vbox);
+  
+  frame = gtk_frame_new ("Not accelerated");
+  gtk_box_pack_start (GTK_BOX (main_vbox), frame, TRUE, TRUE, 0);
+  
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox), 5);
+  gtk_container_add (GTK_CONTAINER (frame), vbox);
+  
+  /* Day, month, year spinners */
+  
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 5);
+  
+  vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
+  
+  label = gtk_label_new ("Day :");
+  gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+  gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
+  
+  adj = (GtkAdjustment *) gtk_adjustment_new (1.0, 1.0, 31.0, 1.0,
+                                              5.0, 0.0);
+  spinner = gtk_spin_button_new (adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner), TRUE);
+  gtk_spin_button_set_shadow_type (GTK_SPIN_BUTTON (spinner),
+                                   GTK_SHADOW_OUT);
+  gtk_box_pack_start (GTK_BOX (vbox2), spinner, FALSE, TRUE, 0);
+  
+  vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
+  
+  label = gtk_label_new ("Month :");
+  gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+  gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
+  
+  adj = (GtkAdjustment *) gtk_adjustment_new (1.0, 1.0, 12.0, 1.0,
+                                              5.0, 0.0);
+  spinner = gtk_spin_button_new (adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner), TRUE);
+  gtk_spin_button_set_shadow_type (GTK_SPIN_BUTTON (spinner),
+                                   GTK_SHADOW_ETCHED_IN);
+  gtk_box_pack_start (GTK_BOX (vbox2), spinner, FALSE, TRUE, 0);
+  
+  vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
+  
+  label = gtk_label_new ("Year :");
+  gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+  gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
+  
+  adj = (GtkAdjustment *) gtk_adjustment_new (1998.0, 0.0, 2100.0,
+                                              1.0, 100.0, 0.0);
+  spinner = gtk_spin_button_new (adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner), FALSE);
+  gtk_spin_button_set_shadow_type (GTK_SPIN_BUTTON (spinner),
+                                   GTK_SHADOW_IN);
+  gtk_widget_set_usize (spinner, 55, 0);
+  gtk_box_pack_start (GTK_BOX (vbox2), spinner, FALSE, TRUE, 0);
+  
+  frame = gtk_frame_new ("Accelerated");
+  gtk_box_pack_start (GTK_BOX (main_vbox), frame, TRUE, TRUE, 0);
+  
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox), 5);
+  gtk_container_add (GTK_CONTAINER (frame), vbox);
+  
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 5);
+  
+  vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
+  
+  label = gtk_label_new ("Value :");
+  gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+  gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
+  
+  adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -10000.0, 10000.0,
+                                              0.5, 100.0, 0.0);
+  spinner1 = gtk_spin_button_new (adj, 1.0, 2);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner1), TRUE);
+  gtk_widget_set_usize (spinner1, 100, 0);
+  gtk_box_pack_start (GTK_BOX (vbox2), spinner1, FALSE, TRUE, 0);
+  
+  vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox2, TRUE, TRUE, 5);
+  
+  label = gtk_label_new ("Digits :");
+  gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+  gtk_box_pack_start (GTK_BOX (vbox2), label, FALSE, TRUE, 0);
+  
+  adj = (GtkAdjustment *) gtk_adjustment_new (2, 1, 5, 1, 1, 0);
+  spinner2 = gtk_spin_button_new (adj, 0.0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner2), TRUE);
+  gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
+                      GTK_SIGNAL_FUNC (change_digits),
+                      (gpointer) spinner2);
+  gtk_box_pack_start (GTK_BOX (vbox2), spinner2, FALSE, TRUE, 0);
+  
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 5);
+  
+  button = gtk_check_button_new_with_label ("Snap to 0.5-ticks");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                      GTK_SIGNAL_FUNC (toggle_snap),
+                      spinner1);
+  gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+  
+  button = gtk_check_button_new_with_label ("Numeric only input mode");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                      GTK_SIGNAL_FUNC (toggle_numeric),
+                      spinner1);
+  gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+  
+  val_label = gtk_label_new ("");
+  
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 5);
+  button = gtk_button_new_with_label ("Value as Int");
+  gtk_object_set_user_data (GTK_OBJECT (button), val_label);
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                      GTK_SIGNAL_FUNC (get_value),
+                      GINT_TO_POINTER (1));
+  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 5);
+  
+  button = gtk_button_new_with_label ("Value as Float");
+  gtk_object_set_user_data (GTK_OBJECT (button), val_label);
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                      GTK_SIGNAL_FUNC (get_value),
+                      GINT_TO_POINTER (2));
+  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 5);
+  
+  gtk_box_pack_start (GTK_BOX (vbox), val_label, TRUE, TRUE, 0);
+  gtk_label_set_text (GTK_LABEL (val_label), "0");
+  
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_vbox), hbox, FALSE, TRUE, 0);
+  
+  button = gtk_button_new_with_label ("Close");
+  gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                             GTK_SIGNAL_FUNC (gtk_widget_destroy),
+                             GTK_OBJECT (window));
+  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 5);
+
+  gtk_widget_show_all (window);
+
+  /* Enter the event loop */
+  gtk_main ();
+    
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.11">9.11 Combo Box</A>
+</H2>
+
+<P>The combo box is another fairly simple widget that is really just a
+collection of other widgets. From the user's point of view, the widget
+consists of a text entry box and a pull down menu from which the user
+can select one of a set of predefined entries. Alternatively, the user
+can type a different option directly into the text box.
+<P>The following extract from the structure that defines a Combo Box
+identifies several of the components:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkCombo { 
+        GtkHBox hbox; 
+        GtkWidget *entry; 
+        GtkWidget *button;
+        GtkWidget *popup; 
+        GtkWidget *popwin; 
+        GtkWidget *list;
+        ...  };
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you can see, the Combo Box has two principal parts that you really
+care about: an entry and a list.
+<P>First off, to create a combo box, use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_combo_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Now, if you want to set the string in the entry section of the combo
+box, this is done by manipulating the <CODE>entry</CODE> widget directly:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), "My String.");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To set the values in the popdown list, one uses the function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_combo_set_popdown_strings( GtkCombo *combo,
+                                    GList    *strings );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Before you can do this, you have to assemble a GList of the strings
+that you want. GList is a linked list implementation that is part of
+<A HREF="gtk_tut-20.html#sec_glib">GLib</A>, a library supporing GTK. For the
+moment, the quick and dirty explanation is that you need to set up a
+GList pointer, set it equal to NULL, then append strings to it with
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GList *g_list_append( GList *glist, 
+                      gpointer data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>It is important that you set the initial GList pointer to NULL. The
+value returned from the g_list_append function must be used as the new
+pointer to the GList.
+<P>Here's a typical code segment for creating a set of options:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    GList *glist=NULL;
+
+    glist = g_list_append(glist, "String 1");
+    glist = g_list_append(glist, "String 2");
+    glist = g_list_append(glist, "String 3"); 
+    glist = g_list_append(glist, "String 4");
+
+    gtk_combo_set_popdown_strings( GTK_COMBO(combo), glist) ;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The combo widget makes a copy of the strings passed to it in the glist
+structure. As a result, you need to make sure you free the memory used
+by the list if that is appropriate for your application.
+<P>At this point you have a working combo box that has been set up.
+There are a few aspects of its behavior that you can change. These
+are accomplished with the functions: 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_combo_set_use_arrows( GtkCombo *combo,
+                               gint      val );
+
+void gtk_combo_set_use_arrows_always( GtkCombo *combo,
+                                      gint      val );
+
+void gtk_combo_set_case_sensitive( GtkCombo *combo,
+                                   gint      val );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>gtk_combo_set_use_arrows()</CODE> lets the user change the value in the
+entry using the up/down arrow keys. This doesn't bring up the list, but
+rather replaces the current text in the entry with the next list entry
+(up or down, as your key choice indicates). It does this by searching
+in the list for the item corresponding to the current value in the
+entry and selecting the previous/next item accordingly. Usually in an
+entry the arrow keys are used to change focus (you can do that anyway
+using TAB). Note that when the current item is the last of the list
+and you press arrow-down it changes the focus (the same applies with
+the first item and arrow-up).
+<P>If the current value in the entry is not in the list, then the
+function of <CODE>gtk_combo_set_use_arrows()</CODE> is disabled.
+<P><CODE>gtk_combo_set_use_arrows_always()</CODE> similarly allows the use the
+the up/down arrow keys to cycle through the choices in the dropdown
+list, except that it wraps around the values in the list, completely
+disabling the use of the up and down arrow keys for changing focus.
+<P><CODE>gtk_combo_set_case_sensitive()</CODE> toggles whether or not GTK
+searches for entries in a case sensitive manner. This is used when the
+Combo widget is asked to find a value from the list using the current
+entry in the text box. This completion can be performed in either a
+case sensitive or insensitive manner, depending upon the use of this
+function. The Combo widget can also simply complete the current entry
+if the user presses the key combination MOD-1 and "Tab". MOD-1 is
+often mapped to the "Alt" key, by the <CODE>xmodmap</CODE> utility. Note,
+however that some window managers also use this key combination, which
+will override its use within GTK.
+<P>Now that we have a combo box, tailored to look and act how we want it,
+all that remains is being able to get data from the combo box. This is
+relatively straightforward. The majority of the time, all you are
+going to care about getting data from is the entry. The entry is
+accessed simply by <CODE>GTK_ENTRY(GTK_COMBO(combo)->entry)</CODE>. The
+two principal things that you are going to want to do with it are
+attach to the activate signal, which indicates that the user has
+pressed the Return or Enter key, and read the text. The first is
+accomplished using something like:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_signal_connect(GTK_OBJECT(GTK_COMB(combo)->entry), "activate",
+                       GTK_SIGNAL_FUNC (my_callback_function), my_data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Getting the text at any arbitrary time is accomplished by simply using
+the entry function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *gtk_entry_get_text(GtkEntry *entry);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Such as:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    char *string;
+
+    string = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(combo)->entry));
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>That's about all there is to it. There is a function
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_combo_disable_activate(GtkCombo *combo);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>that will disable the activate signal on the entry widget in the combo
+box. Personally, I can't think of why you'd want to use it, but it
+does exist.
+<P>
+<P>
+<H2><A NAME="ss9.12">9.12 Calendar</A>
+</H2>
+
+<P>The Calendar widget is an effective way to display and retrieve
+monthly date related information. It is a very simple widget to create
+and work with.
+<P>Creating a GtkCalendar widget is a simple as: 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_calendar_new();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There might be times where you need to change a lot of information
+within this widget and the following functions allow you to make
+multiple change to a Calendar widget without the user seeing multiple
+on-screen updates.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_calendar_freeze( GtkCalendar *Calendar );
+
+void gtk_calendar_thaw  ( GtkCalendar *Calendar );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>They work just like the freeze/thaw functions of every other
+widget.
+<P>The Calendar widget has a few options that allow you to change the way
+the widget both looks and operates by using the function
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_calendar_display_options( GtkCalendar               *calendar,
+                                   GtkCalendarDisplayOptions  flags );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>flags</CODE> argument can be formed by combining either of the
+following five options using the logical bitwise OR (|) operation:
+<UL>
+<LI> GTK_CALENDAR_SHOW_HEADING - this option specifies that
+the month and year should be shown when drawing the calendar.</LI>
+<LI> GTK_CALENDAR_SHOW_DAY_NAMES - this option specifies that the
+three letter descriptions should be displayed for each day (eg
+MON,TUE...).
+</LI>
+<LI> GTK_CALENDAR_NO_MONTH_CHANGE - this option states that the user
+should not and can not change the currently displayed month. This can
+be good if you only need to display a particular month such as if you
+are displaying 12 calendar widgets for every month in a particular
+year.
+</LI>
+<LI> GTK_CALENDAR_SHOW_WEEK_NUMBERS - this option specifies that the
+number for each week should be displayed down the left side of the
+calendar. (eg. Jan 1 = Week 1,Dec 31 = Week 52).
+</LI>
+<LI> GTK_CALENDAR_WEEK_START_MONDAY - this option states that the
+calander week will start on Monday instead of Sunday which is the
+default. This only affects the order in which days are displayed from
+left to right.</LI>
+</UL>
+<P>The following functions are used to set the the currently displayed
+date:
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_calendar_select_month( GtkCalendar *calendar, 
+                                guint        month,
+                                guint        year );
+
+void gtk_calendar_select_day( GtkCalendar *calendar,
+                              guint        day );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The return value from <CODE>gtk_calendar_select_month()</CODE> is a boolean
+value indicating whether the selection was successful.
+<P>With <CODE>gtk_calendar_select_day()</CODE> the specified day number is
+selected within the current month, if that is possible. A
+<CODE>day</CODE> value of 0 will deselect any current selection.
+<P>In addition to having a day selected, any number of days in the month
+may be "marked". A marked day is highlighted within the calendar
+display. The following functions are provided to manipulate marked
+days:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_calendar_mark_day( GtkCalendar *calendar,
+                            guint        day);
+
+gint gtk_calendar_unmark_day( GtkCalendar *calendar,
+                              guint        day);
+
+void gtk_calendar_clear_marks( GtkCalendar *calendar);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The currently marked days are stored within an array within the
+GtkCalendar structure. This array is 31 elements long so to test
+whether a particular day is currently marked, you need to access the
+corresponding element of the array (don't forget in C that array
+elements are numbered 0 to n-1). For example:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    GtkCalendar *calendar;
+    calendar = gtk_calendar_new();
+
+    ...
+
+    /* Is day 7 marked? */
+    if (calendar->marked_date[7-1])
+       /* day is marked */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Note that marks are persistent across month and year changes.
+<P>The final Calendar widget function is used to retrieve the currently
+selected date, month and/or year.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_calendar_get_date( GtkCalendar *calendar, 
+                            guint       *year,
+                            guint       *month,
+                            guint       *day );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function requires you to pass the addresses of <CODE>guint</CODE>
+variables, into which the result will be placed. Passing <CODE>NULL</CODE> as
+a value will result in the corresponding value not being returned.
+<P>The Calendar widget can generate a number of signals indicating date
+selection and change. The names of these signals are self explanatory,
+and are:
+<P>
+<UL>
+<LI> <CODE>month_changed</CODE></LI>
+<LI> <CODE>day_selected</CODE></LI>
+<LI> <CODE>day_selected_double_click</CODE></LI>
+<LI> <CODE>prev_month</CODE></LI>
+<LI> <CODE>next_month</CODE></LI>
+<LI> <CODE>prev_year</CODE></LI>
+<LI> <CODE>next_year</CODE></LI>
+</UL>
+<P>That just leaves us with the need to put all of this together into
+example code.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+ 
+/* example-start calendar calendar.c */
+/*
+ * Copyright (C) 1998 Cesar Miquel, Shawn T. Amundson, Mattias Grönlund
+ * Copyright (C) 2000 Tony Gale
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+#include &lt;gtk/gtk.h>
+#include &lt;stdio.h>
+#include &lt;string.h>
+#include &lt;time.h>
+
+#define DEF_PAD 10
+#define DEF_PAD_SMALL 5
+
+#define TM_YEAR_BASE 1900
+
+typedef struct _CalendarData {
+  GtkWidget *flag_checkboxes[5];
+  gboolean  settings[5];
+  gchar     *font;
+  GtkWidget *font_dialog;
+  GtkWidget *window;
+  GtkWidget *prev2_sig;
+  GtkWidget *prev_sig;
+  GtkWidget *last_sig;
+  GtkWidget *month;
+} CalendarData;
+
+enum {
+  calendar_show_header,
+  calendar_show_days,
+  calendar_month_change, 
+  calendar_show_week,
+  calendar_monday_first
+};
+
+/*
+ * GtkCalendar
+ */
+
+void calendar_date_to_string( CalendarData *data,
+                              char         *buffer,
+                              gint          buff_len )
+{
+  struct tm tm;
+  time_t time;
+
+  memset (&amp;tm, 0, sizeof (tm));
+  gtk_calendar_get_date (GTK_CALENDAR(data->window),
+                         &amp;tm.tm_year, &amp;tm.tm_mon, &amp;tm.tm_mday);
+  tm.tm_year -= TM_YEAR_BASE;
+  time = mktime(&amp;tm);
+  strftime (buffer, buff_len-1, "%x", gmtime(&amp;time));
+}
+
+void calendar_set_signal_strings( char         *sig_str,
+                                  CalendarData *data)
+{
+  gchar *prev_sig;
+
+  gtk_label_get (GTK_LABEL (data->prev_sig), &amp;prev_sig);
+  gtk_label_set (GTK_LABEL (data->prev2_sig), prev_sig);
+
+  gtk_label_get (GTK_LABEL (data->last_sig), &amp;prev_sig);
+  gtk_label_set (GTK_LABEL (data->prev_sig), prev_sig);
+  gtk_label_set (GTK_LABEL (data->last_sig), sig_str);
+}
+
+void calendar_month_changed( GtkWidget    *widget,
+                             CalendarData *data )
+{
+  char buffer[256] = "month_changed: ";
+
+  calendar_date_to_string (data, buffer+15, 256-15);
+  calendar_set_signal_strings (buffer, data);
+}
+
+void calendar_day_selected( GtkWidget    *widget,
+                            CalendarData *data )
+{
+  char buffer[256] = "day_selected: ";
+
+  calendar_date_to_string (data, buffer+14, 256-14);
+  calendar_set_signal_strings (buffer, data);
+}
+
+void calendar_day_selected_double_click( GtkWidget    *widget,
+                                         CalendarData *data )
+{
+  struct tm tm;
+  char buffer[256] = "day_selected_double_click: ";
+
+  calendar_date_to_string (data, buffer+27, 256-27);
+  calendar_set_signal_strings (buffer, data);
+
+  memset (&amp;tm, 0, sizeof (tm));
+  gtk_calendar_get_date (GTK_CALENDAR(data->window),
+                         &amp;tm.tm_year, &amp;tm.tm_mon, &amp;tm.tm_mday);
+  tm.tm_year -= TM_YEAR_BASE;
+
+  if(GTK_CALENDAR(data->window)->marked_date[tm.tm_mday-1] == 0) {
+    gtk_calendar_mark_day(GTK_CALENDAR(data->window),tm.tm_mday);
+  } else { 
+    gtk_calendar_unmark_day(GTK_CALENDAR(data->window),tm.tm_mday);
+  }
+}
+
+void calendar_prev_month( GtkWidget    *widget,
+                            CalendarData *data )
+{
+  char buffer[256] = "prev_month: ";
+
+  calendar_date_to_string (data, buffer+12, 256-12);
+  calendar_set_signal_strings (buffer, data);
+}
+
+void calendar_next_month( GtkWidget    *widget,
+                            CalendarData *data )
+{
+  char buffer[256] = "next_month: ";
+
+  calendar_date_to_string (data, buffer+12, 256-12);
+  calendar_set_signal_strings (buffer, data);
+}
+
+void calendar_prev_year( GtkWidget    *widget,
+                            CalendarData *data )
+{
+  char buffer[256] = "prev_year: ";
+
+  calendar_date_to_string (data, buffer+11, 256-11);
+  calendar_set_signal_strings (buffer, data);
+}
+
+void calendar_next_year( GtkWidget    *widget,
+                            CalendarData *data )
+{
+  char buffer[256] = "next_year: ";
+
+  calendar_date_to_string (data, buffer+11, 256-11);
+  calendar_set_signal_strings (buffer, data);
+}
+
+
+void calendar_set_flags( CalendarData *calendar )
+{
+  gint i;
+  gint options=0;
+  for (i=0;i&lt;5;i++) 
+    if (calendar->settings[i])
+      {
+        options=options + (1&lt;&lt;i);
+      }
+  if (calendar->window)
+    gtk_calendar_display_options (GTK_CALENDAR (calendar->window), options);
+}
+
+void calendar_toggle_flag( GtkWidget    *toggle,
+                           CalendarData *calendar )
+{
+  gint i;
+  gint j;
+  j=0;
+  for (i=0; i&lt;5; i++)
+    if (calendar->flag_checkboxes[i] == toggle)
+      j = i;
+
+  calendar->settings[j]=!calendar->settings[j];
+  calendar_set_flags(calendar);
+  
+}
+
+void calendar_font_selection_ok( GtkWidget    *button,
+                                 CalendarData *calendar )
+{
+  GtkStyle *style;
+  GdkFont  *font;
+
+  calendar->font = gtk_font_selection_dialog_get_font_name(
+                        GTK_FONT_SELECTION_DIALOG (calendar->font_dialog));
+  if (calendar->window)
+    {
+      font = gtk_font_selection_dialog_get_font(GTK_FONT_SELECTION_DIALOG(calendar->font_dialog));
+      if (font) 
+        {
+          style = gtk_style_copy (gtk_widget_get_style (calendar->window));
+          gdk_font_unref (style->font);
+          style->font = font;
+          gdk_font_ref (style->font);
+          gtk_widget_set_style (calendar->window, style);
+        }
+    }
+}
+
+void calendar_select_font( GtkWidget    *button,
+                           CalendarData *calendar )
+{
+  GtkWidget *window;
+
+  if (!calendar->font_dialog) {
+    window = gtk_font_selection_dialog_new ("Font Selection Dialog");
+    g_return_if_fail(GTK_IS_FONT_SELECTION_DIALOG(window));
+    calendar->font_dialog = window;
+    
+    gtk_window_position (GTK_WINDOW (window), GTK_WIN_POS_MOUSE);
+    
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_widget_destroyed),
+                        &amp;calendar->font_dialog);
+    
+    gtk_signal_connect (GTK_OBJECT (GTK_FONT_SELECTION_DIALOG (window)->ok_button),
+                        "clicked", GTK_SIGNAL_FUNC(calendar_font_selection_ok),
+                        calendar);
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FONT_SELECTION_DIALOG (window)->cancel_button),
+                               "clicked",
+                               GTK_SIGNAL_FUNC (gtk_widget_destroy), 
+                               GTK_OBJECT (calendar->font_dialog));
+  }
+  window=calendar->font_dialog;
+  if (!GTK_WIDGET_VISIBLE (window))
+    gtk_widget_show (window);
+  else
+    gtk_widget_destroy (window);
+
+}
+
+void create_calendar()
+{
+  GtkWidget *window;
+  GtkWidget *vbox, *vbox2, *vbox3;
+  GtkWidget *hbox;
+  GtkWidget *hbbox;
+  GtkWidget *calendar;
+  GtkWidget *toggle;
+  GtkWidget *button;
+  GtkWidget *frame;
+  GtkWidget *separator;
+  GtkWidget *label;
+  GtkWidget *bbox;
+  static CalendarData calendar_data;
+  gint i;
+  
+  struct {
+    char *label;
+  } flags[] =
+    {
+      { "Show Heading" },
+      { "Show Day Names" },
+      { "No Month Change" },
+      { "Show Week Numbers" },
+      { "Week Start Monday" }
+    };
+
+  
+  calendar_data.window = NULL;
+  calendar_data.font = NULL;
+  calendar_data.font_dialog = NULL;
+
+  for (i=0; i&lt;5; i++) {
+    calendar_data.settings[i]=0;
+  }
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title(GTK_WINDOW(window), "GtkCalendar Example");
+  gtk_container_border_width (GTK_CONTAINER (window), 5);
+  gtk_signal_connect(GTK_OBJECT(window), "destroy",
+                     GTK_SIGNAL_FUNC(gtk_main_quit),
+                     NULL);
+  gtk_signal_connect(GTK_OBJECT(window), "delete-event",
+                     GTK_SIGNAL_FUNC(gtk_false),
+                     NULL);
+
+  gtk_window_set_policy(GTK_WINDOW(window), FALSE, FALSE, TRUE);
+
+  vbox = gtk_vbox_new(FALSE, DEF_PAD);
+  gtk_container_add (GTK_CONTAINER (window), vbox);
+
+  /*
+   * The top part of the window, Calendar, flags and fontsel.
+   */
+
+  hbox = gtk_hbox_new(FALSE, DEF_PAD);
+  gtk_box_pack_start (GTK_BOX(vbox), hbox, TRUE, TRUE, DEF_PAD);
+  hbbox = gtk_hbutton_box_new();
+  gtk_box_pack_start(GTK_BOX(hbox), hbbox, FALSE, FALSE, DEF_PAD);
+  gtk_button_box_set_layout(GTK_BUTTON_BOX(hbbox), GTK_BUTTONBOX_SPREAD);
+  gtk_button_box_set_spacing(GTK_BUTTON_BOX(hbbox), 5);
+
+  /* Calendar widget */
+  frame = gtk_frame_new("Calendar");
+  gtk_box_pack_start(GTK_BOX(hbbox), frame, FALSE, TRUE, DEF_PAD);
+  calendar=gtk_calendar_new();
+  calendar_data.window = calendar;
+  calendar_set_flags(&amp;calendar_data);
+  gtk_calendar_mark_day ( GTK_CALENDAR(calendar), 19);  
+  gtk_container_add( GTK_CONTAINER( frame), calendar);
+  gtk_signal_connect (GTK_OBJECT (calendar), "month_changed", 
+                      GTK_SIGNAL_FUNC (calendar_month_changed),
+                      &amp;calendar_data);
+  gtk_signal_connect (GTK_OBJECT (calendar), "day_selected", 
+                      GTK_SIGNAL_FUNC (calendar_day_selected),
+                      &amp;calendar_data);
+  gtk_signal_connect (GTK_OBJECT (calendar), "day_selected_double_click", 
+                      GTK_SIGNAL_FUNC (calendar_day_selected_double_click),
+                      &amp;calendar_data);
+  gtk_signal_connect (GTK_OBJECT (calendar), "prev_month", 
+                      GTK_SIGNAL_FUNC (calendar_prev_month),
+                      &amp;calendar_data);
+  gtk_signal_connect (GTK_OBJECT (calendar), "next_month", 
+                      GTK_SIGNAL_FUNC (calendar_next_month),
+                      &amp;calendar_data);
+  gtk_signal_connect (GTK_OBJECT (calendar), "prev_year", 
+                      GTK_SIGNAL_FUNC (calendar_prev_year),
+                      &amp;calendar_data);
+  gtk_signal_connect (GTK_OBJECT (calendar), "next_year", 
+                      GTK_SIGNAL_FUNC (calendar_next_year),
+                      &amp;calendar_data);
+
+
+  separator = gtk_vseparator_new ();
+  gtk_box_pack_start (GTK_BOX (hbox), separator, FALSE, TRUE, 0);
+
+  vbox2 = gtk_vbox_new(FALSE, DEF_PAD);
+  gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, FALSE, DEF_PAD);
+  
+  /* Build the Right frame with the flags in */ 
+
+  frame = gtk_frame_new("Flags");
+  gtk_box_pack_start(GTK_BOX(vbox2), frame, TRUE, TRUE, DEF_PAD);
+  vbox3 = gtk_vbox_new(TRUE, DEF_PAD_SMALL);
+  gtk_container_add(GTK_CONTAINER(frame), vbox3);
+
+  for (i = 0; i &lt; 5; i++)
+    {
+      toggle = gtk_check_button_new_with_label(flags[i].label);
+      gtk_signal_connect (GTK_OBJECT (toggle),
+                            "toggled",
+                            GTK_SIGNAL_FUNC(calendar_toggle_flag),
+                            &amp;calendar_data);
+      gtk_box_pack_start (GTK_BOX (vbox3), toggle, TRUE, TRUE, 0);
+      calendar_data.flag_checkboxes[i]=toggle;
+    }
+  /* Build the right font-button */ 
+  button = gtk_button_new_with_label("Font...");
+  gtk_signal_connect (GTK_OBJECT (button),
+                      "clicked",
+                      GTK_SIGNAL_FUNC(calendar_select_font),
+                      &amp;calendar_data);
+  gtk_box_pack_start (GTK_BOX (vbox2), button, FALSE, FALSE, 0);
+
+  /*
+   *  Build the Signal-event part.
+   */
+
+  frame = gtk_frame_new("Signal events");
+  gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, DEF_PAD);
+
+  vbox2 = gtk_vbox_new(TRUE, DEF_PAD_SMALL);
+  gtk_container_add(GTK_CONTAINER(frame), vbox2);
+  
+  hbox = gtk_hbox_new (FALSE, 3);
+  gtk_box_pack_start (GTK_BOX (vbox2), hbox, FALSE, TRUE, 0);
+  label = gtk_label_new ("Signal:");
+  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+  calendar_data.last_sig = gtk_label_new ("");
+  gtk_box_pack_start (GTK_BOX (hbox), calendar_data.last_sig, FALSE, TRUE, 0);
+
+  hbox = gtk_hbox_new (FALSE, 3);
+  gtk_box_pack_start (GTK_BOX (vbox2), hbox, FALSE, TRUE, 0);
+  label = gtk_label_new ("Previous signal:");
+  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+  calendar_data.prev_sig = gtk_label_new ("");
+  gtk_box_pack_start (GTK_BOX (hbox), calendar_data.prev_sig, FALSE, TRUE, 0);
+
+  hbox = gtk_hbox_new (FALSE, 3);
+  gtk_box_pack_start (GTK_BOX (vbox2), hbox, FALSE, TRUE, 0);
+  label = gtk_label_new ("Second previous signal:");
+  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+  calendar_data.prev2_sig = gtk_label_new ("");
+  gtk_box_pack_start (GTK_BOX (hbox), calendar_data.prev2_sig, FALSE, TRUE, 0);
+
+  bbox = gtk_hbutton_box_new ();
+  gtk_box_pack_start (GTK_BOX (vbox), bbox, FALSE, FALSE, 0);
+  gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
+
+  button = gtk_button_new_with_label ("Close");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked", 
+                      GTK_SIGNAL_FUNC (gtk_main_quit), 
+                      NULL);
+  gtk_container_add (GTK_CONTAINER (bbox), button);
+  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+  gtk_widget_grab_default (button);
+
+  gtk_widget_show_all(window);
+}
+
+
+int main(int   argc,
+         char *argv[] )
+{
+  gtk_set_locale ();
+  gtk_init (&amp;argc, &amp;argv);
+
+  create_calendar();
+
+  gtk_main();
+
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<P>
+<H2><A NAME="ss9.13">9.13 Color Selection</A>
+</H2>
+
+<P>The color selection widget is, not surprisingly, a widget for
+interactive selection of colors. This composite widget lets the user
+select a color by manipulating RGB (Red, Green, Blue) and HSV (Hue,
+Saturation, Value) triples.  This is done either by adjusting single
+values with sliders or entries, or by picking the desired color from a
+hue-saturation wheel/value bar.  Optionally, the opacity of the color
+can also be set.
+<P>The color selection widget currently emits only one signal,
+"color_changed", which is emitted whenever the current color in the
+widget changes, either when the user changes it or if it's set
+explicitly through gtk_color_selection_set_color().
+<P>Lets have a look at what the color selection widget has to offer
+us. The widget comes in two flavours: gtk_color_selection and
+gtk_color_selection_dialog.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_color_selection_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You'll probably not be using this constructor directly. It creates an
+orphan ColorSelection widget which you'll have to parent
+yourself. The ColorSelection widget inherits from the VBox
+widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+ 
+GtkWidget *gtk_color_selection_dialog_new( const gchar *title );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is the most common color selection constructor. It creates a
+ColorSelectionDialog. It consists of a Frame containing a
+ColorSelection widget, an HSeparator and an HBox with three buttons,
+"Ok", "Cancel" and "Help". You can reach these buttons by accessing
+the "ok_button", "cancel_button" and "help_button" widgets in the
+ColorSelectionDialog structure,
+(i.e., <CODE>GTK_COLOR_SELECTION_DIALOG(colorseldialog)->ok_button</CODE>)).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_color_selection_set_update_policy( GtkColorSelection *colorsel, 
+                                            GtkUpdateType      policy );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function sets the update policy. The default policy is
+<CODE>GTK_UPDATE_CONTINUOUS</CODE> which means that the current color is
+updated continuously when the user drags the sliders or presses the
+mouse and drags in the hue-saturation wheel or value bar. If you
+experience performance problems, you may want to set the policy to
+<CODE>GTK_UPDATE_DISCONTINUOUS</CODE> or <CODE>GTK_UPDATE_DELAYED</CODE>.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_color_selection_set_opacity( GtkColorSelection *colorsel,
+                                      gint               use_opacity );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The color selection widget supports adjusting the opacity of a color
+(also known as the alpha channel). This is disabled by
+default. Calling this function with use_opacity set to TRUE enables
+opacity. Likewise, use_opacity set to FALSE will disable opacity.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_color_selection_set_color( GtkColorSelection *colorsel,
+                                    gdouble           *color );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You can set the current color explicitly by calling this function with
+a pointer to an array of colors (gdouble). The length of the array
+depends on whether opacity is enabled or not. Position 0 contains the
+red component, 1 is green, 2 is blue and opacity is at position 3
+(only if opacity is enabled, see
+gtk_color_selection_set_opacity()). All values are between 0.0 and
+1.0.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_color_selection_get_color( GtkColorSelection *colorsel,
+                                    gdouble           *color );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>When you need to query the current color, typically when you've
+received a "color_changed" signal, you use this function. Color is a
+pointer to the array of colors to fill in. See the
+gtk_color_selection_set_color() function for the description of this
+array.
+<P>
+<P>Here's a simple example demonstrating the use of the
+ColorSelectionDialog. The program displays a window containing a
+drawing area. Clicking on it opens a color selection dialog, and
+changing the color in the color selection dialog changes the
+background color.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start colorsel colorsel.c */
+
+#include &lt;glib.h>
+#include &lt;gdk/gdk.h>
+#include &lt;gtk/gtk.h>
+
+GtkWidget *colorseldlg = NULL;
+GtkWidget *drawingarea = NULL;
+
+/* Color changed handler */
+
+void color_changed_cb( GtkWidget         *widget,
+                       GtkColorSelection *colorsel )
+{
+  gdouble color[3];
+  GdkColor gdk_color;
+  GdkColormap *colormap;
+
+  /* Get drawingarea colormap */
+
+  colormap = gdk_window_get_colormap (drawingarea->window);
+
+  /* Get current color */
+
+  gtk_color_selection_get_color (colorsel,color);
+
+  /* Fit to a unsigned 16 bit integer (0..65535) and
+   * insert into the GdkColor structure */
+
+  gdk_color.red = (guint16)(color[0]*65535.0);
+  gdk_color.green = (guint16)(color[1]*65535.0);
+  gdk_color.blue = (guint16)(color[2]*65535.0);
+
+  /* Allocate color */
+
+  gdk_color_alloc (colormap, &amp;gdk_color);
+
+  /* Set window background color */
+
+  gdk_window_set_background (drawingarea->window, &amp;gdk_color);
+
+  /* Clear window */
+
+  gdk_window_clear (drawingarea->window);
+}
+
+/* Drawingarea event handler */
+
+gint area_event( GtkWidget *widget,
+                 GdkEvent  *event,
+                 gpointer   client_data )
+{
+  gint handled = FALSE;
+  GtkWidget *colorsel;
+
+  /* Check if we've received a button pressed event */
+
+  if (event->type == GDK_BUTTON_PRESS &amp;&amp; colorseldlg == NULL)
+    {
+      /* Yes, we have an event and there's no colorseldlg yet! */
+
+      handled = TRUE;
+
+      /* Create color selection dialog */
+
+      colorseldlg = gtk_color_selection_dialog_new("Select background color");
+
+      /* Get the ColorSelection widget */
+
+      colorsel = GTK_COLOR_SELECTION_DIALOG(colorseldlg)->colorsel;
+
+      /* Connect to the "color_changed" signal, set the client-data
+       * to the colorsel widget */
+
+      gtk_signal_connect(GTK_OBJECT(colorsel), "color_changed",
+        (GtkSignalFunc)color_changed_cb, (gpointer)colorsel);
+
+      /* Show the dialog */
+
+      gtk_widget_show(colorseldlg);
+    }
+
+  return handled;
+}
+
+/* Close down and exit handler */
+
+gint destroy_window( GtkWidget *widget,
+                     GdkEvent  *event,
+                     gpointer   client_data )
+{
+  gtk_main_quit ();
+  return(TRUE);
+}
+
+/* Main */
+
+gint main( gint   argc,
+           gchar *argv[] )
+{
+  GtkWidget *window;
+
+  /* Initialize the toolkit, remove gtk-related commandline stuff */
+
+  gtk_init (&amp;argc,&amp;argv);
+
+  /* Create toplevel window, set title and policies */
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW(window), "Color selection test");
+  gtk_window_set_policy (GTK_WINDOW(window), TRUE, TRUE, TRUE);
+
+  /* Attach to the "delete" and "destroy" events so we can exit */
+
+  gtk_signal_connect (GTK_OBJECT(window), "delete_event",
+    (GtkSignalFunc)destroy_window, (gpointer)window);
+  
+  /* Create drawingarea, set size and catch button events */
+
+  drawingarea = gtk_drawing_area_new ();
+
+  gtk_drawing_area_size (GTK_DRAWING_AREA(drawingarea), 200, 200);
+
+  gtk_widget_set_events (drawingarea, GDK_BUTTON_PRESS_MASK);
+
+  gtk_signal_connect (GTK_OBJECT(drawingarea), "event", 
+    (GtkSignalFunc)area_event, (gpointer)drawingarea);
+  
+  /* Add drawingarea to window, then show them both */
+
+  gtk_container_add (GTK_CONTAINER(window), drawingarea);
+
+  gtk_widget_show (drawingarea);
+  gtk_widget_show (window);
+  
+  /* Enter the gtk main loop (this never returns) */
+
+  gtk_main ();
+
+  /* Satisfy grumpy compilers */
+
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.14">9.14 File Selections</A>
+</H2>
+
+<P>The file selection widget is a quick and simple way to display a File
+dialog box. It comes complete with Ok, Cancel, and Help buttons, a
+great way to cut down on programming time.
+<P>To create a new file selection box use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_file_selection_new( gchar *title );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To set the filename, for example to bring up a specific directory, or
+give a default filename, use this function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_file_selection_set_filename( GtkFileSelection *filesel,
+                                      gchar            *filename );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To grab the text that the user has entered or clicked on, use this 
+function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *gtk_file_selection_get_filename( GtkFileSelection *filesel );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There are also pointers to the widgets contained within the file 
+selection widget. These are:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  dir_list
+  file_list
+  selection_entry
+  selection_text
+  main_vbox
+  ok_button
+  cancel_button
+  help_button
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Most likely you will want to use the ok_button, cancel_button, and
+help_button pointers in signaling their use.
+<P>Included here is an example stolen from testgtk.c, modified to run on
+its own. As you will see, there is nothing much to creating a file
+selection widget. While in this example the Help button appears on the
+screen, it does nothing as there is not a signal attached to it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start filesel filesel.c */
+
+#include &lt;gtk/gtk.h>
+
+/* Get the selected filename and print it to the console */
+void file_ok_sel( GtkWidget        *w,
+                  GtkFileSelection *fs )
+{
+    g_print ("%s\n", gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
+}
+
+void destroy( GtkWidget *widget,
+              gpointer   data )
+{
+    gtk_main_quit ();
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+    GtkWidget *filew;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    /* Create a new file selection widget */
+    filew = gtk_file_selection_new ("File selection");
+    
+    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
+                        (GtkSignalFunc) destroy, &amp;filew);
+    /* Connect the ok_button to file_ok_sel function */
+    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
+                        "clicked", (GtkSignalFunc) file_ok_sel, filew );
+    
+    /* Connect the cancel_button to destroy the widget */
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->cancel_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    
+    /* Lets set the filename, as if this were a save dialog, and we are giving
+     a default filename */
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew), 
+                                     "penguin.png");
+    
+    gtk_widget_show(filew);
+    gtk_main ();
+    return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-10.html">Next</A>
+<A HREF="gtk_tut-8.html">Previous</A>
+<A HREF="gtk_tut.html#toc9">Contents</A>
+</BODY>
+</HTML>

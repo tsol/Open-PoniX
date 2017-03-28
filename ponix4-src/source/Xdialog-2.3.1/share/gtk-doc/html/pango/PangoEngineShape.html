@@ -1,0 +1,128 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>PangoEngineShape</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="Pango Reference Manual"><link rel="up" href="lowlevel.html" title="Low Level Functionality"><link rel="previous" href="PangoEngineLang.html" title="PangoEngineLang"><link rel="next" href="pango-Modules.html" title="Modules"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="PangoEngineLang.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="lowlevel.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Pango Reference Manual</th><td><a accesskey="n" href="pango-Modules.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="PangoEngineShape"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">PangoEngineShape</span></h2><p>PangoEngineShape &#8212; Rendering-system dependent script engines</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+
+
+struct      <a href="PangoEngineShape.html#PangoEngineShape-struct">PangoEngineShape</a>;
+struct      <a href="PangoEngineShape.html#PangoEngineShapeClass">PangoEngineShapeClass</a>;
+#define     <a href="PangoEngineShape.html#PANGO-ENGINE-TYPE-SHAPE-CAPS">PANGO_ENGINE_TYPE_SHAPE</a>
+#define     <a href="PangoEngineShape.html#PANGO-ENGINE-SHAPE-DEFINE-TYPE-CAPS">PANGO_ENGINE_SHAPE_DEFINE_TYPE</a>  (name, prefix, class_init, instance_init)
+
+
+</pre></div><div class="refsect1" lang="en"><h2>Object Hierarchy</h2><pre class="synopsis">
+
+  <a
+href="../gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="pango-Engines.html#PangoEngine">PangoEngine</a>
+         +----PangoEngineShape
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+
+</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="PangoEngineShape-struct"></a>struct PangoEngineShape</h3><a class="indexterm" name="id3615165"></a><pre class="programlisting">struct PangoEngineShape;</pre><p>
+The <a href="PangoEngineShape.html" title="PangoEngineShape"><span class="type">PangoEngineShape</span></a> class is implemented by engines that
+customize the rendering-system dependent part of the
+Pango pipeline for a particular script or language.
+A <a href="PangoEngineShape.html" title="PangoEngineShape"><span class="type">PangoEngineShape</span></a> implementation is then specific to both
+a particular rendering system or group of rendering systems
+and to a particular script. For instance, there is one
+<a href="PangoEngineShape.html" title="PangoEngineShape"><span class="type">PangoEngineShape</span></a> implementation to handling shaping Arabic
+for Fontconfig-based backends.</p><p>
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PangoEngineShapeClass"></a>struct PangoEngineShapeClass</h3><a class="indexterm" name="id3615238"></a><pre class="programlisting">struct PangoEngineShapeClass {
+
+  void (*script_shape) (PangoEngineShape *engine,
+			PangoFont        *font,
+			const char       *text,
+			int               length,
+			PangoAnalysis    *analysis,
+			PangoGlyphString *glyphs);
+  PangoCoverageLevel (*covers)   (PangoEngineShape *engine,
+				  PangoFont        *font,
+				  PangoLanguage    *language,
+				  gunichar          wc);
+};
+</pre><p>
+Class structure for <a href="PangoEngineShape.html" title="PangoEngineShape"><span class="type">PangoEngineShape</span></a></p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term">void (*<i class="structfield"><tt>script_shape</tt></i>) (PangoEngineShape *engine,
+			PangoFont        *font,
+			const char       *text,
+			int               length,
+			PangoAnalysis    *analysis,
+			PangoGlyphString *glyphs)</span></td><td> Given a font, a piece of text, and a <a href="pango-Text-Processing.html#PangoAnalysis"><span class="type">PangoAnalysis</span></a>
+  structure, converts characters to glyphs and positions the
+  resulting glyphs. The results are stored in the <a href="pango-Glyph-Storage.html#PangoGlyphString"><span class="type">PangoGlyphString</span></a>
+  that is passed in. (The implementation should resize it
+  appropriately using <a href="pango-Glyph-Storage.html#pango-glyph-string-set-size"><tt class="function">pango_glyph_string_set_size()</tt></a>). All fields
+  of the <i class="parameter"><tt>log_clusters</tt></i> and <i class="parameter"><tt>glyphs</tt></i> array must be filled in, with
+  the exception that Pango will automatically generate
+  <tt class="literal">glyphs-&gt;glyphs[i].attr.is_cluster_start</tt>
+  using the <i class="parameter"><tt>log_clusters</tt></i> array. Each input character must occur in one
+  of the output logical clusters;
+  if no rendering is desired for a character, this may involve
+  inserting glyphs with the <a href="pango-Glyph-Storage.html#PangoGlyph"><span class="type">PangoGlyph</span></a> ID 0, which is guaranteed never
+  to render.
+</td></tr><tr><td><span class="term"><a href="pango-Coverage-Maps.html#PangoCoverageLevel">PangoCoverageLevel</a> (*<i class="structfield"><tt>covers</tt></i>) (PangoEngineShape *engine,
+				  PangoFont        *font,
+				  PangoLanguage    *language,
+				  gunichar          wc)</span></td><td> Returns the characters that this engine can cover
+  with a given font for a given language. If not overridden, the default
+  implementation simply returns the coverage information for the
+  font itself unmodified.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="PANGO-ENGINE-TYPE-SHAPE-CAPS"></a>PANGO_ENGINE_TYPE_SHAPE</h3><a class="indexterm" name="id3614960"></a><pre class="programlisting">#define PANGO_ENGINE_TYPE_SHAPE "PangoEngineShape"
+</pre><p>
+A string constant defining the engine type
+for <i class="firstterm">shaping engines</i>.
+These engines derive from <a href="PangoEngineShape.html" title="PangoEngineShape"><span class="type">PangoEngineShape</span></a>.
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PANGO-ENGINE-SHAPE-DEFINE-TYPE-CAPS"></a>PANGO_ENGINE_SHAPE_DEFINE_TYPE()</h3><a class="indexterm" name="id3615007"></a><pre class="programlisting">#define     PANGO_ENGINE_SHAPE_DEFINE_TYPE(name, prefix, class_init, instance_init)</pre><p>
+Outputs the necessary code for GObject type registration for a
+<a href="PangoEngineShape.html" title="PangoEngineShape"><span class="type">PangoEngineShape</span></a> class defined in a module. Two static symbols
+are defined.
+</p><p>
+</p><pre class="programlisting">
+ static GType <i class="replaceable"><tt>prefix</tt></i>_type;
+ static void <i class="replaceable"><tt>prefix</tt></i>_register_type (GTypeModule module);
+</pre><p>
+</p><p>
+The <tt class="function"><i class="replaceable"><tt>prefix</tt></i>, <tt class="function">_register_type()</tt></tt>
+function should be called in your <a href="pango-Engines.html#script-engine-init"><tt class="function">script_engine_init()</tt></a> function for
+each type that your module implements, and then your <a href="pango-Engines.html#script-engine-create"><tt class="function">script_engine_create()</tt></a>
+function can create instances of the object as follows:
+</p><p>
+</p><div class="informalexample"><pre class="programlisting">
+ PangoEngine *engine = g_object_new (<i class="replaceable"><tt>prefix</tt></i>_type, NULL);
+</pre></div><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>name</tt></i> :</span></td><td> Name of the the type to register (for example:, <tt class="literal">ArabicEngineFc</tt>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>prefix</tt></i> :</span></td><td> Prefix for symbols that will be defined (for example:, <tt class="literal">arabic_engine_fc</tt>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>class_init</tt></i> :</span></td><td> Class initialization function for the new type, or <tt class="literal">NULL</tt>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>instance_init</tt></i> :</span></td><td> Instance initialization function for the new type, or <tt class="literal">NULL</tt>
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="PangoEngineLang.html"><b>&lt;&lt; PangoEngineLang</b></a></td><td align="right"><a accesskey="n" href="pango-Modules.html"><b>Modules &gt;&gt;</b></a></td></tr></table></body></html>

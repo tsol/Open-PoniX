@@ -1,0 +1,1 @@
+../../alsa-kernel/include/hda_hwdep.h

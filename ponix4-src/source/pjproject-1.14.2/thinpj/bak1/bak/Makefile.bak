@@ -1,0 +1,62 @@
+
+PJ_BASE = /source/zzz_mysource/pjproject-1.0.3/
+
+# TARGET_NAME = i686-pc-linux-gnu
+# LIBEXT = .a
+
+LIB_P = -L/alsa-1.0.21/lib \
+	-L$(PJ_BASE)pjsip/lib \
+	-L$(PJ_BASE)pjlib/lib \
+	-L$(PJ_BASE)pjmedia/lib \
+	-L$(PJ_BASE)pjnath/lib \
+	-L$(PJ_BASE)pjlib-util/lib \
+	-L${PJ_BASE}third_party/lib
+
+LIB =   -lpjmedia-codec-i686-pc-linux-gnu \
+        -lpjmedia-i686-pc-linux-gnu \
+                -lpjsdp-i686-pc-linux-gnu \
+                        -lpjlib-util-i686-pc-linux-gnu \
+                                -lpjnath-i686-pc-linux-gnu \
+                                        -lpjsip-i686-pc-linux-gnu \
+                                                -lpjsip-ua-i686-pc-linux-gnu \
+                                                        -lpjsua-i686-pc-linux-gnu \
+                                                                -lpjsip-simple-i686-pc-linux-gnu \
+                                                                        -lilbccodec-i686-pc-linux-gnu \
+                                                                                -lspeex-i686-pc-linux-gnu \
+                                                                                        -lresample-i686-pc-linux-gnu \
+                                                                                                -lmilenage-i686-pc-linux-gnu \
+                                                                                                        -lgsmcodec-i686-pc-linux-gnu \
+                                                                                                                -lportaudio-i686-pc-linux-gnu \
+                                                                                                                        -lsrtp-i686-pc-linux-gnu \
+                                                                                                                                -lpj-i686-pc-linux-gnu \
+          -lm -luuid -lnsl -lrt -lpthread
+
+PARAMS =  -L/alsa-1.0.21/lib -L$(PJ_BASE)pjlib/lib -L$(PJ_BASE)pjlib-util/lib -L$(PJ_BASE)pjnath/lib -L$(PJ_BASE)pjmedia/lib -L$(PJ_BASE)pjsip/lib -L$(PJ_BASE)third_party/lib  -lpjsua-i686-pc-linux-gnu -lpjsip-ua-i686-pc-linux-gnu -lpjsip-simple-i686-pc-linux-gnu -lpjsip-i686-pc-linux-gnu -lpjmedia-codec-i686-pc-linux-gnu -lpjmedia-i686-pc-linux-gnu -lpjnath-i686-pc-linux-gnu -lpjlib-util-i686-pc-linux-gnu -lresample-i686-pc-linux-gnu -lmilenage-i686-pc-linux-gnu -lsrtp-i686-pc-linux-gnu -lgsmcodec-i686-pc-linux-gnu -lspeex-i686-pc-linux-gnu -lilbccodec-i686-pc-linux-gnu -lportaudio-i686-pc-linux-gnu -lpj-i686-pc-linux-gnu -lm -luuid -lnsl -lrt -lpthread -lasound
+                                                                                                                                
+
+INC =	-I/alsa-1.0.21/include \
+	-I$(PJ_BASE)pjsip/include \
+	-I$(PJ_BASE)pjlib/include \
+	-I$(PJ_BASE)pjmedia/include \
+	-I$(PJ_BASE)pjnath/include \
+	-I$(PJ_BASE)pjlib-util/include \
+	-Imy
+
+thinpj: thinpj_app.o main.o tcpserv.o readst3.o thash.o
+	g++ -o thinpj thinpj_app.o main.o tcpserv.o readst3.o thash.o $(PARAMS)
+
+thinpj_app.o: thinpj_app.c
+	g++ -x c++ -c $(INC) thinpj_app.c -o thinpj_app.o
+
+main.o: main.c
+	g++ -x c++ -c $(INC) main.c -o main.o
+
+tcpserv.o: my/tcpserv.h my/tcpserv_bsd.c
+	gcc -c my/tcpserv_bsd.c -o tcpserv.o
+
+readst3.o: my/readst3.cpp my/readst3.h
+	gcc -c my/readst3.cpp -o readst3.o
+
+thash.o: my/thash.cpp my/thash.h my/readst3.h
+	gcc -c my/thash.cpp -o thash.o
+

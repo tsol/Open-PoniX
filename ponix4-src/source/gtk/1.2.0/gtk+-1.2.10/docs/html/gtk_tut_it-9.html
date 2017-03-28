@@ -1,0 +1,656 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Il Widgets Lista</TITLE>
+ <LINK HREF="gtk_tut_it-10.html" REL=next>
+ <LINK HREF="gtk_tut_it-8.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc9" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-10.html">Avanti</A>
+<A HREF="gtk_tut_it-8.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc9">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s9">9. Il Widgets Lista</A></H2>
+
+<P>Il widget GtkList serve come contenitore verticale per altri widget che
+devono essere di tipo GtkListItem.
+<P>Un widget GtkList possiede una sua propria finestra per ricevere eventi
+e un suo proprio colore di sfondo che di solito &egrave; bianco. Dal momento
+che &egrave; direttamente derivato dal widget GtkContainer, pu&ograve; essere trattato
+come tale usando la macro GTK_CONTAINER(List); si veda il widget GtkContainer
+per ulteriori dettagli.
+Per usare il widget GtkList in tutte le sue potenzialit&agrave;, si dovrebbe essere
+gi&agrave; familiari con l'uso della GList e delle relative funzioni g_list_*().
+<P>All'interno della definizione della struttura del widget GtkList c'&egrave; un
+campo che sar&agrave; per noi di grande interesse, cio&egrave;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkList
+{
+  ...
+  GList *selection;
+  guint selection_mode;
+  ...
+}; 
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Il campo ``selection'' in un GtkList punta a una lista collegata di tutti
+gli elementi che sono selezionati correntemente, oppure a NULL se la 
+selezione &egrave; vuota. Quindi, per avere informazioni sulla selezione corrente,
+leggiamo il campo GTK_LIST()->selection, senza per&ograve; modificarlo dal momento
+che i campi interni debbono essere gestiti dalle funzioni gtk_list_*(). 
+<P>Le modalit&agrave; di selezione in una GtkList, e quindi il contenuto di
+GTK_LIST()->selection, sono determinate dal campo selection_mode:
+<P>selection_mode pu&ograve; assumere uno dei seguenti valori:
+<UL>
+<LI> GTK_SELECTION_SINGLE - La selezione pu&ograve; essere o NULL oppure
+un puntatore GList* per un singolo elemento
+selezionato.
+</LI>
+<LI> GTK_SELECTION_BROWSE - La selezione &egrave; null se la lista non contiene
+alcun widget o se ha solo widget non sensibili,
+oppure pu&ograve; contenere un puntatore a una struttura
+GList, e quindi esattamente un elemento di lista.
+</LI>
+<LI> GTK_SELECTION_MULTIPLE - La selezione &egrave; ``NULL'' se non &egrave; selezionato
+alcun elemento di lista, oppure un puntatore GList al
+primo elemento selezionato. Quello, a sua volta, punta
+a una struttura GList per il secondo elemento selezionato
+e cos&igrave; via.
+</LI>
+<LI> GTK_SELECTION_EXTENDED - La selezione &egrave; sempre NULL.</LI>
+</UL>
+<P>Il valore per difetto &egrave;  GTK_SELECTION_MULTIPLE.
+<P>
+<H2><A NAME="ss9.1">9.1 Segnali</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void selection_changed (GtkList *LIST)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questo segnale verr&agrave; invocato ogni volta che il campo di
+selezione di una GtkList &egrave; cambiato. Questo accade quando
+un figlio della GtkList viene selezionato o deselezionato.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void select_child (GtkList *LIST, GtkWidget *CHILD)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questo segnale viene invocato quando un fuglio di una GtkList
+sta per essere selezionato. Questo accade principalmente in
+occasione di chiamate a gtk_list_select_item() e gtk_list_select_child(),
+di pressioni di bottoni e a volte pu&ograve; venir fatto scattare indirettamente
+in altre occasioni, in cui vengono aggiunti o rimossi dei figli
+dalla GtkList.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void unselect_child (GtkList *LIST, GtkWidget *CHILD)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questo segnale viene invocato quando un figlio della GtkList sta
+per essere deselezionato. Ci&ograve; accade principalmente in occasione
+di chiamate a gtk_list_unselect_item() e gtk_list_unselect_child(),
+di pressioni di bottoni, e a volte pu&ograve; venir fatto scattare indirettamente
+in altre occasioni, in cui vengono aggiunti o rimossi dei figli
+dalla GtkList.
+<P>
+<H2><A NAME="ss9.2">9.2 Funzioni</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_list_get_type (void)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Restituisce l'identificatore di tipo `GtkList'.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_list_new (void)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Crea un nuovo oggetto `GtkList'. Il nuovo widget viene
+restituito sotto forma di un puntoatore ad un oggetto
+`GtkWidget&igrave;'. In caso di fallimento, viene ritornato NULL.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_insert_items (GtkList *LIST, GList *ITEMS, gint POSITION)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Inserisce degli elementi di lista nella LIST, a partire da
+POSITION. ITEMS ITEMS &egrave; una lista doppiamente collegata, in
+cui ci si aspetta che i puntatori di ogni nodo puntino a
+un GtkListItem appena creato. I nodi GList di ITEMS vengono
+assunti dalla LIST.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_append_items (GtkList *LIST, GList *ITEMS)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Inserisce elementi di lista proprio come gtk_list_insert_items(),
+ma alla fine della LIST. I nodi GList di ITEMS vengono
+assunti dalla LIST.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_prepend_items (GtkList *LIST, GList *ITEMS)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Inserisce elementi di lista proprio come gtk_list_insert_items(),
+ma al principio della LIST. I nodi GList di ITEMS vengono
+assunti dalla LIST.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_remove_items (GtkList *LIST, GList *ITEMS)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Rimuove degli elementi di lista dalla LIST. ITEMS &egrave; una lista
+doppiamente collegata in cui ci si aspetta che i puntatori di
+ogni nodo puntino a un figlio diretto di LIST. E' poi responsabilit&agrave;
+del chiamante di fare una chiamata a g_list_free(ITEMS). E' anche
+necessario che il chiamante distrugga lui stesso gli elementi della
+lista.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_clear_items (GtkList *LIST, gint START, gint END)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Rimuove e distrugge elementi di lista da LIST. Un widget ne &egrave;
+interessato se la sua posizione corrente all'interno di LIST &egrave; compreso
+fra START ed END.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_select_item (GtkList *LIST, gint ITEM)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Invoca il segnale select_child per un elemento di lista
+specificato dalla sua posizione corrente all'interno di LIST.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_unselect_item (GtkList *LIST, gint ITEM)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Invoca il segnale unselect_child per un elemento di lista
+specificato dalla sua posizione corrente all'interno di LIST.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_select_child (GtkList *LIST, GtkWidget *CHILD)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Invoca il segnale select_child per uno specifico CHILD.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_unselect_child (GtkList *LIST, GtkWidget *CHILD)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Invoca il segnale unselect_child per uno specifico CHILD.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_list_child_position (GtkList *LIST, GtkWidget *CHILD)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Restituisce la posizione di CHILD all'interno di LIST. In caso di fallimento,
+viene restituito `-1'.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_set_selection_mode (GtkList *LIST, GtkSelectionMode MODE)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Assegna a LIST il modo di selezione MODE, che pu&ograve; essere uno fra 
+GTK_SELECTION_SINGLE, GTK_SELECTION_BROWSE, GTK_SELECTION_MULTIPLE o
+GTK_SELECTION_EXTENDED.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkList* GTK_LIST (gpointer OBJ)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Fa il cast di un generico puntatore a `GtkList*'. Per maggiori
+informazioni vedere Standard Macros::.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkListClass* GTK_LIST_CLASS (gpointer CLASS)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Fa il cast di un generico puntatore a `GtkListClass*'. Per maggiori
+informazioni vedere Standard Macros::.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint GTK_IS_LIST (gpointer OBJ)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Determina se un generico puntatore si riferisce ad un oggetto `GtkList'.
+Per maggiori informazioni vedere Standard Macros::.
+<P>
+<H2><A NAME="ss9.3">9.3 Esempio</A>
+</H2>
+
+<P>Diamo di seguito un programma di esempio che stamper&agrave; i campbiamenti
+della selezione di una GtkList, e vi lascia ``imprigionare'' gli elementi
+di una lista selezionandoli con il pulsante destro del mouse:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* list.c */
+
+/* includiamo i file header di gtk+
+ * includiamo stdio.h, ne abbiamo bisogno per printf()
+ */
+#include        &lt;gtk/gtk.h>
+#include        &lt;stdio.h>
+
+/* Questa e' la nostra stringa di identificazione dei dati per assegnarli
+ * ad elementi di lista
+ */
+const   gchar   *list_item_data_key="list_item_data";
+
+
+/* prototipi per i gestori di segnale che connetteremo
+ * al widget GtkList
+ */
+static  void    sigh_print_selection    (GtkWidget      *gtklist,
+                                         gpointer       func_data);
+static  void    sigh_button_event       (GtkWidget      *gtklist,
+                                         GdkEventButton *event,
+                                         GtkWidget      *frame);
+
+
+/* funzione main per predisporre l'interfaccia utente */
+
+gint main (int argc, gchar *argv[])
+{                                  
+    GtkWidget       *separator;
+    GtkWidget       *window;
+    GtkWidget       *vbox;
+    GtkWidget       *scrolled_window;
+    GtkWidget       *frame;
+    GtkWidget       *gtklist;
+    GtkWidget       *button;
+    GtkWidget       *list_item;
+    GList           *dlist;
+    guint           i;
+    gchar           buffer[64];
+    
+    
+    /* inizializza gtk+ (e di conseguenza gdk) */
+
+    gtk_init(&amp;argc, &amp;argv);
+    
+    
+    /* crea una finestra in cui mettere tutti i widget
+     * connette gtk_main_quit() al segnale "destroy" della finestra
+     * per gestire le richieste di chiusura finestra del window manager
+     */
+    window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "GtkList Example");
+    gtk_signal_connect(GTK_OBJECT(window),
+                       "destroy",
+                       GTK_SIGNAL_FUNC(gtk_main_quit),
+                       NULL);
+    
+    
+    /* all'interno della finestra abbiamo bisogno di una scatola
+     * in cui mettere i widget verticalmente */
+    vbox=gtk_vbox_new(FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(vbox), 5);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+    gtk_widget_show(vbox);
+    
+    /* questa &egrave; la finestra scorribile in cui mettere il widget GtkList */
+    scrolled_window=gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_set_usize(scrolled_window, 250, 150);
+    gtk_container_add(GTK_CONTAINER(vbox), scrolled_window);
+    gtk_widget_show(scrolled_window);
+    
+    /* crea il widget GtkList
+     * connette il gestore di segnale sigh_print_selection()
+     * al segnale "selection_changed" della GtkList, per stampare
+     * gli elementi selezionati ogni volta che la selezione cambia
+     */
+    gtklist=gtk_list_new();
+    gtk_container_add(GTK_CONTAINER(scrolled_window), gtklist);
+    gtk_widget_show(gtklist);
+    gtk_signal_connect(GTK_OBJECT(gtklist),
+                       "selection_changed",
+                       GTK_SIGNAL_FUNC(sigh_print_selection),
+                       NULL);
+    
+    /* creiamo una "Prigione" (Prison) in cui mettere gli elementi di lista ;)
+     */
+    frame=gtk_frame_new("Prison");
+    gtk_widget_set_usize(frame, 200, 50);
+    gtk_container_border_width(GTK_CONTAINER(frame), 5);
+    gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
+    gtk_container_add(GTK_CONTAINER(vbox), frame);
+    gtk_widget_show(frame);
+    
+    /* connette il gestore di segnale sigh_button_event() alla GtkList
+     * il quale gestira' l'"imprigionamento" degli elementi di lista
+     */
+    gtk_signal_connect(GTK_OBJECT(gtklist),
+                       "button_release_event",
+                       GTK_SIGNAL_FUNC(sigh_button_event),
+                       frame);
+    
+    /* crea un separatore
+     */
+    separator=gtk_hseparator_new();
+    gtk_container_add(GTK_CONTAINER(vbox), separator);
+    gtk_widget_show(separator);
+    
+    /* infine creiamo un bottone e connettiamone il segnale "clicked"
+     * alla distruzione della finestra
+     */
+    button=gtk_button_new_with_label("Close");
+    gtk_container_add(GTK_CONTAINER(vbox), button);
+    gtk_widget_show(button);
+    gtk_signal_connect_object(GTK_OBJECT(button),
+                              "clicked",
+                              GTK_SIGNAL_FUNC(gtk_widget_destroy),
+                              GTK_OBJECT(window));
+    
+    
+    /* a questo punto creiamo 5 elementi di lista, ognuno con la
+     * propria etichetta, e li aggiungiamo alla GtkList usando
+     * gtk_container_add(). Inoltre, recuperiamo la stringa di testo
+     * dall'etichetta e la associamo, per ogni elemento, a
+     * list_item_data_key
+     */
+    for (i=0; i&lt;5; i++) {
+        GtkWidget       *label;
+        gchar           *string;
+        
+        sprintf(buffer, "ListItemContainer with Label #%d", i);
+        label=gtk_label_new(buffer);
+        list_item=gtk_list_item_new();
+        gtk_container_add(GTK_CONTAINER(list_item), label);
+        gtk_widget_show(label);
+        gtk_container_add(GTK_CONTAINER(gtklist), list_item);
+        gtk_widget_show(list_item);
+        gtk_label_get(GTK_LABEL(label), &amp;string);
+        gtk_object_set_data(GTK_OBJECT(list_item),
+                            list_item_data_key,
+                            string);
+    }
+
+    /* qui creiamo altre 5 etichette, questa volta usando
+     * per la creazione gtk_list_item_new_with_label().
+     * Non possiamo recuperare la stringa di testo dall'etichetta
+     * dal momento che non disponiamo di puntatori alle etichette,
+     * quindi associamo semplicemente il list_item_data_key di ogni
+     * elemento di lista con la medesima stringa di testo.
+     * Per aggiungere elementi di lista, li mettiamo tutti in una lista
+     * doppiamente collegata (GList), e quindi li aggiungiamo con una
+     * unica chiamata a gtk_list_append_items().
+     * Dal momento che usiamo g_list_prepend() per mettere gli elementi
+     * nella lista doppiamente collegata, il loro ordine sara' discendente
+     * (invece che ascendente come sarebbe se usassimo g_list_append())
+     */
+    dlist=NULL;
+    for (; i&lt;10; i++) {
+        sprintf(buffer, "List Item with Label %d", i);
+        list_item=gtk_list_item_new_with_label(buffer);
+        dlist=g_list_prepend(dlist, list_item);
+        gtk_widget_show(list_item);
+        gtk_object_set_data(GTK_OBJECT(list_item),
+                            list_item_data_key,
+                            "ListItem with integrated Label");
+    }
+    gtk_list_append_items(GTK_LIST(gtklist), dlist);
+    
+    /* e finalmente vogliamo vedere la finestra, non e' vero? ;)
+     */
+    gtk_widget_show(window);
+    
+    /* lancia il ciclo principale di gtk
+     */
+    gtk_main();
+    
+    /* si arriva a questo punto dopo la chiamata di gtk_main_quit(),
+     * il che accade quando viene distrutta la finestra principale
+     */
+    return 0;
+}
+
+/* questo e' il gestore di segnale che e' stato connesso all'evento di
+ * pressione/rilascio del bottone della GtkList
+ */
+void
+sigh_button_event       (GtkWidget      *gtklist,
+                         GdkEventButton *event,
+                         GtkWidget      *frame)
+{
+    /* facciamo qualcosa solo nel caso di rilascio del terzo bottone
+     * (quello piu' a destra)
+     */
+    if (event->type==GDK_BUTTON_RELEASE &amp;&amp;
+        event->button==3) {
+        GList           *dlist, *free_list;
+        GtkWidget       *new_prisoner;
+        
+        /* recuperiamo l'elemento di lista selezionato correntemente,
+         * che sara' il nostro prossimo prigioniero ;)
+         */
+        dlist=GTK_LIST(gtklist)->selection;
+        if (dlist)
+                new_prisoner=GTK_WIDGET(dlist->data);
+        else
+                new_prisoner=NULL;
+        
+        /* cerchiamo elementi di lista gia' imprigionati,
+         * li rimetteremo nella lista.
+         * Ricordare di liberare la lista doppiamente collegata
+         * che viene restituita da gtk_container_children()
+         */
+        dlist=gtk_container_children(GTK_CONTAINER(frame));
+        free_list=dlist;
+        while (dlist) {
+            GtkWidget       *list_item;
+            
+            list_item=dlist->data;
+            
+            gtk_widget_reparent(list_item, gtklist);
+            
+            dlist=dlist->next;
+        }
+        g_list_free(free_list);
+        
+        /* se abbiamo un nuovo prigioniero, lo rimuoviamo
+         * dalla GtkList e lo mettiamo nella cornice della
+         * "Prigione". Dobbiamo prima deselezionare l'elemento
+         */
+        if (new_prisoner) {
+            GList   static_dlist;
+            
+            static_dlist.data=new_prisoner;
+            static_dlist.next=NULL;
+            static_dlist.prev=NULL;
+            
+            gtk_list_unselect_child(GTK_LIST(gtklist),
+                                    new_prisoner);
+            gtk_widget_reparent(new_prisoner, frame);
+        }
+    }
+}
+
+/* questo e' il gestore di segnaleche viene chiamato de la
+ * GtkList emette il segnale "selection_changed"
+ */
+void
+sigh_print_selection    (GtkWidget      *gtklist,
+                         gpointer       func_data)
+{
+    GList   *dlist;
+    
+    /* recuperiamo la lista doppiamente collegata degli
+     * elementi selezionati della GtkList, ricordate di
+     * trattarla come sola lettura
+     */
+    dlist=GTK_LIST(gtklist)->selection;
+    
+    /* se non ci sono elementi selezionati non c'e' altro da
+     * fare che dirlo all'utente
+     */
+    if (!dlist) {
+        g_print("Selection cleared\n");
+        return;
+    }
+    /* ok, abbiamo una selezione e quindi lo scriviamo
+     */
+    g_print("The selection is a ");
+    
+    /* ottieniamo l'elemento di lista dalla lista doppiamente
+     * collegata e poi richiediamo i dati associati con
+     *  list_item_data_key. Poi semplicemente li stampiamo
+     */
+    while (dlist) {
+        GtkObject       *list_item;
+        gchar           *item_data_string;
+        
+        list_item=GTK_OBJECT(dlist->data);
+        item_data_string=gtk_object_get_data(list_item,
+                                             list_item_data_key);
+        g_print("%s ", item_data_string);
+        
+        dlist=dlist->next;
+    }
+    g_print("\n");
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss9.4">9.4 Il Widget Elemento di Lista (List Item)</A>
+</H2>
+
+<P>Il widget GtkListItem &egrave; progettato allo scopo di essere un contenitore
+collegato ad un figlio, per fornire le funzioni per la selezione e deselezione
+allo stesso modo in cui il widget GtkList ne ha bisogno per i propri figli.
+<P>Un GtkListItem ha la sua propria finestra per ricevere eventi, e ha il suo
+proprio colore di sfondo, che di solito &egrave; bianco.
+<P>Dal momento che questo widget deriva direttamente da GtkItem, pu&ograve; essere
+trattato come tale usando la macro GTK_ITEM(ListItem), vedere il widget
+GtkItem per ulteriori informazioni.
+Di solito un GtkListItem ha solo un'etichetta per identificare per esempio
+un nome di file all'interno di una GtkList -- per cui viene fornita la
+funzione appropriata gtk_list_item_new_with_label(). Si pu&ograve; ottenere lo
+stesso effetto creando una GtkLabel da sola, assegnando al suo allineamento
+i valori xalign=0 e yalign=0.5, aggiungendo successivamente un contenitore
+alla GtkListItem.
+<P>Dal momento che non si &egrave; obbligati a mettere una GtkLabel, si pu&ograve; anche
+aggiungere una GtkVBox  una GtkArrow ecc. alla GtkListItem.
+<P>
+<P>
+<H2><A NAME="ss9.5">9.5 Segnali</A>
+</H2>
+
+<P>Un GtkListItem non crea alcun nuovo segnale di per se, ma eredita
+i segnali di GtkItem. Per ulteriori informazioni, vedere GtkItem::.
+<P>
+<H2><A NAME="ss9.6">9.6 Funzioni</A>
+</H2>
+
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_list_item_get_type (void)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Restituisce l'identificatore di tipo `GtkListItem'.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_list_item_new (void)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Crea un nuovo oggetto `GtkListItem'. Il nuovo widget viene restituito
+sottoforma di un puntatore ad un oggetto `GtkWidget'. In caso di 
+fallimento, viene restituito `NULL'.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_list_item_new_with_label (gchar *LABEL)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cre un nuovo oggetto `GtkListItem', avente come unico figlio
+un GtkLabel.  Il nuovo widget viene restituito
+sottoforma di un puntatore ad un oggetto `GtkWidget'. In caso di 
+fallimento, viene restituito `NULL'.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_item_select (GtkListItem *LIST_ITEM)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione &egrave; essenzialmente un wrapper per una chiamata a
+gtk_item_select (GTK_ITEM (list_item)) che emetter&agrave; il segnale
+select.
+Vedere GtkItem:: per maggiori informazioni.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_list_item_deselect (GtkListItem *LIST_ITEM)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione &egrave; essenzialmente un wrapper per una chiamata a
+gtk_item_deselect (GTK_ITEM (list_item)) che emetter&agrave; il segnale
+deselect.
+Vedere GtkItem:: per maggiori informazioni.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkListItem* GTK_LIST_ITEM (gpointer OBJ)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Effettua il cast di un puntatore generico a `GtkListItem*'. Vedere
+Standard Macros:: per maggiorni informazioni.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkListItemClass* GTK_LIST_ITEM_CLASS (gpointer CLASS)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Effettua il cast di un puntatore generico a `GtkListItemClass*'. Vedere
+Standard Macros:: per maggiorni informazioni.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint GTK_IS_LIST_ITEM (gpointer OBJ)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Determina se un puntatore generico si riferisce ad un oggetto
+`GtkListItem'. Vedere Standard Macros:: per maggiorni informazioni.
+<P> 
+<H2><A NAME="ss9.7">9.7 Esempio</A>
+</H2>
+
+<P>Come esempio su questo argomento, si veda quello relativo alla GtkList,
+che riguarda anche l'uso del GtkListItem.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-10.html">Avanti</A>
+<A HREF="gtk_tut_it-8.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc9">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,636 @@
+--- ../alsa-kernel/core/pcm_native.c	2011-11-08 07:59:20.386478300 +0100
++++ pcm_native.c	2011-11-08 08:33:30.748942597 +0100
+@@ -1,3 +1,5 @@
++#define __NO_VERSION__
++#include "adriver.h"
+ /*
+  *  Digital Audio (PCM) abstract layer
+  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+@@ -20,6 +22,7 @@
+  */
+ 
+ #include <linux/mm.h>
++#include <linux/smp_lock.h>
+ #include <linux/module.h>
+ #include <linux/file.h>
+ #include <linux/slab.h>
+@@ -369,7 +372,10 @@
+ 	return usecs;
+ }
+ 
+-static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
++#ifndef CONFIG_SND_BIT32_EMUL_MODULE
++static
++#endif
++int snd_pcm_hw_params(struct snd_pcm_substream *substream,
+ 			     struct snd_pcm_hw_params *params)
+ {
+ 	struct snd_pcm_runtime *runtime;
+@@ -454,11 +460,33 @@
+ 	snd_pcm_timer_resolution_change(substream);
+ 	runtime->status->state = SNDRV_PCM_STATE_SETUP;
+ 
++#ifdef CONFIG_SND_HAVE_PM_QOS_REQUEST_STATIC
++	if (pm_qos_request_active(&substream->latency_pm_qos_req))
++		pm_qos_remove_request(&substream->latency_pm_qos_req);
++	if ((usecs = period_to_usecs(runtime)) >= 0)
++		pm_qos_add_request(&substream->latency_pm_qos_req,
++				   PM_QOS_CPU_DMA_LATENCY, usecs);
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST_LIST)
++	if (substream->latency_pm_qos_req) {
++		pm_qos_remove_request(substream->latency_pm_qos_req);
++		substream->latency_pm_qos_req = NULL;
++	}
++	if ((usecs = period_to_usecs(runtime)) >= 0)
++		substream->latency_pm_qos_req = pm_qos_add_request(
++				   PM_QOS_CPU_DMA_LATENCY, usecs);
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST)
+ 	if (pm_qos_request_active(&substream->latency_pm_qos_req))
+ 		pm_qos_remove_request(&substream->latency_pm_qos_req);
+ 	if ((usecs = period_to_usecs(runtime)) >= 0)
+ 		pm_qos_add_request(&substream->latency_pm_qos_req,
+ 				   PM_QOS_CPU_DMA_LATENCY, usecs);
++#else
++	pm_qos_remove_requirement(PM_QOS_CPU_DMA_LATENCY,
++				  substream->latency_id);
++	if ((usecs = period_to_usecs(runtime)) >= 0)
++		pm_qos_add_requirement(PM_QOS_CPU_DMA_LATENCY,
++			substream->latency_id, usecs);
++#endif
+ 	return 0;
+  _error:
+ 	/* hardware might be unusable from this time,
+@@ -513,7 +541,17 @@
+ 	if (substream->ops->hw_free)
+ 		result = substream->ops->hw_free(substream);
+ 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
++#ifdef CONFIG_SND_HAVE_PM_QOS_REQUEST_STATIC
++	pm_qos_remove_request(&substream->latency_pm_qos_req);
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST_LIST)
++	pm_qos_remove_request(substream->latency_pm_qos_req);
++	substream->latency_pm_qos_req = NULL;
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST)
+ 	pm_qos_remove_request(&substream->latency_pm_qos_req);
++#else
++	pm_qos_remove_requirement(PM_QOS_CPU_DMA_LATENCY,
++				  substream->latency_id);
++#endif
+ 	return result;
+ }
+ 
+@@ -942,7 +980,11 @@
+  *
+  * The state of each stream is then changed to the given state unconditionally.
+  */
++#if defined(__GENKSYMS__) && LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 38)
++int snd_pcm_stop(struct snd_pcm_substream *substream, int state)
++#else
+ int snd_pcm_stop(struct snd_pcm_substream *substream, snd_pcm_state_t state)
++#endif
+ {
+ 	return snd_pcm_action(&snd_pcm_action_stop, substream, state);
+ }
+@@ -1562,7 +1604,11 @@
+ 	file = fget(fd);
+ 	if (!file)
+ 		return NULL;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
+ 	inode = file->f_path.dentry->d_inode;
++#else
++	inode = file->f_dentry->d_inode;
++#endif
+ 	if (!S_ISCHR(inode->i_mode) ||
+ 	    imajor(inode) != snd_major) {
+ 		fput(file);
+@@ -2004,8 +2050,21 @@
+ 		substream->ops->close(substream);
+ 		substream->hw_opened = 0;
+ 	}
++#ifdef CONFIG_SND_HAVE_PM_QOS_REQUEST_STATIC
+ 	if (pm_qos_request_active(&substream->latency_pm_qos_req))
+ 		pm_qos_remove_request(&substream->latency_pm_qos_req);
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST_LIST)
++	if (substream->latency_pm_qos_req) {
++		pm_qos_remove_request(substream->latency_pm_qos_req);
++		substream->latency_pm_qos_req = NULL;
++	}
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST)
++	if (pm_qos_request_active(&substream->latency_pm_qos_req))
++		pm_qos_remove_request(&substream->latency_pm_qos_req);
++#else
++	pm_qos_remove_requirement(PM_QOS_CPU_DMA_LATENCY,
++				  substream->latency_id);
++#endif
+ 	if (substream->pcm_release) {
+ 		substream->pcm_release(substream);
+ 		substream->pcm_release = NULL;
+@@ -2813,25 +2872,50 @@
+ 	struct snd_pcm_runtime *runtime;
+ 	snd_pcm_sframes_t result;
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 3, 0)
++	up(&file->f_dentry->d_inode->i_sem);
++#endif
+ 	pcm_file = file->private_data;
+ 	substream = pcm_file->substream;
+-	if (PCM_RUNTIME_CHECK(substream))
+-		return -ENXIO;
++	if (PCM_RUNTIME_CHECK(substream)) {
++		result = -ENXIO;
++		goto end;
++	}
+ 	runtime = substream->runtime;
+-	if (runtime->status->state == SNDRV_PCM_STATE_OPEN)
+-		return -EBADFD;
+-	if (!frame_aligned(runtime, count))
+-		return -EINVAL;
++	if (runtime->status->state == SNDRV_PCM_STATE_OPEN) {
++		result = -EBADFD;
++		goto end;
++	}
++	if (!frame_aligned(runtime, count)) {
++		result = -EINVAL;
++		goto end;
++	}
+ 	count = bytes_to_frames(runtime, count);
+ 	result = snd_pcm_lib_write(substream, buf, count);
+ 	if (result > 0)
+ 		result = frames_to_bytes(runtime, result);
++ end:
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 3, 0)
++	down(&file->f_dentry->d_inode->i_sem);
++#endif
+ 	return result;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 3, 44)
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19)
++#define SND_PCM_USE_AIO
++#else
++#define SND_PCM_USE_READV
++#endif
++
++#ifdef SND_PCM_USE_AIO
+ static ssize_t snd_pcm_aio_read(struct kiocb *iocb, const struct iovec *iov,
+ 			     unsigned long nr_segs, loff_t pos)
+-
++#else
++static ssize_t snd_pcm_readv(struct file *file, const struct iovec *iov,
++			     unsigned long nr_segs, loff_t * offset)
++#endif
+ {
+ 	struct snd_pcm_file *pcm_file;
+ 	struct snd_pcm_substream *substream;
+@@ -2841,7 +2925,11 @@
+ 	void __user **bufs;
+ 	snd_pcm_uframes_t frames;
+ 
++#ifdef SND_PCM_USE_AIO
+ 	pcm_file = iocb->ki_filp->private_data;
++#else
++	pcm_file = file->private_data;
++#endif
+ 	substream = pcm_file->substream;
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+@@ -2865,8 +2953,13 @@
+ 	return result;
+ }
+ 
++#ifdef SND_PCM_USE_AIO
+ static ssize_t snd_pcm_aio_write(struct kiocb *iocb, const struct iovec *iov,
+ 			      unsigned long nr_segs, loff_t pos)
++#else
++static ssize_t snd_pcm_writev(struct file *file, const struct iovec *iov,
++			      unsigned long nr_segs, loff_t * offset)
++#endif
+ {
+ 	struct snd_pcm_file *pcm_file;
+ 	struct snd_pcm_substream *substream;
+@@ -2876,7 +2969,11 @@
+ 	void __user **bufs;
+ 	snd_pcm_uframes_t frames;
+ 
++#ifdef SND_PCM_USE_AIO
+ 	pcm_file = iocb->ki_filp->private_data;
++#else
++	pcm_file = file->private_data;
++#endif
+ 	substream = pcm_file->substream;
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+@@ -2898,6 +2995,7 @@
+ 	kfree(bufs);
+ 	return result;
+ }
++#endif /* >= 2.3.44 */
+ 
+ static unsigned int snd_pcm_playback_poll(struct file *file, poll_table * wait)
+ {
+@@ -2985,6 +3083,22 @@
+  * mmap support
+  */
+ 
++#ifndef VM_RESERVED
++#define USE_MMAP_SWAPOUT
++#define VM_RESERVED	0	/* dummy */
++#endif
++
++#ifdef USE_MMAP_SWAPOUT
++#ifndef LINUX_2_2
++static int snd_pcm_mmap_swapout(struct page * page, struct file * file)
++#else
++static int snd_pcm_mmap_swapout(struct vm_area_struct * area, struct page * page)
++#endif
++{
++	return 0;
++}
++#endif
++
+ /*
+  * Only on coherent architectures, we can mmap the status and the control records
+  * for effcient data transfer.  On others, we have to use HWSYNC ioctl...
+@@ -2993,6 +3107,7 @@
+ /*
+  * mmap status record
+  */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ static int snd_pcm_mmap_status_fault(struct vm_area_struct *area,
+ 						struct vm_fault *vmf)
+ {
+@@ -3006,10 +3121,49 @@
+ 	get_page(vmf->page);
+ 	return 0;
+ }
++#else /* 2.6.24 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++static struct page * snd_pcm_mmap_status_nopage(struct vm_area_struct *area,
++						unsigned long address, int *type)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
++static struct page * snd_pcm_mmap_status_nopage(struct vm_area_struct *area,
++						unsigned long address, int no_share)
++#else
++static unsigned long snd_pcm_mmap_status_nopage(struct vm_area_struct *area,
++						unsigned long address, int no_share)
++#endif
++{
++	struct snd_pcm_substream *substream = (struct snd_pcm_substream *)area->vm_private_data;
++	struct snd_pcm_runtime *runtime;
++	struct page * page;
++	
++	if (substream == NULL)
++		return NOPAGE_SIGBUS;
++	runtime = substream->runtime;
++	page = virt_to_page(runtime->status);
++#ifndef CONFIG_SND_REMOVE_PAGE_RESERVE
++	if (!PageReserved(page))
++#endif
++	get_page(page);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++	if (type)
++		*type = VM_FAULT_MINOR;
++#endif
++#ifndef LINUX_2_2
++	return page;
++#else
++	return page_address(page);
++#endif
++}
++#endif /* >= 2.6.24 */
+ 
+ static const struct vm_operations_struct snd_pcm_vm_ops_status =
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ 	.fault =	snd_pcm_mmap_status_fault,
++#else
++	.nopage =	snd_pcm_mmap_status_nopage,
++#endif
+ };
+ 
+ static int snd_pcm_mmap_status(struct snd_pcm_substream *substream, struct file *file,
+@@ -3022,7 +3176,11 @@
+ 	if (size != PAGE_ALIGN(sizeof(struct snd_pcm_mmap_status)))
+ 		return -EINVAL;
+ 	area->vm_ops = &snd_pcm_vm_ops_status;
++#ifndef LINUX_2_2
+ 	area->vm_private_data = substream;
++#else
++	area->vm_private_data = (long)substream;
++#endif
+ 	area->vm_flags |= VM_RESERVED;
+ 	return 0;
+ }
+@@ -3030,6 +3188,7 @@
+ /*
+  * mmap control record
+  */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ static int snd_pcm_mmap_control_fault(struct vm_area_struct *area,
+ 						struct vm_fault *vmf)
+ {
+@@ -3043,10 +3202,50 @@
+ 	get_page(vmf->page);
+ 	return 0;
+ }
++#else /* 2.6.24 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++static struct page * snd_pcm_mmap_control_nopage(struct vm_area_struct *area,
++					unsigned long address, int *type)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
++static struct page * snd_pcm_mmap_control_nopage(struct vm_area_struct *area,
++					unsigned long address, int no_share)
++#else
++static unsigned long snd_pcm_mmap_control_nopage(struct vm_area_struct *area,
++					unsigned long address, int no_share)
++#endif
++{
++	struct snd_pcm_substream *substream =
++		(struct snd_pcm_substream *)area->vm_private_data;
++	struct snd_pcm_runtime *runtime;
++	struct page * page;
++	
++	if (substream == NULL)
++		return NOPAGE_SIGBUS;
++	runtime = substream->runtime;
++	page = virt_to_page(runtime->control);
++#ifndef CONFIG_SND_REMOVE_PAGE_RESERVE
++	if (!PageReserved(page))
++#endif
++	get_page(page);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++	if (type)
++		*type = VM_FAULT_MINOR;
++#endif
++#ifndef LINUX_2_2
++	return page;
++#else
++	return page_address(page);
++#endif
++}
++#endif /* >= 2.6.24 */
+ 
+ static const struct vm_operations_struct snd_pcm_vm_ops_control =
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ 	.fault =	snd_pcm_mmap_control_fault,
++#else
++	.nopage =	snd_pcm_mmap_control_nopage,
++#endif
+ };
+ 
+ static int snd_pcm_mmap_control(struct snd_pcm_substream *substream, struct file *file,
+@@ -3059,7 +3258,11 @@
+ 	if (size != PAGE_ALIGN(sizeof(struct snd_pcm_mmap_control)))
+ 		return -EINVAL;
+ 	area->vm_ops = &snd_pcm_vm_ops_control;
++#ifndef LINUX_2_2
+ 	area->vm_private_data = substream;
++#else
++	area->vm_private_data = (long)substream;
++#endif
+ 	area->vm_flags |= VM_RESERVED;
+ 	return 0;
+ }
+@@ -3100,9 +3303,16 @@
+ 	return virt_to_page(vaddr);
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 3, 25)
++#define get_vm_area_offset(area)	((area)->vm_pgoff << PAGE_SHIFT)
++#else
++#define get_vm_area_offset(area)	(area)->vm_offset
++#endif
++
+ /*
+  * fault callback for mmapping a RAM page
+  */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ static int snd_pcm_mmap_data_fault(struct vm_area_struct *area,
+ 						struct vm_fault *vmf)
+ {
+@@ -3129,6 +3339,59 @@
+ 	vmf->page = page;
+ 	return 0;
+ }
++#else /* 2.6.24 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++static struct page *snd_pcm_mmap_data_nopage(struct vm_area_struct *area,
++					     unsigned long address, int *type)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
++static struct page * snd_pcm_mmap_data_nopage(struct vm_area_struct *area,
++					unsigned long address, int no_share)
++#else
++static unsigned long snd_pcm_mmap_data_nopage(struct vm_area_struct *area,
++					unsigned long address, int no_share)
++#endif
++{
++	struct snd_pcm_substream *substream =
++		(struct snd_pcm_substream *)area->vm_private_data;
++	struct snd_pcm_runtime *runtime;
++	unsigned long offset;
++	struct page * page;
++	void *vaddr;
++	size_t dma_bytes;
++	
++	if (substream == NULL)
++		return NOPAGE_SIGBUS;
++	runtime = substream->runtime;
++	offset = get_vm_area_offset(area);
++	offset += address - area->vm_start;
++	if (snd_BUG_ON(offset % PAGE_SIZE))
++		return NOPAGE_SIGBUS;
++	dma_bytes = PAGE_ALIGN(runtime->dma_bytes);
++	if (offset > dma_bytes - PAGE_SIZE)
++		return NOPAGE_SIGBUS;
++	if (substream->ops->page) {
++		page = substream->ops->page(substream, offset);
++		if (! page)
++			return NOPAGE_OOM; /* XXX: is this really due to OOM? */
++	} else {
++		vaddr = runtime->dma_area + offset;
++		page = virt_to_page(vaddr);
++	}
++#ifndef CONFIG_SND_REMOVE_PAGE_RESERVE
++	if (!PageReserved(page))
++#endif
++	get_page(page);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
++	if (type)
++		*type = VM_FAULT_MINOR;
++#endif
++#ifndef LINUX_2_2
++	return page;
++#else
++	return page_address(page);
++#endif
++}
++#endif /* >= 2.6.24 */
+ 
+ static const struct vm_operations_struct snd_pcm_vm_ops_data = {
+ 	.open =		snd_pcm_mmap_data_open,
+@@ -3138,7 +3401,14 @@
+ static const struct vm_operations_struct snd_pcm_vm_ops_data_fault = {
+ 	.open =		snd_pcm_mmap_data_open,
+ 	.close =	snd_pcm_mmap_data_close,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ 	.fault =	snd_pcm_mmap_data_fault,
++#else
++	.nopage =	snd_pcm_mmap_data_nopage,
++#ifdef USE_MMAP_SWAPOUT
++	.swapout =	snd_pcm_mmap_swapout,
++#endif
++#endif
+ };
+ 
+ #ifndef ARCH_HAS_DMA_MMAP_COHERENT
+@@ -3187,11 +3457,26 @@
+ 	area->vm_page_prot = pgprot_noncached(area->vm_page_prot);
+ 	area->vm_flags |= VM_IO;
+ 	size = area->vm_end - area->vm_start;
+-	offset = area->vm_pgoff << PAGE_SHIFT;
++  	offset = get_vm_area_offset(area);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 0)
++#define io_remap_page_range remap_page_range
++#endif
++#ifdef CONFIG_HAVE_IO_REMAP_PFN_RANGE
+ 	if (io_remap_pfn_range(area, area->vm_start,
+ 				(substream->runtime->dma_addr + offset) >> PAGE_SHIFT,
+ 				size, area->vm_page_prot))
+ 		return -EAGAIN;
++#elif defined(CONFIG_OLD_IO_REMAP_PAGE_RANGE)
++	if (io_remap_page_range(area->vm_start,
++				substream->runtime->dma_addr + offset,
++				size, area->vm_page_prot))
++		return -EAGAIN;
++#else
++	if (io_remap_page_range(area, area->vm_start,
++				substream->runtime->dma_addr + offset,
++				size, area->vm_page_prot))
++		return -EAGAIN;
++#endif
+ 	return 0;
+ }
+ 
+@@ -3226,7 +3511,7 @@
+ 	    runtime->access == SNDRV_PCM_ACCESS_RW_NONINTERLEAVED)
+ 		return -EINVAL;
+ 	size = area->vm_end - area->vm_start;
+-	offset = area->vm_pgoff << PAGE_SHIFT;
++	offset = get_vm_area_offset(area);
+ 	dma_bytes = PAGE_ALIGN(runtime->dma_bytes);
+ 	if ((size_t)size > dma_bytes)
+ 		return -EINVAL;
+@@ -3234,7 +3519,11 @@
+ 		return -EINVAL;
+ 
+ 	area->vm_ops = &snd_pcm_vm_ops_data;
++#ifndef LINUX_2_2
+ 	area->vm_private_data = substream;
++#else
++	area->vm_private_data = (long)substream;
++#endif
+ 	if (substream->ops->mmap)
+ 		err = substream->ops->mmap(substream, area);
+ 	else
+@@ -3257,7 +3546,7 @@
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+ 
+-	offset = area->vm_pgoff << PAGE_SHIFT;
++	offset = get_vm_area_offset(area);
+ 	switch (offset) {
+ 	case SNDRV_PCM_MMAP_OFFSET_STATUS:
+ 		if (pcm_file->no_compat_mmap)
+@@ -3290,12 +3579,34 @@
+ /*
+  * ioctl32 compat
+  */
+-#ifdef CONFIG_COMPAT
++#if defined(CONFIG_COMPAT) && defined(CONFIG_SND_HAVE_NEW_IOCTL)
+ #include "pcm_compat.c"
+ #else
+ #define snd_pcm_ioctl_compat	NULL
+ #endif
+ 
++#ifndef CONFIG_SND_HAVE_NEW_IOCTL
++/* need to unlock BKL to allow preemption */
++static int snd_pcm_playback_ioctl_old(struct inode *inode, struct file * file,
++				      unsigned int cmd, unsigned long arg)
++{
++	int err;
++	unlock_kernel();
++	err = snd_pcm_playback_ioctl(file, cmd, arg);
++	lock_kernel();
++	return err;
++}
++static int snd_pcm_capture_ioctl_old(struct inode *inode, struct file * file,
++				      unsigned int cmd, unsigned long arg)
++{
++	int err;
++	unlock_kernel();
++	err = snd_pcm_capture_ioctl(file, cmd, arg);
++	lock_kernel();
++	return err;
++}
++#endif
++
+ /*
+  *  To be removed helpers to keep binary compatibility
+  */
+@@ -3434,31 +3745,55 @@
+ 
+ const struct file_operations snd_pcm_f_ops[2] = {
+ 	{
++#ifndef LINUX_2_2
+ 		.owner =		THIS_MODULE,
++#endif
+ 		.write =		snd_pcm_write,
++#ifdef SND_PCM_USE_AIO
+ 		.aio_write =		snd_pcm_aio_write,
++#elif defined(SND_PCM_USE_READV)
++		.writev =		snd_pcm_writev,
++#endif
+ 		.open =			snd_pcm_playback_open,
+ 		.release =		snd_pcm_release,
+ 		.llseek =		no_llseek,
+ 		.poll =			snd_pcm_playback_poll,
++#ifdef CONFIG_SND_HAVE_NEW_IOCTL
+ 		.unlocked_ioctl =	snd_pcm_playback_ioctl,
+ 		.compat_ioctl = 	snd_pcm_ioctl_compat,
++#else
++		.ioctl =		snd_pcm_playback_ioctl_old,
++#endif
+ 		.mmap =			snd_pcm_mmap,
+ 		.fasync =		snd_pcm_fasync,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
+ 		.get_unmapped_area =	snd_pcm_get_unmapped_area,
++#endif
+ 	},
+ 	{
++#ifndef LINUX_2_2
+ 		.owner =		THIS_MODULE,
++#endif
+ 		.read =			snd_pcm_read,
++#ifdef SND_PCM_USE_AIO
+ 		.aio_read =		snd_pcm_aio_read,
++#elif defined(SND_PCM_USE_READV)
++		.readv =		snd_pcm_readv,
++#endif
+ 		.open =			snd_pcm_capture_open,
+ 		.release =		snd_pcm_release,
+ 		.llseek =		no_llseek,
+ 		.poll =			snd_pcm_capture_poll,
++#ifdef CONFIG_SND_HAVE_NEW_IOCTL
+ 		.unlocked_ioctl =	snd_pcm_capture_ioctl,
+ 		.compat_ioctl = 	snd_pcm_ioctl_compat,
++#else
++		.ioctl =		snd_pcm_capture_ioctl_old,
++#endif
+ 		.mmap =			snd_pcm_mmap,
+ 		.fasync =		snd_pcm_fasync,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
+ 		.get_unmapped_area =	snd_pcm_get_unmapped_area,
++#endif
+ 	}
+ };

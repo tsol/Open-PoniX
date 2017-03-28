@@ -1,0 +1,306 @@
+<refentry id="GtkTooltips">
+<refmeta>
+<refentrytitle>GtkTooltips</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkTooltips</refname><refpurpose>Add tips to your widgets.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkTooltips-struct">GtkTooltips</link>;
+struct      <link linkend="GtkTooltipsData">GtkTooltipsData</link>;
+<link linkend="GtkTooltips">GtkTooltips</link>* <link linkend="gtk-tooltips-new">gtk_tooltips_new</link>               (void);
+<link linkend="void">void</link>        <link linkend="gtk-tooltips-enable">gtk_tooltips_enable</link>             (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips);
+<link linkend="void">void</link>        <link linkend="gtk-tooltips-disable">gtk_tooltips_disable</link>            (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips);
+<link linkend="void">void</link>        <link linkend="gtk-tooltips-set-delay">gtk_tooltips_set_delay</link>          (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips,
+                                             <link linkend="guint">guint</link> delay);
+<link linkend="void">void</link>        <link linkend="gtk-tooltips-set-tip">gtk_tooltips_set_tip</link>            (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             const <link linkend="gchar">gchar</link> *tip_text,
+                                             const <link linkend="gchar">gchar</link> *tip_private);
+<link linkend="GtkTooltipsData">GtkTooltipsData</link>* <link linkend="gtk-tooltips-data-get">gtk_tooltips_data_get</link>      (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="void">void</link>        <link linkend="gtk-tooltips-force-window">gtk_tooltips_force_window</link>       (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tooltips-get-info-from-tip-window">gtk_tooltips_get_info_from_tip_window</link>
+                                            (<link linkend="GtkWindow">GtkWindow</link> *tip_window,
+                                             <link linkend="GtkTooltips">GtkTooltips</link> **tooltips,
+                                             <link linkend="GtkWidget">GtkWidget</link> **current_widget);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----GtkTooltips
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+Tooltips are the messages that appear next to a widget when the mouse pointer is held over it for a short amount of time. They are especially helpful for adding more verbose descriptions of things such as buttons in a toolbar.
+</para>
+<para>
+An individual tooltip belongs to a group of tooltips. A group is created with a call to <link linkend="gtk-tooltips-new"><function>gtk_tooltips_new()</function></link>. Every tooltip in the group can then be turned off with a call to <link linkend="gtk-tooltips-disable"><function>gtk_tooltips_disable()</function></link> and enabled with <link linkend="gtk-tooltips-enable"><function>gtk_tooltips_enable()</function></link>.
+</para>
+<para>
+The length of time the user must keep the mouse over a widget before the tip is shown, can be altered with <link linkend="gtk-tooltips-set-delay"><function>gtk_tooltips_set_delay()</function></link>. This is set on a 'per group of tooltips' basis.
+</para>
+<para>
+To assign a tip to a particular <link linkend="GtkWidget"><type>GtkWidget</type></link>, <link linkend="gtk-tooltips-set-tip"><function>gtk_tooltips_set_tip()</function></link> is used.
+</para>
+<note>
+<para>
+Tooltips can only be set on widgets which have their own X window.
+To check if a widget has its own window use <link linkend="GTK-WIDGET-NO-WINDOW-CAPS"><function>GTK_WIDGET_NO_WINDOW()</function></link>.
+To add a tooltip to a widget that doesn't have its own window, place the
+widget inside a <link linkend="GtkEventBox"><type>GtkEventBox</type></link> and add a tooltip to that instead.
+</para>
+</note>
+<para>
+The default appearance of all tooltips in a program is determined by the current GTK+ theme that the user has selected.
+</para>
+<para>
+Information about the tooltip (if any) associated with an arbitrary widget can be retrieved using <link linkend="gtk-tooltips-data-get"><function>gtk_tooltips_data_get()</function></link>.
+</para>
+<para>
+<example>
+<title>Adding tooltips to buttons.</title>
+<programlisting>
+   GtkWidget *load_button, *save_button, *hbox;
+   GtkTooltips *button_bar_tips;
+   
+   button_bar_tips = gtk_tooltips_new (<!-- -->);
+   
+   /* Create the buttons and pack them into a GtkHBox */
+   hbox = gtk_hbox_new (TRUE, 2);
+   
+   load_button = gtk_button_new_with_label ("Load a file");
+   gtk_box_pack_start (GTK_BOX (hbox), load_button, TRUE, TRUE, 2);
+   gtk_widget_show (load_button);
+   
+   save_button = gtk_button_new_with_label ("Save a file");
+   gtk_box_pack_start (GTK_BOX (hbox), save_button, TRUE, TRUE, 2);
+   gtk_widget_show (save_button);
+   gtk_widget_show (hbox);
+   
+   /* Add the tips */
+   gtk_tooltips_set_tip (GTK_TOOLTIPS (button_bar_tips), load_button,
+				 "Load a new document into this window",
+				 "Requests the filename of a document.
+				  This will then be loaded into the current
+				  window, replacing the contents of whatever
+				  is already loaded.");
+   gtk_tooltips_set_tip (GTK_TOOLTIPS (button_bar_tips), save_button,
+				 "Saves the current document to a file",
+				 "If you have saved the document previously,
+				  then the new version will be saved over the
+				  old one. Otherwise, you will be prompted for
+				  a filename."); 
+</programlisting></example>
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkTooltips-struct"/>struct GtkTooltips</title>
+<indexterm><primary>GtkTooltips</primary></indexterm><programlisting>struct GtkTooltips;</programlisting>
+<para>Holds information about a group of tooltips. Fields should be changed using the functions provided, rather than directly accessing the struct's members.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTooltipsData"/>struct GtkTooltipsData</title>
+<indexterm><primary>GtkTooltipsData</primary></indexterm><programlisting>struct GtkTooltipsData {
+
+  GtkTooltips *tooltips;
+  GtkWidget *widget;
+  gchar *tip_text;
+  gchar *tip_private;
+};
+</programlisting>
+<para>
+<structfield>tooltips</structfield> is the <link linkend="GtkTooltips"><type>GtkTooltips</type></link> group that this tooltip belongs to. <structfield>widget</structfield> is the <link linkend="GtkWidget"><type>GtkWidget</type></link> that this tooltip data is associated with. <structfield>tip_text</structfield> is a string containing the tooltip message itself.</para>
+<para>
+<structfield>tip_private</structfield> is a string that is not shown as the default tooltip. Instead, this message may be more informative and go towards forming a context-sensitive help system for your application. (FIXME: how to actually "switch on" private tips?)
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-new"/>gtk_tooltips_new ()</title>
+<indexterm><primary>gtk_tooltips_new</primary></indexterm><programlisting><link linkend="GtkTooltips">GtkTooltips</link>* gtk_tooltips_new               (void);</programlisting>
+<para>
+Creates an empty group of tooltips. This function initialises a <link linkend="GtkTooltips"><type>GtkTooltips</type></link> structure. Without at least one such structure, you can not add tips to your application.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkTooltips"><type>GtkTooltips</type></link> group for you to use.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-enable"/>gtk_tooltips_enable ()</title>
+<indexterm><primary>gtk_tooltips_enable</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tooltips_enable             (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips);</programlisting>
+<para>
+Allows the user to see your tooltips as they navigate your application.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tooltips</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTooltips"><type>GtkTooltips</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-disable"/>gtk_tooltips_disable ()</title>
+<indexterm><primary>gtk_tooltips_disable</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tooltips_disable            (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips);</programlisting>
+<para>
+Causes all tooltips in <parameter>tooltips</parameter> to become inactive. Any widgets that have tips associated with that group will no longer display their tips until they are enabled again with <link linkend="gtk-tooltips-enable"><function>gtk_tooltips_enable()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tooltips</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTooltips"><type>GtkTooltips</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-set-delay"/>gtk_tooltips_set_delay ()</title>
+<indexterm><primary>gtk_tooltips_set_delay</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tooltips_set_delay          (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips,
+                                             <link linkend="guint">guint</link> delay);</programlisting>
+<warning><para><literal>gtk_tooltips_set_delay</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Sets the time between the user moving the mouse over a widget and the widget's tooltip appearing.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tooltips</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTooltips"><type>GtkTooltips</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>delay</parameter>&nbsp;:</term>
+<listitem><simpara>an integer value representing seconds (FIXME: double-check this).
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-set-tip"/>gtk_tooltips_set_tip ()</title>
+<indexterm><primary>gtk_tooltips_set_tip</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tooltips_set_tip            (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             const <link linkend="gchar">gchar</link> *tip_text,
+                                             const <link linkend="gchar">gchar</link> *tip_private);</programlisting>
+<para>
+Adds a tooltip containing the message <parameter>tip_text</parameter> to the specified <link linkend="GtkWidget"><type>GtkWidget</type></link>. 
+</para><variablelist role="params">
+<varlistentry><term><parameter>tooltips</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTooltips"><type>GtkTooltips</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the <link linkend="GtkWidget"><type>GtkWidget</type></link> you wish to associate the tip with.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tip_text</parameter>&nbsp;:</term>
+<listitem><simpara>a string containing the tip itself.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tip_private</parameter>&nbsp;:</term>
+<listitem><simpara>a string of any further information that may be useful if the user gets stuck.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-data-get"/>gtk_tooltips_data_get ()</title>
+<indexterm><primary>gtk_tooltips_data_get</primary></indexterm><programlisting><link linkend="GtkTooltipsData">GtkTooltipsData</link>* gtk_tooltips_data_get      (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Retrieves any <link linkend="GtkTooltipsData"><type>GtkTooltipsData</type></link> previously associated with the given widget.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkWidget"><type>GtkWidget</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a <link linkend="GtkTooltipsData"><type>GtkTooltipsData</type></link> struct, or <literal>NULL</literal> if the widget has no tooltip.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-force-window"/>gtk_tooltips_force_window ()</title>
+<indexterm><primary>gtk_tooltips_force_window</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tooltips_force_window       (<link linkend="GtkTooltips">GtkTooltips</link> *tooltips);</programlisting>
+<para>
+Ensures that the window used for displaying the given <parameter>tooltips</parameter> is created.
+</para>
+<para>
+Applications should never have to call this function, since GTK+ takes
+care of this.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tooltips</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkToolTips"><type>GtkToolTips</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tooltips-get-info-from-tip-window"/>gtk_tooltips_get_info_from_tip_window ()</title>
+<indexterm><primary>gtk_tooltips_get_info_from_tip_window</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tooltips_get_info_from_tip_window
+                                            (<link linkend="GtkWindow">GtkWindow</link> *tip_window,
+                                             <link linkend="GtkTooltips">GtkTooltips</link> **tooltips,
+                                             <link linkend="GtkWidget">GtkWidget</link> **current_widget);</programlisting>
+<para>
+Determines the tooltips and the widget they belong to from the window in 
+which they are displayed. 
+</para>
+<para>
+This function is mostly intended for use by accessibility technologies;
+applications should have little use for it.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>tip_window</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWindow"><type>GtkWindow</type></link> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tooltips</parameter>&nbsp;:</term>
+<listitem><simpara> the return location for the tooltips which are displayed 
+   in <parameter>tip_window</parameter>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>current_widget</parameter>&nbsp;:</term>
+<listitem><simpara> the return location for the widget whose tooltips 
+   are displayed, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>tip_window</parameter> is displaying tooltips, otherwise <literal>FALSE</literal>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+<varlistentry>
+<term><link linkend="GtkToolbar"><type>GtkToolbar</type></link></term>
+<listitem><para>Create groups of widgets with their own tooltips.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link></term>
+<listitem><para>Query tooltips to create context-sensitive help.</para></listitem>
+</varlistentry>
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

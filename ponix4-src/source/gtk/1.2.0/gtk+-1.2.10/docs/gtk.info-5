@@ -1,0 +1,262 @@
+This is gtk.info, produced by makeinfo version 4.0 from gtk.texi.
+
+   This file documents GTK, the GIMP Toolkit
+
+   Copyright (C) 1996 Peter Mattis Copyright (C) 1997 Peter Mattis
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by Peter Mattis.
+
+INFO-DIR-SECTION User Interface Toolkit
+START-INFO-DIR-ENTRY
+* GTK: (gtk).		The GIMP Toolkit
+END-INFO-DIR-ENTRY
+
+
+File: gtk.info,  Node: Hello World,  Next: Hello World II,  Prev: Simple,  Up: Examples
+
+Hello world in GTK
+==================
+
+     #include <gtk/gtk.h>
+     
+     int
+     main (int argc, char *argv[])
+     {
+       GtkWidget *window;
+       GtkWidget *label;
+     
+       gtk_init (&argc, &argv);
+     
+       window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+       gtk_container_border_width (GTK_CONTAINER (window), 10);
+     
+       label = gtk_label_new ("Hello World");
+       gtk_container_add (GTK_CONTAINER (window), label);
+       gtk_widget_show (label);
+     
+       gtk_widget_show (window);
+     
+       gtk_main ();
+     
+       return 0;
+     }
+
+
+File: gtk.info,  Node: Hello World II,  Next: Hello World III,  Prev: Hello World,  Up: Examples
+
+An enhanced hello world
+=======================
+
+     #include "gtk.h"
+     
+     void
+     hello (void)
+     {
+       g_print ("Hello World\n");
+       gtk_exit (0);
+     }
+     
+     int
+     main (int argc, char *argv[])
+     {
+       GtkWidget *window;
+       GtkWidget *button;
+     
+       gtk_init (&argc, &argv);
+     
+       window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+       gtk_container_border_width (GTK_CONTAINER (window), 10);
+     
+       button = gtk_button_new_with_label ("Hello World");
+       gtk_signal_connect (GTK_OBJECT (button), "clicked",
+     		      GTK_SIGNAL_FUNC (hello), NULL);
+       gtk_container_add (GTK_CONTAINER (window), button);
+       gtk_widget_show (button);
+     
+       gtk_widget_show (window);
+     
+       gtk_main ();
+     
+       return 0;
+     }
+
+
+File: gtk.info,  Node: Hello World III,  Prev: Hello World II,  Up: Examples
+
+Making Hello World II robust
+============================
+
+     #include "gtk.h"
+     
+     void
+     hello (void)
+     {
+       g_print ("Hello World\n");
+       gtk_exit (0);
+     }
+     
+     void
+     destroy (void)
+     {
+       gtk_exit (0);
+     }
+     
+     int
+     main (int argc, char *argv[])
+     {
+       GtkWidget *window;
+       GtkWidget *button;
+     
+       gtk_init (&argc, &argv);
+     
+       window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+       gtk_signal_connect (GTK_OBJECT (window), "destroy",
+     		      GTK_SIGNAL_FUNC (destroy), NULL);
+       gtk_container_border_width (GTK_CONTAINER (window), 10);
+     
+       button = gtk_button_new_with_label ("Hello World");
+       gtk_signal_connect (GTK_OBJECT (button), "clicked",
+     		      GTK_SIGNAL_FUNC (hello), NULL);
+       gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+     			     GTK_SIGNAL_FUNC (gtk_widget_destroy),
+     			     GTK_OBJECT (window));
+       gtk_container_add (GTK_CONTAINER (window), button);
+       gtk_widget_show (button);
+     
+       gtk_widget_show (window);
+     
+       gtk_main ();
+     
+       return 0;
+     }
+
+
+File: gtk.info,  Node: Object Implementation,  Next: Signal Implementation,  Prev: Examples,  Up: Top
+
+Object internals
+****************
+
+   Objects (or the `GtkObject' type) and the class hierarchy in general
+is implemented via a hierarchy of structs and type casting. Be aware
+that when classes are mentioned it is the conceptual idea of classes
+that is being referred to. GTK is written entirely in C which provides
+no direct support for classes.
+
+   The first part to the class mechanism is the object fields. These are
+fields that will be used on a per object basis. For example, the widget
+type contains a field for the widgets parent. Every derived type needs a
+reference to its parent type. A descendant class of `GtkObject' would
+define itself like:
+
+     struct Descendant
+     {
+       GtkObject object;
+     
+       ...
+     };
+
+   It is important to note that the `GtkObject' field needs to appear
+first in the descendant type structure. This allows pointers to objects
+of type `Descendant' to be cast to pointers to `GtkObject''s and
+vice-versa.
+
+   The second part to the class mechanism is the class fields. These
+fields are defined on a per class basis. In the case of widgets, the
+class fields are all the "virtual" functions for widgets. The
+`GtkObject' class defines the `destroy' virtual function and the
+necessary fields for the signal mechanism as well as a field for
+determining the runtime type of an object. A virtual function is
+semantically the same as it is in C++. That is, the actual function that
+is called is determined based on the type of the object. Or, more
+specifically, the actual function call depends on the class structure
+that is pointed to by the `klass' field of the `GtkObject' structure.
+
+   To see how the class fields work it is necessary to see the object
+fields for a `GtkObject'. The `GtkObject' type is defined as follows:
+
+     typedef struct _GtkObject GtkObject;
+     
+     struct _GtkObject
+     {
+       guint32 flags;
+       GtkObjectClass *klass;
+       gpointer object_data;
+     };
+
+   The `class' field actually points to a class structure derived from
+`GtkObjectClass'. By convention, each new type defines its own class
+structure even if it is unnecessary. As an example, the hypothetical
+`Descendant' class would define its class structure as:
+
+     struct DescendantClass
+     {
+       GtkObjectClass parent_class;
+     
+       ...
+     };
+
+   It is convention to name the parent class field (`GtkObjectClass' in
+this case), `parent_class'. For the same reason as stated above for the
+object structure, the parent class field must be the first field in the
+class structure.
+
+   *Note:* GTK assumes that the first field in a structure will be
+placed by the compiler at the start of the structure. This is certainly
+true for gcc, however, from my precursory reading of the C standard I
+was unable to come to a definite conclusion as to whether this was
+required or simply done for simplicity. I'm not too worried about this
+assumption, though, as every C compiler I've ever encountered would work
+with GTK.
+
+   The `flags' field of the `GtkObject' structure is used to keep track
+of a relatively few object flags and is also used by the `GtkWidget'
+type to store additional flags. At this time, the upper 16 bits of the
+flags field are reserved but unused.
+
+   The `object_data' field of the `GtkObject' structure is an opaque
+pointer used by the object data mechanism. In truth, it is a pointer to
+the beginning of the data list which is composed of the following
+structures.
+
+     typedef struct _GtkObjectData GtkObjectData;
+     
+     struct _GtkObjectData
+     {
+       guint id;
+       gpointer data;
+       GtkObjectData *next;
+     };
+
+   The data mechanism allows arbitrary data to be associated with a
+character string key in any object. A hash table is used to transform
+the character string key into the data id and then a search through the
+list is made to see if the data exists. The assumption being that the
+data list will usually be short and therefore a linear search is OK.
+Future work on the data mechanism might make use of a resizable array
+instead of a linked list. This would shrink the overhead of the
+`GtkObjectData' structure by 4 bytes on 32 bit architectures.
+
+
+File: gtk.info,  Node: Signal Implementation,  Next: Widget Implementation,  Prev: Object Implementation,  Up: Top
+
+Signal internals
+****************
+
+
+File: gtk.info,  Node: Widget Implementation,  Next: Function Index,  Prev: Signal Implementation,  Up: Top
+
+Widget internals
+****************
+

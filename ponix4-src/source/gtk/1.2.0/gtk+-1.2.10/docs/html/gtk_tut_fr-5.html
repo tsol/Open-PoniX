@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Vue d'ensemble des widgets</TITLE>
+ <LINK HREF="gtk_tut_fr-6.html" REL=next>
+ <LINK HREF="gtk_tut_fr-4.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc5" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-6.html">Page suivante</A>
+<A HREF="gtk_tut_fr-4.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc5">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s5">5. Vue d'ensemble des widgets</A></H2>
+
+<P>
+<P>Les étapes pour créer un widget en GTK sont&nbsp;:
+<OL>
+<LI> <EM>gtk_*_new()</EM> - une des fonctions disponibles pour créer un
+nouveau widget. Ces fonctions sont décrites dans cette section.
+</LI>
+<LI> Connexion de tous les signaux que l'on souhaite utiliser avec
+les gestionnaires adéquats.
+</LI>
+<LI> Configuration des attributs du widget.
+</LI>
+<LI> Placement du widget dans un container en utilisant un appel approprié comme
+<EM>gtk_container_add()</EM> ou <EM>gtk_box_pack_start()</EM>.
+</LI>
+<LI> Affichage du widget grâce à <EM>gtk_widget_show()</EM>.</LI>
+</OL>
+<P><EM>gtk_widget_show()</EM> permet à GTK de savoir que l'on a fini de
+configurer les attributs du widget et qu'il est prêt à être
+affiché. On peut aussi utiliser <EM>gtk_widget_hide()</EM> pour le faire
+disparaître. L'ordre dans lequel on affiche les widgets n'est pas
+important, mais il est préférable d'afficher la fenêtre en dernier
+pour qu'elle surgisse d'un seul coup plutôt que de voir les différents
+widgets apparaître à l'écran au fur et à mesure. Les fils d'un widget
+(une fenêtre est aussi un widget) ne seront pas affichés tant que la
+fenêtre elle-même n'est pas affichée par la fonction
+<EM>gtk_widget_show()</EM>.
+<P>
+<H2><A NAME="ss5.1">5.1 Conversions de types</A>
+</H2>
+
+<P>Vous remarquerez, au fur et à mesure que vous progressez, que GTK
+utilise un système de coercition de type. Celle-ci est toujours
+réalisée en utilisant des macros qui vérifient si l'objet donné peut
+être converti et qui réalisent cette coercition. Les macros que vous
+rencontrerez le plus sont&nbsp;:
+<P>
+<UL>
+<LI> GTK_WIDGET(widget)</LI>
+<LI> GTK_OBJECT(object)</LI>
+<LI> GTK_SIGNAL_FUNC(function)</LI>
+<LI> GTK_CONTAINER(container)</LI>
+<LI> GTK_WINDOW(window)</LI>
+<LI> GTK_BOX(box)</LI>
+</UL>
+<P>Elles sont toutes utilisées pour convertir les paramètres des
+fonctions. Vous les verrez dans les exemples et, en règle générale,
+vous saurez les utiliser simplement en regardant la
+déclaration d'une fonction.
+<P>Comme vous pouvez le voir dans la hiérarchie de classes ci-dessous,
+tous les <EM>GtkWidgets</EM> dérivent d'une classe de base
+<EM>GtkObject</EM>. Ceci signifie que vous pouvez utiliser un widget à
+chaque fois qu'une fonction requiert un objet - il suffit d'utiliser
+la macro GTK_OBJECT().
+<P>Par exemple&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_connect(GTK_OBJECT(button), "clicked",
+                   GTK_SIGNAL_FUNC(fonction_rappel), donnee_de_rappel);
+</PRE>
+</CODE></BLOCKQUOTE>
+ 
+<P>Cet appel convertit le bouton en objet et fournit une conversion pour
+le pointeur de fonction vers la fonction de rappel.
+<P>De nombreux widgets sont aussi des containers. Si vous regardez la
+hiérarchie de classe ci-dessous, vous remarquerez que beaucoup de
+widgets viennent de la classe <EM>GtkContainer</EM>. N'importe lequel de
+ces widgets peut être utilisé avec la macro GTK_CONTAINER pour être
+passé en paramètre à une fonction qui attend un container.
+<P>Malheureusement, ces macros ne peuvent être couvertes en détail dans
+ce didacticiel, Je vous recommande donc de jeter un coup d'oeil sur
+les fichier en-têtes GTK&nbsp;: ils peuvent s'avérer très
+instructifs. En fait, il n'est pas difficile de comprendre comment
+fonctionne un widget, il suffit d'étudier les déclarations des
+fonctions.
+<P>
+<P>
+<H2><A NAME="ss5.2">5.2 La hiérarchie des widgets</A>
+</H2>
+
+<P>Voici l'arbre de la hiérarchie de classes utilisées pour implanter les widgets.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    GtkObject
+    +-- GtkData
+    |   \-- GtkAdjustment
+    |
+    \-- GtkWidget
+        +-- GtkContainer
+        |   +-- GtkBin
+        |   |   +-- GtkAlignment
+        |   |   +-- GtkFrame
+        |   |   |   *-- GtkAspectFrame
+        |   |   |
+        |   |   +-- GtkItem
+        |   |   |   +-- GtkListItem
+        |   |   |   +-- GtkMenuItem
+        |   |   |   |   +-- GtkCheckMenuItem
+        |   |   |   |       *-- GtkRadioMenuItem
+        |   |   |   |
+        |   |   |   *-- GtkTreeItem
+        |   |   |
+        |   |   +-- GtkViewport
+        |   |   \-- GtkWindow
+        |   |       +-- GtkDialog
+        |   |       \-- GtkFileSelection
+        |   |
+        |   +-- GtkBox
+        |   |   +-- GtkHBox
+        |   |   \-- GtkVBox
+        |   |       +-- GtkColorSelection
+        |   |       \-- GtkCurve
+        |   |
+        |   +-- GtkButton
+        |   |   +-- GtkOptionMenu
+        |   |   \-- GtkToggleButton
+        |   |       \-- GtkCheckButton
+        |   |           \-- GtkRadioButton
+        |   |
+        |   +-- GtkList
+        |   +-- GtkMenuShell
+        |   |   +-- GtkMenu
+        |   |   \-- GtkMenuBar
+        |   |
+        |   +-- GtkNotebook
+        |   +-- GtkScrolledWindow
+        |   +-- GtkTable
+        |   \-- GtkTree
+        |
+        +-- GtkDrawingArea
+        +-- GtkEntry
+        +-- GtkMisc
+        |   +-- GtkArrow
+        |   +-- GtkImage
+        |   +-- GtkLabel
+        |   \-- GtkPixmap
+        |
+        +-- GtkPreview
+        +-- GtkProgressBar
+        +-- GtkRange
+        |   +-- GtkScale
+        |   |   +-- GtkHScale
+        |   |   \-- GtkVScale
+        |   |
+        |   \-- GtkScrollbar
+        |       +-- GtkHScrollbar
+        |       \-- GtkVScrollbar
+        |
+        +-- GtkRuler
+        |   +-- GtkHRuler
+        |   \-- GtkVRuler
+        |
+        \-- GtkSeparator
+            +-- GtkHSeparator
+            \-- GtkVSeparator
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<H2><A NAME="ss5.3">5.3 Widgets sans fenêtre</A>
+</H2>
+
+<P>Les widgets suivants n'ont pas de fenêtre associée. Si vous voulez
+capturer des événements, vous devez utiliser <EM>GtkEventBox</EM>.
+Reportez-vous à la section sur
+<A HREF="gtk_tut_fr-13.html#sec_The_EventBox_Widget">Le widget EventBox</A><P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAlignment
+GtkArrow
+GtkBin
+GtkBox
+GtkImage
+GtkItem
+GtkLabel
+GtkPaned
+GtkPixmap
+GtkScrolledWindow
+GtkSeparator
+GtkTable
+GtkViewport
+GtkAspectFrame
+GtkFrame
+GtkVPaned
+GtkHPaned
+GtkVBox
+GtkHBox
+GtkVSeparator
+GtkHSeparator
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Nous continuerons notre exploration de GTK en examinant chaque widget
+tour à tour, créant quelques fonctions simples pour les afficher. Une
+autre source intéressante est le programme <EM>testgtk.c</EM> livré avec
+GTK. Il se trouve dans le répertoire <EM>gtk/</EM>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-6.html">Page suivante</A>
+<A HREF="gtk_tut_fr-4.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc5">Table des matières</A>
+</BODY>
+</HTML>

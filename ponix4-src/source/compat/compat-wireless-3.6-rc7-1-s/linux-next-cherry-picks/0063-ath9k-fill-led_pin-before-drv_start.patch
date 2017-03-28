@@ -1,0 +1,109 @@
+From 8f176a3a16d124285cecd6c53b70689eb3b9ba36 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Wed, 12 Sep 2012 18:59:23 +0530
+Subject: [PATCH] ath9k: fill led_pin before drv_start
+
+Ensure that led pin is filled and set to OFF before starting
+the driver. With recent changes, drv_start is being called even
+before led_init is being completed. This is causing led is always
+OFF on driver load when the interface is UP. This patch splits the
+led init and fills the led pin before register hw.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ath9k.h |  4 ++++
+ drivers/net/wireless/ath/ath9k/gpio.c  | 44 +++++++++++++++++++---------------
+ drivers/net/wireless/ath/ath9k/init.c  |  1 +
+ 3 files changed, 30 insertions(+), 19 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -537,6 +537,7 @@ struct ath9k_wow_pattern {
+ #ifdef CONFIG_MAC80211_LEDS
+ void ath_init_leds(struct ath_softc *sc);
+ void ath_deinit_leds(struct ath_softc *sc);
++void ath_fill_led_pin(struct ath_softc *sc);
+ #else
+ static inline void ath_init_leds(struct ath_softc *sc)
+ {
+@@ -545,6 +546,9 @@ static inline void ath_init_leds(struct
+ static inline void ath_deinit_leds(struct ath_softc *sc)
+ {
+ }
++static inline void ath_fill_led_pin(struct ath_softc *sc)
++{
++}
+ #endif
+ 
+ /*******************************/
+--- a/drivers/net/wireless/ath/ath9k/gpio.c
++++ b/drivers/net/wireless/ath/ath9k/gpio.c
+@@ -44,25 +44,6 @@ void ath_init_leds(struct ath_softc *sc)
+ 	if (AR_SREV_9100(sc->sc_ah))
+ 		return;
+ 
+-	if (sc->sc_ah->led_pin < 0) {
+-		if (AR_SREV_9287(sc->sc_ah))
+-			sc->sc_ah->led_pin = ATH_LED_PIN_9287;
+-		else if (AR_SREV_9485(sc->sc_ah))
+-			sc->sc_ah->led_pin = ATH_LED_PIN_9485;
+-		else if (AR_SREV_9300(sc->sc_ah))
+-			sc->sc_ah->led_pin = ATH_LED_PIN_9300;
+-		else if (AR_SREV_9462(sc->sc_ah) || AR_SREV_9565(sc->sc_ah))
+-			sc->sc_ah->led_pin = ATH_LED_PIN_9462;
+-		else
+-			sc->sc_ah->led_pin = ATH_LED_PIN_DEF;
+-	}
+-
+-	/* Configure gpio 1 for output */
+-	ath9k_hw_cfg_output(sc->sc_ah, sc->sc_ah->led_pin,
+-			    AR_GPIO_OUTPUT_MUX_AS_OUTPUT);
+-	/* LED off, active low */
+-	ath9k_hw_set_gpio(sc->sc_ah, sc->sc_ah->led_pin, 1);
+-
+ 	if (!led_blink)
+ 		sc->led_cdev.default_trigger =
+ 			ieee80211_get_radio_led_name(sc->hw);
+@@ -78,6 +59,31 @@ void ath_init_leds(struct ath_softc *sc)
+ 
+ 	sc->led_registered = true;
+ }
++
++void ath_fill_led_pin(struct ath_softc *sc)
++{
++	struct ath_hw *ah = sc->sc_ah;
++
++	if (AR_SREV_9100(ah) || (ah->led_pin >= 0))
++		return;
++
++	if (AR_SREV_9287(ah))
++		ah->led_pin = ATH_LED_PIN_9287;
++	else if (AR_SREV_9485(sc->sc_ah))
++		ah->led_pin = ATH_LED_PIN_9485;
++	else if (AR_SREV_9300(sc->sc_ah))
++		ah->led_pin = ATH_LED_PIN_9300;
++	else if (AR_SREV_9462(sc->sc_ah) || AR_SREV_9565(sc->sc_ah))
++		ah->led_pin = ATH_LED_PIN_9462;
++	else
++		ah->led_pin = ATH_LED_PIN_DEF;
++
++	/* Configure gpio 1 for output */
++	ath9k_hw_cfg_output(ah, ah->led_pin, AR_GPIO_OUTPUT_MUX_AS_OUTPUT);
++
++	/* LED off, active low */
++	ath9k_hw_set_gpio(ah, ah->led_pin, 1);
++}
+ #endif
+ 
+ /*******************/
+--- a/drivers/net/wireless/ath/ath9k/init.c
++++ b/drivers/net/wireless/ath/ath9k/init.c
+@@ -599,6 +599,7 @@ static int ath9k_init_softc(u16 devid, s
+ 
+ 	ath9k_cmn_init_crypto(sc->sc_ah);
+ 	ath9k_init_misc(sc);
++	ath_fill_led_pin(sc);
+ 
+ 	if (common->bus_ops->aspm_init)
+ 		common->bus_ops->aspm_init(common);

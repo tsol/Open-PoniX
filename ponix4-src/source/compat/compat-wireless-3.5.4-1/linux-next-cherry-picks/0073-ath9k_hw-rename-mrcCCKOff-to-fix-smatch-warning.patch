@@ -1,0 +1,124 @@
+From 81b67fd60a75cac36092aa37cd0728aab3a7a938 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Thu, 21 Jun 2012 20:33:59 +0530
+Subject: [PATCH 73/90] ath9k_hw: rename mrcCCKOff to fix smatch warning
+
+Rename mrcCCKOff for better code readability and also fixes
+the smatch warning.
+
+drivers/net/wireless/ath/ath9k/ar9003_phy.c:982
+	ar9003_hw_ani_control() Error invalid range 1 to 0.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ani.c        |  8 ++------
+ drivers/net/wireless/ath/ath9k/ani.h        |  4 +---
+ drivers/net/wireless/ath/ath9k/ar5008_phy.c |  4 ++--
+ drivers/net/wireless/ath/ath9k/ar9003_phy.c | 10 +++++-----
+ 4 files changed, 10 insertions(+), 16 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ani.c
++++ b/drivers/net/wireless/ath/ath9k/ani.c
+@@ -238,7 +238,7 @@ static void ath9k_hw_set_cck_nil(struct
+ 	if (!AR_SREV_9300_20_OR_LATER(ah) || AR_SREV_9485(ah))
+ 		return;
+ 
+-	if (aniState->mrcCCKOff == entry_cck->mrc_cck_on)
++	if (aniState->mrcCCK != entry_cck->mrc_cck_on)
+ 		ath9k_hw_ani_control(ah,
+ 				     ATH9K_ANI_MRC_CCK,
+ 				     entry_cck->mrc_cck_on);
+@@ -525,11 +525,7 @@ void ath9k_hw_ani_init(struct ath_hw *ah
+ 
+ 		ani->firstepLevel = ATH9K_ANI_FIRSTEP_LVL;
+ 
+-		if (AR_SREV_9300_20_OR_LATER(ah))
+-			ani->mrcCCKOff =
+-				!ATH9K_ANI_ENABLE_MRC_CCK;
+-		else
+-			ani->mrcCCKOff = true;
++		ani->mrcCCK = AR_SREV_9300_20_OR_LATER(ah) ? true : false;
+ 
+ 		ani->ofdmsTurn = true;
+ 
+--- a/drivers/net/wireless/ath/ath9k/ani.h
++++ b/drivers/net/wireless/ath/ath9k/ani.h
+@@ -62,8 +62,6 @@
+ #define ATH9K_SIG_SPUR_IMM_SETTING_MIN    0
+ #define ATH9K_SIG_SPUR_IMM_SETTING_MAX    22
+ 
+-#define ATH9K_ANI_ENABLE_MRC_CCK          true
+-
+ /* values here are relative to the INI */
+ 
+ enum ath9k_ani_cmd {
+@@ -111,7 +109,7 @@ struct ar5416AniState {
+ 	u8 ofdmNoiseImmunityLevel;
+ 	u8 cckNoiseImmunityLevel;
+ 	bool ofdmsTurn;
+-	u8 mrcCCKOff;
++	u8 mrcCCK;
+ 	u8 spurImmunityLevel;
+ 	u8 firstepLevel;
+ 	u8 ofdmWeakSigDetect;
+--- a/drivers/net/wireless/ath/ath9k/ar5008_phy.c
++++ b/drivers/net/wireless/ath/ath9k/ar5008_phy.c
+@@ -1234,7 +1234,7 @@ static bool ar5008_hw_ani_control_new(st
+ 		aniState->spurImmunityLevel,
+ 		aniState->ofdmWeakSigDetect ? "on" : "off",
+ 		aniState->firstepLevel,
+-		!aniState->mrcCCKOff ? "on" : "off",
++		aniState->mrcCCK ? "on" : "off",
+ 		aniState->listenTime,
+ 		aniState->ofdmPhyErrCount,
+ 		aniState->cckPhyErrCount);
+@@ -1322,7 +1322,7 @@ static void ar5008_hw_ani_cache_ini_regs
+ 	aniState->spurImmunityLevel = ATH9K_ANI_SPUR_IMMUNE_LVL;
+ 	aniState->firstepLevel = ATH9K_ANI_FIRSTEP_LVL;
+ 	aniState->ofdmWeakSigDetect = ATH9K_ANI_USE_OFDM_WEAK_SIG;
+-	aniState->mrcCCKOff = true; /* not available on pre AR9003 */
++	aniState->mrcCCK = false; /* not available on pre AR9003 */
+ }
+ 
+ static void ar5008_hw_set_nf_limits(struct ath_hw *ah)
+--- a/drivers/net/wireless/ath/ath9k/ar9003_phy.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.c
+@@ -979,16 +979,16 @@ static bool ar9003_hw_ani_control(struct
+ 			      AR_PHY_MRC_CCK_ENABLE, is_on);
+ 		REG_RMW_FIELD(ah, AR_PHY_MRC_CCK_CTRL,
+ 			      AR_PHY_MRC_CCK_MUX_REG, is_on);
+-		if (!is_on != aniState->mrcCCKOff) {
++		if (is_on != aniState->mrcCCK) {
+ 			ath_dbg(common, ANI, "** ch %d: MRC CCK: %s=>%s\n",
+ 				chan->channel,
+-				!aniState->mrcCCKOff ? "on" : "off",
++				aniState->mrcCCK ? "on" : "off",
+ 				is_on ? "on" : "off");
+ 		if (is_on)
+ 			ah->stats.ast_ani_ccklow++;
+ 		else
+ 			ah->stats.ast_ani_cckhigh++;
+-		aniState->mrcCCKOff = !is_on;
++		aniState->mrcCCK = is_on;
+ 		}
+ 	break;
+ 	}
+@@ -1004,7 +1004,7 @@ static bool ar9003_hw_ani_control(struct
+ 		aniState->spurImmunityLevel,
+ 		aniState->ofdmWeakSigDetect ? "on" : "off",
+ 		aniState->firstepLevel,
+-		!aniState->mrcCCKOff ? "on" : "off",
++		aniState->mrcCCK ? "on" : "off",
+ 		aniState->listenTime,
+ 		aniState->ofdmPhyErrCount,
+ 		aniState->cckPhyErrCount);
+@@ -1114,7 +1114,7 @@ static void ar9003_hw_ani_cache_ini_regs
+ 	aniState->spurImmunityLevel = ATH9K_ANI_SPUR_IMMUNE_LVL;
+ 	aniState->firstepLevel = ATH9K_ANI_FIRSTEP_LVL;
+ 	aniState->ofdmWeakSigDetect = ATH9K_ANI_USE_OFDM_WEAK_SIG;
+-	aniState->mrcCCKOff = !ATH9K_ANI_ENABLE_MRC_CCK;
++	aniState->mrcCCK = true;
+ }
+ 
+ static void ar9003_hw_set_radar_params(struct ath_hw *ah,

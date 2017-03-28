@@ -1,0 +1,156 @@
+<refentry id="gdk-pixbuf-file-loading">
+<refmeta>
+<refentrytitle>File Loading</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>File Loading</refname><refpurpose>Loading a pixbuf from a file.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new-from-file">gdk_pixbuf_new_from_file</link>        (const <link linkend="char">char</link> *filename,
+                                             <link linkend="GError">GError</link> **error);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new-from-file-at-size">gdk_pixbuf_new_from_file_at_size</link>
+                                            (const <link linkend="char">char</link> *filename,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height,
+                                             <link linkend="GError">GError</link> **error);
+<link linkend="GdkPixbufFormat">GdkPixbufFormat</link>* <link linkend="gdk-pixbuf-get-file-info">gdk_pixbuf_get_file_info</link>   (const <link linkend="gchar">gchar</link> *filename,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    The &gdk-pixbuf; library provides a simple mechanism for loading
+    an image from a file in synchronous fashion.  This means that the
+    library takes control of the application while the file is being
+    loaded; from the user's point of view, the application will block
+    until the image is done loading.
+  </para>
+
+  <para>
+    This interface can be used by applications in which blocking is
+    acceptable while an image is being loaded.  It can also be used to
+    load small images in general.  Applications that need progressive
+    loading can use the <link linkend="GdkPixbufLoader"><type>GdkPixbufLoader</type></link> functionality instead.
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new-from-file"/>gdk_pixbuf_new_from_file ()</title>
+<indexterm><primary>gdk_pixbuf_new_from_file</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new_from_file        (const <link linkend="char">char</link> *filename,
+                                             <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Creates a new pixbuf by loading an image from a file.  The file format is
+detected automatically. If <literal>NULL</literal> is returned, then <parameter>error</parameter> will be set.
+Possible errors are in the <link linkend="GDK-PIXBUF-ERROR-CAPS"><type>GDK_PIXBUF_ERROR</type></link> and <link linkend="G-FILE-ERROR-CAPS"><type>G_FILE_ERROR</type></link> domains.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filename</parameter>&nbsp;:</term>
+<listitem><simpara> Name of file to load.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> Return location for an error
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created pixbuf with a reference count of 1, or <literal>NULL</literal> if
+any of several error conditions occurred:  the file could not be opened,
+there was no loader for the file's format, there was not enough memory to
+allocate the image buffer, or the image file contained invalid data.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new-from-file-at-size"/>gdk_pixbuf_new_from_file_at_size ()</title>
+<indexterm><primary>gdk_pixbuf_new_from_file_at_size</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new_from_file_at_size
+                                            (const <link linkend="char">char</link> *filename,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height,
+                                             <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Creates a new pixbuf by loading an image from a file.  The file format is
+detected automatically. If <literal>NULL</literal> is returned, then <parameter>error</parameter> will be set.
+Possible errors are in the <link linkend="GDK-PIXBUF-ERROR-CAPS"><type>GDK_PIXBUF_ERROR</type></link> and <link linkend="G-FILE-ERROR-CAPS"><type>G_FILE_ERROR</type></link> domains.
+The image will be scaled to fit in the requested size, preserving its aspect ratio.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filename</parameter>&nbsp;:</term>
+<listitem><simpara> Name of file to load.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> The width the image should have
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> The height the image should have
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> Return location for an error
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created pixbuf with a reference count of 1, or <literal>NULL</literal> if
+any of several error conditions occurred:  the file could not be opened,
+there was no loader for the file's format, there was not enough memory to
+allocate the image buffer, or the image file contained invalid data.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-get-file-info"/>gdk_pixbuf_get_file_info ()</title>
+<indexterm><primary>gdk_pixbuf_get_file_info</primary></indexterm><programlisting><link linkend="GdkPixbufFormat">GdkPixbufFormat</link>* gdk_pixbuf_get_file_info   (const <link linkend="gchar">gchar</link> *filename,
+                                             <link linkend="gint">gint</link> *width,
+                                             <link linkend="gint">gint</link> *height);</programlisting>
+<para>
+Parses an image file far enough to determine its format and size.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filename</parameter>&nbsp;:</term>
+<listitem><simpara> The name of the file to identify.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> Return location for the width of the image, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> Return location for the height of the image, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A <link linkend="GdkPixbufFormat"><type>GdkPixbufFormat</type></link> describing the image format of the file 
+   or <literal>NULL</literal> if the image format wasn't recognized. The return value 
+   is owned by GdkPixbuf and should not be freed.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="GdkPixbufLoader"><type>GdkPixbufLoader</type></link>.
+  </para>
+</refsect1>
+
+</refentry>

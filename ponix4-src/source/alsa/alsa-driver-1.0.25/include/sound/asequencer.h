@@ -1,0 +1,1 @@
+../../alsa-kernel/include/asequencer.h

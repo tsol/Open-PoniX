@@ -1,0 +1,116 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>X Drawables to Pixbufs</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="The gdk-pixbuf Library"><link rel="up" href="rn01.html" title="API Reference"><link rel="previous" href="gdk-pixbuf-gdk-pixbuf-xlib-rendering.html" title="Xlib Rendering"><link rel="next" href="gdk-pixbuf-gdk-pixbuf-xlib-rgb.html" title="XlibRGB"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="gdk-pixbuf-gdk-pixbuf-xlib-rendering.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="rn01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">The gdk-pixbuf Library</th><td><a accesskey="n" href="gdk-pixbuf-gdk-pixbuf-xlib-rgb.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="gdk-pixbuf-gdk-pixbuf-xlib-from-drawables"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">X Drawables to Pixbufs</span></h2><p>X Drawables to Pixbufs &#8212; Getting parts of an X drawable's image data into a pixbuf.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<a href="gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf">GdkPixbuf</a>*  <a href="gdk-pixbuf-gdk-pixbuf-xlib-from-drawables.html#gdk-pixbuf-xlib-get-from-drawable">gdk_pixbuf_xlib_get_from_drawable</a>
+                                            (<a href="gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf">GdkPixbuf</a> *dest,
+                                             Drawable src,
+                                             Colormap cmap,
+                                             Visual *visual,
+                                             int src_x,
+                                             int src_y,
+                                             int dest_x,
+                                             int dest_y,
+                                             int width,
+                                             int height);
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+    The functions in this section allow you to take the image data
+    from an X drawable and dump it into a <a href="gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf"><span class="type">GdkPixbuf</span></a>.  This can be
+    used for screenshots and other special effects.  Note that these
+    operations can be expensive, since the image data has to be
+    transferred from the X server to the client program and converted.
+  </p><p>
+    These functions are analogous to those for the GDK version of
+    <span class="application">gdk-pixbuf</span>.
+  </p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="gdk-pixbuf-xlib-get-from-drawable"></a>gdk_pixbuf_xlib_get_from_drawable ()</h3><a class="indexterm" name="id3216036"></a><pre class="programlisting"><a href="gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf">GdkPixbuf</a>*  gdk_pixbuf_xlib_get_from_drawable
+                                            (<a href="gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf">GdkPixbuf</a> *dest,
+                                             Drawable src,
+                                             Colormap cmap,
+                                             Visual *visual,
+                                             int src_x,
+                                             int src_y,
+                                             int dest_x,
+                                             int dest_y,
+                                             int width,
+                                             int height);</pre><p>
+Transfers image data from a Gdk drawable and converts it to an RGB(A)
+representation inside a GdkPixbuf.
+</p><p>
+If the drawable <i class="parameter"><tt>src</tt></i> is a pixmap, then a suitable colormap must be specified,
+since pixmaps are just blocks of pixel data without an associated colormap.
+If the drawable is a window, the <i class="parameter"><tt>cmap</tt></i> argument will be ignored and the
+window's own colormap will be used instead.
+</p><p>
+If the specified destination pixbuf <i class="parameter"><tt>dest</tt></i> is <a
+href="../glib/glib-Standard-Macros.html#NULL-CAPS"
+><span class="type">NULL</span></a>, then this function will
+create an RGB pixbuf with 8 bits per channel and no alpha, with the same size
+specified by the <i class="parameter"><tt>width</tt></i> and <i class="parameter"><tt>height</tt></i> arguments.  In this case, the <i class="parameter"><tt>dest_x</tt></i> and
+<i class="parameter"><tt>dest_y</tt></i> arguments must be specified as 0, otherwise the function will return
+<a
+href="../glib/glib-Standard-Macros.html#NULL-CAPS"
+><span class="type">NULL</span></a>.  If the specified destination pixbuf is not NULL and it contains alpha
+information, then the filled pixels will be set to full opacity.
+</p><p>
+If the specified drawable is a pixmap, then the requested source rectangle
+must be completely contained within the pixmap, otherwise the function will
+return <a
+href="../glib/glib-Standard-Macros.html#NULL-CAPS"
+><span class="type">NULL</span></a>.
+</p><p>
+If the specified drawable is a window, then it must be viewable, i.e. all of
+its ancestors up to the root window must be mapped.  Also, the specified
+source rectangle must be completely contained within the window and within
+the screen.  If regions of the window are obscured by noninferior windows, the
+contents of those regions are undefined.  The contents of regions obscured by
+inferior windows of a different depth than that of the source window will also
+be undefined.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>dest</tt></i> :</span></td><td> Destination pixbuf, or NULL if a new pixbuf should be created.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>src</tt></i> :</span></td><td> Source drawable.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>cmap</tt></i> :</span></td><td> A colormap if <i class="parameter"><tt>src</tt></i> is a pixmap.  If it is a window, this argument will
+be ignored.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>visual</tt></i> :</span></td><td> A visual if <i class="parameter"><tt>src</tt></i> is a pixmap.  If it is a window, this argument will
+be ignored.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>src_x</tt></i> :</span></td><td> Source X coordinate within drawable.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>src_y</tt></i> :</span></td><td> Source Y coordinate within drawable.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>dest_x</tt></i> :</span></td><td> Destination X coordinate in pixbuf, or 0 if <i class="parameter"><tt>dest</tt></i> is NULL.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>dest_y</tt></i> :</span></td><td> Destination Y coordinate in pixbuf, or 0 if <i class="parameter"><tt>dest</tt></i> is NULL.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>width</tt></i> :</span></td><td> Width in pixels of region to get.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>height</tt></i> :</span></td><td> Height in pixels of region to get.
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> The same pixbuf as <i class="parameter"><tt>dest</tt></i> if it was non-NULL, or a newly-created
+pixbuf with a reference count of 1 if no destination pixbuf was specified; in
+the latter case, NULL will be returned if not enough memory could be
+allocated for the pixbuf to be created.
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="gdk-pixbuf-gdk-pixbuf-xlib-rendering.html"><b>&lt;&lt; Xlib Rendering</b></a></td><td align="right"><a accesskey="n" href="gdk-pixbuf-gdk-pixbuf-xlib-rgb.html"><b>XlibRGB &gt;&gt;</b></a></td></tr></table></body></html>

@@ -1,0 +1,1 @@
+../../alsa-kernel/include/alc5623.h

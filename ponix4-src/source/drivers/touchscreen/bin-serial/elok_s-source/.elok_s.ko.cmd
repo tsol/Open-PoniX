@@ -1,0 +1,1 @@
+cmd_/source/drivers/touchscreen/bin-serial/elok_s-source/elok_s.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o /source/drivers/touchscreen/bin-serial/elok_s-source/elok_s.ko /source/drivers/touchscreen/bin-serial/elok_s-source/elok_s.o /source/drivers/touchscreen/bin-serial/elok_s-source/elok_s.mod.o

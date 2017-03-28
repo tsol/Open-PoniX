@@ -1,0 +1,68 @@
+--- ../../alsa-kernel/drivers/pcsp/pcsp_lib.c	2010-05-21 16:36:59.457637275 +0200
++++ pcsp_lib.c	2010-05-31 12:35:16.677546512 +0200
+@@ -1,3 +1,20 @@
++#include "adriver.h"
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++#define hrtimer_get_expires(t)	(t)->expires
++#endif
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
++#define pcsp_spin_lock			raw_spin_lock
++#define pcsp_spin_unlock		raw_spin_unlock
++#define pcsp_spin_lock_irqsave		raw_spin_lock_irqsave
++#define pcsp_spin_unlock_irqrestore	raw_spin_unlock_irqrestore
++#else
++#define pcsp_spin_lock			spin_lock
++#define pcsp_spin_unlock		spin_unlock
++#define pcsp_spin_lock_irqsave		spin_lock_irqsave
++#define pcsp_spin_unlock_irqrestore	spin_unlock_irqrestore
++#endif
++
+ /*
+  * PC-Speaker driver for Linux
+  *
+@@ -66,7 +83,7 @@
+ 	timer_cnt = val * CUR_DIV() / 256;
+ 
+ 	if (timer_cnt && chip->enable) {
+-		raw_spin_lock_irqsave(&i8253_lock, flags);
++		pcsp_spin_lock_irqsave(&i8253_lock, flags);
+ 		if (!nforce_wa) {
+ 			outb_p(chip->val61, 0x61);
+ 			outb_p(timer_cnt, 0x42);
+@@ -75,7 +92,7 @@
+ 			outb(chip->val61 ^ 2, 0x61);
+ 			chip->thalf = 1;
+ 		}
+-		raw_spin_unlock_irqrestore(&i8253_lock, flags);
++		pcsp_spin_unlock_irqrestore(&i8253_lock, flags);
+ 	}
+ 
+ 	chip->ns_rem = PCSP_PERIOD_NS();
+@@ -159,10 +176,10 @@
+ 		return -EIO;
+ 	}
+ 
+-	raw_spin_lock(&i8253_lock);
++	pcsp_spin_lock(&i8253_lock);
+ 	chip->val61 = inb(0x61) | 0x03;
+ 	outb_p(0x92, 0x43);	/* binary, mode 1, LSB only, ch 2 */
+-	raw_spin_unlock(&i8253_lock);
++	pcsp_spin_unlock(&i8253_lock);
+ 	atomic_set(&chip->timer_active, 1);
+ 	chip->thalf = 0;
+ 
+@@ -179,11 +196,11 @@
+ 		return;
+ 
+ 	atomic_set(&chip->timer_active, 0);
+-	raw_spin_lock(&i8253_lock);
++	pcsp_spin_lock(&i8253_lock);
+ 	/* restore the timer */
+ 	outb_p(0xb6, 0x43);	/* binary, mode 3, LSB/MSB, ch 2 */
+ 	outb(chip->val61 & 0xFC, 0x61);
+-	raw_spin_unlock(&i8253_lock);
++	pcsp_spin_unlock(&i8253_lock);
+ }
+ 
+ /*

@@ -1,0 +1,149 @@
+<refentry id="gdk-pixbuf-xlib-from-drawables" revision="27 Aug 2000">
+<refmeta>
+<refentrytitle>X Drawables to Pixbufs</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>X Drawables to Pixbufs</refname><refpurpose>Getting parts of an X drawable's image data into a pixbuf.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-xlib-get-from-drawable">gdk_pixbuf_xlib_get_from_drawable</link>
+                                            (<link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             <link linkend="Drawable">Drawable</link> src,
+                                             <link linkend="Colormap">Colormap</link> cmap,
+                                             <link linkend="Visual">Visual</link> *visual,
+                                             int src_x,
+                                             int src_y,
+                                             int dest_x,
+                                             int dest_y,
+                                             int width,
+                                             int height);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    The functions in this section allow you to take the image data
+    from an X drawable and dump it into a <link linkend="GdkPixbuf">GdkPixbuf</link>.  This can be
+    used for screenshots and other special effects.  Note that these
+    operations can be expensive, since the image data has to be
+    transferred from the X server to the client program and converted.
+  </para>
+
+  <para>
+    These functions are analogous to those for the Gdk version of
+    &gdk-pixbuf;.
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="gdk-pixbuf-xlib-get-from-drawable">gdk_pixbuf_xlib_get_from_drawable ()</title>
+<programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_xlib_get_from_drawable
+                                            (<link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             <link linkend="Drawable">Drawable</link> src,
+                                             <link linkend="Colormap">Colormap</link> cmap,
+                                             <link linkend="Visual">Visual</link> *visual,
+                                             int src_x,
+                                             int src_y,
+                                             int dest_x,
+                                             int dest_y,
+                                             int width,
+                                             int height);</programlisting>
+<para>
+Transfers image data from a Gdk drawable and converts it to an RGB(A)
+representation inside a GdkPixbuf.
+</para>
+<para>
+If the drawable <parameter>src</parameter> is a pixmap, then a suitable colormap must be specified,
+since pixmaps are just blocks of pixel data without an associated colormap.
+If the drawable is a window, the <parameter>cmap</parameter> argument will be ignored and the
+window's own colormap will be used instead.
+</para>
+<para>
+If the specified destination pixbuf <parameter>dest</parameter> is <link linkend="NULL">NULL</link>, then this function will
+create an RGB pixbuf with 8 bits per channel and no alpha, with the same size
+specified by the <parameter>width</parameter> and <parameter>height</parameter> arguments.  In this case, the <parameter>dest_x</parameter> and
+<parameter>dest_y</parameter> arguments must be specified as 0, otherwise the function will return
+<link linkend="NULL">NULL</link>.  If the specified destination pixbuf is not NULL and it contains alpha
+information, then the filled pixels will be set to full opacity.
+</para>
+<para>
+If the specified drawable is a pixmap, then the requested source rectangle
+must be completely contained within the pixmap, otherwise the function will
+return <link linkend="NULL">NULL</link>.
+</para>
+<para>
+If the specified drawable is a window, then it must be viewable, i.e. all of
+its ancestors up to the root window must be mapped.  Also, the specified
+source rectangle must be completely contained within the window and within
+the screen.  If regions of the window are obscured by noninferior windows, the
+contents of those regions are undefined.  The contents of regions obscured by
+inferior windows of a different depth than that of the source window will also
+be undefined.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>dest</parameter>&nbsp;:</entry>
+<entry> Destination pixbuf, or NULL if a new pixbuf should be created.
+</entry></row>
+<row><entry align="right"><parameter>src</parameter>&nbsp;:</entry>
+<entry> Source drawable.
+</entry></row>
+<row><entry align="right"><parameter>cmap</parameter>&nbsp;:</entry>
+<entry> A colormap if <parameter>src</parameter> is a pixmap.  If it is a window, this argument will
+be ignored.
+</entry></row>
+<row><entry align="right"><parameter>visual</parameter>&nbsp;:</entry>
+<entry> A visual if <parameter>src</parameter> is a pixmap.  If it is a window, this argument will
+be ignored.
+</entry></row>
+<row><entry align="right"><parameter>src_x</parameter>&nbsp;:</entry>
+<entry> Source X coordinate within drawable.
+</entry></row>
+<row><entry align="right"><parameter>src_y</parameter>&nbsp;:</entry>
+<entry> Source Y coordinate within drawable.
+</entry></row>
+<row><entry align="right"><parameter>dest_x</parameter>&nbsp;:</entry>
+<entry> Destination X coordinate in pixbuf, or 0 if <parameter>dest</parameter> is NULL.
+</entry></row>
+<row><entry align="right"><parameter>dest_y</parameter>&nbsp;:</entry>
+<entry> Destination Y coordinate in pixbuf, or 0 if <parameter>dest</parameter> is NULL.
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry> Width in pixels of region to get.
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry> Height in pixels of region to get.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> The same pixbuf as <parameter>dest</parameter> if it was non-NULL, or a newly-created
+pixbuf with a reference count of 1 if no destination pixbuf was specified; in
+the latter case, NULL will be returned if not enough memory could be
+allocated for the pixbuf to be created.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

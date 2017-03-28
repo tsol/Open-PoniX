@@ -1,0 +1,500 @@
+<refentry id="gdk-pixbuf-scaling" revision="27 Aug 2000">
+<refmeta>
+<refentrytitle>Scaling</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Scaling</refname><refpurpose>Scaling pixbufs and scaling and compositing pixbufs</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+enum        <link linkend="GdkInterpType">GdkInterpType</link>;
+void        <link linkend="gdk-pixbuf-scale">gdk_pixbuf_scale</link>                (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             int dest_x,
+                                             int dest_y,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="double">double</link> offset_x,
+                                             <link linkend="double">double</link> offset_y,
+                                             <link linkend="double">double</link> scale_x,
+                                             <link linkend="double">double</link> scale_y,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type);
+void        <link linkend="gdk-pixbuf-composite">gdk_pixbuf_composite</link>            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             int dest_x,
+                                             int dest_y,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="double">double</link> offset_x,
+                                             <link linkend="double">double</link> offset_y,
+                                             <link linkend="double">double</link> scale_x,
+                                             <link linkend="double">double</link> scale_y,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type,
+                                             int overall_alpha);
+void        <link linkend="gdk-pixbuf-composite-color">gdk_pixbuf_composite_color</link>      (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             int dest_x,
+                                             int dest_y,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="double">double</link> offset_x,
+                                             <link linkend="double">double</link> offset_y,
+                                             <link linkend="double">double</link> scale_x,
+                                             <link linkend="double">double</link> scale_y,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type,
+                                             int overall_alpha,
+                                             int check_x,
+                                             int check_y,
+                                             int check_size,
+                                             <link linkend="guint32">guint32</link> color1,
+                                             <link linkend="guint32">guint32</link> color2);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-scale-simple">gdk_pixbuf_scale_simple</link>         (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-composite-color-simple">gdk_pixbuf_composite_color_simple</link>
+                                            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type,
+                                             int overall_alpha,
+                                             int check_size,
+                                             <link linkend="guint32">guint32</link> color1,
+                                             <link linkend="guint32">guint32</link> color2);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    The &gdk-pixbuf; contains functions to scale pixbufs, to scale
+    pixbufs and composite against an existing image, and to scale
+    pixbufs and composite against a solid color or checkerboard.
+    Compositing a checkerboard is a common way to show an image with
+    an alpha channel in image-viewing and editing software.
+  </para>
+
+  <para>
+    Since the full-featured functions (<link linkend="gdk-pixbuf-scale">gdk_pixbuf_scale</link>(),
+    <link linkend="gdk-pixbuf-composite">gdk_pixbuf_composite</link>(), and <link linkend="gdk-pixbuf-composite-color">gdk_pixbuf_composite_color</link>()) are
+    rather complex to use and have many arguments, two simple
+    convenience functions are provided, <link linkend="gdk-pixbuf-scale-simple">gdk_pixbuf_scale_simple</link>() and
+    <link linkend="gdk-pixbuf-composite-color-simple">gdk_pixbuf_composite_color_simple</link>() which create a new pixbuf of a
+    given size, scale an original image to fit, and then return the
+    new pixmap.
+  </para>
+
+  <para>
+    The following example demonstrates handling an expose event by
+    rendering the appropriate area of a source image (which is scaled
+    to fit the widget) onto the widget's window.  The source image is
+    rendered against a checkerboard, which provides a visual
+    representation of the alpha channel if the image has one. If the
+    image doesn't have an alpha channel, calling
+    <link linkend="gdk-pixbuf-composite-color">gdk_pixbuf_composite_color</link>() function has exactly the same effect
+    as calling <link linkend="gdk-pixbuf-scale">gdk_pixbuf_scale</link>().
+  </para>
+
+  <programlisting>
+gboolean
+expose_cb (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+  GdkPixbuf *dest;
+
+  gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+  
+  dest = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, event->area.width, event->area.height);
+
+  gdk_pixbuf_composite_color (pixbuf, dest,
+                              0, 0, event->area.width, event->area.height,
+                              -event->area.x, -event->area.y,
+                              (double) widget->allocation.width / gdk_pixbuf_get_width (pixbuf),
+                              (double) widget->allocation.height / gdk_pixbuf_get_height (pixbuf),
+                              GDK_INTERP_BILINEAR, 255,
+                              event->area.x, event->area.y, 16, 0xaaaaaa, 0x555555);
+
+  gdk_pixbuf_render_to_drawable (dest, widget->window, widget->style->fg_gc[GTK_STATE_NORMAL],
+                                 0, 0, event->area.x, event->area.y,
+                                 event->area.width, event->area.height,
+                                 GDK_RGB_DITHER_NORMAL, event->area.x, event->area.y);
+  
+  gdk_pixbuf_unref (dest);
+  
+  return TRUE;
+}
+  </programlisting>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkInterpType">enum GdkInterpType</title>
+<programlisting>typedef enum {
+	GDK_INTERP_NEAREST,
+	GDK_INTERP_TILES,
+	GDK_INTERP_BILINEAR,
+	GDK_INTERP_HYPER
+} GdkInterpType;
+</programlisting>
+  <para>
+    This enumeration describes the different interpolation modes that
+    can be used with the scaling functions.
+
+    <note>
+      <para>
+	Cubic filtering is missing from the list; hyperbolic
+	interpolation is just as fast and results in higher quality.
+      </para>
+    </note>
+  </para><informaltable pgwide=1 frame="none" role="enum">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row>
+<entry><literal>GDK_INTERP_NEAREST</literal></entry>
+<entry>Nearest neighbor sampling; this is the fastest
+and lowest quality mode.
+</entry>
+</row>
+<row>
+<entry><literal>GDK_INTERP_TILES</literal></entry>
+<entry>This is an accurate simulation of the PostScript
+image operator without any interpolation enabled.  Each pixel is
+rendered as a tiny parallelogram of solid color, the edges of which
+are implemented with antialiasing.  It resembles nearest neighbor for
+enlargement, and bilinear for reduction.
+</entry>
+</row>
+<row>
+<entry><literal>GDK_INTERP_BILINEAR</literal></entry>
+<entry>Bilinear interpolation.  For enlargement, it is
+equivalent to point-sampling the ideal bilinear-interpolated image.
+For reduction, it is equivalent to laying down small tiles and
+integrating over the coverage area.
+</entry>
+</row>
+<row>
+<entry><literal>GDK_INTERP_HYPER</literal></entry>
+<entry>This is the slowest and highest quality
+reconstruction function.  It is derived from the hyperbolic filters in
+Wolberg's "Digital Image Warping", and is formally defined as the
+hyperbolic-filter sampling the ideal hyperbolic-filter interpolated
+image (the filter is designed to be idempotent for 1:1 pixel mapping).
+
+</entry>
+</row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-scale">gdk_pixbuf_scale ()</title>
+<programlisting>void        gdk_pixbuf_scale                (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             int dest_x,
+                                             int dest_y,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="double">double</link> offset_x,
+                                             <link linkend="double">double</link> offset_y,
+                                             <link linkend="double">double</link> scale_x,
+                                             <link linkend="double">double</link> scale_y,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type);</programlisting>
+<para>
+Transforms the image by source image by scaling by <parameter>scale_x</parameter> and <parameter>scale_y</parameter> then
+translating by <parameter>offset_x</parameter> and <parameter>offset_y</parameter>, then renders the rectangle
+(<parameter>dest</parameter>,<parameter>dest_y</parameter>,<parameter>dest_width</parameter>,<parameter>dest_height</parameter>) of the resulting image onto the
+destination drawable replacing the previous contents.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>src</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GdkPixbuf">GdkPixbuf</link>
+</entry></row>
+<row><entry align="right"><parameter>dest</parameter>&nbsp;:</entry>
+<entry> the <link linkend="GdkPixbuf">GdkPixbuf</link> into which to render the results
+</entry></row>
+<row><entry align="right"><parameter>dest_x</parameter>&nbsp;:</entry>
+<entry> the left coordinate for region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_y</parameter>&nbsp;:</entry>
+<entry> the top coordinate for region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_width</parameter>&nbsp;:</entry>
+<entry> the width of the region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_height</parameter>&nbsp;:</entry>
+<entry> the height of the region to render
+</entry></row>
+<row><entry align="right"><parameter>offset_x</parameter>&nbsp;:</entry>
+<entry> the offset in the X direction (currently rounded to an integer)
+</entry></row>
+<row><entry align="right"><parameter>offset_y</parameter>&nbsp;:</entry>
+<entry> the offset in the Y direction (currently rounded to an integer)
+</entry></row>
+<row><entry align="right"><parameter>scale_x</parameter>&nbsp;:</entry>
+<entry> the scale factor in the X direction
+</entry></row>
+<row><entry align="right"><parameter>scale_y</parameter>&nbsp;:</entry>
+<entry> the scale factor in the Y direction
+</entry></row>
+<row><entry align="right"><parameter>interp_type</parameter>&nbsp;:</entry>
+<entry> the interpolation type for the transformation.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-composite">gdk_pixbuf_composite ()</title>
+<programlisting>void        gdk_pixbuf_composite            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             int dest_x,
+                                             int dest_y,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="double">double</link> offset_x,
+                                             <link linkend="double">double</link> offset_y,
+                                             <link linkend="double">double</link> scale_x,
+                                             <link linkend="double">double</link> scale_y,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type,
+                                             int overall_alpha);</programlisting>
+<para>
+Transforms the image by source image by scaling by <parameter>scale_x</parameter> and <parameter>scale_y</parameter> then
+translating by <parameter>offset_x</parameter> and <parameter>offset_y</parameter>, then composites the rectangle
+(<parameter>dest</parameter>,<parameter>dest_y</parameter>,<parameter>dest_width</parameter>,<parameter>dest_height</parameter>) of the resulting image onto the
+destination drawable.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>src</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GdkPixbuf">GdkPixbuf</link>
+</entry></row>
+<row><entry align="right"><parameter>dest</parameter>&nbsp;:</entry>
+<entry> the <link linkend="GdkPixbuf">GdkPixbuf</link> into which to render the results
+</entry></row>
+<row><entry align="right"><parameter>dest_x</parameter>&nbsp;:</entry>
+<entry> the left coordinate for region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_y</parameter>&nbsp;:</entry>
+<entry> the top coordinate for region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_width</parameter>&nbsp;:</entry>
+<entry> the width of the region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_height</parameter>&nbsp;:</entry>
+<entry> the height of the region to render
+</entry></row>
+<row><entry align="right"><parameter>offset_x</parameter>&nbsp;:</entry>
+<entry> the offset in the X direction (currently rounded to an integer)
+</entry></row>
+<row><entry align="right"><parameter>offset_y</parameter>&nbsp;:</entry>
+<entry> the offset in the Y direction (currently rounded to an integer)
+</entry></row>
+<row><entry align="right"><parameter>scale_x</parameter>&nbsp;:</entry>
+<entry> the scale factor in the X direction
+</entry></row>
+<row><entry align="right"><parameter>scale_y</parameter>&nbsp;:</entry>
+<entry> the scale factor in the Y direction
+</entry></row>
+<row><entry align="right"><parameter>interp_type</parameter>&nbsp;:</entry>
+<entry> the interpolation type for the transformation.
+</entry></row>
+<row><entry align="right"><parameter>overall_alpha</parameter>&nbsp;:</entry>
+<entry> overall alpha for source image (0..255)
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-composite-color">gdk_pixbuf_composite_color ()</title>
+<programlisting>void        gdk_pixbuf_composite_color      (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             <link linkend="GdkPixbuf">GdkPixbuf</link> *dest,
+                                             int dest_x,
+                                             int dest_y,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="double">double</link> offset_x,
+                                             <link linkend="double">double</link> offset_y,
+                                             <link linkend="double">double</link> scale_x,
+                                             <link linkend="double">double</link> scale_y,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type,
+                                             int overall_alpha,
+                                             int check_x,
+                                             int check_y,
+                                             int check_size,
+                                             <link linkend="guint32">guint32</link> color1,
+                                             <link linkend="guint32">guint32</link> color2);</programlisting>
+<para>
+Transforms the image by source image by scaling by <parameter>scale_x</parameter> and <parameter>scale_y</parameter> then
+translating by <parameter>offset_x</parameter> and <parameter>offset_y</parameter>, then composites the rectangle
+(<parameter>dest</parameter>,<parameter>dest_y</parameter>,<parameter>dest_width</parameter>,<parameter>dest_height</parameter>) of the resulting image with
+a checkboard of the colors <parameter>color1</parameter> and <parameter>color2</parameter> and renders it onto the
+destination drawable.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>src</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GdkPixbuf">GdkPixbuf</link>
+</entry></row>
+<row><entry align="right"><parameter>dest</parameter>&nbsp;:</entry>
+<entry> the <link linkend="GdkPixbuf">GdkPixbuf</link> into which to render the results
+</entry></row>
+<row><entry align="right"><parameter>dest_x</parameter>&nbsp;:</entry>
+<entry> the left coordinate for region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_y</parameter>&nbsp;:</entry>
+<entry> the top coordinate for region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_width</parameter>&nbsp;:</entry>
+<entry> the width of the region to render
+</entry></row>
+<row><entry align="right"><parameter>dest_height</parameter>&nbsp;:</entry>
+<entry> the height of the region to render
+</entry></row>
+<row><entry align="right"><parameter>offset_x</parameter>&nbsp;:</entry>
+<entry> the offset in the X direction (currently rounded to an integer)
+</entry></row>
+<row><entry align="right"><parameter>offset_y</parameter>&nbsp;:</entry>
+<entry> the offset in the Y direction (currently rounded to an integer)
+</entry></row>
+<row><entry align="right"><parameter>scale_x</parameter>&nbsp;:</entry>
+<entry> the scale factor in the X direction
+</entry></row>
+<row><entry align="right"><parameter>scale_y</parameter>&nbsp;:</entry>
+<entry> the scale factor in the Y direction
+</entry></row>
+<row><entry align="right"><parameter>interp_type</parameter>&nbsp;:</entry>
+<entry> the interpolation type for the transformation.
+</entry></row>
+<row><entry align="right"><parameter>overall_alpha</parameter>&nbsp;:</entry>
+<entry> overall alpha for source image (0..255)
+</entry></row>
+<row><entry align="right"><parameter>check_x</parameter>&nbsp;:</entry>
+<entry> the X offset for the checkboard (origin of checkboard is at -<parameter>check_x</parameter>, -<parameter>check_y</parameter>)
+</entry></row>
+<row><entry align="right"><parameter>check_y</parameter>&nbsp;:</entry>
+<entry> the Y offset for the checkboard 
+</entry></row>
+<row><entry align="right"><parameter>check_size</parameter>&nbsp;:</entry>
+<entry> the size of checks in the checkboard (must be a power of two)
+</entry></row>
+<row><entry align="right"><parameter>color1</parameter>&nbsp;:</entry>
+<entry> the color of check at upper left
+</entry></row>
+<row><entry align="right"><parameter>color2</parameter>&nbsp;:</entry>
+<entry> the color of the other check
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-scale-simple">gdk_pixbuf_scale_simple ()</title>
+<programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_scale_simple         (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type);</programlisting>
+<para>
+Scale the <link linkend="GdkPixbuf">GdkPixbuf</link> <parameter>src</parameter> to <parameter>dest_width</parameter> x <parameter>dest_height</parameter> and render the result into
+a new <link linkend="GdkPixbuf">GdkPixbuf</link>.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>src</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GdkPixbuf">GdkPixbuf</link>
+</entry></row>
+<row><entry align="right"><parameter>dest_width</parameter>&nbsp;:</entry>
+<entry> the width of destination image
+</entry></row>
+<row><entry align="right"><parameter>dest_height</parameter>&nbsp;:</entry>
+<entry> the height of destination image
+</entry></row>
+<row><entry align="right"><parameter>interp_type</parameter>&nbsp;:</entry>
+<entry> the interpolation type for the transformation.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> the new <link linkend="GdkPixbuf">GdkPixbuf</link>, or NULL if not enough memory could be
+allocated for it.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-composite-color-simple">gdk_pixbuf_composite_color_simple ()</title>
+<programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_composite_color_simple
+                                            (const <link linkend="GdkPixbuf">GdkPixbuf</link> *src,
+                                             int dest_width,
+                                             int dest_height,
+                                             <link linkend="GdkInterpType">GdkInterpType</link> interp_type,
+                                             int overall_alpha,
+                                             int check_size,
+                                             <link linkend="guint32">guint32</link> color1,
+                                             <link linkend="guint32">guint32</link> color2);</programlisting>
+<para>
+Scale the <link linkend="GdkPixbuf">GdkPixbuf</link> <parameter>src</parameter> to <parameter>dest_width</parameter> x <parameter>dest_height</parameter> composite the result with
+a checkboard of colors <parameter>color1</parameter> and <parameter>color2</parameter> and render the result into
+a new <link linkend="GdkPixbuf">GdkPixbuf</link>.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>src</parameter>&nbsp;:</entry>
+<entry> a <link linkend="GdkPixbuf">GdkPixbuf</link>
+</entry></row>
+<row><entry align="right"><parameter>dest_width</parameter>&nbsp;:</entry>
+<entry> the width of destination image
+</entry></row>
+<row><entry align="right"><parameter>dest_height</parameter>&nbsp;:</entry>
+<entry> the height of destination image
+</entry></row>
+<row><entry align="right"><parameter>interp_type</parameter>&nbsp;:</entry>
+<entry> the interpolation type for the transformation.
+</entry></row>
+<row><entry align="right"><parameter>overall_alpha</parameter>&nbsp;:</entry>
+<entry> overall alpha for source image (0..255)
+</entry></row>
+<row><entry align="right"><parameter>check_size</parameter>&nbsp;:</entry>
+<entry> the size of checks in the checkboard (must be a power of two)
+</entry></row>
+<row><entry align="right"><parameter>color1</parameter>&nbsp;:</entry>
+<entry> the color of check at upper left
+</entry></row>
+<row><entry align="right"><parameter>color2</parameter>&nbsp;:</entry>
+<entry> the color of the other check
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> the new <link linkend="GdkPixbuf">GdkPixbuf</link>, or NULL if not enough memory could be
+allocated for it.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    GdkRGB
+  </para>
+</refsect1>
+
+</refentry>

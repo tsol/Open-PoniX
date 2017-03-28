@@ -1,0 +1,15 @@
+include /source/fbpanel/fbpanel-5.6/config.mk
+
+SRCS = panel.c misc.c plugin.c gtkbar.c bg.c gtkbgbox.c ev.c configurator.c 
+BINTARGET = fbpanel
+LDFLAGS += $(GMODULE_LIBS)
+
+ifeq (enabled,$(STATIC_BUILD))
+OBJS += $(wildcard $(TOPDIR)/plugins/*/*.o)
+endif
+
+install:
+	$(install) 755 $(BINDIR) 755 $(BINTARGET)
+
+
+include /source/fbpanel/fbpanel-5.6/rules.mk

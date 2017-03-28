@@ -1,0 +1,1 @@
+./configure --prefix=/usr --enable-shared=no --enable-static

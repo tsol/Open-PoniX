@@ -1,0 +1,1 @@
+../../alsa-kernel/include/atmel-ac97c.h

@@ -1,0 +1,215 @@
+Installing calc from the bzip2-ed tarball in 4 easy steps:
+
+    0)  If your platform supports i686 RPMs, you may want to go to:
+
+	    http://www.isthe.com/chongo/src/calc/
+
+	and use these RPMs:
+
+	    * calc*.i686.rpm
+		- all that is needed if you just want to use calc
+
+	    * calc-devel-*.i686.rpm
+	        - calc *.h header and *.a lib files for use in other programs
+
+	    * calc.*.src.rpm
+	        - calc source in RPM package form
+
+	The following 4 steps apply to calc source tree that comes from either:
+
+		bunzip2 -c calc-*.tar.bz2 | tar -xvf -
+
+	or from:
+
+		rpm -ivh calc-*.src.rpm
+		cd /var/tmp
+		bunzip2 -c /usr/src/redhat/SOURCES/calc-*.tar.bz2 | tar -xvf -
+
+    1)	Look at the makefile, and adjust it to suit your needs.
+
+	The top level Makefile and the custom/Makefile require a GNU
+	Make (such as gmake) or an equivalently advanced make.	On many
+	targets, the default make is sufficent.  On FreeBSD for example,
+	one must use gmake instead of make.
+
+	If your target system does not have GNU Make (or equivalent), then
+	you should try using the Makefile.simple and custom/Makefile.simple
+	files:
+
+	    mv Makefile Makefile.gmake
+	    cp Makefile.simple Makefile
+	    mv custom/Makefile custom/Makefile.gmake
+	    cp custom/Makefile.simple custom/Makefile
+
+	The Makefile, as shipped, is suitable for installation under
+	Linux and Un*x-like environments.  For the most part, the default
+	values should work.  If in doubt, follow the 'When in doubt'
+	suggestion.
+
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	! If you are building under Windoz or a Windoz-like environment !
+	! (such as Cygwin or DJGPP), read the README.WINDOWS file.      !
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+	You should determine if these Makefile variables are reasonable:
+
+	    INCDIR		Where the system include (.h) files are kept.
+	    BINDIR		Where to install calc binary files.
+	    LIBDIR		Where to install calc link library (*.a) files.
+	    CALC_SHAREDIR	Where to install calc help, .cal, startup, and
+	    			config files.
+
+	You may want to change the default installation locations for
+	these values, which are based on the 4 values listed above:
+
+	    HELPDIR            where the help directory is installed
+	    CALC_INCDIR        where the calc include files are installed
+	    CUSTOMCALDIR       where custom *.cal files are installed
+	    CUSTOMHELPDIR      where custom help files are installed
+	    CUSTOMINCDIR       where custom .h files are installed
+	    SCRIPTDIR          where calc shell scripts are installed
+
+	If you want to install calc files under a top level directory,
+	then set the T value:
+
+	    The calc install is performed under ${T}, the calc build is
+	    performed under /.	The purpose for ${T} is to allow someone
+	    to install calc somewhere other than into the system area.
+
+	    For example, if:
+
+	    	BINDIR= /usr/bin
+		LIBDIR= /usr/lib
+		CALC_SHAREDIR= /usr/share/calc
+
+	    and if:
+
+	    	T= /var/tmp/testing
+
+	    Then the installation locations will be:
+
+		calc binary files:	/var/tmp/testing/usr/bin
+		calc link library:	/var/tmp/testing/usr/lib
+		calc help, .cal ...:	/var/tmp/testing/usr/share/calc
+		... etc ...		/var/tmp/testing/...
+
+	    If ${T} is empty, calc is installed under /, which is the same
+	    top of tree for which it was built.  If ${T} is non-empty, then
+	    calc is installed under ${T}, as if one had to chroot under
+	    ${T} for calc to operate.
+
+	Look for the section that starts:
+
+	    ################
+	    # compiler set #
+	    ################
+
+	    Select a compiler set by commenting in the appropriate set
+	    of cc options.  As shipped the Makefile assumes a gcc-like
+	    environment such as Linux.  If a more appropriate cc set if
+	    found below, comment out the Linux set and comment in that
+	    set or edit the gcc set or the common cc set as needed.
+
+	You may want to change these Makrfile variables from their defaults:
+
+	    RANLIB
+
+		You may or may not need RANLIB when building libraries.
+		As shipped the Makefile assumes RANLIB is needed.
+		Comment the in/out the RANLIB value if ranlib does
+		not work or does not exist.
+
+	    CALCPAGER
+
+		You may want to change the default pager used by calc.
+		As shipped the Makefile assumes 'more'.  On your system
+		you may find 'less' to be a better pager.
+
+	    DEBUG
+
+	       Some compilers (to put it mildly) have bugs.  Sometimes the
+	       DEBUG Makefile variable causes the compiler / optimizer to
+	       produce bad code.  Other compilers do just fine.
+
+	       If possible try to use DEBUG=-O3 -g3 (maximum optimization
+	       and debug symbols).  If the calc test fails (see step 3),
+	       try lowering either the -O value and/or the -g3.  Also try
+	       using -Osomething without -g.
+
+	   Adjust other Makefile variables as needed.
+
+    2)	build calc:
+
+	The top level Makefile and the custom/Makefile require a GNU
+	Make (such as gmake) or an equivalently advanced make.	On many
+	targets, the default make is sufficent.  On FreeBSD for example,
+	one must use gmake instead of make.
+
+	If your target system does not have GNU Make (or equivalent), then
+	you should try using the Makefile.simple and custom/Makefile.simple
+	files:
+
+	    mv Makefile Makefile.gmake
+	    cp Makefile.simple Makefile
+	    mv custom/Makefile custom/Makefile.gmake
+	    cp custom/Makefile.simple custom/Makefile
+
+	make all
+
+	==> We are interested in any compiler warnings (and errors) that
+	    you may find.  See the BUGS file if you find any compiler
+	    warning or errors.
+
+	NOTE: You can force calc to build with only static libs:
+
+		make clobber
+		make calc-static-only BLD_TYPE=calc-static-only
+
+	      or force calc to build with only dynamic libs:
+
+		make clobber
+		make calc-dynamic-only BLD_TYPE=calc-dynamic-only
+
+    3)	test calc:
+
+	make check
+
+	==> If you run into problems, read the BUGS file and follow
+	    the instructions found in there.
+
+	NOTE: For a quiet check which only prints if something goes wrong:
+
+		make chk
+
+    4)	install calc:
+
+	make install
+
+We suggest that you might want to read the README file and look at
+the calc help subsystem.  See the README file for details.
+
+## Copyright (C) 1999-2007  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.6 $
+## @(#) $Id: HOWTO.INSTALL,v 30.6 2007/10/16 12:22:22 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/RCS/HOWTO.INSTALL,v $
+##
+## Under source code control:	1999/09/27 20:48:44
+## File existed as early as:	1999
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

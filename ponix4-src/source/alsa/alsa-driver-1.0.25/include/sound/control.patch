@@ -1,0 +1,42 @@
+--- ../../alsa-kernel/include/control.h	2011-01-10 16:50:14.000000000 +0100
++++ control.h	2011-03-04 12:42:43.000000000 +0100
+@@ -56,6 +56,9 @@
+ 
+ struct snd_kcontrol_volatile {
+ 	struct snd_ctl_file *owner;	/* locked */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
++	pid_t owner_pid;	/* just for kABI compatibility */
++#endif
+ 	unsigned int access;	/* access rights */
+ };
+ 
+@@ -91,7 +94,15 @@
+ struct snd_ctl_file {
+ 	struct list_head list;		/* list of all control files */
+ 	struct snd_card *card;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
++#ifdef __GENKSYMS__
++	pid_t pid;
++#else
++	pid_t kabi_compat_pid;		/* just for kABI compatibility */
++#endif
++#else
+ 	struct pid *pid;
++#endif
+ 	int prefer_pcm_subdevice;
+ 	int prefer_rawmidi_subdevice;
+ 	wait_queue_head_t change_sleep;
+@@ -99,6 +110,13 @@
+ 	struct fasync_struct *fasync;
+ 	int subscribed;			/* read interface is activated */
+ 	struct list_head events;	/* waiting events for read */
++
++	/* appended below for ABI compatibility */
++#ifndef __GENKSYMS__
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
++	struct pid *pid;
++#endif
++#endif
+ };
+ 
+ #define snd_ctl_file(n) list_entry(n, struct snd_ctl_file, list)

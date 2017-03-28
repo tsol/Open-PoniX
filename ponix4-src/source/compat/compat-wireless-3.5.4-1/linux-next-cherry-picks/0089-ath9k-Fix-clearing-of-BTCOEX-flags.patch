@@ -1,0 +1,28 @@
+From e790eab9ef203ff2843b5f9c80efb1339e1d867b Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Fri, 29 Jun 2012 10:34:39 +0530
+Subject: [PATCH 89/90] ath9k: Fix clearing of BTCOEX flags
+
+BTCOEX flags are set/cleared by atomic operations.
+We got to do the same in ath9k_btcoex_timer_resume,
+while clearing those BTCOEX flags.
+
+Acked-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/gpio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/gpio.c
++++ b/drivers/net/wireless/ath/ath9k/gpio.c
+@@ -305,7 +305,8 @@ void ath9k_btcoex_timer_resume(struct at
+ 
+ 	btcoex->bt_priority_cnt = 0;
+ 	btcoex->bt_priority_time = jiffies;
+-	btcoex->op_flags &= ~(BT_OP_PRIORITY_DETECTED | BT_OP_SCAN);
++	clear_bit(BT_OP_PRIORITY_DETECTED, &btcoex->op_flags);
++	clear_bit(BT_OP_SCAN, &btcoex->op_flags);
+ 
+ 	mod_timer(&btcoex->period_timer, jiffies);
+ }

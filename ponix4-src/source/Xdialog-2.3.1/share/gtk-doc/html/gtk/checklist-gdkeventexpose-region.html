@@ -1,0 +1,80 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Use GdkEventExpose.region</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="gtk-migrating-checklist.html" title="Migration Checklist"><link rel="previous" href="gtk-migrating-checklist.html" title="Migration Checklist"><link rel="next" href="checklist-modifiers.html" title="Test for modifier keys correctly"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="gtk-migrating-checklist.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="gtk-migrating-checklist.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="checklist-modifiers.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="checklist-gdkeventexpose-region"></a>Use GdkEventExpose.region</h2></div></div><div></div></div><p><b>Why. </b>
+	The <i class="structfield"><tt>region</tt></i> field of
+	<span class="structname">GdkEventExpose</span> allows you to redraw
+	less than the traditional
+	<i class="structfield"><tt>GdkEventRegion.area</tt></i>.
+      </p><p>
+      In GTK+ 1.x, the <span class="structname">GdkEventExpose</span>
+      structure only had an <i class="structfield"><tt>area</tt></i> field to
+      let you determine the region that you needed to redraw.  In GTK+
+      2.x, this field exists for compatibility and as a simple
+      interface.  However, there is also a
+      <i class="structfield"><tt>region</tt></i> field which contains a
+      fine-grained region.  The <i class="structfield"><tt>area</tt></i> field
+      is simply the bounding rectangle of the
+      <i class="structfield"><tt>region</tt></i>.
+    </p><p>
+      Widgets that are very expensive to re-render, such as an image
+      editor, may prefer to use the
+      <i class="structfield"><tt>GdkEventExpose.region</tt></i> field to paint
+      as little as possible.  Widgets that just use a few drawing
+      primitives, such as labels and buttons, may prefer to use the
+      traditional <i class="structfield"><tt>GdkEventExpose.area</tt></i> field
+      for simplicity.
+    </p><p>
+      Regions have an internal representation that is accessible as a
+      list of rectangles.  To turn the
+      <i class="structfield"><tt>GdkEventExpose.region</tt></i> field into such
+      a list, use gdk_region_get_rectangles():
+    </p><a name="gdkregion-get-rectangles"></a><pre class="programlisting">
+static gboolean
+my_widget_expose_event_handler (GtkWidget *widget, GdkEventExpose *event)
+{
+  GdkRectangle *rects;
+  int n_rects;
+  int i;
+
+  gdk_region_get_rectangles (event-&gt;region, &amp;rects, &amp;n_rects);
+
+  for (i = 0; i &lt; n_rects; i++)
+    {
+      /* Repaint rectangle: (rects[i].x, rects[i].y), 
+       *                    (rects[i].width, rects[i].height)
+       */
+    }
+
+  g_free (rects);
+
+  return FALSE;
+}
+    </pre></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="gtk-migrating-checklist.html"><b>&lt;&lt; Migration Checklist</b></a></td><td align="right"><a accesskey="n" href="checklist-modifiers.html"><b>Test for modifier keys correctly &gt;&gt;</b></a></td></tr></table></body></html>

@@ -1,0 +1,99 @@
+.TH xcb_get_geometry 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_get_geometry \- Get current window geometry
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_get_geometry_cookie_t \fBxcb_get_geometry\fP(xcb_connection_t\ *\fIconn\fP, xcb_drawable_t\ \fIdrawable\fP);
+.PP
+.SS Reply datastructure
+.nf
+.sp
+typedef struct xcb_get_geometry_reply_t {
+    uint8_t      \fIresponse_type\fP;
+    uint8_t      \fIdepth\fP;
+    uint16_t     \fIsequence\fP;
+    uint32_t     \fIlength\fP;
+    xcb_window_t \fIroot\fP;
+    int16_t      \fIx\fP;
+    int16_t      \fIy\fP;
+    uint16_t     \fIwidth\fP;
+    uint16_t     \fIheight\fP;
+    uint16_t     \fIborder_width\fP;
+    uint8_t      \fIpad0\fP[2];
+} \fBxcb_get_geometry_reply_t\fP;
+.fi
+.SS Reply function
+.HP
+xcb_get_geometry_reply_t *\fBxcb_get_geometry_reply\fP(xcb_connection_t\ *\fIconn\fP, xcb_get_geometry_cookie_t\ \fIcookie\fP, xcb_generic_error_t\ **\fIe\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIdrawable\fP 1i
+The drawable (\fIWindow\fP or \fIPixmap\fP) of which the geometry will be received.
+.SH REPLY FIELDS
+.IP \fIresponse_type\fP 1i
+The type of this reply, in this case \fIXCB_GET_GEOMETRY\fP. This field is also present in the \fIxcb_generic_reply_t\fP and can be used to tell replies apart from each other.
+.IP \fIsequence\fP 1i
+The sequence number of the last request processed by the X11 server.
+.IP \fIlength\fP 1i
+The length of the reply, in words (a word is 4 bytes).
+.IP \fIdepth\fP 1i
+The depth of the drawable (bits per pixel for the object).
+.IP \fIroot\fP 1i
+Root window of the screen containing \fIdrawable\fP.
+.IP \fIx\fP 1i
+The X coordinate of \fIdrawable\fP. If \fIdrawable\fP is a window, the coordinate
+specifies the upper-left outer corner relative to its parent's origin. If
+\fIdrawable\fP is a pixmap, the X coordinate is always 0.
+.IP \fIy\fP 1i
+The Y coordinate of \fIdrawable\fP. If \fIdrawable\fP is a window, the coordinate
+specifies the upper-left outer corner relative to its parent's origin. If
+\fIdrawable\fP is a pixmap, the Y coordinate is always 0.
+.IP \fIwidth\fP 1i
+The width of \fIdrawable\fP.
+.IP \fIheight\fP 1i
+The height of \fIdrawable\fP.
+.IP \fIborder_width\fP 1i
+The border width (in pixels).
+.SH DESCRIPTION
+Gets the current geometry of the specified drawable (either \fIWindow\fP or \fIPixmap\fP).
+.SH RETURN VALUE
+Returns an \fIxcb_get_geometry_cookie_t\fP. Errors have to be handled when calling the reply function \fIxcb_get_geometry_reply\fP.
+
+If you want to handle errors in the event loop instead, use \fIxcb_get_geometry_unchecked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_drawable_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_window_error_t\fP 1i
+TODO: reasons?
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Displays the x and y position of the given window.
+ *
+ */
+void my_example(xcb_connection *c, xcb_window_t window) {
+    xcb_get_geometry_cookie_t cookie;
+    xcb_get_geometry_reply_t *reply;
+
+    cookie = xcb_get_geometry(c, window);
+    /* ... do other work here if possible ... */
+    if ((reply = xcb_get_geometry_reply(c, cookie, NULL))) {
+        printf("This window is at %d, %d\\n", reply->x, reply->y);
+    }
+    free(reply);
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3),
+.BR xwininfo (1)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

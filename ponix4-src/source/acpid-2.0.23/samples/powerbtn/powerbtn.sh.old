@@ -1,0 +1,38 @@
+#!/bin/sh
+# /etc/acpi/powerbtn.sh
+# Taken from the 11/14/2008(ish) version from Debian.
+# Power Button event handler.
+# Checks to see if gnome or KDE are already handling the power button.
+# If not, initiates a plain shutdown.
+
+# This is an older version from Debian that does not handle KDE4.
+
+# Skip if we are in the middle of resuming.  Otherwise we may power down the
+# system as it is coming back up.
+# See 98-acpi-unlock.sh and 05-acpi-lock.sh in Debian.
+test -f /var/lock/acpisleep && exit 0
+
+# If gnome-power-manager, kpowersave or klaptopdaemon are running...
+if pidof gnome-power-manager kpowersave > /dev/null ||
+  (pidof dcopserver > /dev/null && test -x /usr/bin/dcop && /usr/bin/dcop kded kded loadedModules | grep -q klaptopdaemon) ; then
+	# Let them handle the power button.
+    exit
+fi
+
+# If KDE is running...
+if ps -Af | grep -q '[k]desktop' && pidof dcopserver > /dev/null && test -x /usr/bin/dcop ; then
+	# Ask it to logout.
+    KDESES=`pidof dcopserver | wc -w`
+    if [ $KDESES -eq 1 ] ; then
+        # single KDE session -> ask user
+        /usr/bin/dcop --all-sessions --all-users ksmserver ksmserver logout 1 2 0
+        exit 0
+    else
+        # more than one KDE session - just send shutdown signal to all of them
+        /usr/bin/dcop --all-sessions --all-users ksmserver ksmserver logout 0 2 0 && exit 0
+    fi
+fi
+
+# Initiate a plain shutdown.
+/sbin/shutdown -h now "Power button pressed"
+

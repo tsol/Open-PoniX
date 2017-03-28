@@ -1,0 +1,871 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Tree Widget </TITLE>
+ <LINK HREF="gtk_tut-13.html" REL=next>
+ <LINK HREF="gtk_tut-11.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc12" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-13.html">Next</A>
+<A HREF="gtk_tut-11.html">Previous</A>
+<A HREF="gtk_tut.html#toc12">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="sec_Tree_Widgets"></A> <A NAME="s12">12. Tree Widget </A></H2>
+
+<P>The purpose of tree widgets is to display hierarchically-organized
+data. The Tree widget itself is a vertical container for widgets of
+type TreeItem. Tree itself is not terribly different from
+CList - both are derived directly from Container, and the
+Container methods work in the same way on Tree widgets as on
+CList widgets. The difference is that Tree widgets can be nested
+within other Tree widgets. We'll see how to do this shortly.
+<P>The Tree widget has its own window, and defaults to a white
+background, as does CList. Also, most of the Tree methods work in
+the same way as the corresponding CList ones. However, Tree is
+not derived from CList, so you cannot use them interchangeably.
+<P>
+<P>
+<H2><A NAME="ss12.1">12.1 Creating a Tree</A>
+</H2>
+
+<P>A Tree is created in the usual way, using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_tree_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Like the CList widget, a Tree will simply keep growing as more
+items are added to it, as well as when subtrees are expanded.  For
+this reason, they are almost always packed into a
+ScrolledWindow. You might want to use gtk_widget_set_usize() on the
+scrolled window to ensure that it is big enough to see the tree's
+items, as the default size for ScrolledWindow is quite small.
+<P>Now that you have a tree, you'll probably want to add some items to
+it.  
+<A HREF="#sec_Tree_Item_Widget">The Tree Item Widget</A> below
+explains the gory details of TreeItem. For now, it'll suffice to
+create one, using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_tree_item_new_with_label( gchar *label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You can then add it to the tree using one of the following (see
+<A HREF="#sec_Tree_Functions">Functions and Macros</A>
+below for more options):
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_append( GtkTree    *tree,
+                       GtkWidget *tree_item );
+
+void gtk_tree_prepend( GtkTree   *tree,
+                       GtkWidget *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Note that you must add items to a Tree one at a time - there is no
+equivalent to gtk_list_*_items().
+<P>
+<H2><A NAME="ss12.2">12.2 Adding a Subtree</A>
+</H2>
+
+<P>A subtree is created like any other Tree widget. A subtree is added
+to another tree beneath a tree item, using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_set_subtree( GtkTreeItem *tree_item,
+                                GtkWidget   *subtree );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You do not need to call gtk_widget_show() on a subtree before or after
+adding it to a TreeItem. However, you <EM>must</EM> have added the
+TreeItem in question to a parent tree before calling
+gtk_tree_item_set_subtree(). This is because, technically, the parent
+of the subtree is <EM>not</EM> the GtkTreeItem which "owns" it, but
+rather the GtkTree which holds that GtkTreeItem.
+<P>When you add a subtree to a TreeItem, a plus or minus sign appears
+beside it, which the user can click on to "expand" or "collapse" it,
+meaning, to show or hide its subtree. TreeItems are collapsed by
+default. Note that when you collapse a TreeItem, any selected
+items in its subtree remain selected, which may not be what the user
+expects.
+<P>
+<H2><A NAME="ss12.3">12.3 Handling the Selection List</A>
+</H2>
+
+<P>As with CList, the Tree type has a <CODE>selection</CODE> field, and
+it is possible to control the behaviour of the tree (somewhat) by
+setting the selection type using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_set_selection_mode( GtkTree          *tree,
+                                  GtkSelectionMode  mode );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The semantics associated with the various selection modes are
+described in the section on the CList widget. As with the CList
+widget, the "select_child", "unselect_child" (not really - see 
+<A HREF="#sec_Tree_Signals">Signals</A> below for an explanation),
+and "selection_changed" signals are emitted when list items are
+selected or unselected. However, in order to take advantage of these
+signals, you need to know <EM>which</EM> Tree widget they will be
+emitted by, and where to find the list of selected items.
+<P>This is a source of potential confusion. The best way to explain this
+is that though all Tree widgets are created equal, some are more equal
+than others. All Tree widgets have their own X window, and can
+therefore receive events such as mouse clicks (if their TreeItems or
+their children don't catch them first!). However, to make
+<CODE>GTK_SELECTION_SINGLE</CODE> and <CODE>GTK_SELECTION_BROWSE</CODE> selection
+types behave in a sane manner, the list of selected items is specific
+to the topmost Tree widget in a hierarchy, known as the "root tree".
+<P>Thus, accessing the <CODE>selection</CODE> field directly in an arbitrary
+Tree widget is not a good idea unless you <EM>know</EM> it's the root
+tree. Instead, use the <CODE>GTK_TREE_SELECTION (Tree)</CODE> macro, which
+gives the root tree's selection list as a GList pointer. Of course,
+this list can include items that are not in the subtree in question if
+the selection type is <CODE>GTK_SELECTION_MULTIPLE</CODE>.
+<P>Finally, the "select_child" (and "unselect_child", in theory) signals
+are emitted by all trees, but the "selection_changed" signal is only
+emitted by the root tree. Consequently, if you want to handle the
+"select_child" signal for a tree and all its subtrees, you will have
+to call gtk_signal_connect() for every subtree.
+<P>
+<H2><A NAME="ss12.4">12.4 Tree Widget Internals</A>
+</H2>
+
+<P>The Tree's struct definition looks like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkTree
+{
+  GtkContainer container;
+
+  GList *children;
+  
+  GtkTree* root_tree; /* owner of selection list */
+  GtkWidget* tree_owner;
+  GList *selection;
+  guint level;
+  guint indent_value;
+  guint current_indent;
+  guint selection_mode : 2;
+  guint view_mode : 1;
+  guint view_line : 1;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The perils associated with accessing the <CODE>selection</CODE> field
+directly have already been mentioned. The other important fields of
+the struct can also be accessed with handy macros or class functions.
+<CODE>GTK_IS_ROOT_TREE (Tree)</CODE> returns a boolean value which
+indicates whether a tree is the root tree in a Tree hierarchy, while
+<CODE>GTK_TREE_ROOT_TREE (Tree)</CODE> returns the root tree, an object of
+type GtkTree (so, remember to cast it using <CODE>GTK_WIDGET (Tree)</CODE> if
+you want to use one of the gtk_widget_*() functions on it).
+<P>Instead of directly accessing the children field of a Tree widget,
+it's probably best to cast it using >tt/GTK_CONTAINER (Tree)/, and
+pass it to the gtk_container_children() function. This creates a
+duplicate of the original list, so it's advisable to free it up using
+g_list_free() after you're done with it, or to iterate on it
+destructively, like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    children = gtk_container_children (GTK_CONTAINER (tree));
+    while (children) {
+      do_something_nice (GTK_TREE_ITEM (children->data));
+      children = g_list_remove_link (children, children);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>tree_owner</CODE> field is defined only in subtrees, where it
+points to the TreeItem widget which holds the tree in question.
+The <CODE>level</CODE> field indicates how deeply nested a particular tree
+is; root trees have level 0, and each successive level of subtrees has
+a level one greater than the parent level. This field is set only
+after a Tree widget is actually mapped (i.e. drawn on the screen).
+<P>
+<H3><A NAME="sec_Tree_Signals"></A> Signals</H3>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void selection_changed( GtkTree *tree );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal will be emitted whenever the <CODE>selection</CODE> field of a
+Tree has changed. This happens when a child of the Tree is
+selected or deselected.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void select_child( GtkTree   *tree,
+                   GtkWidget *child );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when a child of the Tree is about to get
+selected. This happens on calls to gtk_tree_select_item(),
+gtk_tree_select_child(), on <EM>all</EM> button presses and calls to
+gtk_tree_item_toggle() and gtk_item_toggle().  It may sometimes be
+indirectly triggered on other occasions where children get added to or
+removed from the Tree.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void unselect_child (GtkTree   *tree,
+                     GtkWidget *child);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when a child of the Tree is about to get
+deselected. As of GTK 1.0.4, this seems to only occur on calls to
+gtk_tree_unselect_item() or gtk_tree_unselect_child(), and perhaps on
+other occasions, but <EM>not</EM> when a button press deselects a
+child, nor on emission of the "toggle" signal by gtk_item_toggle().
+<P>
+<H3><A NAME="sec_Tree_Functions"></A> Functions and Macros</H3>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_tree_get_type( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Returns the "GtkTree" type identifier.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_tree_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Create a new Tree object. The new widget is returned as a pointer to a
+GtkWidget object. NULL is returned on failure.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_append( GtkTree   *tree,
+                      GtkWidget *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Append a tree item to a Tree.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_prepend( GtkTree   *tree,
+                       GtkWidget *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Prepend a tree item to a Tree.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_insert( GtkTree   *tree,
+                      GtkWidget *tree_item,
+                      gint       position );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Insert a tree item into a Tree at the position in the list
+specified by <CODE>position.</CODE>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_remove_items( GtkTree *tree,
+                            GList   *items );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Remove a list of items (in the form of a GList *) from a Tree.
+Note that removing an item from a tree dereferences (and thus usually)
+destroys it <EM>and</EM> its subtree, if it has one, <EM>and</EM> all
+subtrees in that subtree. If you want to remove only one item, you
+can use gtk_container_remove().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_clear_items( GtkTree *tree,
+                           gint     start,
+                           gint     end );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Remove the items from position <CODE>start</CODE> to position <CODE>end</CODE>
+from a Tree. The same warning about dereferencing applies here, as
+gtk_tree_clear_items() simply constructs a list and passes it to
+gtk_tree_remove_items().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_select_item( GtkTree *tree,
+                           gint     item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Emits the "select_item" signal for the child at position
+<CODE>item</CODE>, thus selecting the child (unless you unselect it in a
+signal handler).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_unselect_item( GtkTree *tree,
+                             gint     item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Emits the "unselect_item" signal for the child at position
+<CODE>item</CODE>, thus unselecting the child.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_select_child( GtkTree   *tree,
+                            GtkWidget *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Emits the "select_item" signal for the child <CODE>tree_item</CODE>, thus
+selecting it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_unselect_child( GtkTree   *tree,
+                              GtkWidget *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Emits the "unselect_item" signal for the child <CODE>tree_item</CODE>,
+thus unselecting it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_tree_child_position( GtkTree   *tree,
+                              GtkWidget *child );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Returns the position in the tree of <CODE>child</CODE>, unless
+<CODE>child</CODE> is not in the tree, in which case it returns -1.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_set_selection_mode( GtkTree          *tree,
+                                  GtkSelectionMode  mode );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Sets the selection mode, which can be one of <CODE>GTK_SELECTION_SINGLE</CODE> (the
+default), <CODE>GTK_SELECTION_BROWSE</CODE>, <CODE>GTK_SELECTION_MULTIPLE</CODE>, or
+<CODE>GTK_SELECTION_EXTENDED</CODE>. This is only defined for root trees, which
+makes sense, since the root tree "owns" the selection. Setting it for
+subtrees has no effect at all; the value is simply ignored.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_set_view_mode( GtkTree         *tree,
+                             GtkTreeViewMode  mode ); 
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Sets the "view mode", which can be either <CODE>GTK_TREE_VIEW_LINE</CODE> (the
+default) or <CODE>GTK_TREE_VIEW_ITEM</CODE>.  The view mode propagates from a
+tree to its subtrees, and can't be set exclusively to a subtree (this
+is not exactly true - see the example code comments).
+<P>The term "view mode" is rather ambiguous - basically, it controls the
+way the highlight is drawn when one of a tree's children is selected.
+If it's <CODE>GTK_TREE_VIEW_LINE</CODE>, the entire TreeItem widget is
+highlighted, while for <CODE>GTK_TREE_VIEW_ITEM</CODE>, only the child widget
+(i.e., usually the label) is highlighted.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_set_view_lines( GtkTree *tree,
+                              guint    flag );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Controls whether connecting lines between tree items are drawn.
+<CODE>flag</CODE> is either TRUE, in which case they are, or FALSE, in
+which case they aren't.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTree *GTK_TREE (gpointer obj);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cast a generic pointer to "GtkTree *".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTreeClass *GTK_TREE_CLASS (gpointer class);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cast a generic pointer to "GtkTreeClass *".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint GTK_IS_TREE (gpointer obj);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Determine if a generic pointer refers to a "GtkTree" object.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint GTK_IS_ROOT_TREE (gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Determine if a generic pointer refers to a "GtkTree" object
+<EM>and</EM> is a root tree. Though this will accept any pointer, the
+results of passing it a pointer that does not refer to a Tree are
+undefined and possibly harmful.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTree *GTK_TREE_ROOT_TREE (gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Return the root tree of a pointer to a "GtkTree" object. The above
+warning applies.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GList *GTK_TREE_SELECTION( gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Return the selection list of the root tree of a "GtkTree" object. The
+above warning applies here, too.
+<P>
+<H2><A NAME="sec_Tree_Item_Widget"></A> <A NAME="ss12.5">12.5 Tree Item Widget</A>
+</H2>
+
+<P>The TreeItem widget, like CListItem, is derived from Item,
+which in turn is derived from Bin.  Therefore, the item itself is a
+generic container holding exactly one child widget, which can be of
+any type. The TreeItem widget has a number of extra fields, but
+the only one we need be concerned with is the <CODE>subtree</CODE> field.
+<P>The definition for the TreeItem struct looks like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkTreeItem
+{
+  GtkItem item;
+
+  GtkWidget *subtree;
+  GtkWidget *pixmaps_box;
+  GtkWidget *plus_pix_widget, *minus_pix_widget;
+
+  GList *pixmaps;               /* pixmap node for this items color depth */
+
+  guint expanded : 1;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>pixmaps_box</CODE> field is an EventBox which catches clicks on
+the plus/minus symbol which controls expansion and collapsing. The
+<CODE>pixmaps</CODE> field points to an internal data structure. Since
+you can always obtain the subtree of a TreeItem in a (relatively)
+type-safe manner with the <CODE>GTK_TREE_ITEM_SUBTREE (Item)</CODE> macro,
+it's probably advisable never to touch the insides of a TreeItem
+unless you <EM>really</EM> know what you're doing.
+<P>Since it is directly derived from an Item it can be treated as such by
+using the <CODE>GTK_ITEM (TreeItem)</CODE> macro. A TreeItem usually holds a
+label, so the convenience function gtk_list_item_new_with_label() is
+provided. The same effect can be achieved using code like the
+following, which is actually copied verbatim from
+gtk_tree_item_new_with_label():
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+tree_item = gtk_tree_item_new ();
+label_widget = gtk_label_new (label);
+gtk_misc_set_alignment (GTK_MISC (label_widget), 0.0, 0.5);
+
+gtk_container_add (GTK_CONTAINER (tree_item), label_widget);
+gtk_widget_show (label_widget);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As one is not forced to add a Label to a TreeItem, you could
+also add an HBox or an Arrow, or even a Notebook (though your
+app will likely be quite unpopular in this case) to the TreeItem.
+<P>If you remove all the items from a subtree, it will be destroyed and
+unparented, unless you reference it beforehand, and the TreeItem
+which owns it will be collapsed. So, if you want it to stick around,
+do something like the following:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_widget_ref (tree);
+owner = GTK_TREE(tree)->tree_owner;
+gtk_container_remove (GTK_CONTAINER(tree), item);
+if (tree->parent == NULL){
+  gtk_tree_item_expand (GTK_TREE_ITEM(owner));
+  gtk_tree_item_set_subtree (GTK_TREE_ITEM(owner), tree);
+}
+else
+  gtk_widget_unref (tree);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Finally, drag-n-drop <EM>does</EM> work with TreeItems. You just
+have to make sure that the TreeItem you want to make into a drag
+item or a drop site has not only been added to a Tree, but that
+each successive parent widget has a parent itself, all the way back to
+a toplevel or dialog window, when you call gtk_widget_dnd_drag_set()
+or gtk_widget_dnd_drop_set().  Otherwise, strange things will happen.
+<P>
+<H3>Signals</H3>
+
+<P>TreeItem inherits the "select", "deselect", and "toggle" signals
+from Item. In addition, it adds two signals of its own, "expand"
+and "collapse".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void select( GtkItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when an item is about to be selected, either
+after it has been clicked on by the user, or when the program calls
+gtk_tree_item_select(), gtk_item_select(), or gtk_tree_select_child().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void deselect( GtkItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when an item is about to be unselected, either
+after it has been clicked on by the user, or when the program calls
+gtk_tree_item_deselect() or gtk_item_deselect(). In the case of
+TreeItems, it is also emitted by gtk_tree_unselect_child(), and
+sometimes gtk_tree_select_child().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void toggle( GtkItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when the program calls gtk_item_toggle().  The
+effect it has when emitted on a TreeItem is to call
+gtk_tree_select_child() (and never gtk_tree_unselect_child()) on the
+item's parent tree, if the item has a parent tree.  If it doesn't,
+then the highlight is reversed on the item.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void expand( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when the tree item's subtree is about to be
+expanded, that is, when the user clicks on the plus sign next to the
+item, or when the program calls gtk_tree_item_expand().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void collapse( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This signal is emitted when the tree item's subtree is about to be
+collapsed, that is, when the user clicks on the minus sign next to the
+item, or when the program calls gtk_tree_item_collapse().
+<P>
+<H3>Functions and Macros</H3>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_tree_item_get_type( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Returns the "GtkTreeItem" type identifier.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_tree_item_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Create a new TreeItem object. The new widget is returned as a
+pointer to a GtkWidget object. NULL is returned on failure.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_tree_item_new_with_label (gchar       *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Create a new TreeItem object, having a single GtkLabel as the sole
+child. The new widget is returned as a pointer to a GtkWidget
+object. NULL is returned on failure.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_select( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function is basically a wrapper around a call to
+<CODE>gtk_item_select (GTK_ITEM (tree_item))</CODE> which will emit the
+select signal.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_deselect( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function is basically a wrapper around a call to
+gtk_item_deselect (GTK_ITEM (tree_item)) which will emit the deselect
+signal.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_set_subtree( GtkTreeItem *tree_item,
+                                GtkWidget   *subtree );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function adds a subtree to tree_item, showing it if tree_item is
+expanded, or hiding it if tree_item is collapsed. Again, remember that
+the tree_item must have already been added to a tree for this to work.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_remove_subtree( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This removes all of tree_item's subtree's children (thus unreferencing
+and destroying it, any of its children's subtrees, and so on...), then
+removes the subtree itself, and hides the plus/minus sign.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_expand( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This emits the "expand" signal on tree_item, which expands it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_tree_item_collapse( GtkTreeItem *tree_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This emits the "collapse" signal on tree_item, which collapses it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTreeItem *GTK_TREE_ITEM (gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cast a generic pointer to "GtkTreeItem *".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkTreeItemClass *GTK_TREE_ITEM_CLASS (gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cast a generic pointer to "GtkTreeItemClass".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint GTK_IS_TREE_ITEM (gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Determine if a generic pointer refers to a "GtkTreeItem" object.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget GTK_TREE_ITEM_SUBTREE (gpointer obj)
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Returns a tree item's subtree (<CODE>obj</CODE> should point to a
+"GtkTreeItem" object).
+<P>
+<H2><A NAME="ss12.6">12.6 Tree Example</A>
+</H2>
+
+<P>This is somewhat like the tree example in testgtk.c, but a lot less
+complete (although much better commented).  It puts up a window with a
+tree, and connects all the signals for the relevant objects, so you
+can see when they are emitted.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start tree tree.c */
+
+#include &lt;gtk/gtk.h>
+
+/* for all the GtkItem:: and GtkTreeItem:: signals */
+static void cb_itemsignal( GtkWidget *item,
+                           gchar     *signame )
+{
+  gchar *name;
+  GtkLabel *label;
+
+  /* It's a Bin, so it has one child, which we know to be a
+     label, so get that */
+  label = GTK_LABEL (GTK_BIN (item)->child);
+  /* Get the text of the label */
+  gtk_label_get (label, &amp;name);
+  /* Get the level of the tree which the item is in */
+  g_print ("%s called for item %s->%p, level %d\n", signame, name,
+           item, GTK_TREE (item->parent)->level);
+}
+
+/* Note that this is never called */
+static void cb_unselect_child( GtkWidget *root_tree,
+                               GtkWidget *child,
+                               GtkWidget *subtree )
+{
+  g_print ("unselect_child called for root tree %p, subtree %p, child %p\n",
+           root_tree, subtree, child);
+}
+
+/* Note that this is called every time the user clicks on an item,
+   whether it is already selected or not. */
+static void cb_select_child (GtkWidget *root_tree, GtkWidget *child,
+                             GtkWidget *subtree)
+{
+  g_print ("select_child called for root tree %p, subtree %p, child %p\n",
+           root_tree, subtree, child);
+}
+
+static void cb_selection_changed( GtkWidget *tree )
+{
+  GList *i;
+  
+  g_print ("selection_change called for tree %p\n", tree);
+  g_print ("selected objects are:\n");
+
+  i = GTK_TREE_SELECTION(tree);
+  while (i){
+    gchar *name;
+    GtkLabel *label;
+    GtkWidget *item;
+
+    /* Get a GtkWidget pointer from the list node */
+    item = GTK_WIDGET (i->data);
+    label = GTK_LABEL (GTK_BIN (item)->child);
+    gtk_label_get (label, &amp;name);
+    g_print ("\t%s on level %d\n", name, GTK_TREE
+             (item->parent)->level);
+    i = i->next;
+  }
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+  GtkWidget *window, *scrolled_win, *tree;
+  static gchar *itemnames[] = {"Foo", "Bar", "Baz", "Quux",
+                               "Maurice"};
+  gint i;
+
+  gtk_init (&amp;argc, &amp;argv);
+
+  /* a generic toplevel window */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_signal_connect (GTK_OBJECT(window), "delete_event",
+                      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+  gtk_container_set_border_width (GTK_CONTAINER(window), 5);
+
+  /* A generic scrolled window */
+  scrolled_win = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_win),
+                                  GTK_POLICY_AUTOMATIC,
+                                  GTK_POLICY_AUTOMATIC);
+  gtk_widget_set_usize (scrolled_win, 150, 200);
+  gtk_container_add (GTK_CONTAINER(window), scrolled_win);
+  gtk_widget_show (scrolled_win);
+  
+  /* Create the root tree */
+  tree = gtk_tree_new();
+  g_print ("root tree is %p\n", tree);
+  /* connect all GtkTree:: signals */
+  gtk_signal_connect (GTK_OBJECT(tree), "select_child",
+                      GTK_SIGNAL_FUNC(cb_select_child), tree);
+  gtk_signal_connect (GTK_OBJECT(tree), "unselect_child",
+                      GTK_SIGNAL_FUNC(cb_unselect_child), tree);
+  gtk_signal_connect (GTK_OBJECT(tree), "selection_changed",
+                      GTK_SIGNAL_FUNC(cb_selection_changed), tree);
+  /* Add it to the scrolled window */
+  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(scrolled_win),
+                                         tree);
+  /* Set the selection mode */
+  gtk_tree_set_selection_mode (GTK_TREE(tree),
+                               GTK_SELECTION_MULTIPLE);
+  /* Show it */
+  gtk_widget_show (tree);
+
+  for (i = 0; i &lt; 5; i++){
+    GtkWidget *subtree, *item;
+    gint j;
+
+    /* Create a tree item */
+    item = gtk_tree_item_new_with_label (itemnames[i]);
+    /* Connect all GtkItem:: and GtkTreeItem:: signals */
+    gtk_signal_connect (GTK_OBJECT(item), "select",
+                        GTK_SIGNAL_FUNC(cb_itemsignal), "select");
+    gtk_signal_connect (GTK_OBJECT(item), "deselect",
+                        GTK_SIGNAL_FUNC(cb_itemsignal), "deselect");
+    gtk_signal_connect (GTK_OBJECT(item), "toggle",
+                        GTK_SIGNAL_FUNC(cb_itemsignal), "toggle");
+    gtk_signal_connect (GTK_OBJECT(item), "expand",
+                        GTK_SIGNAL_FUNC(cb_itemsignal), "expand");
+    gtk_signal_connect (GTK_OBJECT(item), "collapse",
+                        GTK_SIGNAL_FUNC(cb_itemsignal), "collapse");
+    /* Add it to the parent tree */
+    gtk_tree_append (GTK_TREE(tree), item);
+    /* Show it - this can be done at any time */
+    gtk_widget_show (item);
+    /* Create this item's subtree */
+    subtree = gtk_tree_new();
+    g_print ("-> item %s->%p, subtree %p\n", itemnames[i], item,
+             subtree);
+
+    /* This is still necessary if you want these signals to be called
+       for the subtree's children.  Note that selection_change will be 
+       signalled for the root tree regardless. */
+    gtk_signal_connect (GTK_OBJECT(subtree), "select_child",
+                        GTK_SIGNAL_FUNC(cb_select_child), subtree);
+    gtk_signal_connect (GTK_OBJECT(subtree), "unselect_child",
+                        GTK_SIGNAL_FUNC(cb_unselect_child), subtree);
+    /* This has absolutely no effect, because it is completely ignored 
+       in subtrees */
+    gtk_tree_set_selection_mode (GTK_TREE(subtree),
+                                 GTK_SELECTION_SINGLE);
+    /* Neither does this, but for a rather different reason - the
+       view_mode and view_line values of a tree are propagated to
+       subtrees when they are mapped.  So, setting it later on would
+       actually have a (somewhat unpredictable) effect */
+    gtk_tree_set_view_mode (GTK_TREE(subtree), GTK_TREE_VIEW_ITEM);
+    /* Set this item's subtree - note that you cannot do this until
+       AFTER the item has been added to its parent tree! */
+    gtk_tree_item_set_subtree (GTK_TREE_ITEM(item), subtree);
+
+    for (j = 0; j &lt; 5; j++){
+      GtkWidget *subitem;
+
+      /* Create a subtree item, in much the same way */
+      subitem = gtk_tree_item_new_with_label (itemnames[j]);
+      /* Connect all GtkItem:: and GtkTreeItem:: signals */
+      gtk_signal_connect (GTK_OBJECT(subitem), "select",
+                          GTK_SIGNAL_FUNC(cb_itemsignal), "select");
+      gtk_signal_connect (GTK_OBJECT(subitem), "deselect",
+                          GTK_SIGNAL_FUNC(cb_itemsignal), "deselect");
+      gtk_signal_connect (GTK_OBJECT(subitem), "toggle",
+                          GTK_SIGNAL_FUNC(cb_itemsignal), "toggle");
+      gtk_signal_connect (GTK_OBJECT(subitem), "expand",
+                          GTK_SIGNAL_FUNC(cb_itemsignal), "expand");
+      gtk_signal_connect (GTK_OBJECT(subitem), "collapse",
+                          GTK_SIGNAL_FUNC(cb_itemsignal), "collapse");
+      g_print ("-> -> item %s->%p\n", itemnames[j], subitem);
+      /* Add it to its parent tree */
+      gtk_tree_append (GTK_TREE(subtree), subitem);
+      /* Show it */
+      gtk_widget_show (subitem);
+    }
+  }
+
+  /* Show the window and loop endlessly */
+  gtk_widget_show (window);
+  gtk_main();
+  return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-13.html">Next</A>
+<A HREF="gtk_tut-11.html">Previous</A>
+<A HREF="gtk_tut.html#toc12">Contents</A>
+</BODY>
+</HTML>

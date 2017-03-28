@@ -1,0 +1,29 @@
+--- ../../alsa-kernel/include/info.h	2010-05-20 11:57:33.000000000 +0200
++++ info.h	2011-03-04 12:32:02.000000000 +0100
+@@ -51,6 +51,8 @@
+ 		    unsigned short mode, void **file_private_data);
+ 	int (*release)(struct snd_info_entry *entry,
+ 		       unsigned short mode, void *file_private_data);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35) || \
++	!defined(__GENKSYMS__)
+ 	ssize_t (*read)(struct snd_info_entry *entry, void *file_private_data,
+ 			struct file *file, char __user *buf,
+ 			size_t count, loff_t pos);
+@@ -60,6 +62,17 @@
+ 	loff_t (*llseek)(struct snd_info_entry *entry,
+ 			 void *file_private_data, struct file *file,
+ 			 loff_t offset, int orig);
++#else
++	long (*read)(struct snd_info_entry *entry, void *file_private_data,
++		     struct file *file, char __user *buf,
++		     unsigned long count, unsigned long pos);
++	long (*write)(struct snd_info_entry *entry, void *file_private_data,
++		      struct file *file, const char __user *buf,
++		      unsigned long count, unsigned long pos);
++	long long (*llseek)(struct snd_info_entry *entry,
++			    void *file_private_data, struct file *file,
++			    long long offset, int orig);
++#endif
+ 	unsigned int (*poll)(struct snd_info_entry *entry,
+ 			     void *file_private_data, struct file *file,
+ 			     poll_table *wait);

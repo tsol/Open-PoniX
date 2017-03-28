@@ -1,0 +1,2384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Xmu and Xmuu Library API Reference</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /><meta name="description" content="“Don't ask.”" /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="article" title="Xmu and Xmuu Library API Reference"><div class="titlepage"><div><div><h2 class="title"><a id="xmu"></a>Xmu and Xmuu Library API Reference</h2></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="copyright">Copyright © 1989 X Consortium</p></div><div><div class="legalnotice" title="Legal Notice"><a id="id2585658"></a><p>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+      </p><p>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+      </p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      </p><p>
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+      </p><p>
+<span class="trademark"><span class="emphasis"><em>X Window System</em></span></span>™
+is a trademark of The Open Group.
+      </p></div></div><div><div class="abstract" title="Abstract"><p>“Don't ask.”</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#Introduction">Introduction</a></span></dt><dt><span class="sect1"><a href="#Atom_Functions">Atom Functions</a></span></dt><dt><span class="sect1"><a href="#Error_Handler_Functions">Error Handler Functions</a></span></dt><dt><span class="sect1"><a href="#System_Utility_Functions">System Utility Functions</a></span></dt><dt><span class="sect1"><a href="#Window_Utility_Functions">Window Utility Functions</a></span></dt><dt><span class="sect1"><a href="#Cursor_Utility_Functions">Cursor Utility Functions</a></span></dt><dt><span class="sect1"><a href="#Graphics_Functions">Graphics Functions</a></span></dt><dt><span class="sect1"><a href="#Selection_Functions">Selection Functions</a></span></dt><dt><span class="sect1"><a href="#Type_Converter_Functions">Type Converter Functions</a></span></dt><dt><span class="sect1"><a href="#Character_Set_Functions">Character Set Functions</a></span></dt><dt><span class="sect1"><a href="#Keyboard_Event_Translation_Functions">Keyboard Event Translation Functions</a></span></dt><dt><span class="sect1"><a href="#Compound_Text_Functions">Compound Text Functions</a></span></dt><dt><span class="sect1"><a href="#CloseDisplay_Hook_Functions">CloseDisplay Hook Functions</a></span></dt><dt><span class="sect1"><a href="#Display_Queue_Functions">Display Queue Functions</a></span></dt><dt><span class="sect1"><a href="#Toolkit_Convenience_Functions">Toolkit Convenience Functions</a></span></dt><dt><span class="sect1"><a href="#Standard_Colormap_Functions">Standard Colormap Functions</a></span></dt><dt><span class="sect1"><a href="#Widget_Description_Functions">Widget Description Functions</a></span></dt><dt><span class="sect1"><a href="#Participation_in_the_Editres_Protocol">Participation in the Editres Protocol</a></span></dt><dt><span class="index"><a href="#id2654135">Index</a></span></dt></dl></div><div class="sect1" title="Introduction"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Introduction"></a>Introduction</h2></div></div></div><p>
+The Xmu Library is a collection of miscellaneous (some might say random)
+utility functions that have been useful in building various applications
+and widgets.  This library is required by the Athena Widgets.
+    </p><p>
+Starting in XFree86 4.1.0, and incorporated into X11R6.7 and later releases,
+a subset of the functions that do not rely on the Athena Widgets (libXaw)
+or X Toolkit Instrinsics (libXt) are provided in a second library, libXmuu.
+    </p><p>
+Programs using either of these libraries are encouraged to determine the
+correct compiler and linker options via the <strong class="userinput"><code>xmu</code></strong> or
+<strong class="userinput"><code>xmuu</code></strong> module names for <span class="command"><strong>pkg-config</strong></span>,
+<a id="id2585259" class="indexterm"></a>
+such as:
+
+      </p><pre class="screen">
+cc -c xapplication.c `pkg-config --cflags xmu`
+cc -o xapplication xapplication.o `pkg-config --libs xmu`
+      </pre><p>
+    </p></div><div class="sect1" title="Atom Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Atom_Functions"></a>Atom Functions</h2></div></div></div><p>
+To use the functions and macros defined in this section, you should include
+the header file
+&lt;<code class="filename">X11/Xmu/Atoms.h</code>&gt;
+<a id="id2585301" class="indexterm"></a>
+and link against the libXmu library.
+    </p><div class="funcsynopsis"><p><code class="funcdef"><strong>fsfuncXA_ATOM_PAIR</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_CHARACTER_POSITION</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_CLASS</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_CLIENT_WINDOW</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_CLIPBOARD</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_COMPOUND_TEXT</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_DECNET_ADDRESS</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_DELETE</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_FILENAME</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_HOSTNAME</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_IP_ADDRESS</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_LENGTH</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_LIST_LENGTH</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_NAME</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_NET_ADDRESS</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_NULL</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_OWNER_OS</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_SPAN</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_TARGETS</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_TEXT</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_TIMESTAMP</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_USER</strong>(</code><var class="pdparam">d</var><code>)</code>;</p><p><code class="funcdef"><strong>fsfuncXA_UTF8_STRING</strong>(</code><var class="pdparam">d</var><code>)</code>;</p></div><p>
+      <a id="id2586215" class="indexterm"></a>
+These macros take a display as argument and return an
+<span class="type">Atom</span>.
+The name of the
+atom is obtained from the macro name by removing the leading characters
+“<code class="code">XA_</code>”.  The
+<span class="type">Atom</span>
+value is cached, such that subsequent requests do not cause
+another round-trip to the server.
+    </p><p>
+      <a id="id2586459" class="indexterm"></a>
+      </p><div class="funcsynopsis"><a id="XmuMakeAtom"></a><p><code class="funcdef">AtomPtr <strong>fsfuncXmuMakeAtom</strong>(</code>const char *<var class="pdparam">name</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>name</code></em></span></p></td><td><p>
+specifies the atom name
+	    </p></td></tr></tbody></table></div><p>
+
+This function creates and initializes an opaque object, an
+<span class="type">AtomPtr</span>,
+for an
+<span class="type">Atom</span>
+with the
+given name.
+<a class="xref" href="#XmuInternAtom"><code class="function">XmuInternAtom</code></a>
+can be used to cache the Atom value for one or more displays.
+    </p><p>
+      <a id="id2586642" class="indexterm"></a>
+      </p><div class="funcsynopsis"><a id="XmuNameOfAtom"></a><p><code class="funcdef">char *<strong>fsfuncXmuNameOfAtom</strong>(</code>AtomPtr <var class="pdparam">atom_ptr</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>atom_ptr</code></em></span></p></td><td><p>
+specifies the AtomPtr
+	    </p></td></tr></tbody></table></div><p>
+
+The function returns the name of an AtomPtr.
+    </p><p>
+      <a id="id2586708" class="indexterm"></a>
+      </p><div class="funcsynopsis"><a id="XmuInternAtom"></a><p><code class="funcdef">Atom <strong>fsfuncXmuInternAtom</strong>(</code>Display *<var class="pdparam">dpy</var>, AtomPtr <var class="pdparam">atom_ptr</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>atom_ptr</code></em></span></p></td><td><p>
+specifies the AtomPtr
+	    </p></td></tr></tbody></table></div><p>
+
+This function returns the
+<span class="type">Atom</span>
+for an
+<span class="type">AtomPtr</span>.
+The
+<span class="type">Atom</span>
+is cached,
+such that subsequent requests do not cause another round-trip to the server.
+    </p><p>
+      <a id="id2586808" class="indexterm"></a>
+      </p><div class="funcsynopsis"><a id="XmuGetAtomName"></a><p><code class="funcdef">char *<strong>fsfuncXmuGetAtomName</strong>(</code>Display *<var class="pdparam">dpy</var>, Atom <var class="pdparam">atom</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	   </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>atom</code></em></span></p></td><td><p>
+specifies the atom whose name is desired
+	    </p></td></tr></tbody></table></div><p>
+
+This function returns the name of an
+<span class="type">Atom</span>.
+The result is cached, such that subsequent
+requests do not cause another round-trip to the server.
+    </p><p>
+      <a id="id2642264" class="indexterm"></a>
+      </p><div class="funcsynopsis"><a id="XmuInternStrings"></a><p><code class="funcdef">void <strong>fsfuncXmuInternStrings</strong>(</code>Display *<var class="pdparam">dpy</var>, String *<var class="pdparam">names</var>, Cardinal <var class="pdparam">count</var>, Atom *<var class="pdparam">atoms</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	   </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>names</code></em></span></p></td><td><p>
+specifies the strings to intern
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>count</code></em></span></p></td><td><p>
+specifies the number of strings
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>atoms</code></em></span></p></td><td><p>
+returns the list of Atom values
+	    </p></td></tr></tbody></table></div><p>
+
+This function converts a list of atom names into
+<span class="type">Atom</span>
+values.  The results are cached, such
+that subsequent requests do not cause further round-trips to the server.
+The caller is responsible for preallocating the array pointed at by atoms.
+    </p></div><div class="sect1" title="Error Handler Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Error_Handler_Functions"></a>Error Handler Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/Error.h</code>&gt;
+<a id="id2642414" class="indexterm"></a>
+and link against the libXmu or libXmuu library.
+    </p><p>
+      <a id="id2642432" class="indexterm"></a>
+      </p><div class="funcsynopsis"><a id="XmuPrintDefaultErrorMessage"></a><p><code class="funcdef">int <strong>fsfuncXmuPrintDefaultErrorMessage</strong>(</code>Display *<var class="pdparam">dpy</var>, XErrorEvent *<var class="pdparam">event</var>, FILE *<var class="pdparam">fp</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the error
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fp</code></em></span></p></td><td><p>
+	      specifies where to print the error message
+	    </p></td></tr></tbody></table></div><p>
+
+This function prints an error message, equivalent to Xlib's default error
+message for protocol errors.  It returns a non-zero value
+if the caller should consider exiting, otherwise it returns 0.
+This function can be used when you need to
+write your own error handler, but need to print out an error from within
+that handler.
+    </p><p><a id="XmuSimpleErrorHandler"></a>
+      <a id="id2642541" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuSimpleErrorHandler</strong>(</code>Display *<var class="pdparam">dpy</var>, XErrorEvent *<var class="pdparam">errorp</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>errorp</code></em></span></p></td><td><p>
+specifies the error
+	    </p></td></tr></tbody></table></div><p>
+
+This function ignores errors for
+<span class="errorname">BadWindow</span>
+errors for
+<a href="../libX11/libX11/libX11.html#XQueryTree" class="olink"><code class="function">XQueryTree</code></a>
+and
+<a href="../libX11/libX11/libX11.html#XGetWindowAttributes" class="olink"><code class="function">XGetWindowAttributes</code></a>,
+and ignores
+<span class="errorname">BadDrawable</span>
+errors for
+<a href="../libX11/libX11/libX11.html#XGetGeometry" class="olink"><code class="function">XGetGeometry</code></a>;
+it returns 0 in those cases.  Otherwise, it prints the default error message,
+and returns a non-zero value if the caller should consider exiting,
+and 0 if the caller should not exit.
+    </p></div><div class="sect1" title="System Utility Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="System_Utility_Functions"></a>System Utility Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/SysUtil.h</code>&gt;
+<a id="id2642677" class="indexterm"></a>
+and link against the libXmu or libXmuu library.
+    </p><p><a id="XmuGetHostname"></a>
+      <a id="id2642697" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuGetHostname</strong>(</code>char *<var class="pdparam">buf</var>, int <var class="pdparam">maxlen</var><code>)</code>;</p></div><p>
+     </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>buf</code></em></span></p></td><td><p>
+returns the host name
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>maxlen</code></em></span></p></td><td><p>
+specifies the length of <em class="parameter"><code>buf</code></em>
+	    </p></td></tr></tbody></table></div><p>
+
+This function stores the null terminated name of the local host in
+<em class="parameter"><code>buf</code></em>, and
+returns length of the name.  This function hides operating system differences,
+such as whether to call <code class="function">gethostname</code> or
+<code class="function">uname</code>.
+    </p><p><a id="XmuSnprintf"></a>
+      <a id="id2642799" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuSnprintf</strong>(</code>char *<var class="pdparam">str</var>, int <var class="pdparam">size</var>, <var class="pdparam">...</var><code>)</code>;</p></div><p>
+     </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>str</code></em></span></p></td><td><p>
+string to write output to
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>size</code></em></span></p></td><td><p>
+specifies the size of <em class="parameter"><code>str</code></em>
+	    </p></td></tr></tbody></table></div><p>
+
+This function was provided as a portable implementation of
+<code class="function">snprintf</code> before all platforms could be
+relied on to provide their own.   It is now deprecated in favor of
+calling <code class="function">snprintf</code> directly and should only be used
+in software that needs to continue to support non-Unix98 compliant platforms.
+    </p></div><div class="sect1" title="Window Utility Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Window_Utility_Functions"></a>Window Utility Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/WinUtil.h</code>&gt;
+<a id="id2642920" class="indexterm"></a>.
+To use <code class="function">XmuClientWindow</code>, you may link against either the
+libXmu or libXmuu libraries.   The other functions in this section require
+linking against the libXmu library.
+    </p><p><a id="XmuScreenOfWindow"></a>
+      <a id="id2642947" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Screen *<strong>fsfuncXmuScreenOfWindow</strong>(</code>Display *<var class="pdparam">dpy</var>, Window <var class="pdparam">w</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>w</code></em></span></p></td><td><p>
+specifies the window
+	    </p></td></tr></tbody></table></div><p>
+
+This function returns the
+<span class="type">Screen</span>
+on which the specified window was created.
+    </p><p><a id="XmuClientWindow"></a>
+      <a id="id2643029" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Window <strong>fsfuncXmuClientWindow</strong>(</code>Display *<var class="pdparam">dpy</var>, Window <var class="pdparam">win</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>win</code></em></span></p></td><td><p>
+specifies the window
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2643103" class="indexterm"></a>
+This function finds a window, at or below the specified window, which has a
+<span class="property">WM_STATE</span> property.  If such a window is found, it is
+returned, otherwise the
+argument window is returned.
+    </p><p><a id="XmuUpdateMapHints"></a>
+      <a id="id2643130" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Bool <strong>fsfuncXmuUpdateMapHints</strong>(</code>Display *<var class="pdparam">dpy</var>, Window <var class="pdparam">w</var>, XSizeHints *<var class="pdparam">hints</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>win</code></em></span></p></td><td><p>
+specifies the window
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>hints</code></em></span></p></td><td><p>
+specifies the new hints, or <span class="symbol">NULL</span>
+	    </p></td></tr></tbody></table></div><p>
+
+This function clears the
+<span class="symbol">PPosition</span>
+and
+<span class="symbol">PSize</span>
+flags and sets the
+<span class="symbol">USPosition</span>
+and
+<span class="symbol">USSize</span>
+flags in the hints structure, and then stores the hints for the
+window using
+      <a id="id2643242" class="indexterm"></a>
+<a href="../libX11/libX11/libX11.html#XSetWMNormalHints" class="olink"><code class="function">XSetWMNormalHints</code></a>
+and returns
+<span class="symbol">True</span>.
+If <span class="symbol">NULL</span> is passed for the
+hints structure, then the current hints are read back from the window using
+      <a id="id2643279" class="indexterm"></a>
+<a href="../libX11/libX11/libX11.html#XGetWMNormalHints" class="olink"><code class="function">XGetWMNormalHints</code></a>
+and are used instead, and
+<span class="symbol">True</span>
+is returned; otherwise
+<span class="symbol">False</span>
+is returned.
+    </p></div><div class="sect1" title="Cursor Utility Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Cursor_Utility_Functions"></a>Cursor Utility Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/CurUtil.h</code>&gt;
+<a id="id2643336" class="indexterm"></a>
+and link against the libXmu or libXmuu library.
+    </p><p><a id="XmuCursorNameToIndex"></a>
+      <a id="id2643356" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuCursorNameToIndex</strong>(</code>const char *<var class="pdparam">name</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>name</code></em></span></p></td><td><p>
+specifies the name of the cursor
+	    </p></td></tr></tbody></table></div><p>
+
+This function takes the name of a standard cursor and returns its index
+in the standard cursor font.  The cursor names are formed by removing the
+“<code class="code">XC_</code>” prefix from the cursor defines listed in
+Appendix B of the Xlib
+manual.
+    </p></div><div class="sect1" title="Graphics Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Graphics_Functions"></a>Graphics Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/Drawing.h</code>&gt;
+<a id="id2643437" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p><a id="XmuDrawRoundedRectangle"></a>
+      <a id="id2643457" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuDrawRoundedRectangle</strong>(</code>Display *<var class="pdparam">dpy</var>, Drawable <var class="pdparam">draw</var>, GC <var class="pdparam">gc</var>, int <var class="pdparam">x</var>, int <var class="pdparam">y</var>, int <var class="pdparam">w</var>, int <var class="pdparam">h</var>, int <var class="pdparam">ew</var>, int <var class="pdparam">eh</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>draw</code></em></span></p></td><td><p>
+specifies the drawable
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>gc</code></em></span></p></td><td><p>
+specifies the GC
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>x</code></em></span></p></td><td><p>
+specifies the upper left x coordinate
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>y</code></em></span></p></td><td><p>
+specifies the upper left y coordinate
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>w</code></em></span></p></td><td><p>
+specifies the rectangle width
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>h</code></em></span></p></td><td><p>
+specifies the rectangle height
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>ew</code></em></span></p></td><td><p>
+specifies the corner width
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>eh</code></em></span></p></td><td><p>
+specifies the corner height
+	    </p></td></tr></tbody></table></div><p>
+
+This function draws a rounded rectangle, where x, y, w, h are the dimensions
+of the overall rectangle, and ew and eh are the sizes of a bounding box that
+the corners are drawn inside of; ew should be no more than half of w, and eh
+should be no more than half of h.  The current GC line attributes control
+all attributes of the line.
+    </p><p><a id="XmuFillRoundedRectangle"></a>
+      <a id="id2643692" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuFillRoundedRectangle</strong>(</code>Display *<var class="pdparam">dpy</var>, Drawable <var class="pdparam">draw</var>, GC <var class="pdparam">gc</var>, int <var class="pdparam">x</var>, int <var class="pdparam">y</var>, int <var class="pdparam">w</var>, int <var class="pdparam">h</var>, int <var class="pdparam">ew</var>, int <var class="pdparam">eh</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>draw</code></em></span></p></td><td><p>
+specifies the drawable
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>gc</code></em></span></p></td><td><p>
+specifies the GC
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>x</code></em></span></p></td><td><p>
+specifies the upper left x coordinate
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>y</code></em></span></p></td><td><p>
+specifies the upper left y coordinate
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>w</code></em></span></p></td><td><p>
+specifies the rectangle width
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>h</code></em></span></p></td><td><p>
+specifies the rectangle height
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>ew</code></em></span></p></td><td><p>
+specifies the corner width
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>eh</code></em></span></p></td><td><p>
+specifies the corner height
+	    </p></td></tr></tbody></table></div><p>
+
+This function draws a filled rounded rectangle, where x, y, w, h are the
+dimensions of the overall rectangle, and ew and eh are the sizes of a
+bounding box that the corners are drawn inside of; ew should be no more than
+half of w, and eh should be no more than half of h.  The current GC fill
+settings control all attributes of the fill contents.
+      </p><p><a id="XmuDrawLogo"></a>
+      <a id="id2643929" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef"><strong>fsfuncXmuDrawLogo</strong>(</code>Display *<var class="pdparam">dpy</var>, Drawable <var class="pdparam">drawable</var>, GC <var class="pdparam">gcFore</var>, GC <var class="pdparam">gcBack</var>, int <var class="pdparam">x</var>, int <var class="pdparam">y</var>, unsigned int <var class="pdparam">width</var>, unsigned int <var class="pdparam">height</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>drawable</code></em></span></p></td><td><p>
+specifies the drawable
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>gcFore</code></em></span></p></td><td><p>
+specifies the foreground GC
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>gcBack</code></em></span></p></td><td><p>
+specifies the background GC
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>x</code></em></span></p></td><td><p>
+specifies the upper left x coordinate
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>y</code></em></span></p></td><td><p>
+specifies the upper left y coordinate
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>width</code></em></span></p></td><td><p>
+specifies the logo width
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>height</code></em></span></p></td><td><p>
+specifies the logo height
+	    </p></td></tr></tbody></table></div><p>
+
+This function draws the “official” X Window System logo
+(<a class="xref" href="#xlogo" title="Figure 1. The X Logo">Figure 1, “The X Logo”</a>).  The bounding box
+of the logo in the drawable is given by x, y, width, and height.  The logo
+itself is filled using gcFore, and the rest of the rectangle is filled using
+gcBack.
+    </p><div class="figure"><a id="xlogo"></a><p class="title"><strong>Figure 1. The X Logo</strong></p><div class="figure-contents"><div class="mediaobject"><object type="image/svg+xml" data="xlogo.svg"></object></div></div></div><br class="figure-break" /><p><a id="XmuCreateStippledPixmap"></a>
+      <a id="id2644174" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Pixmap <strong>fsfuncXmuCreateStippledPixmap</strong>(</code>Screen *<var class="pdparam">screen</var>, Pixel <var class="pdparam">fore</var>, Pixel <var class="pdparam">back</var>, unsigned int <var class="pdparam">depth</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen the pixmap is created on
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fore</code></em></span></p></td><td><p>
+specifies the foreground pixel value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>back</code></em></span></p></td><td><p>
+specifies the background pixel value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>depth</code></em></span></p></td><td><p>
+specifies the depth of the pixmap
+	    </p></td></tr></tbody></table></div><p>
+
+This function creates a two pixel by one pixel stippled pixmap of specified
+depth on the specified screen.  The pixmap is cached so that multiple
+requests share the same pixmap.  The pixmap should be freed with
+<code class="function">XmuReleaseStippledPixmap</code>
+to maintain correct reference counts.
+    </p><p><a id="XmuReleaseStippledPixmap"></a>
+      <a id="id2644307" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuReleaseStippledPixmap</strong>(</code>Screen *<var class="pdparam">screen</var>, Pixmap <var class="pdparam">pixmap</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen the pixmap was created on
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>pixmap</code></em></span></p></td><td><p>
+specifies the pixmap to free
+	    </p></td></tr></tbody></table></div><p>
+
+This function frees a pixmap created with
+<code class="function">XmuCreateStippledPixmap</code>.
+    </p><p><a id="XmuReadBitmapData"></a>
+      <a id="id2644392" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuReadBitmapData</strong>(</code>FILE *<var class="pdparam">fstream</var>, unsigned int *<var class="pdparam">width</var>, unsigned int *<var class="pdparam">height</var>, unsigned char **<var class="pdparam">datap</var>, int *<var class="pdparam">x_hot</var>, int *<var class="pdparam">y_hot</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>fstream</code></em></span></p></td><td><p>
+specifies the stream to read from
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>width</code></em></span></p></td><td><p>
+returns the width of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>height</code></em></span></p></td><td><p>
+returns the height of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>datap</code></em></span></p></td><td><p>
+returns the parsed bitmap data
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>x_hot</code></em></span></p></td><td><p>
+returns the x coordinate of the hotspot
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>y_hot</code></em></span></p></td><td><p>
+returns the y coordinate of the hotspot
+	    </p></td></tr></tbody></table></div><p>
+
+This function reads a standard bitmap file description from the specified
+stream, and returns the parsed data in a format suitable for passing to
+<a href="../libX11/libX11/libX11.html#XCreateBitmapFromData" class="olink"><code class="function">XCreateBitmapFromData</code></a>.
+The return value of the function has the same
+interpretation as the return value for
+<a href="../libX11/libX11/libX11.html#XReadBitmapFile" class="olink"><code class="function">XReadBitmapFile</code></a>.
+    </p><p><a id="XmuReadBitmapDataFromFile"></a>
+      <a id="id2644584" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuReadBitmapDataFromFile</strong>(</code>const char *<var class="pdparam">filename</var>, unsigned int *<var class="pdparam">width</var>, unsigned int *<var class="pdparam">height</var>, unsigned char **<var class="pdparam">datap</var>, int *<var class="pdparam">x_hot</var>, int *<var class="pdparam">y_hot</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>fstream</code></em></span></p></td><td><p>
+specifies the file to read from
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>width</code></em></span></p></td><td><p>
+returns the width of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>height</code></em></span></p></td><td><p>
+returns the height of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>datap</code></em></span></p></td><td><p>
+returns the parsed bitmap data
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>x_hot</code></em></span></p></td><td><p>
+returns the x coordinate of the hotspot
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>y_hot</code></em></span></p></td><td><p>
+returns the y coordinate of the hotspot
+	    </p></td></tr></tbody></table></div><p>
+
+This function reads a standard bitmap file description from the specified
+file, and returns the parsed data in a format suitable for passing to
+<a href="../libX11/libX11/libX11.html#XCreateBitmapFromData" class="olink"><code class="function">XCreateBitmapFromData</code></a>.
+The return value of the function has the same
+interpretation as the return value for
+<a href="../libX11/libX11/libX11.html#XReadBitmapFile" class="olink"><code class="function">XReadBitmapFile</code></a>.
+    </p><p><a id="XmuLocateBitmapFile"></a>
+      <a id="id2644776" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Pixmap <strong>fsfuncXmuLocateBitmapFile</strong>(</code>Screen *<var class="pdparam">screen</var>, const char *<var class="pdparam">name</var>, char *<var class="pdparam">srcname</var>, int <var class="pdparam">srcnamelen</var>, int *<var class="pdparam">widthp</var>, int *<var class="pdparam">heightp</var>, int *<var class="pdparam">xhotp</var>, int *<var class="pdparam">yhotp</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen the pixmap is created on
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>name</code></em></span></p></td><td><p>
+specifies the file to read from
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>srcname</code></em></span></p></td><td><p>
+returns the full filename of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>srcnamelen</code></em></span></p></td><td><p>
+specifies the length of the srcname buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>width</code></em></span></p></td><td><p>
+returns the width of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>height</code></em></span></p></td><td><p>
+returns the height of the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>xhotp</code></em></span></p></td><td><p>
+returns the x coordinate of the hotspot
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>yhotp</code></em></span></p></td><td><p>
+returns the y coordinate of the hotspot
+	    </p></td></tr></tbody></table></div><p>
+
+This function reads a file in standard bitmap file format, using
+<a href="../libX11/libX11/libX11.html#XReadBitmapFile" class="olink"><code class="function">XReadBitmapFile</code></a>,
+and returns the created bitmap.  The filename may be
+absolute, or relative to the global resource named
+      <a id="id2644996" class="indexterm"></a>
+<code class="systemitem">bitmapFilePath</code> with class
+BitmapFilePath.  If the resource is not defined, the default value is the
+build symbol BITMAPDIR, which is typically
+"<code class="filename">/usr/include/X11/bitmaps</code>".
+If <em class="parameter"><code>srcnamelen</code></em> is greater than zero and
+<em class="parameter"><code>srcname</code></em> is not <span class="symbol">NULL</span>,
+the null terminated filename will be copied into
+<em class="parameter"><code>srcname</code></em>.  The size and hotspot of the bitmap are
+also returned.
+    </p><p><a id="XmuCreatePixmapFromBitmap"></a>
+      <a id="id2645054" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Pixmap <strong>fsfuncXmuCreatePixmapFromBitmap</strong>(</code>Display *<var class="pdparam">dpy</var>, Drawable <var class="pdparam">d</var>, Pixmap <var class="pdparam">bitmap</var>, unsigned int <var class="pdparam">width</var>, unsigned int <var class="pdparam">height</var>, unsigned int <var class="pdparam">depth</var>, unsigned long <var class="pdparam">fore</var>, unsigned long <var class="pdparam">back</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen the pixmap is created on
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>bitmap</code></em></span></p></td><td><p>
+specifies the bitmap source
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>width</code></em></span></p></td><td><p>
+specifies the width of the pixmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>height</code></em></span></p></td><td><p>
+specifies the height of the pixmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>depth</code></em></span></p></td><td><p>
+specifies the depth of the pixmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fore</code></em></span></p></td><td><p>
+specifies the foreground pixel value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>back</code></em></span></p></td><td><p>
+specifies the background pixel value
+	    </p></td></tr></tbody></table></div><p>
+
+This function creates a pixmap of the specified width, height, and depth, on
+the same screen as the specified drawable, and then performs an
+<a href="../libX11/libX11/libX11.html#XCopyPlane" class="olink"><code class="function">XCopyPlane</code></a>
+from the specified bitmap to the pixmap,
+using the specified foreground and background pixel values.
+The created pixmap is returned.
+    </p></div><div class="sect1" title="Selection Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Selection_Functions"></a>Selection Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/StdSel.h</code>&gt;
+<a id="id2645296" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p><a id="XmuConvertStandardSelection"></a>
+      <a id="id2645316" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Boolean <strong>fsfuncXmuConvertStandardSelection</strong>(</code>Widget <var class="pdparam">w</var>, Time <var class="pdparam">time</var>, Atom *<var class="pdparam">selection</var>, Atom *<var class="pdparam">target</var>, Atom *<var class="pdparam">type</var>, XPointer <var class="pdparam">value</var>, unsigned long *<var class="pdparam">length</var>, int *<var class="pdparam">format</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>w</code></em></span></p></td><td><p>
+specifies the widget which currently owns the selection
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>time</code></em></span></p></td><td><p>
+specifies the time at which the selection was established
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>selection</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>target</code></em></span></p></td><td><p>
+specifies the target type of the selection
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>type</code></em></span></p></td><td><p>
+returns the property type of the converted value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>value</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>length</code></em></span></p></td><td><p>
+returns the number of elements in the converted value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>format</code></em></span></p></td><td><p>
+returns the size in bits of the elements</p></td></tr></tbody></table></div><p>
+
+This function converts the following standard selections: CLASS,
+CLIENT_WINDOW, DECNET_ADDRESS, HOSTNAME, IP_ADDRESS, NAME, OWNER_OS,
+TARGETS, TIMESTAMP, and USER.  It returns
+<span class="symbol">True</span>
+if the conversion was successful, else it returns
+<span class="symbol">False</span>.
+    </p></div><div class="sect1" title="Type Converter Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Type_Converter_Functions"></a>Type Converter Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/Converters.h</code>&gt;
+<a id="id2645556" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p><a id="XmuCvtFunctionToCallback"></a>
+      <a id="id2645575" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtFunctionToCallback</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+the function to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+the place to store the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+This function converts a callback procedure to a callback list containing
+that procedure, with <span class="symbol">NULL</span> closure data.  To use this converter, include the
+following in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+XtAddConverter(XtRCallProc, XtRCallback, XmuCvtFunctionToCallback, NULL, 0);
+      </pre><p>
+    </p><p><a id="XmuCvtStringToBackingStore"></a>
+      <a id="id2645712" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToBackingStore</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument must be a pointer to a Cardinal containing the value 0
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2645830" class="indexterm"></a>
+This function converts a string to a backing-store integer as defined in
+&lt;<code class="filename">X11/X.h</code>&gt;.
+The string "notUseful" converts to
+<span class="symbol">NotUseful</span>,
+"whenMapped" converts to
+<span class="symbol">WhenMapped</span>,
+and "always" converts to
+<span class="symbol">Always</span>.
+The string "default" converts to the value
+<span class="symbol">Always</span> +
+<span class="symbol">WhenMapped</span> +
+<span class="symbol">NotUseful</span>.
+The case of the string does not matter.
+To use this converter, include the following
+in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+XtAddConverter(XtRString, XtRBackingStore, XmuCvtStringToBackingStore, NULL, 0);
+      </pre><p>
+    </p><p><a id="XmuCvtStringToBitmap"></a>
+      <a id="id2645886" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToBitmap</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+the sole argument specifies the Screen on which to create the bitmap
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+must be the value 1
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2646004" class="indexterm"></a>
+This function creates a bitmap (a Pixmap of depth one) suitable for window
+manager icons.  The string argument is the name of a file in standard bitmap
+file format.  For the possible filename specifications, see
+<a class="link" href="#XmuLocateBitmapFile"><code class="function">XmuLocateBitmapFile</code></a>.
+To use this converter, include the following in your widget's
+ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+static XtConvertArgRec screenConvertArg[] = {
+  {XtBaseOffset, (XtPointer)XtOffset(Widget, core.screen), sizeof(Screen *)}
+};
+
+XtAddConverter(XtRString, XtRBitmap, XmuCvtStringToBitmap,
+		 screenConvertArg, XtNumber(screenConvertArg));
+      </pre><p>
+    </p><p><a id="XmuCvtStringToColorCursor"></a>
+      <a id="id2646042" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Boolean <strong>fsfuncXmuCvtStringToColorCursor</strong>(</code>Display *<var class="pdparam">dpy</var>, XrmValuePtr <var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var>, XtPointer *<var class="pdparam">data</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the display to use for conversion warnings
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+specifies the required conversion arguments
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+specifies the number of required conversion arguments, which is 4
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2646204" class="indexterm"></a>
+This function converts a string to a
+<span class="type">Cursor</span>
+with the foreground and background pixels specified by the conversion
+arguments.  The string can either be a
+standard cursor name formed by removing the <code class="code">“XC_”</code>
+prefix from any of the
+cursor defines listed in Appendix B of the Xlib Manual, a font name and
+glyph index in decimal of the form "FONT fontname index [[font] index]",
+or a bitmap filename acceptable to
+<a class="link" href="#XmuLocateBitmapFile"><code class="function">XmuLocateBitmapFile</code></a>.
+To use this converter, include
+the following in the widget ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+static XtConvertArgRec colorCursorConvertArgs[] = {
+  {XtWidgetBaseOffset, (XtPointer) XtOffsetOf(WidgetRec, core.screen),
+   sizeof(Screen *)},
+  {XtResourceString, (XtPointer) XtNpointerColor, sizeof(Pixel)},
+  {XtResourceString, (XtPointer) XtNpointerColorBackground, sizeof(Pixel)},
+  {XtWidgetBaseOffset, (XtPointer) XtOffsetOf(WidgetRec, core.colormap),
+   sizeof(Colormap)}
+};
+
+
+XtSetTypeConverter(XtRString, XtRColorCursor, XmuCvtStringToColorCursor,
+		 colorCursorConvertArgs, XtNumber(colorCursorConvertArgs),
+                 XtCacheByDisplay, NULL);
+      </pre><p>
+
+The widget must recognize XtNpointerColor and XtNpointerColorBackground as
+resources, or specify other appropriate foreground and background resources.
+The widget's Realize and SetValues methods must cause the converter to be
+invoked with the appropriate arguments when one of the foreground,
+background, or cursor resources has changed, or when the window is created,
+and must assign the cursor to the window of the widget.
+    </p><p><a id="XmuCvtStringToCursor"></a>
+      <a id="id2646276" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToCursor</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+specifies the required conversion argument, the screen
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+specifies the number of required conversion arguments, which is 1
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2646395" class="indexterm"></a>
+This function converts a string to a
+<span class="type">Cursor</span>.
+The string can either be a
+standard cursor name formed by removing the <code class="code">“XC_”</code>
+prefix from any of the
+cursor defines listed in Appendix B of the Xlib Manual, a font name and
+glyph index in decimal of the form "FONT fontname index [[font] index]", or
+a bitmap filename acceptable to
+<a class="link" href="#XmuLocateBitmapFile"><code class="function">XmuLocateBitmapFile</code></a>.
+To use this converter, include
+the following in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+static XtConvertArgRec screenConvertArg[] = {
+  {XtBaseOffset, (XtPointer)XtOffsetOf(WidgetRec, core.screen), sizeof(Screen *)}
+};
+
+XtAddConverter(XtRString, XtRCursor, XmuCvtStringToCursor,
+		 screenConvertArg, XtNumber(screenConvertArg));
+      </pre><p>
+    </p><p><a id="XmuCvtStringToGravity"></a>
+      <a id="id2646443" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToGravity</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument must be a pointer to a Cardinal containing the value 0
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2646561" class="indexterm"></a>
+This function converts a string to an
+<span class="type">XtGravity</span>
+enumeration value.  The string "forget" and a <span class="symbol">NULL</span> value convert to
+<span class="symbol">ForgetGravity</span>,
+"NorthWestGravity" converts to
+<span class="symbol">NorthWestGravity</span>,
+the strings "NorthGravity" and "top" convert to
+<span class="symbol">NorthGravity</span>,
+"NorthEastGravity" converts to
+<span class="symbol">NorthEastGravity</span>,
+the strings "West" and "left" convert to
+<span class="symbol">WestGravity</span>,
+"CenterGravity" converts to
+<span class="symbol">CenterGravity</span>,
+"EastGravity" and "right" convert to
+<span class="symbol">EastGravity</span>,
+"SouthWestGravity" converts to
+<span class="symbol">SouthWestGravity</span>,
+"SouthGravity" and "bottom" convert to
+<span class="symbol">SouthGravity</span>,
+"SouthEastGravity" converts to
+<span class="symbol">SouthEastGravity</span>,
+"StaticGravity" converts to
+<span class="symbol">StaticGravity</span>,
+and "UnmapGravity" converts to
+<span class="symbol">UnmapGravity</span>.
+The case of the string does not matter.  To use this converter, include
+the following in your widget's class initialize procedure:
+
+      </p><pre class="programlisting">
+XtAddConverter(XtRString, XtRGravity, XmuCvtStringToGravity, NULL, 0);
+      </pre><p>
+    </p><p><a id="XmuCvtStringToJustify"></a>
+      <a id="id2646642" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToJustify</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2646759" class="indexterm"></a>
+This function converts a string to an
+<span class="type">XtJustify</span>
+enumeration value.  The string "left" converts to
+<span class="symbol">XtJustifyLeft</span>,
+"center" converts to
+<span class="symbol">XtJustifyCenter</span>,
+and "right" converts to
+<span class="symbol">XtJustifyRight</span>.
+The case of the string does not matter.  To use this converter,
+include the following in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+XtAddConverter(XtRString, XtRJustify, XmuCvtStringToJustify, NULL, 0);
+      </pre><p>
+    </p><p><a id="XmuCvtStringToLong"></a>
+      <a id="id2646799" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToLong</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument must be a pointer to a Cardinal containing 0
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+This function converts a string to an integer of type long.  It parses the
+string using
+<code class="function">sscanf</code>
+with a format of "%ld".  To use this converter, include
+the following in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+XtAddConverter(XtRString, XtRLong, XmuCvtStringToLong, NULL, 0);
+      </pre><p>
+    </p><p><a id="XmuCvtStringToOrientation"></a>
+      <a id="id2646938" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToOrientation</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2647056" class="indexterm"></a>
+This function converts a string to an
+<span class="type">XtOrientation</span>
+enumeration value.  The string "horizontal" converts to
+<span class="symbol">XtorientHorizontal</span>
+and "vertical" converts to
+<span class="symbol">XtorientVertical</span>.
+The case of the string does not matter.  To use this converter,
+include the following in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+XtAddConverter(XtRString, XtROrientation, XmuCvtStringToOrientation, NULL, 0);
+      </pre><p>
+    </p><p><a id="XmuCvtStringToShapeStyle"></a>
+      <a id="id2647094" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Boolean <strong>fsfuncXmuCvtStringToShapeStyle</strong>(</code>Display *<var class="pdparam">dpy</var>, XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var>, XtPointer *<var class="pdparam">data</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+the display to use for conversion warnings
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+the value to convert from
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+the place to store the converted value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr></tbody></table></div><p>
+
+This function converts a string to an integer shape style.  The string
+"rectangle" converts to
+<span class="symbol">XmuShapeRectangle</span>,
+"oval" converts to
+<span class="symbol">XmuShapeOval</span>,
+"ellipse" converts to
+<span class="symbol">XmuShapeEllipse</span>,
+and "roundedRectangle" converts to
+<span class="symbol">XmuShapeRoundedRectangle</span>.
+The case of the string does not matter.  To use this converter,
+include the following in your widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+XtSetTypeConverter(XtRString, XtRShapeStyle, XmuCvtStringToShapeStyle,
+		     NULL, 0, XtCacheNone, NULL);
+      </pre><p>
+    </p><p><a id="XmuReshapeWidget"></a>
+      <a id="id2647285" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Boolean <strong>fsfuncXmuReshapeWidget</strong>(</code>Widget <var class="pdparam">w</var>, int <var class="pdparam">shape_style</var>, int <var class="pdparam">corner_width</var>, int <var class="pdparam">corner_height</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>w</code></em></span></p></td><td><p>
+specifies the widget to reshape
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>shape_style</code></em></span></p></td><td><p>
+specifies the new shape
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>corner_width</code></em></span></p></td><td><p>
+specifies the width of the rounded rectangle corner
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>corner_height</code></em></span></p></td><td><p>
+specified the height of the rounded rectangle corner
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2647403" class="indexterm"></a>
+This function reshapes the specified widget, using the Shape extension, to a
+rectangle, oval, ellipse, or rounded rectangle, as specified by shape_style
+(
+<span class="symbol">XmuShapeRectangle</span>,
+<span class="symbol">XmuShapeOval</span>,
+<span class="symbol">XmuShapeEllipse</span>,
+and
+<span class="symbol">XmuShapeRoundedRectangle</span>,
+respectively).
+The shape is bounded by the outside edges of the rectangular extents of the
+widget.  If the shape is a rounded rectangle, corner_width and corner_height
+specify the size of the bounding box that the corners are drawn inside of
+(see
+<a class="link" href="#XmuFillRoundedRectangle"><code class="function">XmuFillRoundedRectangle</code></a>);
+otherwise, corner_width and corner_height are ignored.
+The origin of the widget within its parent remains unchanged.
+    </p><p><a id="XmuCvtStringToWidget"></a>
+      <a id="id2647449" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCvtStringToWidget</strong>(</code>XrmValue *<var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+the sole argument is the parent Widget
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument must be 1
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr></tbody></table></div><p>
+
+This function converts a string to an immediate child widget of the parent
+widget passed as an argument.  Note that this converter only works for
+child widgets that have already been created; there is no lazy evaluation.
+The string is first compared against the
+names of the normal and popup children, and if a match is found the
+corresponding child is returned.  If no match is found, the string is
+compared against the classes of the normal and popup children, and if a
+match is found the corresponding child is returned.  The case of the string
+is significant.  To use this converter, include the following in your
+widget's ClassInitialize procedure:
+
+      </p><pre class="programlisting">
+static XtConvertArgRec parentCvtArg[] = {
+  {XtBaseOffset, (XtPointer)XtOffset(Widget, core.parent), sizeof(Widget)},
+};
+
+XtAddConverter(XtRString, XtRWidget, XmuCvtStringToWidget,
+		 parentCvtArg, XtNumber(parentCvtArg));
+      </pre><p>
+    </p><p><a id="XmuNewCvtStringToWidget"></a>
+      <a id="id2647593" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Boolean <strong>fsfuncXmuNewCvtStringToWidget</strong>(</code>Display *<var class="pdparam">dpy</var>, XrmValuePtr <var class="pdparam">args</var>, Cardinal *<var class="pdparam">num_args</var>, XrmValuePtr <var class="pdparam">fromVal</var>, XrmValuePtr <var class="pdparam">toVal</var>, XtPointer *<var class="pdparam">data</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+the display to use for conversion warnings
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>args</code></em></span></p></td><td><p>
+the sole argument is the parent Widget
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_args</code></em></span></p></td><td><p>
+this argument must be a pointer to a Cardinal containing the value 1
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>fromVal</code></em></span></p></td><td><p>
+specifies the string to convert
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toVal</code></em></span></p></td><td><p>
+returns the converted value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+this argument is ignored
+	    </p></td></tr></tbody></table></div><p>
+
+This converter is identical in functionality to
+<a class="link" href="#XmuCvtStringToWidget"><code class="function">XmuCvtStringToWidget</code></a>, except
+that it is a new-style converter, allowing the specification of a cache type
+at the time of registration.
+Most widgets will not cache the conversion results, as the application may
+dynamically create and destroy widgets, which would cause cached values to
+become illegal.  To use this converter, include the following in the widget's
+class initialize procedure:
+
+    </p><pre class="programlisting">
+static XtConvertArgRec parentCvtArg[] = {
+  {XtWidgetBaseOffset, (XtPointer)XtOffsetOf(WidgetRec, core.parent),
+   sizeof(Widget)}
+};
+
+XtSetTypeConverter(XtRString, XtRWidget, XmuNewCvtStringToWidget,
+		   parentCvtArg, XtNumber(parentCvtArg), XtCacheNone, NULL);
+      </pre><p>
+
+    </p></div><div class="sect1" title="Character Set Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Character_Set_Functions"></a>Character Set Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/CharSet.h</code>&gt;
+<a id="id2647802" class="indexterm"></a>
+and link against the libXmu or libXmuu library.
+</p><div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>
+The functions in this section are <span class="emphasis"><em>deprecated</em></span>
+because they don't work in most locales now supported by X11; most platforms
+provide alternatives in their system libraries.
+      </p></div><p><a id="XmuCopyISOLatin1Lowered"></a>
+      <a id="id2647834" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCopyISOLatin1Lowered</strong>(</code>char *<var class="pdparam">dst</var>, const char *<var class="pdparam">src</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dst</code></em></span></p></td><td><p>
+returns the string copy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>src</code></em></span></p></td><td><p>
+specifies the string to copy
+	    </p></td></tr></tbody></table></div><p>
+
+This function copies a null terminated string from src to dst (including the
+null), changing all Latin-1 uppercase letters to lowercase.  The string is
+assumed to be encoded using ISO 8859-1.
+    </p><p>
+Note that like <code class="function">strcpy</code> the caller is responsible for
+ensuring the size of <em class="parameter"><code>dst</code></em> is at least as large as the
+size of <em class="parameter"><code>src</code></em>.
+    </p><p><a id="XmuNCopyISOLatin1Lowered"></a>
+      <a id="id2647937" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuNCopyISOLatin1Lowered</strong>(</code>char *<var class="pdparam">dst</var>, const char *<var class="pdparam">src</var>, int <var class="pdparam">size</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dst</code></em></span></p></td><td><p>
+returns the string copy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>src</code></em></span></p></td><td><p>
+specifies the string to copy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>size</code></em></span></p></td><td><p>
+maximum number of characters (including the null terminator) to write to dst
+	    </p></td></tr></tbody></table></div><p>
+
+This function copies up to <code class="code"><em class="parameter"><code>size</code></em> - 1</code>
+characters of a null terminated string from <em class="parameter"><code>src</code></em>
+to <em class="parameter"><code>dst</code></em>, and terminates it with a null,
+changing all Latin-1 uppercase letters to lowercase.  The string is
+assumed to be encoded using ISO 8859-1.
+    </p><p><a id="XmuCopyISOLatin1Uppered"></a>
+      <a id="id2648061" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCopyISOLatin1Uppered</strong>(</code>char *<var class="pdparam">dst</var>, const char *<var class="pdparam">src</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dst</code></em></span></p></td><td><p>
+returns the string copy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>src</code></em></span></p></td><td><p>
+specifies the string to copy
+	    </p></td></tr></tbody></table></div><p>
+
+This function copies a null terminated string from src to dst (including the
+null), changing all Latin-1 lowercase letters to uppercase.  The string is
+assumed to be encoded using ISO 8859-1.
+    </p><p>
+Note that like <code class="function">strcpy</code> the caller is responsible for
+ensuring the size of <em class="parameter"><code>dst</code></em> is at least as large as the
+size of <em class="parameter"><code>src</code></em>.
+    </p><p><a id="XmuNCopyISOLatin1Uppered"></a>
+      <a id="id2648164" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuNCopyISOLatin1Uppered</strong>(</code>char *<var class="pdparam">dst</var>, const char *<var class="pdparam">src</var>, int <var class="pdparam">size</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dst</code></em></span></p></td><td><p>
+returns the string copy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>src</code></em></span></p></td><td><p>
+specifies the string to copy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>size</code></em></span></p></td><td><p>
+maximum number of characters (including the null terminator) to write to dst
+	    </p></td></tr></tbody></table></div><p>
+
+This function copies up to <code class="code"><em class="parameter"><code>size</code></em> - 1</code>
+characters of a null terminated string from <em class="parameter"><code>src</code></em>
+to <em class="parameter"><code>dst</code></em>, and terminates it with a null,
+changing all Latin-1 lowercase letters to uppercase.  The string is
+assumed to be encoded using ISO 8859-1.
+    </p><p><a id="XmuCompareISOLatin1"></a>
+      <a id="id2648287" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuCompareISOLatin1</strong>(</code>const char *<var class="pdparam">first</var>, const char *<var class="pdparam">second</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>first</code></em></span></p></td><td><p>
+	      specifies a string to compare
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>second</code></em></span></p></td><td><p>
+specifies a string to compare
+	    </p></td></tr></tbody></table></div><p>
+
+This function compares two null terminated Latin-1 strings, ignoring case
+differences, and returns an integer greater than, equal to, or less than 0,
+according to whether first is lexicographically greater than, equal to, or
+less than second.  The two strings are assumed to be encoded using ISO
+8859-1.
+    </p></div><div class="sect1" title="Keyboard Event Translation Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Keyboard_Event_Translation_Functions"></a>Keyboard Event Translation Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/Lookup.h</code>&gt;
+<a id="id2648391" class="indexterm"></a>.
+and link against the libXmu library.
+    </p><div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>
+The functions in this section are <span class="emphasis"><em>deprecated</em></span> because they don't work
+in most locales now supported by X11; the function
+<a href="../libX11/libX11/libX11.html#XmbLookupString" class="olink"><code class="function">XmbLookupString</code></a>
+provides a better alternative.
+      </p></div><p><a id="XmuLookupLatin1"></a>
+      <a id="id2648433" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupLatin1</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is identical to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+and exists only for naming symmetry with other functions.
+    </p><p><a id="XmuLookupLatin2"></a>
+      <a id="id2648590" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupLatin2</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to an Latin-2 (ISO 8859-2) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupLatin3"></a>
+      <a id="id2648748" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupLatin3</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to an Latin-3 (ISO 8859-3) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupLatin4"></a>
+      <a id="id2648906" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupLatin4</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to an Latin-4 (ISO 8859-4) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupKana"></a>
+      <a id="id2649063" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupKana</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to a string in an encoding consisting of Latin-1 (ISO 8859-1) and ASCII
+control in the Graphics Left half (values 0 to 127), and Katakana in the
+Graphics Right half (values 128 to 255), using the values from JIS
+X201-1976.
+    </p><p><a id="XmuLookupJISX0201"></a>
+      <a id="id2649228" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupJISX0201</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to a string in the JIS X0201-1976 encoding, including ASCII control.
+    </p><p><a id="XmuLookupArabic"></a>
+      <a id="id2649386" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupArabic</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to a Latin/Arabic (ISO 8859-6) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupCyrillic"></a>
+      <a id="id2649544" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupCyrillic</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to a Latin/Cyrillic (ISO 8859-5) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupGreek"></a>
+      <a id="id2649702" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupGreek</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to a Latin/Greek (ISO 8859-7) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupHebrew"></a>
+      <a id="id2649859" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupHebrew</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event
+to a Latin/Hebrew (ISO 8859-8) string, or to an ASCII control string.
+    </p><p><a id="XmuLookupAPL"></a>
+      <a id="id2650017" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuLookupAPL</strong>(</code>XKeyEvent *<var class="pdparam">event</var>, unsigned char *<var class="pdparam">buffer</var>, int <var class="pdparam">nbytes</var>, KeySym *<var class="pdparam">keysym</var>, XComposeStatus *<var class="pdparam">status</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>event</code></em></span></p></td><td><p>
+specifies the key event
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>buffer</code></em></span></p></td><td><p>
+returns the translated characters
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>nbytes</code></em></span></p></td><td><p>
+specifies the length of the buffer
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>keysym</code></em></span></p></td><td><p>
+returns the computed KeySym, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>status</code></em></span></p></td><td><p>
+specifies or returns the compose state
+	    </p></td></tr></tbody></table></div><p>
+
+This function is similar to
+<a href="../libX11/libX11/libX11.html#XLookupString" class="olink"><code class="function">XLookupString</code></a>,
+except that it maps a key event to an APL string.
+    </p></div><div class="sect1" title="Compound Text Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Compound_Text_Functions"></a>Compound Text Functions</h2></div></div></div><p>
+The functions defined in this section are for parsing Compound Text strings,
+decomposing them into individual segments. Definitions needed to use these
+routines are in the include file
+&lt;<code class="filename">X11/Xmu/Xct.h</code>&gt;
+<a id="id2650194" class="indexterm"></a>
+and link against the libXmu library.
+    </p><div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>
+The functions in this section are <span class="emphasis"><em>deprecated</em></span> because they shift the
+burden for recently introduced locale encodings to the application. The
+use of the
+<span class="symbol">UTF8_STRING</span>
+text encoding provides a better alternative.
+      </p></div><p>
+A Compound Text string is represented as the following type:
+
+      </p><pre class="synopsis">
+	typedef unsigned char *XctString;
+      </pre><p>
+    </p><p><a id="XctCreate"></a>
+      <a id="id2650240" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XctData <strong>fsfuncXctCreate</strong>(</code>const XctString <var class="pdparam">string</var>, int <var class="pdparam">length</var>, XctFlags <var class="pdparam">flags</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>string</code></em></span></p></td><td><p>
+the Compound Text string
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>length</code></em></span></p></td><td><p>
+the number of bytes in string
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>flags</code></em></span></p></td><td><p>
+parsing control flags
+	    </p></td></tr></tbody></table></div><p>
+
+This function creates an
+<span class="type">XctData</span>
+structure for parsing a Compound Text
+string.  The string need not be null terminated.  The following flags are
+defined to control parsing of the string:
+
+    </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><span class="symbol">XctSingleSetSegments</span></span></p></td><td><p>
+This means that returned segments should contain
+characters from only one set (C0, C1, GL, GR).  When this is requested,
+<span class="symbol">XctSegment</span>
+is never returned by
+<code class="function">XctNextItem</code>,
+instead
+<span class="symbol">XctC0Segment</span>,
+<span class="symbol">XctC1Segment</span>,
+<span class="symbol">XctGlSegment</span>,
+and
+<span class="symbol">XctGRSegment</span>
+are returned.  C0 and C1
+segments are always returned as singleton characters.
+	  </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctProvideExtensions</span></span></p></td><td><p>
+This means that if the Compound Text string is from a
+higher version than this code is implemented to, then syntactically correct
+but unknown control sequences should be returned as
+<span class="symbol">XctExtension</span>
+items by
+<code class="function">XctNextItem</code>.
+If this flag is not set, and the Compound Text string version
+indicates that extensions cannot be ignored, then each unknown control
+sequence will be reported as an
+<span class="symbol">XctError</span>.
+	  </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctAcceptC0Extensions</span></span></p></td><td><p>
+This means that if the Compound Text string is from
+a higher version than this code is implemented to, then unknown C0
+characters should be treated as if they were legal, and returned as C0
+characters (regardless of how
+<span class="symbol">XctProvideExtensions</span>
+is set) by
+<code class="function">XctNextItem</code>.
+If this flag is not set, then all unknown C0 characters are treated
+according to
+<span class="symbol">XctProvideExtensions</span>.
+	  </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctAcceptC1Extensions</span></span></p></td><td><p>
+This means that if the Compound Text string is from
+a higher version than this code is implemented to, then unknown C1
+characters should be treated as if they were legal, and returned as C1
+characters (regardless of how
+<span class="symbol">XctProvideExtensions</span>
+is set) by
+<code class="function">XctNextItem</code>.
+If this flag is not set, then all unknown C1 characters are treated
+according to
+<span class="symbol">XctProvideExtensions</span>.
+	  </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctHideDirection</span></span></p></td><td><p>
+This means that horizontal direction changes should be
+reported as
+<span class="symbol">XctHorizontal</span>
+items by
+<code class="function">XctNextItem</code>. If this flag is not set,
+then direction changes are not returned as items, but the current direction
+is still maintained and reported for other items.  The current direction is
+given as an enumeration, with the values
+<span class="symbol">XctUnspecified</span>,
+<span class="symbol">XctLeftToRight</span>,
+and
+<span class="symbol">XctRightToLeft</span>.
+	  </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctFreeString</span></span></p></td><td><p>
+This means that
+<code class="function">XctFree</code>
+should free the Compound Text string that is passed to
+<code class="function">XctCreate</code>.
+If this flag is not set, the string is not freed.
+	  </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctShiftMultiGRToGL</span></span></p></td><td><p>
+This means that
+<code class="function">XctNextItem</code>
+should translate GR
+segments on-the-fly into GL segments for the GR sets: GB2312.1980-1,
+JISX0208.1983-1, and KSC5601.1987-1.
+	  </p></td></tr></tbody></table></div><p>
+  </p><p><a id="XctReset"></a>
+      <a id="id2650552" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXctReset</strong>(</code>XctData <var class="pdparam">data</var><code>)</code>;</p></div><p>
+	</p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+specifies the Compound Text structure
+	      </p></td></tr></tbody></table></div><p>
+
+This function resets the
+<span class="type">XctData</span>
+structure to reparse the Compound Text string from the beginning.
+      </p><p><a id="XctNextItem"></a>
+      <a id="id2650614" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XctResult <strong>fsfuncXctNextItem</strong>(</code>XctData <var class="pdparam">data</var><code>)</code>;</p></div><p>
+	</p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+specifies the Compound Text structure
+	      </p></td></tr></tbody></table></div><p>
+
+This function parses the next “item” from the Compound Text string.  The
+return value indicates what kind of item is returned.  The item itself, its
+length, and the current contextual state, are reported as components of the
+<span class="type">XctData</span>
+structure.
+<span class="type">XctResult</span>
+is an enumeration, with the following values:
+
+	</p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><span class="symbol">XctSegment</span></span></p></td><td><p>
+the item contains some mixture of C0, GL, GR, and C1 characters.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctC0Segment</span></span></p></td><td><p>
+the item contains only C0 characters.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctGLSegment</span></span></p></td><td><p>
+the item contains only GL characters.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctC1Segment</span></span></p></td><td><p>
+the item contains only C1 characters.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctGRSegment</span></span></p></td><td><p>
+the item contains only GR characters.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctExtendedSegment</span></span></p></td><td><p>
+the item contains an extended segment.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctExtension</span></span></p></td><td><p>
+the item is an unknown extension control sequence.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctHorizontal</span></span></p></td><td><p>
+the item indicates a change in horizontal direction or
+depth.  The new direction and depth are recorded in the
+<span class="type">XctData</span>
+structure.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctEndOfText</span></span></p></td><td><p>
+The end of the Compound Text string has been reached.
+	      </p></td></tr><tr><td><p><span class="term"><span class="symbol">XctError</span></span></p></td><td><p>
+the string contains a syntactic or semantic error; no further
+parsing should be performed.
+	      </p></td></tr></tbody></table></div><p>
+    </p><p><a id="XctData"></a>
+      <a id="id2650820" class="indexterm"></a>
+The following state values are stored in the
+<span class="type">XctData</span>
+structure:
+	</p><pre class="synopsis">
+    XctString		item;		/* the action item */
+    unsigned		item_length;	/* length of item in bytes */
+    int			char_size;	/* the number of bytes per character in
+					 * item, with zero meaning variable */
+    char		*encoding;	/* the XLFD encoding name for item */
+    XctHDirection	horizontal;	/* the direction of item */
+    unsigned		horz_depth;	/* the current direction nesting depth */
+    char		*GL;		/* the "{I} F" string for the current GL */
+    char		*GL_encoding;	/* the XLFD encoding name for the current GL */
+    int			GL_set_size;	/* 94 or 96 */
+    int			GL_char_size;	/* the number of bytes per GL character */
+    char		*GR;		/* the "{I} F" string for the current GR */
+    char		*GR_encoding;	/* the XLFD encoding name for the current GR */
+    int			GR_set_size;	/* 94 or 96 */
+    int			GR_char_size;	/* number of bytes per GR character */
+    char		*GLGR_encoding;	/* the XLFD encoding name for the current
+					 *  GL+GR, if known */
+	</pre><p>
+      </p><p>
+	</p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXctFree</strong>(</code>XctData <var class="pdparam">data</var><code>)</code>;</p></div><p>
+	</p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+specifies the Compound Text structure
+	      </p></td></tr></tbody></table></div><p>
+
+This function frees all data associated with the
+<span class="type">XctData</span>
+structure.
+      </p></div><div class="sect1" title="CloseDisplay Hook Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CloseDisplay_Hook_Functions"></a>CloseDisplay Hook Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/CloseHook.h</code>&gt;
+<a id="id2650941" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p><a id="XmuAddCloseDisplayHook"></a>
+      <a id="id2650960" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">CloseHook <strong>fsfuncXmuAddCloseDisplayHook</strong>(</code>Display *<var class="pdparam">dpy</var>, int <var class="pdparam">( *func )</var>
+	    <code>(</code>Display *, XPointer<code>)</code>, XPointer <var class="pdparam">arg</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>func</code></em></span></p></td><td><p>
+specifies the function to call at display close
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>arg</code></em></span></p></td><td><p>
+specifies arbitrary data to pass to <em class="parameter"><code>func</code></em>
+	    </p></td></tr></tbody></table></div><p>
+
+This function adds a callback for the given display.  When the display is
+closed, the given function will be called with the given display and
+argument as:
+
+      </p><pre class="programlisting">
+	(*func)(dpy, arg)
+      </pre><p>
+    </p><p>
+The function is declared to return an int even though the value is ignored,
+because some compilers used to have problems with functions returning void.
+    </p><p>
+This routine returns <span class="symbol">NULL</span> if it was unable to add the
+callback, otherwise it
+returns an opaque handle that can be used to remove or lookup the callback.
+    </p><p><a id="XmuRemoveCloseDisplayHook"></a>
+      <a id="id2651093" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Bool <strong>fsfuncXmuRemoveCloseDisplayHook</strong>(</code>Display *<var class="pdparam">dpy</var>, CloseHook <var class="pdparam">handle</var>, int <var class="pdparam">( *func )</var>
+	    <code>(</code>Display *, XPointer<code>)</code>, XPointer <var class="pdparam">arg</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>handle</code></em></span></p></td><td><p>
+specifies the callback by id, or <span class="symbol">NULL</span>
+	    </p></td></tr><tr><td><p><span class="term"><code class="function">func</code></span></p></td><td><p>
+specifies the callback by function
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>arg</code></em></span></p></td><td><p>
+specifies the function data to match
+	    </p></td></tr></tbody></table></div><p>
+
+This function deletes a callback that has been added with
+<code class="function">XmuAddCloseDisplayHook</code>.
+If handle is not <span class="symbol">NULL</span>, it specifies the callback to
+remove, and the func and arg parameters are ignored.  If handle is <span class="symbol">NULL</span>, the
+first callback found to match the specified func and arg will be removed.
+Returns
+<span class="symbol">True</span>
+if a callback was removed, else returns
+<span class="symbol">False</span>.
+    </p><p><a id="XmuLookupCloseDisplayHook"></a>
+      <a id="id2651245" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Bool <strong>fsfuncXmuLookupCloseDisplayHook</strong>(</code>Display *<var class="pdparam">dpy</var>, CloseHook <var class="pdparam">handle</var>, int <var class="pdparam">( *func )</var>
+	    <code>(</code>Display *, XPointer<code>)</code>, XPointer <var class="pdparam">arg</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>handle</code></em></span></p></td><td><p>
+specifies the callback by id, or <span class="symbol">NULL</span>
+	    </p></td></tr><tr><td><p><span class="term"><code class="function">func</code></span></p></td><td><p>
+specifies the callback by function
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>arg</code></em></span></p></td><td><p>
+specifies the function data to match
+	    </p></td></tr></tbody></table></div><p>
+
+This function determines if a callback is installed.  If handle is not
+<span class="symbol">NULL</span>,
+it specifies the callback to look for, and the func and arg parameters are
+ignored.  If handle is <span class="symbol">NULL</span>, the function will look for
+any callback for the
+specified func and arg.  Returns
+<span class="symbol">True</span>
+if a matching callback exists, else returns
+<span class="symbol">False</span>.
+
+
+    </p></div><div class="sect1" title="Display Queue Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Display_Queue_Functions"></a>Display Queue Functions</h2></div></div></div><p>
+To use the functions and types defined in this section, you should include the
+header file
+&lt;<code class="filename">X11/Xmu/DisplayQue.h</code>&gt;
+<a id="id2651410" class="indexterm"></a>
+and link against the libXmu library.
+<code class="filename">DisplayQue.h</code> defines the following
+types:
+
+      <a id="id2651432" class="indexterm"></a>
+      <a id="XmuDisplayQueue"></a></p><pre class="synopsis">
+typedef int (*XmuCloseDisplayQueueProc)(XmuDisplayQueue *queue,
+                                        XmuDisplayQueueEntry *entry);
+
+typedef int (*XmuFreeDisplayQueueProc)(XmuDisplayQueue *queue);
+
+typedef struct _XmuDisplayQueueEntry {
+	struct _XmuDisplayQueueEntry *prev, *next;
+	Display *display;
+	CloseHook closehook;
+	XPointer data;
+} XmuDisplayQueueEntry;
+
+typedef struct _XmuDisplayQueue {
+	int nentries;
+	XmuDisplayQueueEntry *head, *tail;
+	XmuCloseDisplayQueueProc closefunc;
+	XmuFreeDisplayQueueProc freefunc;
+	XPointer data;
+} XmuDisplayQueue;
+      </pre><p>
+    </p><p><a id="XmuDQCreate"></a>
+      <a id="id2651466" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XmuDisplayQueue *<strong>fsfuncXmuDQCreate</strong>(</code>XmuCloseDisplayQueueProc <var class="pdparam">closefunc</var>, XmuFreeDisplayQueueProc <var class="pdparam">freefunc</var>, XPointer <var class="pdparam">data</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>closefunc</code></em></span></p></td><td><p>
+specifies the close function
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>freefunc</code></em></span></p></td><td><p>
+specifies the free function
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+specifies private data for the functions
+	    </p></td></tr></tbody></table></div><p>
+
+This function creates and returns an empty
+<span class="type">XmuDisplayQueue</span>
+(which is really just a set of displays, but is called a queue for
+historical reasons).  The queue is initially empty, but displays
+can be added using
+<code class="function">XmuAddDisplay</code>.
+The data value is simply stored in the queue for use by the closefunc
+and freefunc callbacks.
+Whenever a display in the queue is closed using
+<code class="function">XCloseDisplay</code>,
+the <em class="parameter"><code>closefunc</code></em> (if non-<span class="symbol">NULL</span>) is called with the queue and the display's
+<code class="function">XmuDisplayQueueEntry</code>
+as follows:
+      </p><pre class="programlisting">
+	(*closefunc)(queue, entry)
+      </pre><p>
+    </p><p>
+The <em class="parameter"><code>freefunc</code></em> (if non-<span class="symbol">NULL</span>) is called whenever the last
+display in the
+queue is closed, as follows:
+
+      </p><pre class="programlisting">
+	(*freefunc)(queue)
+      </pre><p>
+    </p><p>
+The application is responsible for actually freeing the queue, by calling
+<code class="function">XmuDQDestroy</code>.
+    </p><p><a id="XmuDQAddDisplay"></a>
+      <a id="id2651635" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XmuDisplayQueueEntry *<strong>fsfuncXmuDQAddDisplay</strong>(</code>XmuDisplayQueue *<var class="pdparam">q</var>, Display *<var class="pdparam">dpy</var>, XPointer <var class="pdparam">data</var><code>)</code>;</p></div><p>
+
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>q</code></em></span></p></td><td><p>
+specifies the queue
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the display to add
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+specifies private data for the free function
+	    </p></td></tr></tbody></table></div><p>
+
+This function adds the specified display to the queue.  If successful,
+the queue entry is returned, otherwise <span class="symbol">NULL</span> is returned.
+The data value is simply stored in the queue entry for use by the
+queue's freefunc callback.  This function does not attempt to prevent
+duplicate entries in the queue; the caller should use
+<code class="function">XmuDQLookupDisplay</code>
+to determine if a display has already been added to a queue.
+    </p><p><a id="XmuDQLookupDisplay"></a>
+      <a id="id2651750" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XmuDisplayQueueEntry *<strong>fsfuncXmuDQLookupDisplay</strong>(</code>XmuDisplayQueue *<var class="pdparam">q</var>, Display *<var class="pdparam">dpy</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>q</code></em></span></p></td><td><p>
+specifies the queue
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the display to lookup
+	    </p></td></tr></tbody></table></div><p>
+
+This function returns the queue entry for the specified display, or
+<span class="symbol">NULL</span> if
+the display is not in the queue.
+    </p><p><a id="XmuDQNDisplays"></a>
+      <a id="id2651834" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef"><strong>fsfuncXmuDQNDisplays</strong>(</code><var class="pdparam">q</var><code>)</code>;</p></div><p>
+This macro returns the number of displays in the specified queue.
+    </p><p><a id="XmuDQRemoveDisplay"></a>
+      <a id="id2651873" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Bool <strong>fsfuncXmuDQRemoveDisplay</strong>(</code>XmuDisplayQueue *<var class="pdparam">q</var>, Display *<var class="pdparam">dpy</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>q</code></em></span></p></td><td><p>
+specifies the queue
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the display to remove
+	    </p></td></tr></tbody></table></div><p>
+
+This function removes the specified display from the specified queue.
+No callbacks are performed.
+If the display is not found in the queue,
+<span class="symbol">False</span>
+is returned, otherwise
+<span class="symbol">True</span>
+is returned.
+    </p><p><a id="XmuDQDestroy"></a>
+      <a id="id2651961" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Bool <strong>fsfuncXmuDQDestroy</strong>(</code>XmuDisplayQueue *<var class="pdparam">q</var>, Bool <var class="pdparam">docallbacks</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>q</code></em></span></p></td><td><p>
+specifies the queue to destroy
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>docallbacks</code></em></span></p></td><td><p>
+specifies whether close functions should be called
+	    </p></td></tr></tbody></table></div><p>
+
+This function releases all memory associated with the specified queue.
+If docallbacks is
+<span class="symbol">True</span>,
+then the queue's closefunc callback (if non-<span class="symbol">NULL</span>) is first called
+for each display in the queue, even though
+<code class="function">XCloseDisplay</code>
+is not called on the display.
+    </p></div><div class="sect1" title="Toolkit Convenience Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Toolkit_Convenience_Functions"></a>Toolkit Convenience Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/Initer.h</code>&gt;
+<a id="id2652075" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p><a id="XmuAddInitializer"></a>
+      <a id="id2652094" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuAddInitializer</strong>(</code>void <var class="pdparam">( *func )</var>
+	    <code>(</code>XtAppContext, XPointer<code>)</code>, XPointer <var class="pdparam">data</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>func</code></em></span></p></td><td><p>
+specifies the procedure to register
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>data</code></em></span></p></td><td><p>
+specifies private data for the procedure
+	    </p></td></tr></tbody></table></div><p>
+
+This function registers a procedure, to be invoked the first time
+<code class="function">XmuCallInitializers</code>
+is called on a given application context.  The procedure
+is called with the application context and the specified data:
+
+      </p><pre class="programlisting">
+	(*func)(app_con, data)
+      </pre><p>
+    </p><p><a id="XmuCallInitializers"></a>
+      <a id="id2652192" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuCallInitializers</strong>(</code>XtAppContext <var class="pdparam">app_con</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>app_con</code></em></span></p></td><td><p>
+specifies the application context to initialize
+	    </p></td></tr></tbody></table></div><p>
+
+This function calls each of the procedures that have been registered with
+<code class="function">XmuAddInitializer</code>,
+if this is the first time the application context has been passed to
+<code class="function">XmuCallInitializers</code>.
+Otherwise, this function does nothing.
+    </p></div><div class="sect1" title="Standard Colormap Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Standard_Colormap_Functions"></a>Standard Colormap Functions</h2></div></div></div><p>
+To use the functions defined in this section, you should include the header
+file
+&lt;<code class="filename">X11/Xmu/StdCmap.h</code>&gt;
+<a id="id2652280" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p><a id="XmuAllStandardColormaps"></a>
+      <a id="id2652299" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Status <strong>fsfuncXmuAllStandardColormaps</strong>(</code>Display *<var class="pdparam">dpy</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr></tbody></table></div><p>
+
+      <a id="id2652352" class="indexterm"></a>
+To create all of the appropriate standard colormaps for every visual of
+every screen on a given display, use
+<code class="function">XmuAllStandardColormaps</code>.
+    </p><p>
+This function defines and retains as permanent resources all standard
+colormaps which are meaningful for the visuals of each screen of the
+display.  It returns 0 on failure, non-zero on success.  If the property of
+any standard colormap is already defined, this function will redefine it.
+    </p><p>
+This function is intended to be used by window managers or a special client
+at the start of a session.
+    </p><p>
+The standard colormaps of a screen are defined by properties associated with
+the screen's root window.  The property names of standard colormaps are
+predefined, and each property name except
+<span class="property">RGB_DEFAULT_MAP</span> may describe at
+most one colormap.
+    </p><p>
+The standard colormaps are: <span class="property">RGB_BEST_MAP</span>,
+<span class="property">RGB_RED_MAP</span>, <span class="property">RGB_GREEN_MAP</span>,
+<span class="property">RGB_BLUE_MAP</span>, <span class="property">RGB_DEFAULT_MAP</span>,
+ and <span class="property">RGB_GRAY_MAP</span>.  Therefore a screen may
+have at most 6 standard colormap properties defined.
+    </p><p>
+A standard colormap is associated with a particular visual of the screen.  A
+screen may have multiple visuals defined, including visuals of the same
+class at different depths.  Note that a visual id might be repeated for more
+than one depth, so the visual id and the depth of a visual identify the
+visual.  The characteristics of the visual will determine which standard
+colormaps are meaningful under that visual, and will determine how the
+standard colormap is defined.  Because a standard colormap is associated
+with a specific visual, there must be a method of determining which visuals
+take precedence in defining standard colormaps.
+    </p><p>
+The method used here is: for the visual of greatest depth, define all
+standard colormaps meaningful to that visual class, according to this order
+of (descending) precedence:
+<span class="symbol">DirectColor</span>;
+<span class="symbol">PseudoColor</span>;
+<span class="symbol">TrueColor</span>
+and
+<span class="symbol">GrayScale</span>;
+and finally
+<span class="symbol">StaticColor</span>
+and
+<span class="symbol">StaticGray</span>.
+    </p><p>This function allows success, on a per screen basis.  For example, if a map
+on screen 1 fails, the maps on screen 0, created earlier, will remain.
+However, none on screen 1 will remain.  If a map on screen 0 fails, none
+will remain.
+    </p><p>
+See
+<a class="link" href="#XmuVisualStandardColormaps"><code class="function">XmuVisualStandardColormaps</code></a>
+for which standard colormaps are meaningful under these classes of visuals.
+    </p><p><a id="XmuVisualStandardColormaps"></a>
+      <a id="id2652508" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Status <strong>fsfuncXmuVisualStandardColormaps</strong>(</code>Display *<var class="pdparam">dpy</var>, int <var class="pdparam">screen</var>, VisualID <var class="pdparam">visualid</var>, unsigned int <var class="pdparam">depth</var>, Bool <var class="pdparam">replace</var>, Bool <var class="pdparam">retain</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen of the display
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>visualid</code></em></span></p></td><td><p>
+specifies the visual type
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>depth</code></em></span></p></td><td><p>
+specifies the visual depth
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>replace</code></em></span></p></td><td><p>
+specifies whether or not to replace
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>retain</code></em></span></p></td><td><p>
+specifies whether or not to retain
+	    </p></td></tr></tbody></table></div><p>
+
+To create all of the appropriate standard colormaps for a given visual on a
+given screen, use
+<code class="function">XmuVisualStandardColormaps</code>.
+    </p><p>
+This function defines all appropriate standard colormap properties for the
+given visual.  If replace is
+<span class="symbol">True</span>,
+any previous definition will be removed.
+If retain is
+<span class="symbol">True</span>,
+new properties will be retained for the duration of the
+server session.  This function returns 0 on failure, non-zero on success.
+On failure, no new properties will be defined, but old ones may have been
+removed if replace was <span class="symbol">True</span>.
+    </p><p>
+Not all standard colormaps are meaningful to all visual classes.  This
+routine will check and define the following properties for the following
+classes, provided that the size of the colormap is not too small.  For
+<span class="symbol">DirectColor</span>
+and
+<span class="symbol">PseudoColor</span>:
+<span class="property">RGB_DEFAULT_MAP</span>, <span class="property">RGB_BEST_MAP</span>,
+<span class="property">RGB_RED_MAP</span>, <span class="property">RGB_GREEN_MAP</span>,
+<span class="property">RGB_BLUE_MAP</span>, and <span class="property">RGB_GRAY_MAP</span>.
+For
+<span class="symbol">TrueColor</span>
+and
+<span class="symbol">StaticColor</span>:
+<span class="property">RGB_BEST_MAP</span>.  For
+<span class="symbol">GrayScale</span>
+and
+<span class="symbol">StaticGray</span>:
+<span class="property">RGB_GRAY_MAP</span>.
+    </p><p><a id="XmuLookupStandardColormap"></a>
+      <a id="id2652769" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Status <strong>fsfuncXmuLookupStandardColormap</strong>(</code>Display *<var class="pdparam">dpy</var>, int <var class="pdparam">screen</var>, VisualID <var class="pdparam">visualid</var>, unsigned int <var class="pdparam">depth</var>, Atom <var class="pdparam">property</var>, Bool <var class="pdparam">replace</var>, Bool <var class="pdparam">retain</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen of the display
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>visualid</code></em></span></p></td><td><p>
+specifies the visual type
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>depth</code></em></span></p></td><td><p>
+specifies the visual depth
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>property</code></em></span></p></td><td><p>
+specifies the standard colormap property
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>replace</code></em></span></p></td><td><p>
+specifies whether or not to replace
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>retain</code></em></span></p></td><td><p>
+specifies whether or not to retain
+	    </p></td></tr></tbody></table></div><p>
+
+To create a standard colormap if one does not currently exist, or replace
+the currently existing standard colormap, use
+<code class="function">XmuLookupStandardColormap</code>.
+    </p><p>
+Given a screen, a visual, and a property, this function will determine the
+best allocation for the property under the specified visual, and determine
+the whether to create a new colormap or to use the default colormap of the
+screen.
+    </p><p>
+If replace is True, any previous definition of the property will be
+replaced.  If retain is True, the property and the colormap will be made
+permanent for the duration of the server session.  However, pre-existing
+property definitions which are not replaced cannot be made permanent by a
+call to this function; a request to retain resources pertains to newly
+created resources.
+    </p><p>
+This function returns 0 on failure, non-zero on success.  A request to
+create a standard colormap upon a visual which cannot support such a map is
+considered a failure.  An example of this would be requesting any standard
+colormap property on a monochrome visual, or, requesting an
+<span class="property">RGB_BEST_MAP</span> on
+a display whose colormap size is 16.
+    </p><p><a id="XmuGetColormapAllocation"></a>
+      <a id="id2652996" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Status <strong>fsfuncXmuGetColormapAllocation</strong>(</code>XVisualInfo *<var class="pdparam">vinfo</var>, Atom <var class="pdparam">property</var>, unsigned long *<var class="pdparam">red_max</var>, unsigned long *<var class="pdparam">green_max</var>, unsigned long *<var class="pdparam">blue_max</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>vinfo</code></em></span></p></td><td><p>
+specifies visual information for a chosen visual
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>property</code></em></span></p></td><td><p>
+specifies one of the standard colormap property names
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>red_max</code></em></span></p></td><td><p>
+returns maximum red value</p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>green_max</code></em></span></p></td><td><p>
+returns maximum green value
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>blue_max</code></em></span></p></td><td><p>
+returns maximum blue value
+	  </p></td></tr></tbody></table></div><p>
+
+To determine the best allocation of reds, greens, and blues in a standard
+colormap, use
+<code class="function">XmuGetColormapAllocation</code>.
+    </p><p>
+<code class="function">XmuGetColormapAllocation</code>
+returns 0 on failure, non-zero on success.  It is
+assumed that the visual is appropriate for the colormap property.
+    </p><p><a id="XmuStandardColormap"></a>
+      <a id="id2653159" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XStandardColormap *<strong>fsfuncXmuStandardColormap</strong>(</code>Display *<var class="pdparam">dpy</var>, int <var class="pdparam">screen</var>, VisualID <var class="pdparam">visualid</var>, unsigned int <var class="pdparam">depth</var>, Atom <var class="pdparam">property</var>, Colormap <var class="pdparam">cmap</var>, unsigned long <var class="pdparam">red_max</var>, unsigned long <var class="pdparam">green_max</var>, unsigned long <var class="pdparam">blue_max</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen of the display
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>visualid</code></em></span></p></td><td><p>
+specifies the visual type
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>depth</code></em></span></p></td><td><p>
+specifies the visual depth
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>property</code></em></span></p></td><td><p>
+specifies the standard colormap property
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>cmap</code></em></span></p></td><td><p>
+specifies the colormap ID, or None
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>red_max</code></em></span></p></td><td><p>
+specifies the red allocation
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>green_max</code></em></span></p></td><td><p>
+specifies the green allocation
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>blue_max</code></em></span></p></td><td><p>
+specifies the blue allocation
+	    </p></td></tr></tbody></table></div><p>
+
+To create any one standard colormap, use
+<code class="function">XmuStandardColormap</code>.
+    </p><p>
+This function creates a standard colormap for the given screen, visualid,
+and visual depth, with the given red, green, and blue maximum values, with
+the given standard property name.  Upon success, it returns a pointer to an
+<code class="function">XStandardColormap</code>
+structure which describes the newly created colormap.
+Upon failure, it returns <span class="symbol">NULL</span>.
+If cmap is the default colormap of the screen, the standard colormap
+will be defined on the default colormap; otherwise a new colormap is created.
+    </p><p>
+Resources created by this function are not made permanent; that is the
+caller's responsibility.
+    </p><p><a id="XmuCreateColormap"></a>
+      <a id="id2653422" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">Status <strong>fsfuncXmuCreateColormap</strong>(</code>Display *<var class="pdparam">dpy</var>, XStandardColormap *<var class="pdparam">colormap</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection under which the map is created
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>colormap</code></em></span></p></td><td><p>
+specifies the map to be created</p></td></tr></tbody></table></div><p>
+
+To create any one colormap which is described by an
+<span class="structname">XStandardColormap</span>
+structure, use
+<code class="function">XmuCreateColormap</code>.
+    </p><p>
+This function returns 0 on failure, and non-zero on success.  The base_pixel
+of the colormap is set on success.  Resources created by this function are
+not made permanent.  No argument error checking is provided; use at your own
+risk.
+    </p><p>
+All colormaps are created with read-only allocations, with the exception of
+read-only allocations of colors which fail
+to return the expected pixel value, and these are individually defined as
+read/write allocations.  This is done so that all the cells defined in the
+colormap are contiguous, for use in image processing.  This typically
+happens with White and Black in the default map.
+    </p><p>
+Colormaps of static visuals are considered to be successfully created if the
+map of the static visual matches the definition given in the standard
+colormap structure.
+    </p><p><a id="XmuDeleteStandardColormap"></a>
+      <a id="id2653534" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuDeleteStandardColormap</strong>(</code>Display *<var class="pdparam">dpy</var>, Screen *<var class="pdparam">screen</var>, Atom <var class="pdparam">property</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>dpy</code></em></span></p></td><td><p>
+specifies the connection to the X server
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>screen</code></em></span></p></td><td><p>
+specifies the screen of the display
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>property</code></em></span></p></td><td><p>
+specifies the standard colormap property
+	    </p></td></tr></tbody></table></div><p>
+
+To remove any standard colormap property, use
+<code class="function">XmuDeleteStandardColormap</code>.
+This function will remove the specified property from the specified screen,
+releasing any resources used by the colormap(s) of the property, if
+possible.
+    </p></div><div class="sect1" title="Widget Description Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Widget_Description_Functions"></a>Widget Description Functions</h2></div></div></div><p>
+The functions defined in this section are for building a description of
+the structure of and resources associated with a hierarchy of widget classes.
+This package is typically used by applications that wish to manipulate the
+widget set itself.
+    </p><p>
+The definitions needed to use these interfaces are in the header file
+&lt;<code class="filename">X11/Xmu/WidgetNode.h</code>&gt;
+<a id="id2653670" class="indexterm"></a>.
+To call these functions, you need to link against the libXmu library.
+The following function must be called before any of the others described
+below:
+
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuWnInitializeNodes</strong>(</code>XmuWidgetNode *<var class="pdparam">node_array</var>, int <var class="pdparam">num_nodes</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>node_array</code></em></span></p></td><td><p>
+specifies a list of widget classes, in alphabetical order
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_nodes</code></em></span></p></td><td><p>
+specifies the number of widget classes in the node array
+	    </p></td></tr></tbody></table></div><p>
+    </p><p>
+To determine the resources provided by a widget class or classes, use
+
+      </p><div class="funcsynopsis"><p><code class="funcdef">void <strong>fsfuncXmuWnFetchResources</strong>(</code>XmuWidgetNode *<var class="pdparam">node</var>, Widget <var class="pdparam">toplevel</var>, XmuWidgetNode *<var class="pdparam">top_node</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>node</code></em></span></p></td><td><p>
+specifies the widget class for which resources should be obtained.
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>toplevel</code></em></span></p></td><td><p>
+specifies the widget that should be used for creating an instance of
+<em class="parameter"><code>node</code></em>
+from which resources are extracted.  This is typically the value returned
+by <span class="olink"><code class="function">XtAppInitialize</code></span>.
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>top_node</code></em></span></p></td><td><p>
+specifies the ancestor of <em class="parameter"><code>node</code></em> that should be
+treated as the root
+of the widget inheritance tree (used in determining which ancestor contributed
+which resources).
+	    </p></td></tr></tbody></table></div><p>
+    </p><p>
+Each widget class inherits the resources of its parent.  To count the number
+of resources contributed by a particular widget class, use:
+
+      </p><div class="funcsynopsis"><p><code class="funcdef">int <strong>fsfuncXmuWnCountOwnedResources</strong>(</code>XmuWidgetNode *<var class="pdparam">node</var>, XmuWidgetNode *<var class="pdparam">owner_node</var>, Bool <var class="pdparam">constraints</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>node</code></em></span></p></td><td><p>
+specifies the widget class whose resources are being examined.
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>owner_node</code></em></span></p></td><td><p>
+specifies the widget class of the ancestor of <em class="parameter"><code>node</code></em>
+whose contributions
+are being counted.
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>constraints</code></em></span></p></td><td><p>
+specifies whether or not to count constraint resources or normal resources.
+	    </p></td></tr></tbody></table></div><p>
+
+This routine returns the number of resources contributed (or
+“owned”) by
+the specified widget class.
+	    </p><p><a id="XmuWnNameToNode"></a>
+      <a id="id2653964" class="indexterm"></a>
+      </p><div class="funcsynopsis"><p><code class="funcdef">XmuWidgetNode *<strong>fsfuncXmuWnNameToNode</strong>(</code>XmuWidgetNode *<var class="pdparam">node_list</var>, int <var class="pdparam">num_nodes</var>, char *<var class="pdparam">name</var><code>)</code>;</p></div><p>
+      </p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term"><em class="parameter"><code>node_list</code></em></span></p></td><td><p>
+specifies a list of widget nodes
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>num_nodes</code></em></span></p></td><td><p>
+specifies the number of nodes in the list
+	    </p></td></tr><tr><td><p><span class="term"><em class="parameter"><code>name</code></em></span></p></td><td><p>
+specifies the name of the widget class in the node list to search for
+	    </p></td></tr></tbody></table></div><p>
+
+This function returns the WidgetNode in the list that matches the given
+widget name or widget class name.  If no match is found, it returns
+<span class="symbol">NULL</span>.
+    </p></div><div class="sect1" title="Participation in the Editres Protocol"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Participation_in_the_Editres_Protocol"></a>Participation in the Editres Protocol</h2></div></div></div><p>
+      <a id="id2654081" class="indexterm"></a>
+To participate in the editres protocol, applications which are not based
+on the Athena widget set should include the header file
+&lt;<code class="filename">X11/Xmu/Editres.h</code>&gt;
+<a id="id2654101" class="indexterm"></a>
+and link against the libXmu library.
+    </p><p>
+To participate in the editres protocol, Xt applications which do not rely
+on the Athena widget set should register the editres protocol handler on
+each shell widget in the application, specifying an event mask of 0,
+nonmaskable events, and client data as <span class="symbol">NULL</span>:
+
+    </p><pre class="programlisting">
+XtAddEventHandler(shell, (EventMask) 0, True, _XEditResCheckMessages, NULL);
+    </pre><p>
+    </p></div><div class="index" title="Index"><div class="titlepage"><div><div><h2 class="title"><a id="id2654135"></a>Index</h2></div></div></div><div class="index"><div class="indexdiv"><h3></h3><dl><dt>, <a class="indexterm" href="#XmuMakeAtom">Atom Functions</a>, <a class="indexterm" href="#XmuNameOfAtom">Atom Functions</a>, <a class="indexterm" href="#XmuInternAtom">Atom Functions</a>, <a class="indexterm" href="#XmuGetAtomName">Atom Functions</a>, <a class="indexterm" href="#XmuInternStrings">Atom Functions</a>, <a class="indexterm" href="#XmuPrintDefaultErrorMessage">Error Handler Functions</a></dt></dl></div><div class="indexdiv"><h3>A</h3><dl><dt>Atom, <a class="indexterm" href="#id2586215">Atom Functions</a></dt></dl></div><div class="indexdiv"><h3>B</h3><dl><dt>backing-store, <a class="indexterm" href="#XmuCvtStringToBackingStore">Type Converter Functions</a></dt><dt>bitmapFilePath, <a class="indexterm" href="#XmuLocateBitmapFile">Graphics Functions</a></dt></dl></div><div class="indexdiv"><h3>C</h3><dl><dt>colormaps, <a class="indexterm" href="#id2652352">Standard Colormap Functions</a></dt><dd><dl><dt>standard, <a class="indexterm" href="#id2652352">Standard Colormap Functions</a></dt></dl></dd><dt>Cursor, <a class="indexterm" href="#XmuCvtStringToColorCursor">Type Converter Functions</a>, <a class="indexterm" href="#XmuCvtStringToCursor">Type Converter Functions</a></dt></dl></div><div class="indexdiv"><h3>E</h3><dl><dt>editres, <a class="indexterm" href="#id2654081">Participation in the Editres Protocol</a></dt></dl></div><div class="indexdiv"><h3>P</h3><dl><dt>pkg-config, <a class="indexterm" href="#id2585259">Introduction</a></dt></dl></div><div class="indexdiv"><h3>S</h3><dl><dt>Shape extension, <a class="indexterm" href="#XmuReshapeWidget">Type Converter Functions</a></dt></dl></div><div class="indexdiv"><h3>W</h3><dl><dt>window manager icons, <a class="indexterm" href="#XmuCvtStringToBitmap">Type Converter Functions</a></dt><dt>WM_STATE, <a class="indexterm" href="#XmuClientWindow">Window Utility Functions</a></dt></dl></div><div class="indexdiv"><h3>X</h3><dl><dt>X11/Xmu/Atoms.h, <a class="indexterm" href="#id2585301">Atom Functions</a></dt><dt>X11/Xmu/CharSet.h, <a class="indexterm" href="#id2647802">Character Set Functions</a></dt><dt>X11/Xmu/CloseHook.h, <a class="indexterm" href="#id2650941">CloseDisplay Hook Functions</a></dt><dt>X11/Xmu/Converters.h, <a class="indexterm" href="#id2645556">Type Converter Functions</a></dt><dt>X11/Xmu/CurUtil.h, <a class="indexterm" href="#id2643336">Cursor Utility Functions</a></dt><dt>X11/Xmu/DisplayQue.h, <a class="indexterm" href="#id2651410">Display Queue Functions</a></dt><dt>X11/Xmu/Drawing.h, <a class="indexterm" href="#id2643437">Graphics Functions</a></dt><dt>X11/Xmu/Editres.h, <a class="indexterm" href="#id2654101">Participation in the Editres Protocol</a></dt><dt>X11/Xmu/Error.h, <a class="indexterm" href="#id2642414">Error Handler Functions</a></dt><dt>X11/Xmu/Initer.h, <a class="indexterm" href="#id2652075">Toolkit Convenience Functions</a></dt><dt>X11/Xmu/Lookup.h, <a class="indexterm" href="#id2648391">Keyboard Event Translation Functions</a></dt><dt>X11/Xmu/StdCmap.h, <a class="indexterm" href="#id2652280">Standard Colormap Functions</a></dt><dt>X11/Xmu/StdSel.h, <a class="indexterm" href="#id2645296">Selection Functions</a></dt><dt>X11/Xmu/SysUtil.h, <a class="indexterm" href="#id2642677">System Utility Functions</a></dt><dt>X11/Xmu/WidgetNode.h, <a class="indexterm" href="#id2653670">Widget Description Functions</a></dt><dt>X11/Xmu/WinUtil.h, <a class="indexterm" href="#id2642920">Window Utility Functions</a></dt><dt>X11/Xmu/Xct.h, <a class="indexterm" href="#id2650194">Compound Text Functions</a></dt><dt>XctCreate, <a class="indexterm" href="#XctCreate">Compound Text Functions</a></dt><dt>XctData, <a class="indexterm" href="#XctData">Compound Text Functions</a></dt><dt>XctNextItem, <a class="indexterm" href="#XctNextItem">Compound Text Functions</a></dt><dt>XctReset, <a class="indexterm" href="#XctReset">Compound Text Functions</a></dt><dt>XGetWMNormalHints, <a class="indexterm" href="#XmuUpdateMapHints">Window Utility Functions</a></dt><dt>XmuAddCloseDisplayHook, <a class="indexterm" href="#XmuAddCloseDisplayHook">CloseDisplay Hook Functions</a></dt><dt>XmuAddInitializer, <a class="indexterm" href="#XmuAddInitializer">Toolkit Convenience Functions</a></dt><dt>XmuAllStandardColormaps, <a class="indexterm" href="#XmuAllStandardColormaps">Standard Colormap Functions</a></dt><dt>XmuCallInitializers, <a class="indexterm" href="#XmuCallInitializers">Toolkit Convenience Functions</a></dt><dt>XmuClientWindow, <a class="indexterm" href="#XmuClientWindow">Window Utility Functions</a></dt><dt>XmuCompareISOLatin1, <a class="indexterm" href="#XmuCompareISOLatin1">Character Set Functions</a></dt><dt>XmuConvertStandardSelection, <a class="indexterm" href="#XmuConvertStandardSelection">Selection Functions</a></dt><dt>XmuCopyISOLatin1Lowered, <a class="indexterm" href="#XmuCopyISOLatin1Lowered">Character Set Functions</a></dt><dt>XmuCopyISOLatin1Uppered, <a class="indexterm" href="#XmuCopyISOLatin1Uppered">Character Set Functions</a></dt><dt>XmuCreateColormap, <a class="indexterm" href="#XmuCreateColormap">Standard Colormap Functions</a></dt><dt>XmuCreatePixmapFromBitmap, <a class="indexterm" href="#XmuCreatePixmapFromBitmap">Graphics Functions</a></dt><dt>XmuCreateStippledPixmap, <a class="indexterm" href="#XmuCreateStippledPixmap">Graphics Functions</a></dt><dt>XmuCursorNameToIndex, <a class="indexterm" href="#XmuCursorNameToIndex">Cursor Utility Functions</a></dt><dt>XmuCvtFunctionToCallback, <a class="indexterm" href="#XmuCvtFunctionToCallback">Type Converter Functions</a></dt><dt>XmuCvtStringToBackingStore, <a class="indexterm" href="#XmuCvtStringToBackingStore">Type Converter Functions</a></dt><dt>XmuCvtStringToBitmap, <a class="indexterm" href="#XmuCvtStringToBitmap">Type Converter Functions</a></dt><dt>XmuCvtStringToColorCursor, <a class="indexterm" href="#XmuCvtStringToColorCursor">Type Converter Functions</a></dt><dt>XmuCvtStringToCursor, <a class="indexterm" href="#XmuCvtStringToCursor">Type Converter Functions</a></dt><dt>XmuCvtStringToGravity, <a class="indexterm" href="#XmuCvtStringToGravity">Type Converter Functions</a></dt><dt>XmuCvtStringToJustify, <a class="indexterm" href="#XmuCvtStringToJustify">Type Converter Functions</a></dt><dt>XmuCvtStringToLong, <a class="indexterm" href="#XmuCvtStringToLong">Type Converter Functions</a></dt><dt>XmuCvtStringToOrientation, <a class="indexterm" href="#XmuCvtStringToOrientation">Type Converter Functions</a></dt><dt>XmuCvtStringToShapeStyle, <a class="indexterm" href="#XmuCvtStringToShapeStyle">Type Converter Functions</a></dt><dt>XmuCvtStringToWidget, <a class="indexterm" href="#XmuCvtStringToWidget">Type Converter Functions</a></dt><dt>XmuDeleteStandardColormap, <a class="indexterm" href="#XmuDeleteStandardColormap">Standard Colormap Functions</a></dt><dt>XmuDisplayQueue, <a class="indexterm" href="#XmuDisplayQueue">Display Queue Functions</a></dt><dt>XmuDQAddDisplay, <a class="indexterm" href="#XmuDQAddDisplay">Display Queue Functions</a></dt><dt>XmuDQCreate, <a class="indexterm" href="#XmuDQCreate">Display Queue Functions</a></dt><dt>XmuDQDestroy, <a class="indexterm" href="#XmuDQDestroy">Display Queue Functions</a></dt><dt>XmuDQLookupDisplay, <a class="indexterm" href="#XmuDQLookupDisplay">Display Queue Functions</a></dt><dt>XmuDQNDisplays, <a class="indexterm" href="#XmuDQNDisplays">Display Queue Functions</a></dt><dt>XmuDQRemoveDisplay, <a class="indexterm" href="#XmuDQRemoveDisplay">Display Queue Functions</a></dt><dt>XmuDrawLogo, <a class="indexterm" href="#XmuDrawLogo">Graphics Functions</a></dt><dt>XmuDrawRoundedRectangle, <a class="indexterm" href="#XmuDrawRoundedRectangle">Graphics Functions</a></dt><dt>XmuFillRoundedRectangle, <a class="indexterm" href="#XmuFillRoundedRectangle">Graphics Functions</a></dt><dt>XmuGetColormapAllocation, <a class="indexterm" href="#XmuGetColormapAllocation">Standard Colormap Functions</a></dt><dt>XmuGetHostname, <a class="indexterm" href="#XmuGetHostname">System Utility Functions</a></dt><dt>XmuLocateBitmapFile, <a class="indexterm" href="#XmuLocateBitmapFile">Graphics Functions</a></dt><dt>XmuLookupAPL, <a class="indexterm" href="#XmuLookupAPL">Keyboard Event Translation Functions</a></dt><dt>XmuLookupArabic, <a class="indexterm" href="#XmuLookupArabic">Keyboard Event Translation Functions</a></dt><dt>XmuLookupCloseDisplayHook, <a class="indexterm" href="#XmuLookupCloseDisplayHook">CloseDisplay Hook Functions</a></dt><dt>XmuLookupCyrillic, <a class="indexterm" href="#XmuLookupCyrillic">Keyboard Event Translation Functions</a></dt><dt>XmuLookupGreek, <a class="indexterm" href="#XmuLookupGreek">Keyboard Event Translation Functions</a></dt><dt>XmuLookupHebrew, <a class="indexterm" href="#XmuLookupHebrew">Keyboard Event Translation Functions</a></dt><dt>XmuLookupJISX0201, <a class="indexterm" href="#XmuLookupJISX0201">Keyboard Event Translation Functions</a></dt><dt>XmuLookupKana, <a class="indexterm" href="#XmuLookupKana">Keyboard Event Translation Functions</a></dt><dt>XmuLookupLatin1, <a class="indexterm" href="#XmuLookupLatin1">Keyboard Event Translation Functions</a></dt><dt>XmuLookupLatin2, <a class="indexterm" href="#XmuLookupLatin2">Keyboard Event Translation Functions</a></dt><dt>XmuLookupLatin3, <a class="indexterm" href="#XmuLookupLatin3">Keyboard Event Translation Functions</a></dt><dt>XmuLookupLatin4, <a class="indexterm" href="#XmuLookupLatin4">Keyboard Event Translation Functions</a></dt><dt>XmuLookupStandardColormap, <a class="indexterm" href="#XmuLookupStandardColormap">Standard Colormap Functions</a></dt><dt>XmuNCopyISOLatin1Lowered, <a class="indexterm" href="#XmuNCopyISOLatin1Lowered">Character Set Functions</a></dt><dt>XmuNCopyISOLatin1Uppered, <a class="indexterm" href="#XmuNCopyISOLatin1Uppered">Character Set Functions</a></dt><dt>XmuNewCvtStringToWidget, <a class="indexterm" href="#XmuNewCvtStringToWidget">Type Converter Functions</a></dt><dt>XmuReadBitmapData, <a class="indexterm" href="#XmuReadBitmapData">Graphics Functions</a></dt><dt>XmuReadBitmapDataFromFile, <a class="indexterm" href="#XmuReadBitmapDataFromFile">Graphics Functions</a></dt><dt>XmuReleaseStippledPixmap, <a class="indexterm" href="#XmuReleaseStippledPixmap">Graphics Functions</a></dt><dt>XmuRemoveCloseDisplayHook, <a class="indexterm" href="#XmuRemoveCloseDisplayHook">CloseDisplay Hook Functions</a></dt><dt>XmuReshapeWidget, <a class="indexterm" href="#XmuReshapeWidget">Type Converter Functions</a></dt><dt>XmuScreenOfWindow, <a class="indexterm" href="#XmuScreenOfWindow">Window Utility Functions</a></dt><dt>XmuSimpleErrorHandler, <a class="indexterm" href="#XmuSimpleErrorHandler">Error Handler Functions</a></dt><dt>XmuSnprintf, <a class="indexterm" href="#XmuSnprintf">System Utility Functions</a></dt><dt>XmuStandardColormap, <a class="indexterm" href="#XmuStandardColormap">Standard Colormap Functions</a></dt><dt>XmuUpdateMapHints, <a class="indexterm" href="#XmuUpdateMapHints">Window Utility Functions</a></dt><dt>XmuVisualStandardColormaps, <a class="indexterm" href="#XmuVisualStandardColormaps">Standard Colormap Functions</a></dt><dt>XmuWnNameToNode, <a class="indexterm" href="#XmuWnNameToNode">Widget Description Functions</a></dt><dt>XSetWMNormalHints, <a class="indexterm" href="#XmuUpdateMapHints">Window Utility Functions</a></dt><dt>XtGravity, <a class="indexterm" href="#XmuCvtStringToGravity">Type Converter Functions</a></dt><dt>XtJustify, <a class="indexterm" href="#XmuCvtStringToJustify">Type Converter Functions</a></dt><dt>XtOrientation, <a class="indexterm" href="#XmuCvtStringToOrientation">Type Converter Functions</a></dt></dl></div></div></div></div></body></html>

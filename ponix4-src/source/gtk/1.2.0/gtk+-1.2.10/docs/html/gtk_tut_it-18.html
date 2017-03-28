@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: I file rc di GTK</TITLE>
+ <LINK HREF="gtk_tut_it-19.html" REL=next>
+ <LINK HREF="gtk_tut_it-17.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc18" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-19.html">Avanti</A>
+<A HREF="gtk_tut_it-17.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc18">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s18">18. I file rc di GTK</A></H2>
+
+<P>GTK ha un suo modo di trattare le preferenze delle applicazioni, usando
+i file rc. Questi possono essere usati per scegliere i colori di quasi tutti
+i widget, e possono anche essere usati per inserire delle pixmap nello sfondo
+di alcuni widget.
+<P>
+<H2><A NAME="ss18.1">18.1 Funzioni per i file rc</A>
+</H2>
+
+<P>All'inizio della vostra applicazione dovrebbe esserci una chiamata a
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_rc_parse (char *filename);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>passando come parametro il nome del vostro file rc. Questo far&agrave; si che GTK
+analizzi tale file e usi le impostazioni di stile per i tipi di widget ivi
+definite.
+<P>Se si desidera avere un insieme speciale di widget che abbia uno stile diverso
+dagli altri, o qualsiasi altra divisione logica dei widget, si chiami
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_widget_set_name (GtkWidget *widget,
+                          gchar *name);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>passando un widget appena creato come primo argomento, e il nome che gli si
+vuole dare come secondo. Questo consentir&agrave; di cambiare gli attributi di
+questo widget per nome tramite il file rc.
+<P>Effettuando una chiamata come questa:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+button = gtk_button_new_with_label ("Special Button");
+gtk_widget_set_name (button, "special button");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>allora a questo bottone viene dato il nome ``special button'' ed esso pu&ograve; essere
+riferito per nome nel file rc come ``special button.GtkButton''. [&lt;--- Verificatemi!]
+<P>Il seguente esempio di file rc imposta le propriet&agrave; della finestra principale,
+e fa si che tutti i figli di questa finestra ereditino lo stile descritto
+dallo stile ``main button''. Il codice usato nell'applicazione &egrave;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+gtk_widget_set_name (window, "main window");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Lo stile viene definito nel file rc usando:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+widget "main window.*GtkButton*" style "main_button"
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>che assegna a tutti i widget GtkButton nella finestra principale lo stile
+``main_buttons'' secondo la definizione data nel file rc.
+<P>Come si pu&ograve; vedere, questo sistema &egrave; molto potente e flessibile. Usate la
+vostra immaginazione per trarre il massimo vantaggio da esso.
+<P>
+<H2><A NAME="ss18.2">18.2 Il formato dei file rc di GTK</A>
+</H2>
+
+<P>Nell'esempio che segue viene illustrato il formato del file GTK. Si tratta
+del file testgkrc dalla distribuzione del GTK, a cui sono stati aggiunti
+vari commenti e varie cose. Potete includere questa spiegazione nella
+vostra applicazione per consentire all'utente di personalizzarla finemente.
+<P>There are several directives to change the attributes of a widget.
+Ci sono diverse direttive per cambiare gli attributi di un widget.
+<UL>
+<LI>fg - Assegna il colore di primo piano di un widget.</LI>
+<LI>bg - Assegna il colore di sfondo di un widget.</LI>
+<LI>bg_pixmap - Inserisce nello sfondo di un widget una pixmap.</LI>
+<LI>font - Sceglie il font da usarsi con il dato widget.</LI>
+</UL>
+<P>Inoltre ci sono diversi stati in cui pu&ograve; trovarsi un widget, e si possono
+assegnare diversi colori, pixmap e font per ogni stato. Essi sono:
+<UL>
+<LI>NORMAL - Lo stato normale di un widget, quando il mouse non si trova su
+di esso, quando non &egrave; premuto, ecc.</LI>
+<LI>PRELIGHT (evidenziato)- Quando il mouse si trova sopra al widget
+verranno usati i colori assegnati per questo stato.</LI>
+<LI>ACTIVE (attivo) - Quando il widget &egrave; premuto o cliccato esso sar&agrave; attivo,
+e verranno usati gli attributi assegnati da questa etichetta.</LI>
+<LI>INSENSITIVE (insensibile)- Quando un widget viene reso insensibile,
+e non pu&ograve; essere attivato, prender&agrave; questi attributi.</LI>
+<LI>SELECTED (selezionato) - Quando un oggetto viene selezionato, prende
+questi attributi.</LI>
+</UL>
+<P>Quando si usano le parole chiave ``fg'' e ``bg'' per assegnare i colori dei 
+widget il formato &egrave;:
+<BLOCKQUOTE><CODE>
+<PRE>
+fg[&lt;STATE>] = { Rosso, Verde, Blu }
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Dove STATE &egrave; uno degli stati visti prima (PRELIGHT, ACTIVE ecc.), e Rosso,
+Verde e Blu sono valori nell'intervallo 0 - 1.0;  { 1.0, 1.0, 1.0 } rappresenta
+il bianco.
+Devono essere in formato float, o verranno visti come 0, sicch&eacute; un ``1'' diretto
+non funziona, deve essere ``1.0''. Uno ``0'' diretto va invece bene, poich&eacute; poco
+importa se non viene riconosciuto: valori non riconosciuti vengono considerati
+0.
+<P>bg_pixmap &egrave; molto simile al precedente, tranne per i colori che vengono
+sostituiti dal nome di un file.
+<P>pixmap_path &egrave; una lista di percorsi separati da ``:''. In questi percorsi vengono
+cercate le pixmap specificate.
+<P>La direttiva font &egrave; semplicemente:
+<BLOCKQUOTE><CODE>
+<PRE>
+font = "&lt;font name>"
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>dove l'unica parte complicata &egrave; immaginare la stringa del font. Allo scopo
+pu&ograve; servire usare xfontsel o una utilit&agrave; analoga.
+<P>``widget_class'' assegna lo stile di una classe di widget. Queste classi sono
+elencate nell'introduzione ai widget sulla gerarchia delle classi.
+<P>La direttiva ``widget'' assegna un insieme di widget dal nome specificato ad
+un dato stile, annullando qualsiasi stile assegnato per la data classe di widget.
+Questi widget vengono registrati nell'applicazione usando la chiamata
+gtk_widget_set_name(). Questo consente di specificare gli attributi di un
+widget singlarmente, piuttosto che assegnando gli attributi di un'intera classe
+di widget. E' opportuno documentare tutti questi widget speciali in modo che
+gli utenti possano personalizzarli.
+<P>Quando la parola chiave ``<CODE>parent</CODE>'' viene usata come un attributo, il
+widget erediter&agrave; gli attributi del suo genitore nell'applicazione.
+<P>Quando si definisce uno stile si possono assegnare gli attributi di uno
+stile definito precedentemente a quello nuovo.
+<BLOCKQUOTE><CODE>
+<PRE>
+style "main_button" = "button"
+{
+  font = "-adobe-helvetica-medium-r-normal--*-100-*-*-*-*-*-*"
+  bg[PRELIGHT] = { 0.75, 0, 0 }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questo esempio prende lo stile ``button'' e crea un nuovo stile 
+semplicemente cambiando il font e il colore di sfondo dello stato ``prelight''
+nello stile ``button''.
+<P>Naturalmente, molti di questi attributi non sono applicabili a tutti i widget.
+E' veramente un semplice problema di buon senso. Tutto quello che potrebbe
+applicarsi, dovrebbe.
+<P>
+<H2><A NAME="ss18.3">18.3 Esempio di file rc </A>
+</H2>
+
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+# pixmap_path "&lt;dir 1>:&lt;dir 2>:&lt;dir 3>:..."
+#
+pixmap_path "/usr/include/X11R6/pixmaps:/home/imain/pixmaps"
+#
+# style &lt;name> [= &lt;name>]
+# {
+#   &lt;option>
+# }
+#
+# widget &lt;widget_set> style &lt;style_name>
+# widget_class &lt;widget_class_set> style &lt;style_name>
+
+
+# Ecco una lista di tutti gli stati possibili. Si noti che alcuni non sono
+# applicabili a certi widget.
+#
+# NORMAL - Lo stato normale di un widget, quando il mouse non si trova su
+# di esso, quando non &egrave; premuto, ecc.
+#
+# PRELIGHT (evidenziato)- Quando il mouse si trova sopra al widget
+# verranno usati i colori assegnati per questo stato.
+#
+# ACTIVE (attivo) - Quando il widget &egrave; premuto o cliccato esso sar&agrave; attivo,
+# e verranno usati gli attributi assegnati da questa etichetta.
+#
+# INSENSITIVE (insensibile)- Quando un widget viene reso insensibile,
+# e non pu&ograve; essere attivato, prender&agrave; questi attributi.
+#
+# SELECTED (selezionato) - Quando un oggetto viene selezionato, prende
+# questi attributi.
+#
+# Dati questi stati, &egrave; possibile assegnare gli attributi dei widget in
+# ognuno di questi stati usando le seguenti direttive.
+#
+# fg - Assegna il colore di primo piano di un widget.
+# bg - Assegna il colore di sfondo di un widget.
+# bg_pixmap - Inserisce nello sfondo di un widget una pixmap.
+# font - Sceglie il font da usarsi con il dato widget.
+#
+
+# Questo &egrave; uno stile chiamato "button". Il nome non &egrave; veramente importante,
+# in quanto viene assegnato ai veri widget alla fine del file. 
+
+style "window"
+{
+  # Questo inserisce nella spaziatura attorno alla finestra la pixmap
+  # specificata.
+  #bg_pixmap[&lt;STATE>] = "&lt;pixmap filename>"
+  bg_pixmap[NORMAL] = "warning.xpm"
+}
+
+style "scale"
+{
+  # Mette il colore di primo piano (il colore del font) a rosso nello
+  # stato "NORMAL".
+  
+  fg[NORMAL] = { 1.0, 0, 0 }
+  
+  # Inserisce nello sfondo del gadget la stessa pixmap usata dal suo genitore.
+  bg_pixmap[NORMAL] = "&lt;parent>"
+}
+
+style "button"
+{
+  # Questo mostra tutti i possibili stati per un bottone. L'unico che
+  # non &egrave; applicabile &egrave; lo stato "SELECTED".
+  
+  fg[PRELIGHT] = { 0, 1.0, 1.0 }
+  bg[PRELIGHT] = { 0, 0, 1.0 }
+  bg[ACTIVE] = { 1.0, 0, 0 }
+  fg[ACTIVE] = { 0, 1.0, 0 }
+  bg[NORMAL] = { 1.0, 1.0, 0 }
+  fg[NORMAL] = { .99, 0, .99 }
+  bg[INSENSITIVE] = { 1.0, 1.0, 1.0 }
+  fg[INSENSITIVE] = { 1.0, 0, 1.0 }
+}
+
+# In questi esempio ereditiamo gli attributi dello stile "button" e poi
+# alteriamo il font e il colore di sfondo quando evidenziato per creare
+# un nuovo stile "main_button".
+
+style "main_button" = "button"
+{
+  font = "-adobe-helvetica-medium-r-normal--*-100-*-*-*-*-*-*"
+  bg[PRELIGHT] = { 0.75, 0, 0 }
+}
+
+style "toggle_button" = "button"
+{
+  fg[NORMAL] = { 1.0, 0, 0 }
+  fg[ACTIVE] = { 1.0, 0, 0 }
+  
+  # Questo seleziona come pixmap di sfondo per il toggle_button quella del
+  # suo widget genitore (definita nell'applicazione).
+  bg_pixmap[NORMAL] = "&lt;parent>"
+}
+
+style "text"
+{
+  bg_pixmap[NORMAL] = "marble.xpm"
+  fg[NORMAL] = { 1.0, 1.0, 1.0 }
+}
+
+style "ruler"
+{
+  font = "-adobe-helvetica-medium-r-normal--*-80-*-*-*-*-*-*"
+}
+
+# pixmap_path "~/.pixmaps"
+
+# Queste assegnano ai tipi di widget gli stili definiti prima.
+# I tipi di widget sono elencati nella gerarchia delle classi, ma probabilmente
+# dovrebbero essere elencati in questo documento come riferimento per l'utente.
+
+widget_class "GtkWindow" style "window"
+widget_class "GtkDialog" style "window"
+widget_class "GtkFileSelection" style "window"
+widget_class "*Gtk*Scale" style "scale"
+widget_class "*GtkCheckButton*" style "toggle_button"
+widget_class "*GtkRadioButton*" style "toggle_button"
+widget_class "*GtkButton*" style "button"
+widget_class "*Ruler" style "ruler"
+widget_class "*GtkText" style "text"
+
+# Questo assegna lo stile main_button a tutti i bottoni che sono figli della
+# "main window" (finestra principale). Questi devono essere documenati per
+# potersene avvantaggiare.
+widget "main window.*GtkButton*" style "main_button"
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-19.html">Avanti</A>
+<A HREF="gtk_tut_it-17.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc18">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,49 @@
+#!/bin/sh
+
+#echo "fbpanel configuration script"
+
+help () {
+    echo "supported options are:"
+    echo "--help - print this help and exit"
+    echo "--prefix=<path> specify install path. "
+    echo "       <path>/bin - will hold all binaries"
+    echo "       <path>/share/fbpanel - config files, pixmaps etc"
+    echo "       default <path> is /usr"
+    echo "--devel - enable devel mode: no optimization + debug symbols"
+    echo "--cpu=[on|off] - enable linux cpu monitor plugin"
+}
+
+PREFIX="/usr"
+while [ $# -gt 0 ]; do
+    case $1 in
+        --help)
+            help
+            exit 0
+            ;;
+        --prefix=*)
+            PREFIX=`echo $1 | sed 's/--prefix=//'`
+            ;;
+	--devel)
+	    DEVEL=true
+	    ;;
+	--cpu=*)
+	    PLUGIN_CPU=`echo $1 | sed 's/--cpu=//'`
+	    ;;
+        *)
+            echo "unknwon option $1"
+            help
+            exit 1
+            ;;
+    esac
+    shift
+done
+echo "Installation prefix is $PREFIX"
+echo "updating config.h"
+echo "//created by ./configure script" > config.h
+echo "#define PREFIX \"$PREFIX\"" >> config.h
+
+
+echo "updating Makefile"
+echo "PREFIX:=$PREFIX" > Makefile.config
+echo "DEVEL:=$DEVEL" >> Makefile.config
+echo "PLUGIN_CPU:=$PLUGIN_CPU" >> Makefile.config

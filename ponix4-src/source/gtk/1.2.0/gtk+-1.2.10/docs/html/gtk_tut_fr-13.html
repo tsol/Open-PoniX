@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Widget EventBox </TITLE>
+ <LINK HREF="gtk_tut_fr-14.html" REL=next>
+ <LINK HREF="gtk_tut_fr-12.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc13" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-14.html">Page suivante</A>
+<A HREF="gtk_tut_fr-12.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc13">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="sec_The_EventBox_Widget"></A> <A NAME="s13">13. Widget EventBox </A></H2>
+
+<P>Il n'est disponible que dans <EM>gtk+970916.tar.gz</EM> et les
+distributions ultérieures.  
+<P> Certains widgets GTK n'ont pas de
+fenêtre X associée, il se dessinent donc sur leurs parents. À cause de
+cela, ils ne peuvent recevoir d'événements et, s'ils ont une taille
+incorrecte, ils ne peuvent pas se mettre en place correctement&nbsp;: on peut
+alors avoir des surimpressions douteuses, etc. Si vous avez besoin de
+ces widgets, <EM>EventBox</EM> est fait pour vous.
+<P>Au premier abord, le widget <EM>EventBox</EM> peut apparaître comme
+totalement dénué d'intérêt. Il ne dessine rien à l'écran et ne répond
+à aucun évenement. Cependant, il joue un rôle - il fournit une fenêtre
+X pour son widget fils. Ceci est important car de nombreux widgets GTK
+n'ont pas de fenêtre X associée. Ne pas avoir de fenêtre permet
+d'économiser de la mémoire mais a aussi quelques inconvénients. Un
+widget sans fenêtre ne peut recevoir d'événement, et ne réalise aucune
+mise en place de ce qu'il contient. Bien que le nom « EventBox »
+insiste sur la fonction de gestion d'événement, le widget peut aussi
+être utilisé pour la mise en place (et plus... voir l'exemple
+ci-dessous).
+<P>
+<P>Pour créer un widget EventBox, on utilise&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_event_box_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Un widget fils peut alors être ajouté à cet <EM>EventBox</EM>&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_container_add (GTK_CONTAINER(event_box), widget);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>L'exemple suivant montre l'utilisation d'un <EM>EventBox</EM> - un label
+est créé et mis en place sur une petite boîte, et configuré pour qu'un
+clic souris sur le label provoque la fin du programme.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+
+int 
+main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *event_box;
+    GtkWidget *label;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    gtk_window_set_title (GTK_WINDOW (window), "Event Box");
+    
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+    
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+    
+    /* Création d'un EventBox et ajout de celui-ci dans la fenêtre. */
+    
+    event_box = gtk_event_box_new ();
+    gtk_container_add (GTK_CONTAINER(window), event_box);
+    gtk_widget_show (event_box);
+    
+    /* Création d'un long label */
+    
+    label = gtk_label_new ("Cliquez ici pour quitter, quitter, quitter, quitter, quitter");
+    gtk_container_add (GTK_CONTAINER (event_box), label);
+    gtk_widget_show (label);
+    
+    /* Placement serré. */
+
+    gtk_widget_set_usize (label, 110, 20);
+    
+    /* Attachement d'une action à celui-ci. */
+
+    gtk_widget_set_events (event_box, GDK_BUTTON_PRESS_MASK);
+    gtk_signal_connect (GTK_OBJECT(event_box), "button_press_event",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+    
+    /* Encore une fois, vous avez besoin d'une fenêtre X pour... */
+    
+    gtk_widget_realize (event_box);
+    gdk_window_set_cursor (event_box->window, gdk_cursor_new (GDK_HAND1));
+    
+    gtk_widget_show (window);
+    
+    gtk_main ();
+    
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-14.html">Page suivante</A>
+<A HREF="gtk_tut_fr-12.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc13">Table des matières</A>
+</BODY>
+</HTML>

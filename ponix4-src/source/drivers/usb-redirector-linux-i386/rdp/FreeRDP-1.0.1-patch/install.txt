@@ -1,0 +1,32 @@
+1. Copy channels directory and usbrdr.patch to FreeRDP source code directory.
+
+2. Run:
+   patch -p3 -i usbrdr.patch
+
+3. Compile and install FreeRDP.
+
+   See FreeRDP compilation guide at https://github.com/FreeRDP/FreeRDP/wiki/Compilation
+   It is not necessary to install the whole FreeRDP at this step if you already
+   have it installed. It is enough to copy ./channels/usbrdr/usbrdr.so plugin
+   to /usr/local/lib/freerdp directory.
+
+4. Start FreeRDP with '--plugin usbrdr' option.
+
+===============================================================================
+
+NOTES ON FREERDP VERSION SUPPORT
+
+- FreeRDP v.1.0.1
+  Due to an issue in this version of FreeRDP, you must start it with --no-fastpath
+  switch, otherwise it will crash during USB activity.
+
+- FreeRDP v.1.0
+  This version does not work with USB Redirector because of the bug in 
+  FreeRDP's TCP transmission code. FreeRDP will crash on large transfers,
+  which happen when, for example, redirecting USB flash drives.
+
+  You can apply the following changes to FreeRDP source code to fix this bug:
+  https://github.com/FreeRDP/FreeRDP/commit/609d1774124733c996c8e25e188f3238c0eff8a1
+
+- FreeRDP prior v.1.0
+  Not supported by USB Redirector

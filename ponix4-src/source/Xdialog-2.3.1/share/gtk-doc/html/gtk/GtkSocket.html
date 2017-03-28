@@ -1,0 +1,202 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>GtkSocket</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="PlugSocket.html" title="Cross-process Embedding"><link rel="previous" href="GtkPlug.html" title="GtkPlug"><link rel="next" href="SpecialObjects.html" title="Special-purpose features"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="GtkPlug.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="PlugSocket.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="SpecialObjects.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="GtkSocket"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">GtkSocket</span></h2><p>GtkSocket &#8212; Container for widgets from other processes.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <a href="GtkSocket.html#GtkSocket-struct">GtkSocket</a>;
+<a href="GtkWidget.html" title="GtkWidget">GtkWidget</a>*  <a href="GtkSocket.html#gtk-socket-new">gtk_socket_new</a>                  (void);
+void        <a href="GtkSocket.html#gtk-socket-steal">gtk_socket_steal</a>                (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket_,
+                                             <a
+href="../gdk/gdk-Event-Structures.html#GdkNativeWindow"
+>GdkNativeWindow</a> wid);
+void        <a href="GtkSocket.html#gtk-socket-add-id">gtk_socket_add_id</a>               (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket_,
+                                             <a
+href="../gdk/gdk-Event-Structures.html#GdkNativeWindow"
+>GdkNativeWindow</a> window_id);
+<a
+href="../gdk/gdk-Event-Structures.html#GdkNativeWindow"
+>GdkNativeWindow</a> <a href="GtkSocket.html#gtk-socket-get-id">gtk_socket_get_id</a>           (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket_);
+
+
+</pre></div><div class="refsect1" lang="en"><h2>Object Hierarchy</h2><pre class="synopsis">
+
+  <a
+href="../gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="GtkObject.html" title="GtkObject">GtkObject</a>
+         +----<a href="GtkWidget.html" title="GtkWidget">GtkWidget</a>
+               +----<a href="GtkContainer.html" title="GtkContainer">GtkContainer</a>
+                     +----GtkSocket
+</pre></div><div class="refsect1" lang="en"><h2>Implemented Interfaces</h2><p>
+GtkSocket implements
+ AtkImplementorIface.</p></div><div class="refsect1" lang="en"><h2>Signal Prototypes</h2><pre class="synopsis">
+
+"<a href="GtkSocket.html#GtkSocket-plug-added">plug-added</a>"
+            void        user_function      (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket,
+                                            <a
+href="../glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+"<a href="GtkSocket.html#GtkSocket-plug-removed">plug-removed</a>"
+            <a
+href="../glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    user_function      (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket,
+                                            <a
+href="../glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+Together with <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a>, <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> provides the ability
+to embed widgets from one process into another process
+in a fashion that is transparent to the user. One
+process creates a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> widget and, passes the
+that widget's window ID to the other process, 
+which then creates a <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a> with that window ID.
+Any widgets contained in the <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a> then will appear
+inside the first applications window.
+</p><p>
+The socket's window ID is obtained by using
+<a href="GtkSocket.html#gtk-socket-get-id"><tt class="function">gtk_socket_get_id()</tt></a>. Before using this function,
+the socket must have been realized, and for hence,
+have been added to its parent.
+
+</p><div class="example"><a name="id4513266"></a><p class="title"><b>Example 1. Obtaining the window ID of a socket.</b></p><pre class="programlisting">
+GtkWidget *socket = gtk_socket_new ();
+gtk_widget_show (socket);
+gtk_container_add (GTK_CONTAINER (parent), socket);
+
+/* The following call is only necessary if one of
+ * the ancestors of the socket is not yet visible.
+ */
+gtk_widget_realize (socket);
+g_print ("The ID of the sockets window is %<span class="type">x</span>\n",
+         gtk_socket_get_id (socket));
+</pre></div><p>
+</p><p>
+Note that if you pass the window ID of the socket to another
+process that will create a plug in the socket, you 
+must make sure that the socket widget is not destroyed
+until that plug is created. Violating this rule will
+cause unpredictable consequences, the most likely
+consequence being that the plug will appear as a 
+separate toplevel window. You can check if the plug
+has been created by examining the
+<i class="structfield"><tt>plug_window</tt></i> field of the
+<a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> structure. If this field is non-<tt class="literal">NULL</tt>, 
+then the plug has been successfully created inside
+of the socket.
+</p><p>
+When GTK+ is notified that the embedded window has been
+destroyed, then it will destroy the socket as well. You
+should always, therefore, be prepared for your sockets
+to be destroyed at any time when the main event loop
+is running.
+</p><p>
+The communication between a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> and a <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a> follows the 
+<a href="http://www.freedesktop.org/standards/xembed.html" target="_top">XEmbed</a>
+protocol. This protocol has also been implemented in other toolkits, e.g.  
+<span class="application">Qt</span>, allowing the same level of integration
+when embedding a <span class="application">Qt</span> widget in GTK or vice versa.</p><p>
+A socket can also be used to swallow arbitrary 
+pre-existing top-level windows using <a href="GtkSocket.html#gtk-socket-steal"><tt class="function">gtk_socket_steal()</tt></a>,
+though the integration when this is done will not be as close
+as between a <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a> and a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>.</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="GtkSocket-struct"></a>struct GtkSocket</h3><a class="indexterm" name="id4513605"></a><pre class="programlisting">struct GtkSocket;</pre><p>
+The <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> structure contains the <i class="structfield"><tt>plug_window</tt></i>
+field.  (This field should be considered read-only. It should
+never be set by an application.)
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="gtk-socket-new"></a>gtk_socket_new ()</h3><a class="indexterm" name="id4513652"></a><pre class="programlisting"><a href="GtkWidget.html" title="GtkWidget">GtkWidget</a>*  gtk_socket_new                  (void);</pre><p>
+Create a new empty <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>.</p><p>
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>  the new <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="gtk-socket-steal"></a>gtk_socket_steal ()</h3><a class="indexterm" name="id4513732"></a><pre class="programlisting">void        gtk_socket_steal                (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket_,
+                                             <a
+href="../gdk/gdk-Event-Structures.html#GdkNativeWindow"
+>GdkNativeWindow</a> wid);</pre><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p><tt class="literal">gtk_socket_steal</tt> is deprecated and should not be used in newly-written code.</p></div><p>
+Reparents a pre-existing toplevel window into a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>. This is
+meant to embed clients that do not know about embedding into a
+<a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>, however doing so is inherently unreliable, and using
+this function is not recommended.
+</p><p>
+The <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> must have already be added into a toplevel window
+ before you can make this call.</p><p>
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>socket_</tt></i> :</span></td><td> a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>wid</tt></i> :</span></td><td> the window ID of an existing toplevel window.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="gtk-socket-add-id"></a>gtk_socket_add_id ()</h3><a class="indexterm" name="id4513890"></a><pre class="programlisting">void        gtk_socket_add_id               (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket_,
+                                             <a
+href="../gdk/gdk-Event-Structures.html#GdkNativeWindow"
+>GdkNativeWindow</a> window_id);</pre><p>
+Adds an XEMBED client, such as a <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a>, to the <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>.  The
+client may be in the same process or in a different process. 
+</p><p>
+To embed a <a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a> in a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>, you can either create the
+<a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a> with <tt class="literal">gtk_plug_new (0)</tt>, call 
+<a href="GtkPlug.html#gtk-plug-get-id"><tt class="function">gtk_plug_get_id()</tt></a> to get the window ID of the plug, and then pass that to the
+<a href="GtkSocket.html#gtk-socket-add-id"><tt class="function">gtk_socket_add_id()</tt></a>, or you can call <a href="GtkSocket.html#gtk-socket-get-id"><tt class="function">gtk_socket_get_id()</tt></a> to get the
+window ID for the socket, and call <a href="GtkPlug.html#gtk-plug-new"><tt class="function">gtk_plug_new()</tt></a> passing in that
+ID.
+</p><p>
+The <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> must have already be added into a toplevel window
+ before you can make this call.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>socket_</tt></i> :</span></td><td> a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>window_id</tt></i> :</span></td><td> the window ID of a client participating in the XEMBED protocol.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="gtk-socket-get-id"></a>gtk_socket_get_id ()</h3><a class="indexterm" name="id4514124"></a><pre class="programlisting"><a
+href="../gdk/gdk-Event-Structures.html#GdkNativeWindow"
+>GdkNativeWindow</a> gtk_socket_get_id           (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket_);</pre><p>
+Gets the window ID of a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> widget, which can then
+be used to create a client embedded inside the socket, for
+instance with <a href="GtkPlug.html#gtk-plug-new"><tt class="function">gtk_plug_new()</tt></a>. 
+</p><p>
+The <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> must have already be added into a toplevel window 
+before you can make this call.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>socket_</tt></i> :</span></td><td> a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>.
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> the window ID for the socket
+</td></tr></tbody></table></div></div></div><div class="refsect1" lang="en"><h2>Signals</h2><div class="refsect2" lang="en"><h3><a name="GtkSocket-plug-added"></a>The "plug-added" signal</h3><pre class="programlisting">void        user_function                  (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket,
+                                            <a
+href="../glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre><p>
+This signal is emitted when a client is successfully
+added to the socket.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>socket</tt></i> :</span></td><td>the object which received the signal.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>user_data</tt></i> :</span></td><td>user data set when the signal handler was connected.</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GtkSocket-plug-removed"></a>The "plug-removed" signal</h3><pre class="programlisting"><a
+href="../glib/glib-Basic-Types.html#gboolean"
+>gboolean</a>    user_function                  (<a href="GtkSocket.html" title="GtkSocket">GtkSocket</a> *socket,
+                                            <a
+href="../glib/glib-Basic-Types.html#gpointer"
+>gpointer</a> user_data);</pre><p>
+This signal is emitted when a client is removed from the socket. The
+default action is to destroy the <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a> widget, so if you want to
+reuse it you must add a signal handler that returns <tt class="literal">TRUE</tt>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>socket</tt></i> :</span></td><td>the object which received the signal.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>user_data</tt></i> :</span></td><td>user data set when the signal handler was connected.</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>
+</td></tr></tbody></table></div></div></div><div class="refsect1" lang="en"><h2>See Also</h2><p>
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="GtkPlug.html" title="GtkPlug"><span class="type">GtkPlug</span></a></span></td><td><p>the widget that plugs into a <a href="GtkSocket.html" title="GtkSocket"><span class="type">GtkSocket</span></a>.</p></td></tr><tr><td><span class="term"><a href="http://www.freedesktop.org/standards/xembed.html" target="_top">XEmbed</a></span></td><td><p>the XEmbed Protocol Specification.</p></td></tr></tbody></table></div><p>
+</p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="GtkPlug.html"><b>&lt;&lt; GtkPlug</b></a></td><td align="right"><a accesskey="n" href="SpecialObjects.html"><b>Special-purpose features &gt;&gt;</b></a></td></tr></table></body></html>

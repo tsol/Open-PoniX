@@ -1,0 +1,101 @@
+'\" t
+.\"     Title: xmlif
+.\"    Author: Eric S. Raymond <esr@snark.thyrsus.com>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: April 2009
+.\"    Manual: xmlif
+.\"    Source: Linux
+.\"  Language: English
+.\"
+.TH "XMLIF" "1" "April 2009" "Linux" "xmlif"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+xmlif \- conditional processing instructions for XML
+.SH "SYNOPSIS"
+.HP \w'\fBxmlif\fR\ 'u
+\fBxmlif\fR [attrib=value...]
+.SH "DESCRIPTION"
+.PP
+xmlif
+filters XML according to conditionalizing markup\&. This can be useful for formatting one of several versions of an XML document depending on conditions passed to the command\&.
+.PP
+Attribute/value pairs from the command line are matched against the attributes associated with certain processing instructions in the document\&. The instructions are
+<?xmlif if?>
+and its inverse
+<?xmlif if not?>,
+<?xmlif elif?>
+and its inverse
+<?xmlif elif not?>,
+<?xmlif else?>, and
+<?xmlif fi?>\&.
+.PP
+Argument/value pairs given on the command line are checked against the value of corresponding attributes in the conditional processing instructions\&. An `attribute match\*(Aq happens if an attribute occurs in both the command\-line arguments and the tag, and the values match\&. An `attribute mismatch\*(Aq happens if an attribute occurs in both the command\-line arguments and the tag, but the values do not match\&.
+.PP
+Spans between
+<?xmlif if?>
+or
+<?xmlif elif?>
+and the next conditional processing instruction at the same nesting level are passed through unaltered if there is at least one attribute match and no attribute mismatch; spans between
+<?xmlif if not?>
+and
+<?xmlif elif not?>
+and the next conditional processing instruction are passed otherwise\&. Spans between
+<?xmlif else?>
+and the next conditional\-processing tag are passed through only if no previous span at the same level has been passed through\&.
+<?xmlif if?>
+and
+<?xmlif fi?>
+(and their `not\*(Aq variants) change the current nesting level;
+<?xmlif else?>
+and
+<?xmlif elif?>
+do not\&.
+.PP
+All these processing instructions will be removed from the output produced\&. Aside from the conditionalization, all other input is passed through untouched; in particular, entity references are not resolved\&.
+.PP
+Value matching is by string equality, except that "|" in an attribute value is interpreted as an alternation character\&. Thus, saying foo=\*(Aqred|blue\*(Aq on the command line enables conditions red and blue\&. Saying color=\*(Aqblack|white\*(Aq in a tag matches command\-line conditions color=\*(Aqblack\*(Aq and color=\*(Aqwhite\*(Aq\&.
+.PP
+Here is an example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Always issue this text\&.
+<?xmlif if condition=\*(Aqhtml\*(Aq?>
+Issue this text if \*(Aqcondition=html\*(Aq is given on the command line\&.
+<?xmlif elif condition=\*(Aqpdf|ps\*(Aq?>
+Issue this text if \*(Aqcondition=pdf\*(Aq or \*(Aqcondition=ps\*(Aq
+is given on the command line\&.
+<?xmlif else?>
+Otherwise issue this text\&.
+<?xmlif fi?>
+Always issue this text\&.
+.fi
+.if n \{\
+.RE
+.\}
+.SH "AUTHOR"
+.PP
+\fBEric S\&. Raymond\fR <\&esr@snark\&.thyrsus\&.com\&>
+.RS 4
+Author of xmlif program
+.RE

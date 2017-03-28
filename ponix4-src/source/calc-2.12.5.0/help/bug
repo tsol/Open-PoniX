@@ -1,0 +1,187 @@
+If you notice something wrong, strange or broken, try rereading:
+
+   README.FIRST
+   HOWTO.INSTALL
+   BUGS (this file)
+
+If that does not help, cd to the calc source directory and try:
+
+   make check
+
+Look at the end of the output, it should say something like:
+
+    9998: passed all tests  /\../\
+    9999: Ending regression tests
+
+If it does not, then something is really broken!
+
+If you made and modifications to calc beyond the simple Makefile
+configuration, try backing them out and see if things get better.
+
+To be sure that your version of calc is up to date, check out:
+
+	http://www.isthe.com/chongo/tech/comp/calc/calc-download.html
+
+The calc web site is located at:
+
+	http://www.isthe.com/chongo/tech/comp/calc/index.html
+
+=-=
+
+If you have tried all of the above and things still are not right,
+then it may be time to send in a bug report.  You can send bug
+and bug fixes reports to:
+
+	calc-bug-report at asthe dot com
+
+	NOTE: Remove spaces and replace 'at' with @, 'dot' with .
+
+    This replaces the old calc-bugs at asthe dot com address.
+
+    To be sure we see your EMail reporting a calc bug, please use the
+    following phase in your EMail Subject line:
+
+	calc bug report
+
+    That phrase in your subject line will help ensure your request
+    will get past our anti-spam filters.  You may have additional
+    words in your subject line.
+
+    However, you may find it more helpful to simply subscribe
+    to the calc-tester mailing list (see below) and then to
+    send your report to that mailing list as a wider set calc
+    testers may be able to help you.
+
+When you send your report, please include the following information:
+
+    * a description of the problem
+    * the version of calc you are using (if you cannot get calc
+      to run, then send us the 4 #define lines from version.c)
+    * if you modified calc from an official patch, send me the mods you made
+    * the type of system you were using
+    * the type of compiler you were using
+    * any compiler warnings or errors that you saw
+    * cd to the calc source directory, and type:
+
+	make debug > debug.out 2>&1		(sh, ksh, bash users)
+	make debug >& debug.out			(csh, tcsh users)
+
+      and send the contents of the 'debug.out' file.
+
+Stack traces from core dumps are useful to send as well.
+
+Fell free to use the above address to send in big fixes (in the form
+of a context diff patch).
+
+=-=
+
+Known bugs:
+
+    The output of the alg_config.cal resource file is bogus.
+    We would welcome a replacement for this code.
+
+    We are sure some more bugs exist.  When you find them, please let
+    us know!  See the above for details on how to report and were to
+    EMail your bug reports and hopefully patches to fix them.
+
+=-=
+
+mis-features in calc:
+
+    Some problems are not bugs but rather mis-features / things that could
+    work better.  The following is a list of mis-features that should be
+    addressed and improved someday.
+
+    * When statement is of the form { ... }, the leading { MUST BE ON
+      THE SAME LINE as the if, for, while or do keyword.
+
+      This works as expected:
+
+	if (expr) {
+	    ...
+	}
+
+      However this WILL NOT WORK AS EXPECTED:
+
+	if (expr)
+	{
+	    ...
+	}
+
+      This needs to be changed.  See also "help statement", "help unexpected",
+      and "help todo".
+
+    * The chi.cal resource file does not work well with odd degrees
+      of freedom.  Can someone improve this algorithm?
+
+    * The intfile.cal resource file reads and writes big or little Endian
+      integers to/from files the hard way.  It does NOT use blkcpy.  The
+      following code:
+
+	i = (ord("\n") << 16) | (ord("i") << 8) | ord("H")
+	b = blk()
+	copy(i, b)
+	fd = fopen("file", "w")
+	copy(b, fd);
+	fclose(fd)
+
+      will write an extra NUL octet to the file.  Where as:
+
+	read intfile
+	i = (ord("\n") << 16) | (ord("i") << 8) | ord("H")
+	be2file(i, "file2")
+
+      will not.
+
+=-=
+
+To subscribe to the calc-tester mailing list, visit the following URL:
+
+	http://www.isthe.com/chongo/tech/comp/calc/calc-tester.html
+
+    This is a low volume moderated mailing list.
+
+    This mailing list replaces calc-tester at asthe dot com list.
+
+    If you need a human to help you with your mailing list subscription,
+    please send EMail to our special:
+
+	calc-tester-maillist-help at asthe dot com
+
+	NOTE: Remove spaces and replace 'at' with @, 'dot' with .
+
+    address.  To be sure we see your EMail asking for help with your
+    mailing list subscription, please use the following phase in your
+    EMail Subject line:
+
+	calc tester mailing list help
+
+    That phrase in your subject line will help ensure your
+    request will get past our anti-spam filters.  You may have
+    additional words in your subject line.
+
+## Copyright (C) 1999-2014  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.5 $
+## @(#) $Id: BUGS,v 30.5 2014/10/12 12:23:43 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/RCS/BUGS,v $
+##
+## Under source code control:	1994/03/18 14:06:13
+## File existed as early as:	1994
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

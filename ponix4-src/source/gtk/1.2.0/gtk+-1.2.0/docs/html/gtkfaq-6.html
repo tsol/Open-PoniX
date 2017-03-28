@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.7">
+ <TITLE>GTK+ FAQ: About glib</TITLE>
+ <LINK HREF="gtkfaq-7.html" REL=next>
+ <LINK HREF="gtkfaq-5.html" REL=previous>
+ <LINK HREF="gtkfaq.html#toc6" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtkfaq-7.html">Next</A>
+<A HREF="gtkfaq-5.html">Previous</A>
+<A HREF="gtkfaq.html#toc6">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s6">6. About glib</A></H2>
+
+<H2><A NAME="ss6.1">6.1 What is glib?</A>
+</H2>
+
+<P>glib is a library of useful functions and definitions available for use 
+when creating GDK and GTK applications. It provides replacements for some
+standard libc functions, such as malloc, which are buggy on some systems.
+<P>It also provides routines for handling:
+<UL>
+<LI>Doubly Linked Lists</LI>
+<LI>Singly Linked Lists</LI>
+<LI>Timers</LI>
+<LI>String Handling</LI>
+<LI>A Lexical Scanner</LI>
+<LI>Error Functions</LI>
+</UL>
+<P>         
+<P>
+<H2><A NAME="ss6.2">6.2 Why use g_print, g_malloc, g_strdup and fellow glib functions ? </A>
+</H2>
+
+<P>Thanks to Tim Janik who wrote to gtk-list: (slightly modified)
+<BLOCKQUOTE>
+Regarding g_malloc(), g_free() and siblings, these functions are much safer
+than thier libc equivalences.  For example, g_free() just returns if called 
+with NULL.  Also, if USE_DMALLOC is defined, the definition for these 
+functions changes (in glib.h) to use MALLOC(), FREE() etc...  If MEM_PROFILE
+or MEM_CHECK are defined, there are even small statistics made counting
+the used block sizes (shown by g_mem_profile() / g_mem_check()).
+<P>Considering the fact that glib provides an interface for memory chunks
+to save space if you have lots of blocks that are always the same size
+and to mark them ALLOC_ONLY if needed, it is just straight forward to
+create a small saver (debug able) wrapper around the normal malloc/free
+stuff as well - just like gdk covers Xlib. ;)
+<P>Using g_error() and g_warning() inside of applications like the GIMP
+that fully rely on gtk even gives the opportunity to pop up a window
+showing the messages inside of a gtk window with your own handler
+(by using g_set_error_handler()) along the lines of gtk_print()
+(inside of gtkmain.c).
+</BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtkfaq-7.html">Next</A>
+<A HREF="gtkfaq-5.html">Previous</A>
+<A HREF="gtkfaq.html#toc6">Contents</A>
+</BODY>
+</HTML>

@@ -1,0 +1,328 @@
+This is gdk.info, produced by Makeinfo version 3.12f from gdk.texi.
+
+   This file documents GDK, the General Drawing Kit
+
+   Copyright (C) 1996 Peter Mattis
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by Peter Mattis.
+
+INFO-DIR-SECTION User Interface Toolkit
+START-INFO-DIR-ENTRY
+* GDK: (gdk).		The General Drawing Kit
+END-INFO-DIR-ENTRY
+
+
+File: gdk.info,  Node: Top,  Next: Copying,  Prev: (dir),  Up: (dir)
+
+The General Drawing Kit
+***********************
+
+   This is edition 1.0 of the GDK documentation, 16 May 1996.
+
+* Menu:
+
+* Copying::                     Your rights.
+* Overview::                    What is GDK?
+* Initialization::              Initialization and exit.
+* Events::                      Event handling.
+* Visuals::                     Understanding and using visuals.
+* Windows::                     Creating and using windows.
+* Graphics Contexts::           Creating and modifying GCs.
+* Pixmaps::                     Creating pixmaps.
+* Images::                      Creating images.
+* Color::                       Specifying color.
+* Fonts::                       Creating fonts.
+* Drawing::                     Drawing commands.
+* XInput Support::              Using extended devices.
+* Miscellany::                  Other stuff.
+* Examples::                    Using GDK.
+* Function Index::              Index of functions
+* Concept Index::               Index of concepts
+
+
+File: gdk.info,  Node: Copying,  Next: Overview,  Prev: Top,  Up: Top
+
+Copying
+*******
+
+   GDK is "free"; this means that everyone is free to use it and free
+to redestribute it on a free basis. GDK is not in the public domain; it
+is copyrighted and there are restrictions on its distribution, but these
+restrictions are designed to permit everything that a good cooperating
+citizen would want to do. What is not allowed is to try to prevent
+others from further sharing any version of GDK that they might get from
+you.
+
+   Specifically, we want to make sure that you have the right to give
+away copies of GDK, that you receive source code or else can get it if
+you want it, that you can change GDK or use pieces of it in new free
+programs, and that you know you can do these things.
+
+   To make sure that everyone has such rights, we have to forbid you to
+deprive anyone else of these rights. For example, if you distribute
+copies of GDK, you must give the recipients all the rights that you
+have. You must make sure that they, too, receive or can get the source
+code. And you must tell them their rights.
+
+   Also, for my own protection, we must make certain that everyone finds
+out that there is no warranty for GDK. If GDK is modified by someone
+else and passed on, we want their recipients to know that what they have
+is not what we distributed, so that any problems introduced by others
+will no reflect on our reputation.
+
+   The precise conditions of the licenses for GDK are found in the
+General Public Licenses that accompanies it.
+
+
+File: gdk.info,  Node: Overview,  Next: Initialization,  Prev: Copying,  Up: Top
+
+What is GDK?
+************
+
+   GDK is designed as a wrapper library that lies on top of Xlib. It
+performs many common and desired operations for a programmer instead of
+the programmer having to explicitly ask for such functionality from
+Xlib directly. For example, GDK provides a common interface to both
+regular and shared memory XImage types. By doing so, an application can
+nearly transparently use the fastest image type available. GDK also
+provides routines for determining the best available color depth and
+the best available visual which is not always the default visual for a
+screen.
+
+
+File: gdk.info,  Node: Initialization,  Next: Events,  Prev: Overview,  Up: Top
+
+Initialization and exit
+***********************
+
+   Initializing GDK is easy. Simply call `gdk_init' passing in the ARGC
+and ARGV parameters. Exit is similarly easy. Just call `gdk_exit'.
+
+ - Function: void gdk_init (int *ARGC, char ***ARGV)
+     Initializes the GDK library. The arguments ARGC and ARGV are
+     scanned and any arguments that GDK recognizes are handled and
+     removed. The ARGC and ARGV parameters are the values passed to
+     `main' upon program invocation.
+
+ - Function: void gdk_exit (int ERRORCODE)
+     Exit GDK and perform any necessary cleanup. `gdk_exit' will call
+     the systems `exit' function passing ERRORCODE as the parameter.
+
+     int
+     main (int argc, char *argv[])
+     {
+       /* Initialize GDK. */
+       gdk_init (&argc, &argv);
+     
+       /* Exit from GDK...this call will never return. */
+       gdk_exit (0);
+     
+       /* Keep compiler from issuing a warning */
+       return 0;
+     }
+
+
+File: gdk.info,  Node: Events,  Next: Visuals,  Prev: Initialization,  Up: Top
+
+Event handling
+**************
+
+   Events are the means by which GDK lets the programmer know of user
+interaction. An event is normally a button or key press or some other
+indirect user action, such as a the mouse cursor entering or leaving a
+window.
+
+   There exist only a few functions for getting events and event
+information. These are `gdk_events_pending', `gdk_event_get',
+`gdk_events_record' and `gdk_events_playback'. The latter two functions
+are useful for automatic testing of a software package and should
+normally not be needed in a program.
+
+ - Function: gint gdk_events_pending (void)
+     Returns the number of events pending on the event queue.
+
+ - Function: gint gdk_event_get (GdkEvent *EVENT)
+     Return the next available event in the EVENT structure.
+     `gdk_event_get' will return `TRUE' on success and `FALSE' on
+     failure. Success and failure is determined by whether an event
+     arrived before the timeout period expired.
+
+ - Function: void gdk_events_record (char *FILENAME)
+     Turn on recording of events. User events and certain system events
+     will be saved in the file named by the variable FILENAME. This
+     stream of events can later be played back and "should" produce the
+     same results as when the original events were handled. However, the
+     programmer does need to be careful in that the state of the
+     program must be the same when `gdk_events_record' is called and
+     when `gdk_events_playback' is called. For this reason,
+     `gdk_events_record' is normally not called directly, but is instead
+     invoked indirectly by specifying the "-record" command line option.
+
+ - Function: void gdk_events_playback (char *FILENAME)
+     Start playback of events from a file. (See the above description of
+     `gdk_events_record'). Normally this function is not called directly
+     but is invoked by the "-playback" command line option.
+
+ - Function: void gdk_events_stop (void)
+     Stop recording and playback of events.
+
+     void
+     handle_event ()
+     {
+       GdkEvent event;
+     
+       if (gdk_event_get (&event))
+         {
+           switch (event.type)
+            {
+              ...
+            }
+         }
+     }
+
+
+File: gdk.info,  Node: Visuals,  Next: Windows,  Prev: Events,  Up: Top
+
+Understanding and using visuals
+*******************************
+
+
+File: gdk.info,  Node: Windows,  Next: Graphics Contexts,  Prev: Visuals,  Up: Top
+
+Creating and using windows
+**************************
+
+
+File: gdk.info,  Node: Graphics Contexts,  Next: Pixmaps,  Prev: Windows,  Up: Top
+
+Creating and modifying GCs
+**************************
+
+
+File: gdk.info,  Node: Pixmaps,  Next: Images,  Prev: Graphics Contexts,  Up: Top
+
+Creating pixmaps
+****************
+
+
+File: gdk.info,  Node: Images,  Next: Color,  Prev: Pixmaps,  Up: Top
+
+Creating images
+***************
+
+
+File: gdk.info,  Node: Color,  Next: Fonts,  Prev: Images,  Up: Top
+
+Specifying color
+****************
+
+
+File: gdk.info,  Node: Fonts,  Next: Drawing,  Prev: Color,  Up: Top
+
+Creating Fonts
+**************
+
+
+File: gdk.info,  Node: Drawing,  Next: XInput Support,  Prev: Fonts,  Up: Top
+
+Drawing Commands
+****************
+
+
+File: gdk.info,  Node: XInput Support,  Next: Miscellany,  Prev: Drawing,  Up: Top
+
+Using extended devices
+**********************
+
+
+File: gdk.info,  Node: Miscellany,  Next: Examples,  Prev: XInput Support,  Up: Top
+
+Other stuff
+***********
+
+
+File: gdk.info,  Node: Examples,  Next: Function Index,  Prev: Miscellany,  Up: Top
+
+Using GDK
+*********
+
+
+File: gdk.info,  Node: Function Index,  Next: Concept Index,  Prev: Examples,  Up: Top
+
+Variable Index
+**************
+
+* Menu:
+
+* gdk_event_get:                         Events.
+* gdk_events_pending:                    Events.
+* gdk_events_playback:                   Events.
+* gdk_events_record:                     Events.
+* gdk_events_stop:                       Events.
+* gdk_exit:                              Initialization.
+* gdk_init:                              Initialization.
+
+
+File: gdk.info,  Node: Concept Index,  Prev: Function Index,  Up: Top
+
+Concept Index
+*************
+
+* Menu:
+
+* Color:                                 Color.
+* Controlling extended devices:          XInput Support.
+* Debugging:                             Miscellany.
+* Drawing:                               Drawing.
+* Events:                                Events.
+* Examples:                              Examples.
+* Exit:                                  Initialization.
+* Fonts:                                 Fonts.
+* GC:                                    Graphics Contexts.
+* Graphics Contexts:                     Graphics Contexts.
+* Images:                                Images.
+* Initialization:                        Initialization.
+* Miscellaneous:                         Miscellany.
+* Overview <1>:                          XInput Support.
+* Overview:                              Overview.
+* Pixmaps:                               Pixmaps.
+* Timers:                                Miscellany.
+* Using extended device capabilities:    XInput Support.
+* Visuals:                               Visuals.
+* Windows:                               Windows.
+
+
+
+Tag Table:
+Node: Top935
+Node: Copying2001
+Node: Overview3543
+Node: Initialization4220
+Node: Events5245
+Node: Visuals7518
+Node: Windows7658
+Node: Graphics Contexts7799
+Node: Pixmaps7940
+Node: Images8060
+Node: Color8166
+Node: Fonts8272
+Node: Drawing8375
+Node: XInput Support8491
+Node: Miscellany8624
+Node: Examples8736
+Node: Function Index8844
+Node: Concept Index9334
+
+End Tag Table

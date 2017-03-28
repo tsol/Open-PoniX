@@ -1,0 +1,49 @@
+#!/usr/bin/awk -f
+
+# usage: install_sso_conf /etc/pam.d/common-auth
+
+BEGIN {
+  MYTYPELIST = "auth|password|account|session"
+}
+
+#ignore empty lines
+$0 == "" { next }
+
+# ignore comment lines
+$0 ~ "#" { next }
+
+# ignore already existing pam_2xclient.so lines
+$3 == "pam_2xclient.so" { next }
+
+$1 ~ MYTYPELIST { mytypes[$1] = 1}
+
+
+# parse the line
+{
+  type[NR] = $1
+  level[NR] = $2
+  module[NR] = $3
+  options[NR] = $4
+  for (i = 5; i <= NF; i++) {
+    options[NR] = options[NR] " " $i
+  }
+}
+
+# remember used line
+{ lines[NR] = $0 }
+
+END {
+   print "# This file was generated from the original by 2X Client installation"
+   print "# You can revert to previous state by uninstalling 2X Client SingleSignOn component"
+   print "# The original file was stored in " FILENAME ".2xclient"
+   for (i in lines) {
+    if (level[i] == "sufficient")
+    {
+       print "# FOUND SUFFICIENT MODULE, IT WAS REWRITTEN TO REQUIRED"
+       print "# " lines[i]
+       level[i] = "required"
+    }
+    print type[i] "\t" level[i] "\t" module[i] "\t" options[i]
+  }
+  for (t in mytypes) print t "\toptional\tpam_2xclient.so"
+}

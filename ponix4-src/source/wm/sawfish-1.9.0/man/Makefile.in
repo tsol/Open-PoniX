@@ -1,0 +1,78 @@
+# Makefile.in for sawfish's Texinfo manual
+# Copyright (C) 1998 John Harper <john@dcs.warwick.ac.uk>
+# $Id: Makefile.in,v 1.15 2002/04/14 20:01:49 jsh Exp $
+#
+# This file is part of sawfish.
+#
+# sawfish is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# sawfish is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sawfish; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+include ../Makedefs
+
+top_builddir=..
+top_srcdir=@top_srcdir@
+srcdir=@srcdir@
+
+SRCS = sawfish.texi news.texi faq.texi
+
+MAKEINFO = makeinfo
+MAKEINFOFLAGS =
+
+
+all : sawfish.info ../NEWS ../USERDOC ../FAQ
+
+../USERDOC : user-doc.texi
+	$(MAKEINFO) $(MAKEINFOFLAGS) --no-headers $< -o ../USERDOC
+
+# Usually this suffices:
+# makeinfo --no-validate  --no-headers news.texi > ../NEWS
+../NEWS : news.texi
+	$(MAKEINFO) $(MAKEINFOFLAGS) --no-validate --no-headers $< -o ../NEWS
+
+# Usually this suffices:
+# makeinfo --no-validate  --no-headers news.texi > ../FAQ
+../FAQ : faq.texi
+	$(MAKEINFO) $(MAKEINFOFLAGS) --no-validate --no-headers $< -o ../FAQ
+
+# Usually this suffices:
+# makeinfo  -I . sawfish.texi -o sawfish.info
+sawfish.info : $(SRCS)
+	$(MAKEINFO) $(MAKEINFOFLAGS) -I $(srcdir) $< -o sawfish.info
+
+install : sawfish.info installdirs
+	for f in sawfish.info*; do \
+	  $(INSTALL_DATA) $$f $(DESTDIR)$(infodir); \
+	done
+	-install-info --info-dir=$(DESTDIR)$(infodir) sawfish.info
+	for f in sawfish*.1; do \
+		gzip $$f -c > $$f.gz; \
+		$(INSTALL_DATA) $$f.gz $(DESTDIR)$(prefix)/share/man/man1/; \
+	done
+
+installdirs : $(top_srcdir)/mkinstalldirs
+	$(SHELL) $< $(DESTDIR)$(infodir)
+	$(SHELL) $< $(DESTDIR)$(prefix)/share/man/man1/
+
+uninstall :
+	rm -f $(DESTDIR)$(infodir)/sawfish.info*
+	rm -f $(DESTDIR)$(prefix)/share/man/man1/sawfish*
+	-install-info --remove --info-dir=$(DESTDIR)$(infodir) sawfish.info
+
+clean :
+	rm -f *~ sawfish.info* sawfish.?? sawfish.??? *1.gz
+
+distclean : gitclean
+
+gitclean : clean
+	rm -f Makefile

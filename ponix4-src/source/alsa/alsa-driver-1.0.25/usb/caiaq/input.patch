@@ -1,0 +1,107 @@
+--- ../../alsa-kernel/usb/caiaq/input.c	2011-10-19 17:32:45.000000000 +0200
++++ input.c	2011-12-20 07:39:37.000000000 +0100
+@@ -1,3 +1,5 @@
++#include "adriver.h"
++#include "../usbcompat.h"
+ /*
+  *   Copyright (c) 2006,2007 Daniel Mack, Tim Ruetz
+  *
+@@ -19,13 +21,30 @@
+ #include <linux/gfp.h>
+ #include <linux/init.h>
+ #include <linux/usb.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 18)
+ #include <linux/usb/input.h>
++#else
++#include <linux/usb_input.h>
++#endif
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ 
+ #include "device.h"
+ #include "input.h"
+ 
++#ifndef KEY_BRL_DOT1
++#define KEY_BRL_DOT1            0x1f1
++#define KEY_BRL_DOT2            0x1f2
++#define KEY_BRL_DOT3            0x1f3
++#define KEY_BRL_DOT4            0x1f4
++#define KEY_BRL_DOT5            0x1f5
++#define KEY_BRL_DOT6            0x1f6
++#define KEY_BRL_DOT7            0x1f7
++#define KEY_BRL_DOT8            0x1f8
++#define KEY_BRL_DOT9            0x1f9
++#define KEY_BRL_DOT10           0x1fa
++#endif
++
+ static unsigned short keycode_ak1[] =  { KEY_C, KEY_B, KEY_A };
+ static unsigned short keycode_rk2[] =  { KEY_1, KEY_2, KEY_3, KEY_4,
+ 					 KEY_5, KEY_6, KEY_7 };
+@@ -540,7 +559,11 @@
+ 
+ static int snd_usb_caiaq_input_open(struct input_dev *idev)
+ {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 22)
++	struct snd_usb_caiaqdev *dev = idev->private;
++#else
+ 	struct snd_usb_caiaqdev *dev = input_get_drvdata(idev);
++#endif
+ 
+ 	if (!dev)
+ 		return -EINVAL;
+@@ -559,7 +582,11 @@
+ 
+ static void snd_usb_caiaq_input_close(struct input_dev *idev)
+ {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 22)
++	struct snd_usb_caiaqdev *dev = idev->private;
++#else
+ 	struct snd_usb_caiaqdev *dev = input_get_drvdata(idev);
++#endif
+ 
+ 	if (!dev)
+ 		return;
+@@ -599,7 +626,11 @@
+ 	struct input_dev *input;
+ 	int i, ret = 0;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 15)
+ 	input = input_allocate_device();
++#else
++	input = kzalloc(sizeof(*input), GFP_KERNEL);
++#endif
+ 	if (!input)
+ 		return -ENOMEM;
+ 
+@@ -609,9 +640,17 @@
+ 	input->name = dev->product_name;
+ 	input->phys = dev->phys;
+ 	usb_to_input_id(usb_dev, &input->id);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 22)
+ 	input->dev.parent = &usb_dev->dev;
++#else
++	input->cdev.dev = &usb_dev->dev;
++#endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 22)
+ 	input_set_drvdata(input, dev);
++#else
++	input->private = dev;
++#endif
+ 
+ 	switch (dev->chip.usb_id) {
+ 	case USB_ID(USB_VID_NATIVEINSTRUMENTS, USB_PID_RIGKONTROL2):
+@@ -816,9 +855,13 @@
+ 
+ 	dev->input_dev = input;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 15)
+ 	ret = input_register_device(input);
+ 	if (ret < 0)
+ 		goto exit_free_idev;
++#else
++	input_register_device(input);
++#endif
+ 
+ 	return 0;
+ 

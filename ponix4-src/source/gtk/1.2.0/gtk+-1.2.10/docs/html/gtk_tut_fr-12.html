@@ -1,0 +1,525 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Widgets non documentés</TITLE>
+ <LINK HREF="gtk_tut_fr-13.html" REL=next>
+ <LINK HREF="gtk_tut_fr-11.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc12" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-13.html">Page suivante</A>
+<A HREF="gtk_tut_fr-11.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc12">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s12">12. Widgets non documentés</A></H2>
+
+<P>On a besoin de leurs auteurs! :). Participez à notre didacticiel.
+<P>Si vous devez utiliser un de ces widgets non documentés, je vous recommande fortement de consulter leurs fichiers en-têtes respectifs dans la distribution GTK. Les noms de fonctions du GTK sont très parlantes. Lorsque vous avez compris comment les choses fonctionnent, il n'est pas difficile de savoir comment utiliser un widget à partir des déclarations de ses fonctions.  Cela, avec quelques exemples de codes pris ailleurs, devrait ne pas poser de problème.
+<P>Lorsque vous avez compris toutes les fonctions d'un nouveau widget non documenté, pensez à écrire un didacticiel pour que les autres puissent bénéficier du temps que vous y avez passé.
+<P>
+<H2><A NAME="ss12.1">12.1 Entrées de texte</A>
+</H2>
+
+<P>
+<P>
+<H2><A NAME="ss12.2">12.2 Sélections de couleurs</A>
+</H2>
+
+<P>
+<P>
+<H2><A NAME="ss12.3">12.3 Contrôle d'intervalle</A>
+</H2>
+
+<P>
+<P>
+<H2><A NAME="ss12.4">12.4 Règles</A>
+</H2>
+
+<P>
+<P>
+<H2><A NAME="ss12.5">12.5 Boîtes de texte</A>
+</H2>
+
+<P>
+<P>
+<H2><A NAME="ss12.6">12.6 Prévisualisation</A>
+</H2>
+
+<P>(Ceci peut devoir être réécrit pour suivre le style du reste de ce
+didacticiel).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+Les prévisualisateurs servent à plusieurs choses dans GIMP/GTK. La
+plus importante est celle-ci&nbsp;: les images de haute qualité peuvent
+occuper des dizaines de mega-octets en mémoire - facilement ! Toute
+opération sur une image aussi grosse implique un temps de traitement
+élevé. Si cela vous prend 5 à 10 essais (i.e. 10 à 20 étapes puisque
+vous devez recommencer lorsque vous avez fait une erreur) pour choisir
+la bonne modification, cela prendra littéralement des heures pour
+produire la bonne image - pour peu que vous ne manquiez pas de mémoire
+avant. Ceux qui on passé des heures dans les chambres noires de
+développement couleur connaissent cette sensation. Les
+prévisualisations sont notre planche de salut !
+
+L'aspect pénible de l'attente n'est pas le seul problème. souvent, il
+est utile de comparer les versions « Avant » et « Après » côte à côte
+ou, au pire l'une après l'autre. Si vous travaillez avec de grosses
+images et des attentes de 10 secondes, l'obtention des versions «
+Avant » et « Après » est, pour le moins, difficile. Pour des images de
+30Mo (4"x6", 600dpi, 24 bits), la comparaison côte à côte est
+impossible pour la plupart des gens, et la comparaison séquentielle
+n'est guère mieux. Les prévisualisations sont notre planche de salut !
+
+Mais il y a plus. Les prévisualisations permettent les
+pré-prévisualisations côte à côte. En d'autres termes, vous écrivez un
+plug-in (par exemple la simulation filterpack) qui aurait plusieurs
+prévisualisations de ce-que-ce-serait-si-vous-faisiez-ceci. Une approche
+comme celle ci agit comme une sorte de palette de prévisualisation et
+est très pratique pour les petites modifications. Utilisons les
+prévisualisations !
+
+Encore plus&nbsp;: pour certains plug-ins une intervention humaine en
+temps réel, spécifique aux images, peut s'avérer nécessaire. Dans le
+plug-in SuperNova, par exemple, on demande à l'utilisateur d'entrer
+les coordonnées du centre de la future supernova. La façon la plus
+simple de faire cela, vraiment, est de présenter une prévisualisation
+à l'utilisateur et de lui demander de choisir interactivement le
+point. Utilisons les prévisualisations !
+
+Enfin, quelques utilisations diverses&nbsp;: on peut utiliser les
+prévisualisations, même lorsqu'on ne travaille pas avec de grosses
+images. Elles sont utiles, par exemple, lorsqu'on veut avoir un rendu
+de motifs complexes. (Testez le vénérable plug-in Diffraction et
+d'autres !). Comme autre exemple, regardez le plug-in de rotation de
+couleur (travail en cours). Vous pouvez aussi utiliser les
+prévisualisations pour des petits logos dans vos plug-ins et même pour
+une photo de vous, l'Auteur. Utilisons les prévisualisations !
+
+Quand ne pas utiliser les prévisualisations
+
+N'utilisez pas les prévisualisations pour les graphes, les tracés,
+etc. GDK est bien plus rapide pour ça. N'utilisez les que pour les
+images !
+
+Utilisons les prévisualisations !
+
+Vous pouvez mettre une prévisualisation dans à peu près n'importe
+quoi. Dans une vbox, une hbox, un bouton, etc. Mais elles donnent leur
+meilleur d'elles-mêmes dans des cadres resserrés autour d'elles. Les
+prévisualisations n'ont, par elles-mêmes, aucun contour et semblent
+plates sans eux. (Bien sûr, si c'est cet aspect que vous
+voulez...). Les cadres serrés fournissent les bordures nécessaires.
+
+                               [Image][Image]
+
+Les prévisualisations sont, à bien des égards, comme tous les autres
+widgets de GTK (avec tout ce que cela implique) sauf qu'il disposent
+d'une fonctionnalité supplémentaire&nbsp;: ils doivent être remplis
+avec une image ! Nous traiterons d'abord exclusivement de l'aspect GTK
+des prévisualisations, puis nous verrons comment les remplir.
+
+
+                              /* Création d'un widget prévisualisation,
+                               * configuration de sa taille et affichage */
+GtkWidget *preview;
+preview=gtk_preview_new(GTK_PREVIEW_COLOR)
+                              /* Autre option :
+                              GTK_PREVIEW_GRAYSCALE);*/
+
+gtk_preview_size (GTK_PREVIEW (preview), WIDTH, HEIGHT);
+gtk_widget_show(preview);
+my_preview_rendering_function(preview);
+
+Ah oui, comme je le disais, les prévisualisations rendent mieux dans
+des cadres&nbsp;:
+
+GtkWidget *create_a_preview(int        Width,
+                            int        Height,
+                            int        Colorfulness)
+{
+  GtkWidget *preview;
+  GtkWidget *frame;
+  
+  frame = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_IN);
+  gtk_container_border_width (GTK_CONTAINER(frame),0);
+  gtk_widget_show(frame);
+
+  preview=gtk_preview_new (Colorfulness?GTK_PREVIEW_COLOR
+                                       :GTK_PREVIEW_GRAYSCALE);
+  gtk_preview_size (GTK_PREVIEW (preview), Width, Height);
+  gtk_container_add(GTK_CONTAINER(frame),preview);
+  gtk_widget_show(preview);
+
+  my_preview_rendering_function(preview);
+  return frame;
+}
+
+Ceci est ma prévisualisation de base. Cette fonction retourne le cadre
+« père », on peut ainsi le placer ailleurs dans notre interface. Bien
+sûr, on peut passer le cadre « père » en paramètre à cette
+fonction. Dans de nombreuses situations, toutefois, le contenu de la
+prévisualisation est changée continuellement par notre application. En
+ce cas, on peut passer un pointeur vers une prévisualisation à la
+fonction &lt;em/create_a_preview()/ et avoir ainsi un contrôle sur elle
+plus tard.
+
+Un point plus important qui pourra un jour vous faire économiser
+beaucoup de temps. Quelques fois, il est souhaitable de mettre un
+label à votre prévisualisation. Par exemple, on peut nommer la
+prévisualisation contenant l'image originale « Original » et celle
+contenant l'image modifiée « Moins Originale ». Il peut vous arriver
+de placer la prévisualisation avec le label approprié dans une
+vbox. L'effet inattendu est que si le label est plus large que la
+prévisualisation (taille de cette dernière, taille de la fonte du
+label, etc), le cadre s'élargit et ne convient plus à la
+prévisualisation. Le même problème se passera probablement dans
+d'autres situations aussi.
+
+                                   [Image]
+
+La solution consiste à placer la prévisualisation et le label dans une
+table de 2x2 en les attachant avec les paramètres suivants (c'est
+l'une des possibilités, bien sûr. La clé consiste à ne pas mettre
+GTK_FILL dans le second attachement)«nbsp;:
+
+gtk_table_attach(GTK_TABLE(table),label,0,1,0,1,
+                 0,
+                 GTK_EXPAND|GTK_FILL,
+                 0,0);
+gtk_table_attach(GTK_TABLE(table),frame,0,1,1,2,
+                 GTK_EXPAND,
+                 GTK_EXPAND,
+                 0,0);
+
+
+Et voici le résultat&nbsp;:
+
+                                   [Image]
+
+Divers
+
+Rendre une prévisualisation cliquable se fait très facilement en la plaçant dans un bouton. Cela ajoute aussi une bordure agréable autour de la prévisualisation et vous n'avez même pas besoin de la mettre dans un cadre.  Voir le plug-in Filter Pack Simulation comme exemple.
+
+Remplir une prévisualisation
+
+Afin de nous familiariser avec les bases de ce remplissage, créons le motif suivant&nbsp;:
+
+                                   [Image]
+
+void
+my_preview_rendering_function(GtkWidget     *preview)
+{
+#define SIZE 100
+#define HALF (SIZE/2)
+
+  guchar *row=(guchar *) malloc(3*SIZE); /* 3 bits par point */
+  gint i, j;                             /* Coordonnées      */
+  double r, alpha, x, y;
+
+  if (preview==NULL) return; /* J'ajoute généralement ceci quand je */
+                             /* veux éviter des plantages stupides  */
+                             /* Vous devez vous assurer que tout a  */
+                             /* été correctement initialisé !       */
+
+  for (j=0; j &lt; ABS(cos(2*alpha)) ) { /* Sommes-nous dans la forme ? */
+                                         /* glib.h contient ABS(x).   */
+        row[i*3+0] = sqrt(1-r)*255;      /* Definit rouge             */
+        row[i*3+1] = 128;                /* Definit vert              */
+        row[i*3+2] = 224;                /* Definit bleu              */
+      }                                  /* "+0" est pour l'alignement ! */
+      else {
+        row[i*3+0] = r*255;
+        row[i*3+1] = ABS(sin((float)i/SIZE*2*PI))*255;
+        row[i*3+2] = ABS(sin((float)j/SIZE*2*PI))*255;
+      }
+    }
+    gtk_preview_draw_row( GTK_PREVIEW(preview),row,0,j,SIZE);
+
+    /* Insère "row" dans "preview" en partant du point de */
+    /* coordonnées (0,j) première colonne, j_ième ligne allant de SIZE */
+    /* pixels vers la droite */
+  }
+
+  free(row); /* on récupère un peu d'espace */
+  gtk_widget_draw(preview,NULL); /* qu'est-ce que ça fait ? */
+  gdk_flush(); /* et ça ?  */
+}
+
+Ceux qui n'utilisent pas GIMP en ont suffisamment vu pour faire
+déjà beaucoup de choses. Pour ceux qui l'utilisent, j'ai quelques
+précisions à ajouter.
+
+Prévisualisation d'image
+
+Il est pratique de conserver une version réduite de l'image ayant
+juste assez de pixels pour remplir la prévisualisation. Ceci est
+possible en choisissant chaque énième pixel où n est le ratio de la
+taille de l'image par rapport à la taille de la visualisation. Toutes
+les opérations suivantes (y compris le remplissage des
+prévisualisations) sont alors réalisées seulement sur le nombre réduit
+de pixels. Ce qui suit est mon implantation de la réduction d'image
+(Gardez à l'esprit que je n'ai que quelques notions de base en C !).
+
+(ATTENTION : CODE NON TESTÉ !!!)
+
+typedef struct {
+  gint      width;
+  gint      height;
+  gint      bbp;
+  guchar    *rgb;
+  guchar    *mask;
+} ReducedImage;
+
+enum {
+  SELECTION_ONLY,
+  SELCTION_IN_CONTEXT,
+  ENTIRE_IMAGE
+};
+
+ReducedImage *Reduce_The_Image(GDrawable *drawable,
+                               GDrawable *mask,
+                               gint LongerSize,
+                               gint Selection)
+{
+  /* Cette fonction réduit l'image à la taille de prévisualisation choisie */
+  /* La taille de la prévisualisation est déterminée par LongerSize, i.e.  */
+  /* la plus grande des deux dimensions. Ne fonctionne qu'avec des images  */
+  /* RGB !                                                                 */
+
+  gint RH, RW;          /* Hauteur et Largeur réduites                     */
+  gint width, height;   /* Largeur et Hauteur de la surface à réduire      */
+  gint bytes=drawable->bpp;
+  ReducedImage *temp=(ReducedImage *)malloc(sizeof(ReducedImage));
+
+  guchar *tempRGB, *src_row, *tempmask, *src_mask_row,R,G,B;
+  gint i, j, whichcol, whichrow, x1, x2, y1, y2;
+  GPixelRgn srcPR, srcMask;
+  gint NoSelectionMade=TRUE; /* Suppose que l'on traite l'image entière    */
+
+  gimp_drawable_mask_bounds (drawable->id, &amp;x1, &amp;y1, &amp;x2, &amp;y2);
+  width  = x2-x1;
+  height = y2-y1;
+  /* S'il y a une SELECTION, on récupère ses frontières ! */
+
+  if (width != drawable->width &amp;&amp; height != drawable->height)
+    NoSelectionMade=FALSE;
+  /* On vérifie si l'utilisateur a rendu une sélection active         */
+  /* Ceci sera important plus tard, lorsqu'on créera un masque réduit */
+
+  /* Si on veut prévisualiser l'image entière, supprimer ce qui suit ! */
+  /* Bien sûr, s'il n'y a pas de sélection, cela n'a aucun effet !     */
+  if (Selection==ENTIRE_IMAGE) {
+    x1=0;
+    x2=drawable->width;
+    y1=0;
+    y2=drawable->height;
+  }
+
+  /* Si on veut prévisualiser une sélection avec une surface qui l'entoure, */
+  /* on doit l'agrandir un petit peu. Considérez ça comme une devinette.   */
+
+  if (Selection==SELECTION_IN_CONTEXT) {
+    x1=MAX(0,                x1-width/2.0);
+    x2=MIN(drawable->width,  x2+width/2.0);
+    y1=MAX(0,                y1-height/2.0);
+    y2=MIN(drawable->height, y2+height/2.0);
+  }
+
+  /* Calcul de la largeur et de la hauteur de la surface à réduire. */
+
+  width  = x2-x1;
+  height = y2-y1;
+
+  /* Les lignes ci-dessous déterminent la dimension qui sera le coté */
+  /* le plus long. Cette idée est empruntée au plug-in Supernova.    */
+  /* Je soupçonne que j'aurais pu y penser moi-même, mais la vérité  */
+  /* doit être dite. Le plagiat pue !                                */
+
+  if (width>height) {
+    RW=LongerSize;
+    RH=(float) height * (float) LongerSize/ (float) width;
+  }
+  else {
+    RH=LongerSize;
+    RW=(float)width * (float) LongerSize/ (float) height;
+  }
+
+  /* L'image entière est réduite dans une chaîne ! */
+
+  tempRGB   = (guchar *) malloc(RW*RH*bytes);
+  tempmask  = (guchar *) malloc(RW*RH);
+
+  gimp_pixel_rgn_init (&amp;srcPR, drawable, x1, y1, width, height, FALSE, FALSE);
+  gimp_pixel_rgn_init (&amp;srcMask, mask, x1, y1, width, height, FALSE, FALSE);
+
+  /* Réservation pour sauver une ligne d'image et une ligne du masque */
+  src_row       = (guchar *) malloc (width*bytes);
+  src_mask_row  = (guchar *) malloc (width);
+
+  for (i=0; i &lt; RH; i++) {
+    whichrow=(float)i*(float)height/(float)RH;
+    gimp_pixel_rgn_get_row (&amp;srcPR, src_row, x1, y1+whichrow, width);
+    gimp_pixel_rgn_get_row (&amp;srcMask, src_mask_row, x1, y1+whichrow, width);
+
+    for (j=0; j &lt; RW; j++) {
+      whichcol=(float)j*(float)width/(float)RW;
+
+      /* Pas de sélection = chaque point est complètement sélectionné ! */
+
+      if (NoSelectionMade)
+        tempmask[i*RW+j]=255;
+      else
+        tempmask[i*RW+j]=src_mask_row[whichcol];
+
+      /* Ajout de la ligne à la longue chaîne qui contient maintenant */
+      /* l'image !                                                    */
+
+      tempRGB[i*RW*bytes+j*bytes+0]=src_row[whichcol*bytes+0];
+      tempRGB[i*RW*bytes+j*bytes+1]=src_row[whichcol*bytes+1];
+      tempRGB[i*RW*bytes+j*bytes+2]=src_row[whichcol*bytes+2];
+
+      /* On s'accroche aussi à l'alpha */
+      if (bytes==4)
+        tempRGB[i*RW*bytes+j*bytes+3]=src_row[whichcol*bytes+3];
+    }
+  }
+  temp->bpp=bytes;
+  temp->width=RW;
+  temp->height=RH;
+  temp->rgb=tempRGB;
+  temp->mask=tempmask;
+  return temp;
+}
+
+La suite est une fonction de prévisualisation qui utilise le même type
+&lt;em/ReducedImage/ !  On remarque qu'elle utilise une fausse
+transparence (au moyen de &lt;em/fake_transparancy/ qui est défini comme
+suit&nbsp;:
+
+gint fake_transparency(gint i, gint j)
+{
+  if ( ((i%20)- 10) * ((j%20)- 10)>0   )
+    return 64;
+  else
+    return 196;
+}
+
+Voici maintenant la fonction de prévisualisation«nbsp;:
+
+void
+my_preview_render_function(GtkWidget     *preview,
+                           gint          changewhat,
+                           gint          changewhich)
+{
+  gint Inten, bytes=drawable->bpp;
+  gint i, j, k;
+  float partial;
+  gint RW=reduced->width;
+  gint RH=reduced->height;
+  guchar *row=malloc(bytes*RW);;
+
+
+  for (i=0; i &lt; RH; i++) {
+    for (j=0; j &lt; RW; j++) {
+
+      row[j*3+0] = reduced->rgb[i*RW*bytes + j*bytes + 0];
+      row[j*3+1] = reduced->rgb[i*RW*bytes + j*bytes + 1];
+      row[j*3+2] = reduced->rgb[i*RW*bytes + j*bytes + 2];
+
+      if (bytes==4)
+        for (k=0; k&lt;3; k++) {
+          float transp=reduced->rgb[i*RW*bytes+j*bytes+3]/255.0;
+          row[3*j+k]=transp*a[3*j+k]+(1-transp)*fake_transparency(i,j);
+        }
+    }
+    gtk_preview_draw_row( GTK_PREVIEW(preview),row,0,i,RW);
+  }
+
+  free(a);
+  gtk_widget_draw(preview,NULL);
+  gdk_flush();
+}
+
+Fonctions applicables
+
+guint           gtk_preview_get_type           (void);
+/* Aucune idée */
+void            gtk_preview_uninit             (void);
+/* Aucune idée */
+GtkWidget*      gtk_preview_new                (GtkPreviewType   type);
+/* Décrite ci-dessous */
+void            gtk_preview_size               (GtkPreview      *preview,
+                                                gint             width,
+                                                gint             height);
+/* Permet de changer la taille d'une prévisualisation existante */
+/* Apparamment, il y a un bug dans GTK qui rend ce traitement   */
+/* hasardeux. Une méthode pour corriger ce problème consiste à  */
+/* changer manuellement la taille de la fenêtre contenant la    */
+/* prévisualisation après avoir changé la taille de la          */
+/* prévisualisation.                                            */
+
+void            gtk_preview_put                (GtkPreview      *preview,
+                                                GdkWindow       *window,
+                                                GdkGC           *gc,
+                                                gint             srcx,
+                                                gint             srcy,
+                                                gint             destx,
+                                                gint             desty,
+                                                gint             width,
+                                                gint             height);
+/* Aucune idée */
+
+void            gtk_preview_put_row            (GtkPreview      *preview,
+                                                guchar          *src,
+                                                guchar          *dest,
+                                                gint             x,
+                                                gint             y,
+                                                gint             w);
+/* Aucune idée */
+
+void            gtk_preview_draw_row           (GtkPreview      *preview,
+                                                guchar          *data,
+                                                gint             x,
+                                                gint             y,
+                                                gint             w);
+/* Décrite dans le texte */
+
+void            gtk_preview_set_expand         (GtkPreview      *preview,
+                                                gint             expand);
+/* Aucune idée */
+
+/* Aucune piste pour celles qui suivent mais devrait être */
+/* un standard pour la plupart des widgets.               */
+
+void            gtk_preview_set_gamma          (double           gamma);
+void            gtk_preview_set_color_cube     (guint            nred_shades,
+                                                guint            ngreen_shades,
+                                                guint            nblue_shades,
+                                                guint            ngray_shades);
+void            gtk_preview_set_install_cmap   (gint             install_cmap);
+void            gtk_preview_set_reserved       (gint             nreserved);
+GdkVisual*      gtk_preview_get_visual         (void);
+GdkColormap*    gtk_preview_get_cmap           (void);
+GtkPreviewInfo* gtk_preview_get_info           (void);
+
+That's all, folks!
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<H2><A NAME="ss12.7">12.7 Courbes</A>
+</H2>
+
+<P>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-13.html">Page suivante</A>
+<A HREF="gtk_tut_fr-11.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc12">Table des matières</A>
+</BODY>
+</HTML>

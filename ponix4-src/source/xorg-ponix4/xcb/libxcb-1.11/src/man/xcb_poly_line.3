@@ -1,0 +1,75 @@
+.TH xcb_poly_line 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_poly_line \- draw lines
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_poly_line\fP(xcb_connection_t\ *\fIconn\fP, uint8_t\ \fIcoordinate_mode\fP, xcb_drawable_t\ \fIdrawable\fP, xcb_gcontext_t\ \fIgc\fP, uint32_t\ \fIpoints_len\fP, const xcb_point_t\ *\fIpoints\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIcoordinate_mode\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_COORD_MODE_ORIGIN\fP 1i
+Treats all coordinates as relative to the origin.
+.IP \fIXCB_COORD_MODE_PREVIOUS\fP 1i
+Treats all coordinates after the first as relative to the previous coordinate.
+.RE
+.RS 1i
+
+
+.RE
+.IP \fIdrawable\fP 1i
+The drawable to draw the line(s) on.
+.IP \fIgc\fP 1i
+The graphics context to use.
+.IP \fIpoints_len\fP 1i
+The number of \fIxcb_point_t\fP structures in \fIpoints\fP.
+.IP \fIpoints\fP 1i
+An array of points.
+.SH DESCRIPTION
+Draws \fIpoints_len\fP-1 lines between each pair of points (point[i], point[i+1])
+in the \fIpoints\fP array. The lines are drawn in the order listed in the array.
+They join correctly at all intermediate points, and if the first and last
+points coincide, the first and last lines also join correctly. For any given
+line, a pixel is not drawn more than once. If thin (zero line-width) lines
+intersect, the intersecting pixels are drawn multiple times. If wide lines
+intersect, the intersecting pixels are drawn only once, as though the entire
+request were a single, filled shape.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_poly_line_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_drawable_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_g_context_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_match_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_value_error_t\fP 1i
+TODO: reasons?
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Draw a straight line.
+ *
+ */
+void my_example(xcb_connection *conn, xcb_drawable_t drawable, xcb_gcontext_t gc) {
+    xcb_poly_line(conn, XCB_COORD_MODE_ORIGIN, drawable, gc, 2,
+                  (xcb_point_t[]) { {10, 10}, {100, 10} });
+    xcb_flush(conn);
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

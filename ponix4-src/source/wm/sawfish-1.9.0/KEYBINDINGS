@@ -1,0 +1,318 @@
+This is the complete list of default sawfish keybindings.
+You can use xmodmap (among other tools) to change your keyboard layout,
+and xev to check what key and button presses are generated.
+
+Keyboard features in Sawfish are explained in this file, too.
+
+Key Descriptions
+================
+
+Modifiers:
+W = Default Modifier Key
+H = Hyper
+M = Meta (if no Meta key is available Sawfish uses Alt instead)
+         (on some keyboards Shift + Alt = Meta)
+C = Control
+S = Shift
+A = Alt
+Super
+
+W, the "default modifier"
+
+Mod(5...) = Additional Modifiers, eg: Alt Gr or Multi_key
+
+dead_circumflex = ^
+degree = °
+
+Left = Left Arrow Key
+Right = Right Arrow Key
+Up = Up Arrow Key
+Down = Down Arrow Key
+
+! Currently sawfish ignores caps lock, num lock, and screen lock.
+! Even if they're on, Sawfish reports as if they're not.
+
+! The following table is not universal. It depends on each keyboard.
+When Num_Lock is off:
+
+KP_Insert = Keypad Insert (0)
+KP_End = Keypad End (1)
+KP_Down = Keypad Down Arrow Key (2)
+KP_Next = Keypad Page Down (3)
+KP_Left = Keypad Left Arrow Key (4)
+KP_Begin = Keypad Middle (5)
+KP_Right = Keypad Right Arrow Key (6)
+KP_Home = Keypad Pos1 (7)
+KP_Up = Keypad Up Arrow Key (8)
+KP_Prior = Keypad Page Up (9)
+
+When Num_Lock is on:
+
+KP_0: Keypad 0
+KP_1: Keypad 1
+KP_2: Keypad 2
+KP_3: Keypad 3
+KP_4: Keypad 4
+KP_5: Keypad 5
+KP_6: Keypad 6
+KP_7: Keypad 7
+KP_8: Keypad 8
+KP_9: Keypad 9
+
+Independent of Num_Lock:
+
+KP_Enter = Keypad Enter
+KP_Divide = Keypad /
+KP_Multiply = Keypad *
+KP_Substract = Keypad -
+KP_Add = Keypad +
+KP_Delete = Keypad Delete
+KP_Separator = Shift + Keypad Delete
+
+XF86Ungrab = Shift + KP_Divide
+XF86ClearGrab = Shift + KP_Multiply
+XF86_Prev_VMode = Shift + KP_Substract
+XF86_Next_VMode = Shift + KP_Add
+
+Pointer_EnableKeys = Shift + Num_Lock, allows moving the pointer via the KeyPad
+
+BS = Backspace
+DEL = Delete
+Next = Page Down
+Prior = Page Up
+End = End
+Pause = Pause
+Break = Shift + Pause
+Insert = Insert
+Print = Print
+Sys_Req = Shift + Print
+Home = Pos1
+
+ESC = Escape
+Tab = Tabulator Key
+
+ISO_Left_Tab = Same as Shift + TAB
+ISO_Level3_Shift = Switch to third layer
+
+Scroll_Lock = Scroll
+Num_Lock = Num
+Multikey = Compose
+
+XF86AudioPlay = Play/Pause Key
+XF86AudioMute = Mute Key
+XF86AudioStop = Stop Key
+
+XF86AudioPrev = Previous Track Key
+XF86LowerVolume = Lower Volume Key
+XF86RaiseVolume = Raise Volme Key
+XF86AudioNext = Next Track Key
+
+XF86Back = Back Key
+XF86Forward = Next Key
+XF86Stop = Cancel Key (on some keyboards it's called Cancel instead)
+XF86Reload = Reload Key
+
+XF86WWW = Browser Key
+XF86Mail = Mail Key
+X86Search = Search  Key
+XF86Favorites = Favorites Key
+XF86Standby = Sleep Key
+
+XF86HomePage = Home key
+XF86Mail = Mail key
+XF86Tools = Toos key (on some keyboards it's the Mediaplayer key)
+XF86Explorer = Computer key
+XF86Calculator = Calculator key
+
+! Button mapping depends. For example, left handed people may set
+! the right button as "button 1".
+Button1 = Left Mouse Button
+Button2 = Middle Mouse Button/Scroll Wheel (Often emulated by button presses 1 and 3 at once.)
+Button3 = Right Mouse Button
+Button4 = Scroll Wheel Up
+Button5 = Scroll Wheel Down
+
+Off = When Mouse Button Is Released
+Off1 = Same as Off
+Off2 = When Mouse Button Is Released Twice
+Click = When Mouse Button Is Clicked
+Click1 = Same as Click
+Click2 = When Mouse Button Is Clicked Twice
+Move = When Button Is Clicked and Pointer Moved
+
+Setting Keybindings
+===================
+
+To set keybinding from lisp:
+
+( bind-keys keymap "key" 'action )
+
+for example:
+
+( bind-keys global-keymap "W-Tab" 'cycle-windows )
+
+how to unset keybindings manually:
+
+( unbind-keys keymap "keybindings" 'action )
+
+for example:
+
+( unbind-keys global-keymap "W-Tab" 'cycle-windows )
+
+Keymap for specific application
+===============================
+
+It's possible to have a keymap for a specific application only.  For
+example, you can use `nautilus-keymap' which is active when Nautilus
+is focused. All other key events are ignored, that is, events not in
+`nautilus-keymap' are not captured by Sawfish, but sent to Nautilus.
+That means that `window-keymap' gets ignored in nautilus. (Internally,
+`window-keymap' is set to all windows when they appear, but a window
+specific keymap simply replaces the default.)
+
+( define nautilus-keymap ( make-keymap ) )
+( bind-keys nautilus-keymap
+  "C-q" 'destroy-window-safely
+  "C-l" 'lower-window
+  "C-r" 'raise-window )
+
+( add-window-matcher '( ( WM_CLASS . "^Nautilus/nautilus$" ) )
+       '( ( keymap . ,nautilus-keymap ) ) )
+
+So now Sawfish only has 3 keybindings for Nautilus.
+
+Keymap Transistion
+==================
+
+Sawfish is also able to `translate' a keypress to different one. For
+example, assume you want to create a new tab in Guake (a dropdown
+terminal emulator) by pressing C-n instead of C-S-t (the Guake
+default). Then put:
+
+( add-window-matcher '( ( WM_CLASS . "^Guake.py/guake.py$" ) )
+       '( ( keymap-trans . ( ( "C-n" "C-S-t" ) ) ) ) )
+
+This is also useful in conjunction with an application specific
+keymap, to prevent colliding bindings.
+
+Nested Keybindings (Macros)
+===========================
+
+another thing would be nested keybindings (I prefer `macros' instead of `nested keyinbindgs'),
+like in emacs. nested means you first press keys which together act as a new modifier
+(this new modifier works like the compose key does -> you don't have to keep it pressed, like other modifiers),
+then you press another key (or keybinding) to actually perform the desired action, example:
+
+;; create a new meta-keymap called apps-keymap
+( define apps-keymap ( make-keymap ) )
+
+;; glue it into the global-keymap, make the apps-keymap modifier W-e (WM-Modifier + e)
+( bind-keys global-keymap "W-e" apps-keymap )
+
+;; add bindings to the apps-keymap
+( bind-keys apps-keymap "b" '( system "bluefish &" ) )
+
+now first press "W-e" (as I said no need to keep it pressed) and press b, now bluefish starts.
+
+Default Keymaps and Keybindings
+===============================
+"Toggle" in the command name means switching between "on" and "off".
+
+Explanation of Keymaps (+ default bindings)
+
+global-keymap (Those bindings are active everywhere):
+
+W-Left -> Previous Workspace
+W-Right -> Next Workspace
+W-Tab -> Cycle Windows
+
+window-keymap (Those bindings are active when the pointer is inside a window, but not on the titlebar)
+
+W-Up -> Raise Window
+W-Down -> Lower Window
+W-Button3-Click1 -> Raise Or Lower Window
+W-Button1-Move -> Move Window Interactively
+Button1-Click1 -> Raise And Pass Trough Click (Raise And Focus) Window
+W-ISO_Left_Tab -> tab-raise-left-window
+H-ISO_Left_Tab -> tab-raise-right-window
+
+root-window-keymap (Those bindings are active on the root window ("The desktop background"))
+
+Button2-Click1 -> Popup Sawfish Menu
+
+title-keymap (Those bindings are active when the pointer is on the titlebar)
+
+Button3-Off -> Raise Or Lower Window
+Button2-Move -> Resize Window Interactively
+Button1-Off2 -> Toggle Window Shaded
+Button1-Move -> Move Window Interactively
+Button2-Off -> Add Window To Tab Group
+
+tabbar-keymap (Those bindings are active when the pointer is on the tabbar)
+
+Button1-Off2 -> Toggle Window Shaded
+Button1-Move -> Move Window Interactively
+Button2-Off -> Tab Add To Group
+Button3-Click -> Tab Release Window
+Button3-Move -> Move Window Interactively
+
+border-keymap (Those bindings are active when the pointer is on the border)
+
+Button3-Off -> Raise Or Lower Window
+Button1-Move -> Resize Window Interactively
+Button2-Move -> Move Window Interactively
+
+close-button-keymap (Those bindings are active when the pointer is on the close button)
+
+Button3-Click1 -> Popup Window Menu
+S-Button1-Off -> Delete Group
+Button1-Off -> Delete Window
+
+iconify-button-keymap (Those bindings are active when the pointer is on the iconify button)
+
+Button3-Click1 -> Popup Window Menu
+Button1-Off -> Iconify Window
+
+maximize-button-keymap (Those bindings are active when the pointer is on the maximize button)
+
+Button3-Off -> Toggle Horizontal Maximization
+Button2-Off -> Toggle Vertical Maximization
+Button1-Off -> Toggle Maximization
+
+menu-button-keymap (Those bindings are active when the pointer is on the menu button)
+
+Button3-Off -> Delete Window
+Button1-Click1 -> Popup Window Menu
+
+shade-button-keymap (Those bindings are active when the pointer is on the shade button)
+
+Button1-Off -> Toggle Window Shaded
+
+sticky-button-keymap (Those bindings are active when the pointer is on the sticky button)
+
+Button1-Off -> Toggle Window Sticky
+Button2-Off -> Toggle Window Viewport-Sticky
+
+lock-button-keymap (Those bindings are active when the pointer is on the lock button)
+
+Button1-Off -> Toggle Window Fixed-Position
+
+rename-button-keymap (Those bindings are active when the pointer is on the rename button)
+
+Button1-Off -> Rename Window
+
+move-resize-button-keymap (Those bindings are active when the pointer is on the move/resize button)
+
+Button1-Off -> Move Window Interactively
+Button2-Off -> Resize Window Interactively
+Button3-Off -> Move Window Center
+Button4-Off -> Double Window Size
+Button5-Off -> Halve Window Size
+
+raise-lower-button-keymap (Those bindings are active when the pointer is on the raise/lower button)
+
+Button1-Off -> Raise Window Depth
+Button2-Off -> Raise Window
+Button3-Off -> Lower Window Depth
+Button4-Off -> Raise Window
+Button5-Off -> Lower Window

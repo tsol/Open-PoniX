@@ -1,0 +1,1230 @@
+.\"
+.\" Copyright (C) 1999-2007,2014	Landon Curt Noll
+.\"
+.\" Calc is open software; you can redistribute it and/or modify it under
+.\" the terms of the version 2.1 of the GNU Lesser General Public License
+.\" as published by the Free Software Foundation.
+.\"
+.\" Calc is distributed in the hope that it will be useful, but WITHOUT
+.\" ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General
+.\" Public License for more details.
+.\"
+.\" A copy of version 2.1 of the GNU Lesser General Public License is
+.\" distributed with calc under the filename COPYING-LGPL.  You should have
+.\" received a copy with calc; if not, write to Free Software Foundation, Inc.
+.\" 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+.\"
+.\" @(#) $Revision: 30.6 $
+.\" @(#) $Id: calc.man,v 30.6 2014/10/06 08:39:45 chongo Exp $
+.\" @(#) $Source: /usr/local/src/bin/calc/RCS/calc.man,v $
+.\"
+.\" Under source code control:	    1991/07/23 05:48:26
+.\" File existed as early as:	    1991
+.\"
+.\" chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+.\" Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/
+.\"
+.\" calculator by David I. Bell
+.\" man page by Landon Noll
+.\"
+.TH calc 1 "^..^" "2007-02-06"
+.SH NAME
+calc \- arbitrary precision calculator
+.SH SYNOPSIS
+\fIcalc\fP
+.RB [ \-c ]
+.RB [ \-C ]
+.RB [ \-d ]
+.br
+.in +5n
+.RB [ -D\ \&calc_debug[:resource_debug[:user_debug]] ]
+.br
+.RB [ \-e ]
+.RB [ \-h ]
+.RB [ \-i ]
+.RB [ \-m\ \&mode ]
+.RB [ \-O ]
+.br
+.RB [ \-p ]
+.RB [ \-q ]
+.RB [ \-s ]
+.RB [ \-u ]
+.RB [ \-v ]
+.RB [ [\-\-]\ calc_cmd\ \&.\|.\|. ]
+.in -5n
+.sp
+\fI#!/usr/bin/calc\fP\ [other_flags\ \&...] \fB\-f\fP
+.SH DESCRIPTION
+\&
+.br
+CALC OPTIONS
+.PP
+
+.TP
+.B \-c
+Continue reading command lines even after a scan/parse
+error has caused the abandonment of a line.
+Note that this option only deals with scanning and
+parsing of the calc language.
+It does not deal with execution or run-time errors.
+.sp 1
+For example:
+.sp 1
+.in +5n
+.nf
+calc read many_errors.cal
+.fi
+.in -5n
+.sp 1
+will cause
+.B calc
+to abort on the first syntax error, whereas:
+.sp 1
+.in +5n
+.nf
+calc -c read many_errors.cal
+.fi
+.in -5n
+.sp 1
+will
+cause
+.B calc
+to try to process each line being read
+despite the scan/parse errors that it encounters.
+.sp 1
+By default, calc startup resource files are silently
+ignored if not found.
+This flag will report missing
+startup resource files unless
+.B \-d
+is also given.
+
+.TP
+.B \-C
+Permit the execution of custom builtin functions.
+Without
+this flag, calling the custom() builtin function will
+simply generate an error.
+.sp 1
+Use of this flag may cause
+.B calc
+to execute functions
+that are non-standard and that are not portable.  Custom builtin
+functions are disabled by default for this reason.
+
+.TP
+.B \-d
+Disable the printing of the opening title.  The printing
+of resource file debug and informational messages is also disabled
+as if \fBconfig("resource_debug", 0)\fP had been executed.
+.sp 1
+For example:
+.sp 1
+.in +5n
+calc "read qtime; qtime(2)"
+.in -5n
+.sp 1
+will output something like:
+.sp 1
+.in +5n
+.nf
+qtime(utc_hr_offset) defined
+It's nearly ten past six.
+.fi
+.in -5n
+.sp 1
+whereas:
+.sp 1
+.in +5n
+.nf
+calc -d "read qtime; qtime(2)"
+.fi
+.in -5n
+.sp 1
+will just say:
+.sp 1
+.in +5n
+.nf
+It's nearly ten past six.
+.fi
+.in -5n
+.sp 1
+This flag disables the reporting of missing calc
+startup resource files.
+
+.TP
+.BR -D " calc_debug[:resource_debug[:user_debug]]"
+Force the initial value of config("calc_debug"),
+config("resource_debug") and config("user_debug").
+.sp 1
+The : separated strings are interpreted as signed 32 bit integers.
+After an optional leading sign a leading zero indicates octal
+conversion, and a leading ``0x'' or ``0X'' hexadecimal
+conversion.  Otherwise, decimal conversion is assumed.
+.sp 1
+By default,
+.I calc_debug
+is 0,
+.I resource_debug
+is 3 and
+.I user_debug
+is 0.
+.sp 1
+For more information use the following
+.B calc
+command:
+.sp 1
+.in +5n
+.nf
+help config
+.fi
+.in -5n
+
+.TP
+.B \-e
+Ignore any environment variables on startup.
+The getenv() builtin will still return values, however.
+
+.TP
+.B \-f
+This flag is required when using calc in
+.BR "shell script mode" .
+It must be at the end of the initial
+.B #!
+line of the script.
+.sp 1
+This flag is normally only at the end of a calc shell script.
+If the first line of an executable file begins
+.B #!
+followed by the absolute pathname of the
+.B calc
+program and the flag
+.B \-f
+as in:
+.sp 1
+.in +5n
+.nf
+\fI#!/usr/bin/calc\fP\ [other_flags\ \&...] \fB\-f\fP
+.fi
+.in -5n
+.sp 1
+the rest of the file will be processed in
+.BR "shell script mode" .
+See
+.B "SHELL SCRIPT MODE"
+section of this man page
+below for details.
+.sp 1
+The actual form of this flag is:
+.sp 1
+.in +5n
+.B \-f
+filename
+.in -5n
+.sp 1
+On systems that treat an executable that begins with
+.B #!
+as a script, the path of the executable is appended by the kernel
+as the final argument to the exec() system call.
+This is why the
+.B \-f
+flag at the very end of the
+.B #!
+line.
+.sp 1
+It is possible use
+.B \-f\ filename
+on the command line:
+.sp 1
+.in +5n
+.nf
+\fIcalc\fP\ [other_flags\ \&...] \fB\-f\fP filename
+.fi
+.in -5n
+.sp 1
+This will cause calc to process lines in
+.B filename
+in
+.BR "shell script mode" .
+.sp 1
+Use of
+.B \-f
+implies
+.BR \-s .
+In addition,
+.B \-d
+and
+.B \-p
+are implied if
+.B \-i
+is not given.
+
+.TP
+.B \-h
+Print a help message.  This option implies
+.BR \-q .
+This
+is equivalent to the
+.B calc
+command help help.
+The help facility is disabled unless the mode is 5 or 7.
+See
+.BR \-m .
+
+.TP
+.B \-i
+Become interactive if possible.
+This flag will cause
+.B calc
+to drop into interactive mode after the
+.I calc_cmd
+arguments on the command line are evaluated.
+Without this flag,
+.B calc
+will exit after they are evaluated.
+.sp 1
+For example:
+.sp 1
+.in +5n
+.nf
+calc 2+5
+.fi
+.in -5n
+.sp 1
+will print the value 7 and exit whereas:
+.sp 1
+.in +5n
+.nf
+calc -i 2+5
+.fi
+.in -5n
+.sp 1
+will print the value 7 and prompt the user for more
+.B calc
+commands.
+
+.TP
+.BR \-m " mode"
+This flag sets the permission mode of
+.BR calc .
+It controls the ability for
+.B calc
+to open files and execute programs.
+.I Mode
+may be a number from 0 to 7.
+.sp 1
+The mode value is interpreted in a way similar to that
+of the
+.BR chmod (1)
+octal mode:
+.sp 1
+.in +5n
+.nf
+0  do not open any file, do not execute progs
+1  do not open any file
+2  do not open files for reading, do not execute progs
+3  do not open files for reading
+4  do not open files for writing, do not execute progs
+5  do not open files for writing
+6  do not execute any program
+7  allow everything (default mode)
+.fi
+.in -5n
+.sp 1
+If one wished to run
+.B calc
+from a privileged user, one might want to use
+.BR \-m " 0"
+in an effort to make
+.B calc
+somewhat more secure.
+.sp 1
+Mode bits for reading and writing apply only on an
+open.
+Files already open are not effected.
+Thus if one wanted to use the
+.BR \-m " 0"
+in an effort to make
+.B calc
+somewhat more secure, but still wanted to read and write a specific
+file, one might want to do in
+.BR sh (1),
+.BR ksh (1),
+.BR bash (1)-like
+shells:
+.sp 1
+.in +5n
+.nf
+calc -m 0 3<a.file
+.fi
+.in -5n
+.sp 1
+Files presented to
+.B calc
+in this way are opened in an
+unknown mode.
+.B Calc
+will attempt to read or write them if directed.
+.sp 1
+If the mode disables opening of files for reading, then
+the startup resource files are disabled as if
+.B \-q
+was given.
+The reading of key bindings is also disabled
+when the mode disables opening of files for reading.
+
+.TP
+.B \-O
+Use the old classic defaults instead of the
+default configuration.
+This flag as the same effect
+as executing \fBconfig("all", "oldcfg")\fP at startup time.
+.sp 1
+NOTE: Older versions of calc used
+.B \-n
+to setup a modified form of the default calc configuration.
+The
+.B \-n
+flag currently does nothing.
+Use of the
+.B \-n
+flag is now deprecated and may be used for
+something else in the future.
+
+.TP
+.B \-p
+Pipe processing is enabled by use of
+.BR \-p .
+For example:
+.sp 1
+.in +5n
+.nf
+calc -p "2^21701-1" | fizzbin
+.fi
+.in -5n
+.sp 1
+In pipe mode,
+.B calc
+does not prompt, does not print leading
+tabs and does not print the initial header.
+The
+.B \-p
+flag overrides
+.BR \-i .
+
+.TP
+.B \-q
+Disable the reading of the startup scripts.
+
+.TP
+.B \-s
+By default, all
+.I calc_cmd
+args are evaluated and executed.
+This flag will disable their evaluation and instead make
+them available as strings for the argv() builtin function.
+
+.TP
+.B \-u
+Disable buffering of stdin and stdout.
+
+.TP
+.B \-v
+Print the
+.B calc
+version number and exit.
+
+.TP
+.B \-\-
+The double dash indicates to calc that no more option follow.
+Thus calc will ignore a later argument on the command line
+even if it starts with a dash.
+This is useful when entering negative values on the command line as in:
+.sp 1
+.in +5n
+.nf
+calc \-p \-\- \-1 - -7
+.sp 1
+.fi
+.in -5n
+
+.PP
+
+\&
+.br
+CALC COMMAND LINE
+.PP
+With no
+.I calc_cmd
+arguments,
+.B calc
+operates interactively.
+If one or more
+arguments are given on the command line and
+.B \-s
+is NOT given, then
+.B calc
+will read and execute them and either attempt
+to go interactive according as the
+.B \-i
+flag was present or absent.
+.sp
+If
+.B \-s
+is given,
+.B calc
+will not evaluate any
+.I calc_cmd
+arguments but instead make them available
+as strings to the argv() builtin function.
+
+Sufficiently simple commands with no no characters like
+parentheses, brackets, semicolons, '*', which have special
+interpretations in UNIX shells may be entered, possibly with
+spaces, until the terminating newline.
+For example:
+.sp 1
+.in +5n
+.nf
+calc 23 + 47
+.fi
+.in -5n
+.sp 1
+will print 70.
+However, command lines will have problems:
+.sp 1
+.in +5n
+.nf
+calc 23 * 47
+.sp 1
+calc -23 + 47
+.fi
+.in -5n
+.sp 1
+The first example above fails because the shell interprets the '*'
+as a file glob.
+The second example fails because '\-23' is viewed as a calc option
+(which it is not) and do calc objects to that it thinks of as an unknown option.
+These cases can usually be made to work as expected by
+enclosing the command between quotes:
+.sp 1
+.in +5n
+.nf
+calc '23 * 47'
+.sp 1
+calc "print sqrt(2), exp(1)"
+.fi
+.in -5n
+.sp 1
+or in parentheses and quotes to avoid leading \-'s as in:
+.sp 1
+.in +5n
+.nf
+calc '(-23 + 47)'
+.fi
+.in -5n
+.sp 1
+One may also use a double dash to denote that calc options have ended as in:
+.sp 1
+.in +5n
+.nf
+calc -- -23 + 47
+.sp 1
+calc -q -- -23 + 47
+.fi
+.in -5n
+.sp 1
+If '!' is to be used to indicate the factorial function, for
+shells like
+.BI csh (1)
+for which '!' followed by a non-space character
+is used for history substitution, it may be necessary to
+include a space or use a backslash to escape the special
+meaning of '!'.
+For example, the command:
+.sp 1
+.in +5n
+.nf
+print 27!^2
+.fi
+.in -5n
+.sp 1
+may have to be replaced by:
+.sp 1
+.in +5n
+.nf
+print 27! ^2	or	print 27\!^2
+.fi
+.in -5n
+
+\&
+.br
+CALC STARTUP FILES
+.PP
+Normally on startup,
+if the environment variable
+.B $CALCRC
+is undefined and
+.B calc
+is invoked without the
+.B \-q
+flag, or if
+.B $CALCRC
+is defined and calc is invoked with
+.BR \-e ,
+.B calc
+looks for a file "startup" in the calc resource directory
+.B .calcrc
+in the user's home directory, and
+.B .calcinit in the current directory.
+If one or more of these are found, they are read in succession as
+.B calc
+scripts and their commands executed.
+When defined,
+.B $CALCRC
+is to contain a ':' separated list of names of files,
+and if calc is then invoked without either the
+.B \-q
+or
+.B \-e
+flags, these files are read in succession and their commands executed.
+No error condition is produced if a listed file is not found.
+.sp
+If the mode specified by
+.B \-m
+disables opening of files for reading, then the reading of startup
+files is also disabled as if
+.B \-q
+was given.
+
+\&
+.br
+CALC FILE SEARCH PATH
+.PP
+If the environment variable
+.B $CALCPATH
+is undefined, or if it
+is defined and
+.B calc
+is invoked with the
+.B \-e
+flag, when a file name not beginning with
+.BR / ,
+.B ~
+or
+.BR ./ ,
+is specified as in:
+.sp 1
+.in +5n
+.nf
+calc read myfile
+.fi
+.in -5n
+.sp 1
+.B calc
+searches in succession:
+.sp 1
+.in +5n
+.nf
+./myfile
+./myfile.cal
+/usr/lib/myfile
+/usr/lib/myfile.cal
+/usr/share/calc/custom/myfile
+/usr/share/calc/custom/myfile.cal
+.fi
+.in -5n
+.sp 1
+If the file is found, the
+search stops and the commands in the file are executed.
+It is an error if no readable file with the specified name is found.
+An alternative search path can be specified by defining
+.B $CALCPATH
+in the same way as PATH is defined, as a ':' separated
+list of directories, and then invoking
+.B calc
+without the
+.B \-e
+flag.
+.PP
+.B Calc
+treats all open files, other than stdin, stdout and
+stderr as files available for reading and writing.
+One may
+present
+.B calc
+with an already open file using
+.BR sh (1),
+.BR ksh (1),
+.BR bash (1)-like
+shells is to:
+.sp 1
+.in +5n
+calc 3<open_file 4<open_file2
+.in -5n
+.sp 1
+For more information use the following
+.B calc
+commands:
+.sp 1
+.in +5n
+.nf
+help help
+help overview
+help usage
+help environment
+help config
+.fi
+.in -5n
+.sp 1
+.PP
+
+\&
+.br
+SHELL SCRIPT MODE
+.PP
+If the first line of an executable file begins
+.B #!
+followed by the absolute pathname of the
+.B calc
+program and the flag
+.B \-f
+as in:
+.sp 1
+.in +5n
+.nf
+\fI#!/usr/bin/calc\fP\ [other_flags\ \&...] \fB\-f\fP
+.fi
+.in -5n
+.sp 1
+the rest of the file will be processed in
+.BR "shell script mode" .
+Note that
+.B \-f
+must at the end of the initial ``#!'' line.
+Any other optional
+.B "other_flags"
+must come before
+the
+.BR \-f .
+.sp 1
+In
+.B "shell script mode"
+the contents of the file are read and
+executed as if they were in a file being processed by a read
+command, except that a "command" beginning with '#' followed by
+whitespace and ending at the next newline is treated as a comment.
+Any optional
+.B "other_flags"
+will be parsed first followed by
+the later lines within the script itself.
+.sp 1
+In
+.BR "shell script mode" ,
+.B \-s
+is always assumed.
+In addition,
+.B \-d
+and
+.B \-p
+are automatically set if
+.B \-i
+is not given.
+.sp 1
+For example, if
+the file
+.BR /tmp/mersenne :
+.sp 1
+.in +5n
+.nf
+\fI#!/usr/bin/calc\fP\ \&\fB\-q\fP \fB\-f\fP
+#
+# mersenne - an example of a calc \fBshell script file\fP
+
+/* parse args */
+if (argv() != 1) {
+    fprintf(files(2), "usage: %s exp\\n", config("program"));
+    abort "must give one exponent arg";
+}
+
+/* print the mersenne number */
+print "2^": argv(0) : "-1 =", 2^eval(argv(0))-1;
+.fi
+.in -5n
+.sp 1
+is made an executable file by:
+.sp 1
+.in +5n
+.nf
+chmod +x /tmp/mersenne
+.fi
+.in -5n
+.sp 1
+then the command line:
+.sp 1
+.in +5n
+.nf
+/tmp/mersenne 127
+.fi
+.in -5n
+.sp 1
+will print:
+.sp 1
+.in +5n
+.nf
+2^127-1 = 170141183460469231731687303715884105727
+.fi
+.in -5n
+.sp 1
+Note that because
+.B \-s
+is assumed in
+.B "shell script mode"
+and non-dashed args are made available as
+strings via the
+.BR argv ()
+builtin function.
+Therefore:
+.sp 1
+.in +5n
+.nf
+2^eval(argv(0))-1
+.fi
+.in -5n
+.sp 1
+will print the decimal value of 2^n-1
+but
+.sp 1
+.in +5n
+.nf
+2^argv(0)-1
+.fi
+.in -5n
+.sp 1
+will not.
+.PP
+
+\&
+.br
+DATA TYPES
+.PP
+Fundamental builtin data types include integers, real numbers,
+rational numbers, complex numbers and strings.
+.PP
+By use of an object, one may define an arbitrarily complex
+data types.
+One may define how such objects behave a wide range of
+operations such as addition, subtraction,
+multiplication, division, negation, squaring, modulus,
+rounding, exponentiation, equality, comparison, printing
+and so on.
+.PP
+For more information use the following
+.B calc
+commands:
+.PP
+.in 1.0i
+help types
+.br
+help obj
+.br
+show objfuncs
+.in -1.0i
+.PP
+
+\&
+.br
+VARIABLES
+.PP
+Variables in \fIcalc\fP are typeless.
+In other words, the fundamental type of a variable is determined by its content.
+Before a variable is assigned a value it has the value of zero.
+.PP
+The scope of a variable may be global, local to a file, or local to a
+procedure.
+Values may be grouped together in a matrix, or into a
+a list that permits stack and queue style operations.
+.PP
+For more information use the following
+.B calc
+commands:
+.PP
+.in 1.0i
+help variable
+.br
+help mat
+.br
+help list
+.br
+show globals
+.in -1.0i
+.PP
+
+\&
+.br
+INPUT/OUTPUT
+.PP
+A leading ``0x'' implies a hexadecimal value,
+a leading ``0b'' implies a binary value,
+and a ``0'' followed by a digit implies an octal value.
+Complex numbers are indicated by a trailing ``i'' such as in ``3+4i''.
+Strings may be delimited by either a pair of single or double quotes.
+By default, \fIcalc\fP prints values as if they were floating point numbers.
+One may change the default to print values in a number of modes
+including fractions, integers and exponentials.
+.PP
+A number of stdio-like file I/O operations are provided.
+One may open, read, write, seek and close files.
+Filenames are subject to ``\~'' expansion to home directories
+in a way similar to that of the Korn or C-Shell.
+.PP
+For example:
+.PP
+.in 1.0i
+~/.calcrc
+.br
+~chongo/lib/fft_multiply.cal
+.in -1.0i
+.PP
+For more information use the following
+.B calc
+command:
+.PP
+.in 1.0i
+help file
+.in -1.0i
+.PP
+
+\&
+.br
+CALC LANGUAGE
+.PP
+The \fIcalc\fP language is a C-like language.
+The language includes commands such as variable declarations,
+expressions, tests, labels, loops, file operations, function calls.
+These commands are very similar to their counterparts in C.
+.PP
+The language also include a number of commands particular
+to \fIcalc\fP itself.
+These include commands such as function definition, help,
+reading in resource files, dump files to a file, error notification,
+configuration control and status.
+.PP
+For more information use the following
+.B calc
+command:
+.PP
+.in 1.0i
+help command
+.br
+help statement
+.br
+help expression
+.br
+help operator
+.br
+help config
+.in -1.0i
+.PP
+.SH FILES
+\&
+.br
+.PD 0
+.TP 5
+/usr/bin/calc
+calc binary
+.sp 1
+.TP 5
+/usr/bin/cscript/*
+calc shell scripts
+.sp 1
+.TP 5
+/usr/lib/*.cal
+calc standard resource files
+.sp 1
+.TP 5
+/usr/lib/help/*
+help files
+.sp 1
+.TP 5
+/usr/lib/bindings
+non-GNU-readline command line editor bindings
+.sp 1
+.TP 5
+/usr/include/calc/*.h
+include files for C interface use
+.sp 1
+.TP 5
+/usr/lib/libcalc.a
+calc binary link library
+.sp 1
+.TP 5
+/usr/lib/libcustcalc.a
+custom binary link library
+.sp 1
+.TP 5
+/usr/share/calc/custom/*.cal
+custom resource files
+.sp 1
+.TP 5
+/usr/share/calc/custhelp/*
+custom help files
+.sp 1
+.SH ENVIRONMENT
+\&
+.br
+.PD 0
+.TP 5
+CALCPATH
+A :-separated list of directories used to search for calc
+resource filenames that do not begin with /, ./ or ~.
+.br
+.sp
+Default value: .:./cal:~/.cal:/usr/share/calc:/usr/share/calc/custom
+.br
+.sp
+.TP 5
+CALCRC
+On startup (unless \-h or \-q was given on the command
+line),
+.B calc
+searches for files along this :-separated
+environment variable.
+.br
+.sp
+Default value: /usr/share/calc/startup:~/.calcrc:./.calcinit
+.br
+.sp
+.TP 5
+CALCBINDINGS
+On startup (unless \fI\-h\fP or \fI\-q\fP was given on the command
+line, or \fI\-m\fP disallows opening files for reading),
+.B calc
+reads
+key bindings from the filename specified
+by this environment variable.
+The key binding file is searched for along the $CALCPATH list
+of directories.
+.sp
+Default value: binding
+.sp
+This variable is not used if calc was compiled with GNU-readline support.
+In that case, the standard readline mechanisms (see readline(3)) are used.
+.sp
+.SH CREDIT
+\&
+.br
+The main chunk of
+.B calc
+was written by David I. Bell.
+.sp
+The
+.B calc
+primary mirror, calc mailing list and calc bug report
+processing is performed by Landon Curt Noll.
+.sp
+Landon Curt Noll maintains the master reference source, performs
+release control functions as well as other calc maintenance functions.
+.sp
+Thanks for suggestions and encouragement from Peter Miller,
+Neil Justusson, and Landon Noll.
+.sp
+Thanks to Stephen Rothwell for writing the original version of
+hist.c which is used to do the command line editing.
+.sp
+Thanks to Ernest W. Bowen for supplying many improvements in
+accuracy and generality for some numeric functions.  Much of
+this was in terms of actual code which I gratefully accepted.
+Ernest also supplied the original text for many of the help files.
+.sp
+Portions of this program are derived from an earlier set of
+public domain arbitrarily precision routines which was posted
+to the net around 1984.
+By now, there is almost no recognizable
+code left from that original source.
+.sp
+.SH "COPYING / CALC GNU LESSER GENERAL PUBLIC LICENSE"
+\&
+.sp
+Calc is open software, and is
+covered under version 2.1 of the GNU Lesser General Public License.
+You are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+The calc commands:
+.sp
+.in +0.5i
+.nf
+help copyright
+help copying
+help copying-lgpl
+.fi
+.in -0.5i
+.sp
+should display the contents of the COPYING and COPYING-LGPL files.
+Those files contain information about the calc's GNU Lesser General
+Public License, and in particular the conditions under which you
+are allowed to change it and/or distribute copies of it.
+.sp
+You should have received a copy of the version 2.1 of the GNU Lesser General
+Public License.
+If you do not have these files, write to:
+.sp
+.in +0.5i
+.nf
+Free Software Foundation, Inc.
+51 Franklin Street
+Fifth Floor
+Boston, MA  02110-1301
+USA
+.fi
+.in -0.5i
+.sp
+Calc is copyrighted in several different ways.
+These ways include:
+.sp
+.in +0.5i
+.nf
+Copyright (C) year  David I. Bell
+Copyright (C) year  David I. Bell and Landon Curt Noll
+Copyright (C) year  David I. Bell and Ernest Bowen
+Copyright (C) year  David I. Bell, Landon Curt Noll and Ernest Bowen
+Copyright (C) year  Landon Curt Noll
+Copyright (C) year  Ernest Bowen and Landon Curt Noll
+Copyright (C) year  Ernest Bowen
+.fi
+.in -0.5i
+.sp
+This man page is:
+.sp
+.in +0.5i
+.nf
+Copyright (C) 1999  Landon Curt Noll
+.fi
+.in -0.5i
+.sp
+and is covered under version 2.1 GNU Lesser General
+Public License.
+.sp
+.SH "CALC MAILING LIST / CALC UPDATES / ENHANCEMENTS"
+\&
+.br
+.sp
+To contribute comments, suggestions, enhancements
+and interesting
+.B calc
+resource files, and
+shell scripts please join the calc-tester
+low volume moderated calc mailing list.
+.sp
+To the calc-tester mailing list, visit the following URL:
+.sp
+.in +0.5i
+.nf
+https://www.listbox.com/subscribe/?list_id=239342
+.fi
+.in -0.5i
+.sp
+To help determine you are a human and not just a spam bot,
+you will be required to provide the following additional information:
+.sp
+.in +0.5i
+.nf
+Your Name
+
+Calc Version
+   For example, the current version is: 2.12.5.0
+
+Operating System
+   If you don't know your operating system, enter: unknown
+
+The date 7 days ago
+   Consult a calendar :-)
+.fi
+.in -0.5i
+.sp
+If you need a human to help you with your mailing list subscription,
+or if you have problems with the above procedure, please
+send EMail to our special address:
+.sp
+.in +0.5i
+.nf
+calc-tester-maillist-help at asthe dot com
+
+NOTE: Remove spaces and replace 'at' with @, 'dot' with .
+
+NOTE: Yes, the EMail address uses 'asthe',
+      while the web site uses 'isthe'.
+.fi
+.in -0.5i
+.sp
+To be sure we see your EMail asking for help with your mailing list
+subscription, please use the following phase in your EMail Subject line
+your subject must contain the words:
+.sp
+.in +0.5i
+.nf
+calc tester mailing list help
+.fi
+.in -0.5i
+.sp
+You may have additional words in your subject line.
+.sp
+.SH "BUG REPORTS / BUG FIXES"
+\&
+.br
+.sp
+Send bug reports and bug fixes to:
+.sp
+.in +0.5i
+.nf
+calc-bug-report at asthe dot com
+
+NOTE: Remove spaces and replace 'at' with @, 'dot' with .
+
+NOTE: Yes, the EMail address uses 'asthe',
+      while the web site uses 'isthe'.
+.fi
+.in -0.5i
+.sp
+Your subject must contain the words:
+.sp
+.in +0.5i
+.nf
+calc bug report
+.fi
+.in -0.5i
+.sp
+You may have additional words in your subject line.
+.in
+However, you may find it more helpful to simply subscribe to the
+calc-tester mailing list (see above) and then to send your report
+to that mailing list as a wider set calc testers may be able to help you.
+.sp
+See the
+.I BUGS
+source file or use the
+.I calc
+command:
+.sp
+.in +0.5i
+.nf
+help bugs
+.fi
+.in -0.5i
+.sp
+for more information about bug reporting.
+.sp
+.SH "CALC WEB SITE"
+\&
+.br
+Landon Noll maintains the
+.B calc
+web site is located at:
+.sp
+.in +0.5i
+www.isthe.com/chongo/tech/comp/calc/
+.in -0.5i
+.sp
+Share and Enjoy! :\-)

@@ -1,0 +1,39 @@
+- after exiting from ncurses mode, the contents of the screen are not always
+  restored--other programs have this problem too:
+  			aumix	alpine	lynx	mc	mutt	vim
+  Linux VGA console	failure	failure failure failure	failure	failure
+  Linux xterm		success success	success	success	success	success
+  FreeBSD syscons	failure	failure	failure	success	failure	failure
+  FreeBSD xterm		failure	failure	failure	failure	failure	failure
+- when the sound driver supports only a single recording source, aumix may use
+  an incorrect ioctl (Debian bug 116396, reported by Antonio Arauzo--see
+  <URL:http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=116396>--unconfirmed)
+- when using the GTK+ interface, if no sound driver is loaded, no error message
+  is printed (Debian bug 170370, reported by Jan Minaarz--see
+  <URL:http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=170370>--confirmed by
+  Trevor Johnson)
+- suspending with ^Z may make the terminal difficult to use
+- most translations need to be updated
+- on the PC, program exits from ncurses mode when it receives strange keyboard
+  input such as Alt- combinations
+- ncurses display is not correct on very narrow terminals (22 columns or fewer)
+- in an xterm, screen may not always be redrawn properly when it is resized
+- some options only work when given in a particular order
+- "-f -" does not load settings from stdin
+- balance controls can get stuck when adjusted from the keyboard
+- Christian Weisgerber reports "aumix dies with malloc() complaining about a
+  recursive call"
+- configure --help doesn't mention --without-gpm or --without-sysmouse
+- Greg Louis reports problems with "make install" on Linux with libc5 when GNU
+  gettext is not installed:
+   /bin/sh: --default-domain=aumix: command not found
+   make[1]: *** [aumix.pot] Error 127
+   make[1]: Leaving directory `/usr/local/src/aumix-2.1/po'
+   make: *** [install-recursive] Error 1
+  This error also appears on FreeBSD with gettext installed, when building
+  with --disable-nls and no patches applied (not using the port).
+- GNU make is still needed for "clean" and "distclean" targets, and for
+  generating po/aumix.pot
+- generation of intl/po2tbl.sed (which generates po/cat-id-tbl.c) is broken
+
+$Aumix: aumix/BUGS,v 1.5 2010/04/27 20:11:55 trevor Exp $

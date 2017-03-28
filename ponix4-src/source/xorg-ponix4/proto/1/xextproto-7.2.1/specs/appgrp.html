@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Application Group Extension to the X Protocol</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /><meta name="description" content="The Application Group Extension to the X protocol is intended to provide a framework to allow more than one program to manage X applications on the desktop. The initial use of this extension will be to insert or embed the windows of X programs into the windows of another program, such as a web browser. This extension is not intended to address larger embedding issues that, for example, OpenDoc does, such as shared menu bars, etc." /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="article" title="Application Group Extension to the X Protocol"><div class="titlepage"><div><div><h2 class="title"><a id="appgrp"></a>Application Group Extension to the X Protocol</h2></div><div><h3 class="subtitle"><em>X Consortium Standard</em></h3></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Kaleb</span> <span class="othername">S.</span> <span class="surname">KEITHLEY</span></h3><div class="affiliation"><span class="orgname">X Consortium, Inc<br /></span></div><code class="email">&lt;<a class="email" href="mailto:kaleb@x.org">kaleb@x.org</a>&gt;</code></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="releaseinfo">Version 1.0</p></div><div><p class="copyright">Copyright © 1996 X Consortium, Inc.</p></div><div><div class="legalnotice" title="Legal Notice"><a id="id2924586"></a><p>
+All Rights Reserved.
+</p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OF OR OTHER DEALINGS IN THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of the X Consortium shall not be used in advertising
+or otherwise to promote the sale, use or other dealings in this Software without prior written
+authorization from the X Consortium.
+</p><p>X Window System is a trademark of The OpenGroup.</p></div></div><div><p class="pubdate">27 September 1996</p></div><div><div class="abstract" title="Abstract"><p>
+The Application Group Extension to the X protocol is intended to provide a framework to allow
+more than one program to manage X applications on the desktop. The initial use of this extension
+will be to insert or embed the windows of X programs into the windows of another program, such
+as a web browser. This extension is not intended to address larger embedding issues that, for
+example, OpenDoc does, such as shared menu bars, etc.
+</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#Purpose_and_Goals">Purpose and Goals</a></span></dt><dt><span class="sect1"><a href="#Overview_of_the_protocol">Overview of the protocol.</a></span></dt><dt><span class="sect1"><a href="#Requests">Requests</a></span></dt><dt><span class="sect1"><a href="#Changes_to_Existing_Requests">Changes to Existing Requests</a></span></dt><dd><dl><dt><span class="sect2"><a href="#MapWindow">MapWindow</a></span></dt><dt><span class="sect2"><a href="#ConfigureWindow">ConfigureWindow</a></span></dt><dt><span class="sect2"><a href="#CreateWindow">CreateWindow</a></span></dt><dt><span class="sect2"><a href="#ChangeWindowAttributes">ChangeWindowAttributes</a></span></dt></dl></dd><dt><span class="sect1"><a href="#Changes_to_Existing_Events">Changes to Existing Events</a></span></dt><dd><dl><dt><span class="sect2"><a href="#MapRequest">MapRequest</a></span></dt><dt><span class="sect2"><a href="#ConfigureRequest">ConfigureRequest</a></span></dt></dl></dd><dt><span class="sect1"><a href="#Errors">Errors</a></span></dt><dd><dl><dt><span class="sect2"><a href="#AppGroupQueryVersion">AppGroupQueryVersion</a></span></dt><dt><span class="sect2"><a href="#AppGroupCreate">AppGroupCreate</a></span></dt><dt><span class="sect2"><a href="#AppGroupDestroy">AppGroupDestroy</a></span></dt><dt><span class="sect2"><a href="#AppGroupGetAttr">AppGroupGetAttr</a></span></dt><dt><span class="sect2"><a href="#AppGroupQuery">AppGroupQuery</a></span></dt><dt><span class="sect2"><a href="#AppGroupCreateAssociation">AppGroupCreateAssociation</a></span></dt><dt><span class="sect2"><a href="#AppGroupDestroyAssociation">AppGroupDestroyAssociation</a></span></dt></dl></dd><dt><span class="sect1"><a href="#Encoding">Encoding</a></span></dt><dt><span class="sect1"><a href="#Library_API">Library API</a></span></dt><dt><span class="appendix"><a href="#system_window_encodings">A. System Window Encodings</a></span></dt></dl></div><div class="sect1" title="Purpose and Goals"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Purpose_and_Goals"></a>Purpose and Goals</h2></div></div></div><p>
+The Application Group Extension to the X protocol is intended to provide
+a framework to allow more than one program to manage X applications on
+the desktop. The initial use of this extension will be to insert or embed
+the windows of X programs into the windows of another program, such as a
+web browser. This extension is not intended to address larger embedding
+issues that, for example, OpenDoc does, such as shared menu bars, etc.
+Using X programs on the World Wide Web allows for greater control of the
+presentation and takes advantage of the existing body of X programs rather
+than re-implement them in another language. In addition it allows the
+embedding of non-X programs into web browsers by using third party products
+like Wabi, MAE, and WinCenter.
+<sup>[<a id="id2898731" href="#ftn.id2898731" class="footnote">1</a>]</sup>
+</p></div><div class="sect1" title="Overview of the protocol."><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Overview_of_the_protocol"></a>Overview of the protocol.</h2></div></div></div><p>
+This extension introduces the concept of an Application Group. An Application Group is a set of one or more applications that are primarily managed by a special application known as the Application Group Leader, which, for example, might be a web browser. The primary purpose of Application Groups is to provide a means of sharing the Substructure-Redirect attribute of the root window between the window manager and one or more Application Group Leaders.
+</p><p>
+To join an Application Group an application must present the proper authorization during the connection setup. Authorizations are generated by the X server at the request of an Application Group Leader, and are then stored for the application to use to establish its connection to the X server. To generate an authorization the Application Group Leader sends a request to the server naming the Application Group to which the authorization will be bound, and any applications that connect using that authorization  will automatically become part of the associated Application Group. The protocol to generate an authorization is defined in the Security Extension specification.
+</p><p>
+As a member of an Application Group, when an application creates and maps a window as a child of the root window, the MapRequest and ConfigureRequest events are delivered to the Application Group Leader instead of the window manager. The Application Group Leader may then reparent the window into its own window hierarchy; or reissue the map request, in which case the window comes under the control of the window manager.
+</p></div><div class="sect1" title="Requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Requests"></a>Requests</h2></div></div></div><p><span class="bold"><strong>AppGroupQueryVersion</strong></span></p><div class="informaltable"><table border="0"><colgroup><col /></colgroup><tbody><tr><td>client_major_version: CARD16</td></tr><tr><td>client_minor_version: CARD16</td></tr><tr><td>=&gt;</td></tr><tr><td>server_major_version: CARD16</td></tr><tr><td>server_minor_version: CARD16</td></tr></tbody></table></div><p>
+If supplied, the client_major_version and client_minor_version indicate what version of the protocol the application wants the server to implement. The server version numbers returned indicate the version of the protocol the X server actually supports. This may not match the versions requested by the application. An implementation may (but need not) support more than one version simultaneously. The server_major_version and server_minor_version numbers are a mechanism to support any future revisions of the Application Group extension protocol which may be necessary. In general, the major version would increment for incompatible changes, and the minor version would increment for small, upward-compatible changes. X servers that support the protocol defined in this document will return a server_major_version of 1 and a server_minor_version of 0.
+</p><p><span class="bold"><strong>AppGroupCreate</strong></span></p><div class="informaltable"><table border="0"><colgroup><col /></colgroup><tbody><tr><td>app_group: APPGROUP</td></tr><tr><td>value_mask: BITMASK</td></tr><tr><td>value_list: LISTofVALUE</td></tr></tbody></table></div><p>
+This request creates an Application Group using app_group as the Application Group ID.
+</p><p>
+ 
+</p><p>
+The value_mask and value_list specify attributes of the Application Group that are to be explicitly initialized. The attributes, their types, and the default values are:
+</p><div class="informaltable"><table border="1"><colgroup><col class="c1" /><col class="c2" /><col class="c3" /></colgroup><tbody><tr><td>Attribute</td><td>Type</td><td>Default</td></tr><tr><td>app_group_leader</td><td>Bool</td><td>True</td></tr><tr><td>single_screen</td><td>Bool</td><td>True</td></tr><tr><td>default_root</td><td>Window</td><td>None</td></tr><tr><td>root_visual</td><td>VisualID</td><td>None</td></tr><tr><td>default_colormap</td><td>Colormap</td><td>None</td></tr><tr><td>black_pixel</td><td>Pixel</td><td>0</td></tr><tr><td>white_pixel</td><td>Pixel</td><td>0</td></tr></tbody></table></div><p>
+If the single_screen attribute is True then the number of video screens returned to a program in the Application Group in the connection setup message is one, irrespective of how many video screens the server actually has. If a server supports both video and print screens, then all print screens will always be returned. If single_screen is specified as True then the connection setup message will contain only the information about the video screen which has default_root as its root window, plus any print screens.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+The intent is to allow an embedding manager to ensure that it will be able to reparent any top-level windows that Application Group members create. By hiding the fact that there are other screens it can be reasonably assured that applications will only create top-level windows on the same screen that it itself appears on. An embedding manager should take care not to supply an invalid display, e.g. :0.1, to a program that will be in an Application Group where the single_screen attribute is True.
+</p></div><p>
+If single_screen is set to True default_root specifies which screen will be returned as screen zero in the connection setup message for applications in the Application Group. If set to None, then the real screen zero is used, otherwise the screen which has default_root as its root window will be used.
+</p><p>
+If single_screen is set to True the  root_visual and default_colormap attributes may be used to over-ride the default values that are returned in the connection setup information returned to new programs in the Application Group. If None is specified for root_visual or default_colormap then the normal default values for the screen (possibly spedified by default_root) are used, otherwise the specified values are used. If root_visual and/or default_colormap are specified they must be valid, i.e. root_visual must be a visual type available on the screen, and the colormap, if specified, must be a valid colormap for the visual that is used.
+</p><p>
+IF single_screen is set to True and default_colormap is not specified as None, the black_pixel and white_pixel attributes must be specified, and they will over-ride the default values that are returned in the connection setup returned to new programs in the Application Group. If default_colormap is specified as None and black_pixel and/or white_pixel are specified, they will be ignored.
+</p><p>
+The app_group_leader attribute is used to identify the Application Group Leader program for the app_group. By specifying True the server will identify the program making the request as the Application Group Leader for the application group. The Application Group Leader receives MapRequest and ConfigureRequest events from the server when an attempt is made to map or configure top-level windows of a program in an Application Group, instead of being sent to a window manager that has selected SubstructureRedirect events on the root window. The parent window field in these events will contain the Application Group ID.
+</p><p><span class="bold"><strong>AppGroupDestroy</strong></span></p><p>app_group: APPGROUP</p><p>
+This request destroys the app_group. If the app_group_leader attribute for the app_group is True, then any applications in the Application Group that are still connected will be killed as if a KillClient request had been received for that application.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+If the application that created a non-embedded Application Group exits, and therefore any Authorizations to be cancelled, and any applications  that attempt to open new connections to the X server using one of those Authorizations will be unable to do so.
+</p></div><p><span class="bold"><strong>AppGroupGetAttr</strong></span></p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td>&gt;app_group: APPGROUP</td></tr><tr><td>=&gt;</td></tr><tr><td>LISTofVALUE</td></tr></tbody></table></div><p>
+This request returns the application group attributes for app_group.
+</p><p><span class="bold"><strong>AppGroupQuery</strong></span></p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td>resource: XID</td></tr><tr><td>=&gt;</td></tr><tr><td>app_group: APPGROUP</td></tr></tbody></table></div><p>
+This request returns the Application Group ID of the application that created resource or None if that application is not associated with any Application Group. The resource value may be the resource base of the application.
+</p><p><span class="bold"><strong>AppGroupCreateAssociation</strong></span></p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td>window: WINDOW</td></tr><tr><td>window_type: CARD32</td></tr><tr><td>system_window: LISTofCARD8</td></tr></tbody></table></div><p>
+This request associates window with system_window. The window_type indicates the native window system of the application making the request. For non-X window_types both the embedding manager and the server must be executing on the same host. When system_window is Microsoft Windows or OS/2 Presentation Manager, the system_window is an HWND; when the native window system is Macintosh, the system_window is a WindowPtr and a Rect. The window may be used for any X request that takes a Window.
+</p><p><span class="bold"><strong>AppGroupDestroyAssociation</strong></span></p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td>window: WINDOW</td></tr></tbody></table></div><p>
+This request destroys the association created with AppGroupCreateAssociation. The window is destroyed. The system_window that was specified in the AppGroupCreateAssociation request is not affected.
+</p></div><div class="sect1" title="Changes to Existing Requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Changes_to_Existing_Requests"></a>Changes to Existing Requests</h2></div></div></div><div class="sect2" title="MapWindow"><div class="titlepage"><div><div><h3 class="title"><a id="MapWindow"></a>MapWindow</h3></div></div></div><p>
+If the override-redirect attribute of the window is False and if the window is a child of a root window and if the window belongs to an application that is in an application group and if some other application is the application group leader for that group, then a MapRequest event is generated and the window remains unmapped. Otherwise, the core protocol semantics apply.
+</p></div><div class="sect2" title="ConfigureWindow"><div class="titlepage"><div><div><h3 class="title"><a id="ConfigureWindow"></a>ConfigureWindow</h3></div></div></div><p>
+If the override-redirect attribute of the window is False and if the window is a child of a root window and if the window belongs to an application that is in an application group and if some other application is the application group leader for that group, then a ConfigureRequest event is generated and the window remains unchanged. Otherwise, the core protocol semantics apply.
+</p></div><div class="sect2" title="CreateWindow"><div class="titlepage"><div><div><h3 class="title"><a id="CreateWindow"></a>CreateWindow</h3></div></div></div><p>
+When a program in an Application Group creates a window that is a child of a root window and specifies CopyFromParent for the Visual, if the single_screen attribute is True and the root_visual attribute is set to something other than None, then the window will be created using the Application Group’s root_visual, otherwise core protocol semantics apply.
+</p><p>
+When a program in an Application Group creates a window that is a child of a root window and specifies CopyFromParent for the Colormap, if the single_screen attribute is True, the default_colormap attribute is set to something other than None, and the window’s Visual is the same as the Application Group’s root_visual attribute, then the window will be created using the Application Group’s default_colormap, otherwise core protocol semantics apply.
+</p></div><div class="sect2" title="ChangeWindowAttributes"><div class="titlepage"><div><div><h3 class="title"><a id="ChangeWindowAttributes"></a>ChangeWindowAttributes</h3></div></div></div><p>
+When a program in an Application Group changes the attributes of a window that is a child of a root window and specifies CopyFromParent for the Colormap, if the single_screen attribute is True, the default_colormap attribute is set to something other than None, and the window’s Visual is the same as the Application Group’s root_visual attribute, then the window will be created using the Application Group’s default_colormap, otherwise core protocol semantics apply.
+</p></div></div><div class="sect1" title="Changes to Existing Events"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Changes_to_Existing_Events"></a>Changes to Existing Events</h2></div></div></div><p>
+When the top-level window of an application that is a member of an Application Group  is the target of a MapWindow or ConfigureWindow request, if there is an Application Group Leader then MapRequest and ConfigureRequest events are automatically delivered to it, otherwise the core protocol semantics apply, i.e. they are delivered to the client, if any, that has SubstructureRedirect set in its root-window event mask, e.g. the window manager.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+The Application Group Leader must not select SubstructuRedirect events on a root window as doing so would result in a core protocol error; only one client is permitted to do so, and that is usually the window manager.
+</p></div><div class="sect2" title="MapRequest"><div class="titlepage"><div><div><h3 class="title"><a id="MapRequest"></a>MapRequest</h3></div></div></div><p>
+When a MapWindow request is received for a window whose override-redirect attribut is set to False and whose parent is the root window and the window belongs to an application that is in an application group and there is an application group leader for the group, then this event is delivered to the Application Group Leader with the parent field in the event set to the AppGroup ID. Otherwise the core protocol semantics apply.
+</p></div><div class="sect2" title="ConfigureRequest"><div class="titlepage"><div><div><h3 class="title"><a id="ConfigureRequest"></a>ConfigureRequest</h3></div></div></div><p>
+When a ConfigureWindow request is received for a window whose override-redirect attribut is set to False and whose parent is the root window and the window belongs to an application that is in an application group and there is an application group leader for the group, then this event is delivered to the Application Group Leader with the parent field in the event set to the AppGroup ID. Otherwise the core protocol semantics apply.
+</p></div></div><div class="sect1" title="Errors"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Errors"></a>Errors</h2></div></div></div><div class="sect2" title="AppGroupQueryVersion"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupQueryVersion"></a>AppGroupQueryVersion</h3></div></div></div><p>
+There are no errors for AppGroupQueryVersion.
+</p></div><div class="sect2" title="AppGroupCreate"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupCreate"></a>AppGroupCreate</h3></div></div></div><p>
+A Window error is returned if default_root is specified and is not a valid root window..
+</p><p>
+A Color error is returned default_colormap is specified but default_colormap is not a valid colormap for the screen of default_root.
+</p><p>
+A Match error is returned if root_visual and default_colormap are both specified, but
+</p><p>
+default_colormap’s visual is not root_visual.
+</p><p>
+A Match error is returned if root_visual does not exist for the screen of the default_root.
+</p></div><div class="sect2" title="AppGroupDestroy"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupDestroy"></a>AppGroupDestroy</h3></div></div></div><p>
+An AppGroup error is returned if app_group is not a valid Application Group.
+</p><p>
+An Access error is returned if an untrusted application attempts to destroy an Application Group created by a trusted application.
+</p></div><div class="sect2" title="AppGroupGetAttr"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupGetAttr"></a>AppGroupGetAttr</h3></div></div></div><p>
+An AppGroup error is returned if app_group is not a valid Application Group.
+</p><p>
+An Access error is returned if an untrusted application attempts to get the attributes of an Application Group created by a trusted application.
+</p></div><div class="sect2" title="AppGroupQuery"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupQuery"></a>AppGroupQuery</h3></div></div></div><p>
+An Access error is returned if an untrusted application attempts to query the Application Group of a trusted application.
+</p></div><div class="sect2" title="AppGroupCreateAssociation"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupCreateAssociation"></a>AppGroupCreateAssociation</h3></div></div></div><p>
+A Match error is returned if the X server does not support the window_type.
+</p><p>
+An Access error may be returned if the X server only supports the window_type on the local host and the program making the request is on a non-local host.
+</p><p>
+A Window error may be returned for system-specific errors related to system_window, e.g. system_window does not represent a valid native window.
+</p></div><div class="sect2" title="AppGroupDestroyAssociation"><div class="titlepage"><div><div><h3 class="title"><a id="AppGroupDestroyAssociation"></a>AppGroupDestroyAssociation</h3></div></div></div><p>
+A Window error is returned if window was not specified in a previous AppGroupCreateAssociation request.
+</p></div></div><div class="sect1" title="Encoding"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Encoding"></a>Encoding</h2></div></div></div><p>
+Please refer to the X11 Protocol encoding document as this document uses conventions established there.
+</p><p>
+The name of this extension is XC-APPGROUP
+</p><pre class="literallayout">
+<span class="bold"><strong>AppGroupQueryVersion</strong></span>
+      1      CARD8        opcode
+      1      0            XC-APPGROUP opcode
+      2      3            length
+      2      CARD16       client_major_version
+      2      CARD16       client_minor_version
+=&gt;
+      1      1            Reply
+      1                   unused
+      2      CARD16       sequence_number
+      4      0            length
+      2      CARD16       server_major_version
+      2      CARD16       server_minor_version
+      20                  unused
+</pre><pre class="literallayout">
+<span class="bold"><strong>AppGroupCreate</strong></span>
+      1      CARD8            opcode
+      1      1                XC-APPGROUP opcode
+      2      8+n              length
+      4      XID              app_group
+      4      BITMASK          attrib_mask
+             #x00000001   app_group_leader
+             #x00000002   single_screen
+             #0x0000004   default_root
+             #x00000008   root_visual
+             #x00000010   default_colormap
+             #x00000020   black_pixel
+             #x00000040   white_pixel
+      n      LISTofVALUE      value-list
+VALUEs
+      4      BOOL             app_group_leader
+      4      BOOL             single_screen
+      4      WINDOW           default_root
+      4      VISUALID         root_visual
+      4      COLORMAP         default_colormap
+      4      CARD32           black_pixel
+      4      CARD32           white_pixel
+</pre><pre class="literallayout">
+<span class="bold"><strong>AppGroupDestroy</strong></span>
+      1      CARD8            opcode
+      1      2                XC-APPGROUP opcode
+      2      2                length
+      4      XID              app_group
+</pre><pre class="literallayout">
+<span class="bold"><strong>AAppGroupGetAttr</strong></span>
+      1      CARD8            opcode
+      1      4                XC-APPGROUP opcode
+      2      2                length
+      4      XID              app_group
+=&gt;
+      1      1                Reply
+      1                       unused
+      2      CARD16           sequence_number
+      4      0                length
+      4      WINDOW           default_root
+      4      VISUALID         root_visual
+      4      COLORMAP         default_colormap
+      4      CARD32           black_pixel
+      4      CARD32           whte_pixel
+      1      BOOL             single_screen
+      1      BOOL             app_group_leader
+      2                       unused
+</pre><pre class="literallayout">
+<span class="bold"><strong>AppGroupQuery</strong></span>
+      1      CARD8            opcode
+      1      5                XC-APPGROUP opcode
+      2      2                length
+      4      XID              resource
+=&gt;
+      1      1                Reply
+      1                       unused
+      2      CARD16           sequence_number
+      4      0                length
+      4      XID              app_group
+      20                      unused
+</pre><pre class="literallayout">
+<span class="bold"><strong>AppGroupCreateAssoc</strong></span>
+      1      CARD8            opcode
+      1      6                XC-APPGROUP opcode
+      2      n                length
+      4      WINDOW           window
+      2      CARD16           window_type
+             #0      X11
+             #1      Macintosh
+             #2      Win32, OS/2 PM 2.x
+             #3      Win16, OS/2 PM 1.x
+      2      n                system_window_len
+      n      LISTofCARD8      system_window
+</pre><pre class="literallayout">
+<span class="bold"><strong>AppGroupDestroyAssoc</strong></span>
+      1      CARD8            opcode
+      1      7                XC-APPGROUP opcode
+      2      2                length
+      4      WINDOW           window
+</pre></div><div class="sect1" title="Library API"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Library_API"></a>Library API</h2></div></div></div><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status <span class="emphasis"><em>XagQueryVersion</em></span> (<span class="emphasis"><em> xkb, keycode</em></span>)                              /* macro */
+    </td></tr><tr><td class="functionargdecl">
+Display            <span class="emphasis"><em>dpy</em></span>;
+    </td></tr><tr><td class="functionargdecl">
+int *            <span class="emphasis"><em>major_version_return</em></span>;
+    </td></tr><tr><td class="functionargdecl">
+int *            <span class="emphasis"><em>minor_version_return</em></span>;
+    </td></tr></tbody></table></div><p>
+XagQueryVersion sets major_version_return and minor_version_return to the major and minor Application Group protocol version supported by the server. If the Xag library is compatible with the version returned by the server it returns non-zero. If dpy does not support the Application Group extension, or if the server and library protocol versions are incompatible, or if there was an error during communication with the server, it returns zero. No other Xag functions may be called before this function. If a program violates this rule, the effects of all subsequent Xag calls that it makes are undefined.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+An embedding manager in, e.g. a Personal Computer Web Browser, will need to open a connection to the Personal Computer X server by calling XOpenDisplay() before using the Application Group extension.
+</p></div><p>
+An embedding manager such as a web browser that intends to embed programs in an Application Group should create the Application Group with XagCreateEmbeddedApplicationGroup.
+</p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagCreateEmbeddedApplicationGroup(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      VisualID      root_visual,
+    </td></tr><tr><td class="functionargdecl">
+      Colormap      default_colormap,
+    </td></tr><tr><td class="functionargdecl">
+      unsigned long      black_pixel,
+    </td></tr><tr><td class="functionargdecl">
+      unsigned long      white_pixel,
+    </td></tr><tr><td class="functionargdecl">
+      XAppGroup*      app_group_return);
+    </td></tr></tbody></table></div><p>
+XagCreateEmbeddedApplicationGroup creates an Application Group for an embedding manager with the attributes specified. It also sets the default_root attribute to DefaultRoot(dpy, DefaultsScreen(dpy)) and the single_screen and app_group_leader attributes to True. It returns the Application Group ID in app_group_return.
+</p><p>
+You can create an Application Group without intending to do embedding. One reason for doing this is to give a group of clients their own font-path.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+A special font-path can be created by creating an Application Group, getting an Authorization using XSecurityGenerateAuthorization, and then running ‘xset fp+ &lt;new font path&gt;’ as a member of the Application Group. Font-path elements added in this way will be "private" to the Application Group.
+</p></div><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagCreateNonembeddedApplicationGroup(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      XAppGroup*      app_group_return);
+    </td></tr></tbody></table></div><p>
+An Application Group created with XagCreateNonembeddedApplicationGroup will have the default_root, root_visual, and default_colormap attributes all set to None; the single_screen and app_group_leader attributes are set to False, and the black_pixel and white_pixel attributes are not used since the default_colormap attribute is None.
+</p><p>
+To destroy an Application Group use XagDestroyApplicationGroup.
+</p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagDestroyApplicationGroup(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      XAppGroup      app_group);
+    </td></tr></tbody></table></div><p>
+The Application Group specified by app_group is destroyed. If the Application Group was created using XagCreateEmbeddingApplicationGroup, i.e. and therefore the app_group_leader attribute is True, all programs that are members of the Application Group are killed as if a KillClient request had been issued.
+</p><p>
+To retrieve the attributes of an Application Group use XagGetApplicationGroupAttributes.
+</p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagGetApplicationGroupAttributes(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      XAppGroup      app_group,
+    </td></tr><tr><td class="functionargdecl">
+      ...);
+    </td></tr></tbody></table></div><p>
+XagGetApplicationGroupAttributes is a varargs function that retrieves the Application Group’s attributes specified in the vararg parameter list.
+</p><p>
+The attributes that may be specified are: XagNappGroupLeader, XagNsingleScreen, XagNdefaultRoot, XagNrootVisual, XagNdefaultColormap, XagNblackPixel, and XagNwhitePixel; which correspond to app_group_leader, single_screen, default_root, root_visual, default_colormap, black_pixel, and white_pixel respectively. See AppGroupCreate in Section 3 for a description of each attribute.
+</p><p>
+The types for each of the parameters are pointers to the following:
+</p><div class="literallayout"><p><br />
+      single_screen          Bool<br />
+      default_root           Window<br />
+      root_visual            VisualID<br />
+      default_colormap       Colormap<br />
+      black_pixel            unsigned long<br />
+      white_pixel            unsigned long<br />
+      app_group_leader       Bool<br />
+</p></div><pre class="programlisting">
+Example:
+      ...
+      Boolean app_group_leader, single_screen;
+      Window default_root;
+      VisualID root_visual;
+      Colormap default_colormap;
+      Pixel black_pixel, white_pixel;
+      ...
+      status = XagGetApplicationGroupAttributes(dpy, app_group,
+            XagNappGroupLeader, &amp;app_group_leader,
+            XagNsingleScreen, &amp;single_screen,
+            XagNdefault_root, &amp;default_root,
+            XagNrootVisual, &amp;root_visual,
+            XagNdefaultColormap, &amp;default_colormap,
+            XagNblackPixel, &amp;black_pixel,
+            XagNwhitePixel, &amp;white_pixel,
+            NULL);
+      ...
+</pre><p>
+To determine which Application Group a resource (such as a window) belongs to, use XagQueryApplicationGroup.
+</p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagQueryApplicationGroup(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      XID      resource,
+    </td></tr><tr><td class="functionargdecl">
+      XAppGroup*      app_group_return);
+    </td></tr></tbody></table></div><p>
+The Application Group is returned in app_group_return, if the resource is not in any Application Group then app_group_return will be set to None.
+</p><p>
+To associate an X Window ID with a system-specific window ID, such as a HWND or a WindowPtr, use XagCreateAssociation.
+</p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagCreateAssociation(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      Window*      window_return,
+    </td></tr><tr><td class="functionargdecl">
+      void*      system_window);
+    </td></tr></tbody></table></div><p>
+The window_ret may be used as the target for a ReparentWindow request.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+Because XReparentWindow is not constrained in the same way that Win32’s  SetParent and the Macintosh are, there is no reason to call XagCreateAssociation in an X-based embedding manager. As such if XagCreateAssociation is called in a native X program, the window_return will be the same as the system_window, and the implementation may even elect to not generate any protocol.
+</p></div><p>To create an association on the Macintosh:</p><pre class="programlisting">
+      struct {
+          WindowPtr win;
+          Rect rect;
+      } system_window;
+      system_window.win = win_ptr;
+      system_window.rect.top = system_window.rect.left = 20;
+      system_window.rect.bottom = 180;
+      system_window.rect.right = 380;
+</pre><pre class="programlisting">
+      status = XagCreateAssociation (dpy, &amp;window, (void*)&amp;system_window);
+</pre><p>
+To create an association using a Win16, Win32, or OS/2 PM:
+</p><pre class="programlisting">
+      HWND system_window;
+      status = XagCreateAssociation (dpy, &amp;window, (void*)&amp;system_window);
+</pre><p>
+To destroy the association created with XagCreateAssociation use XagDestroyAssociation.
+</p><div class="informaltable"><table border="0"><colgroup><col class="c1" /></colgroup><tbody><tr><td class="functiondecl">
+Status XagDestroyAssociation(
+    </td></tr><tr><td class="functionargdecl">
+      Display*      dpy,
+    </td></tr><tr><td class="functionargdecl">
+      Window      window);
+    </td></tr></tbody></table></div><p>
+After calling XagDestroyAssociation the window may no longer be used to
+reparent windows with XReparentWindow.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+Like XagCreateAssociation, if the native window system is X11 the implementation may elect  to not generate any protocol as a result of this function call in order to avoid unintentionally destroying the the system_window that was specified in the prior XagCreateAssociation call.
+</p></div></div><div class="appendix" title="A. System Window Encodings"><h2 class="title" style="clear: both"><a id="system_window_encodings"></a>A. System Window Encodings</h2><p>
+The AppGroupCreateAssoc request has the following possible variations:
+</p><div class="literallayout"><p><br />
+<span class="bold"><strong>AppGroupCreateAssoc (X11)</strong></span><br />
+      1      CARD8            opcode<br />
+      1      6                XC-APPGROUP opcode<br />
+      2      n                length<br />
+      4      WINDOW           window<br />
+      2      0                window_type<br />
+      2      4                system_window_len<br />
+      4      WINDOW           Window<br />
+</p></div><div class="literallayout"><p><br />
+<span class="bold"><strong>AppGroupCreateAssoc (Macintosh)</strong></span><br />
+      1      CARD8            opcode<br />
+      1      6                XC-APPGROUP opcode<br />
+      2      n                length<br />
+      4      WINDOW           window<br />
+      2      1                window_type<br />
+      2      12               system_window_len<br />
+      4      CARD32           WindowPtr<br />
+      2      INT16            Rect.top<br />
+      2      INT16            Rect.left<br />
+      2      INT16            Rect.bottom<br />
+      2      INT16            Rect.right<br />
+</p></div><div class="literallayout"><p><br />
+<span class="bold"><strong>AppGroupCreateAssoc (Win32)</strong></span><br />
+      1      CARD8            opcode<br />
+      1      6                XC-APPGROUP opcode<br />
+      2      n                length<br />
+      4      WINDOW           window<br />
+      2      2                window_type<br />
+      2      4                system_window_len<br />
+      4      CARD32           HWND<br />
+</p></div><div class="literallayout"><p><br />
+<span class="bold"><strong>AppGroupCreateAssoc (Win16)</strong></span><br />
+      1      CARD8            opcode<br />
+      1      6                XC-APPGROUP opcode<br />
+      2      n                length<br />
+      4      WINDOW           window<br />
+      2      3                window_type<br />
+      2      4                system_window_len<br />
+      2      CARD16           HWND offset<br />
+      2      CARD16           HWND segment<br />
+</p></div></div><div class="footnotes"><br /><hr width="100" align="left" /><div class="footnote"><p><sup>[<a id="ftn.id2898731" href="#id2898731" class="para">1</a>] </sup>
+Wabi is a trademark of Sun Microsystems, Inc. MAE is a trademark of Apple
+Computer, Inc. WinCenter is a trademark of Network Computing Devices, Inc.
+</p></div></div></div></body></html>

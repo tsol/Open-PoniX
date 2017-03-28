@@ -1,0 +1,818 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Event Structures</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GDK Reference Manual"><link rel="up" href="reference.html" title="API Reference"><link rel="previous" href="gdk-Events.html" title="Events"><link rel="next" href="gdk-Keyboard-Handling.html" title="Key Values"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="gdk-Events.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="reference.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GDK Reference Manual</th><td><a accesskey="n" href="gdk-Keyboard-Handling.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="gdk-Event-Structures"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Event Structures</span></h2><p>Event Structures &#8212; Data structures specific to each type of event</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+#include &lt;gdk/gdk.h&gt;
+
+
+union       <a href="gdk-Event-Structures.html#GdkEvent">GdkEvent</a>;
+
+struct      <a href="gdk-Event-Structures.html#GdkEventAny">GdkEventAny</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventKey">GdkEventKey</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventButton">GdkEventButton</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventScroll">GdkEventScroll</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventMotion">GdkEventMotion</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventExpose">GdkEventExpose</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventVisibility">GdkEventVisibility</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventCrossing">GdkEventCrossing</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventFocus">GdkEventFocus</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventConfigure">GdkEventConfigure</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventProperty">GdkEventProperty</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventSelection">GdkEventSelection</a>;
+typedef     <a href="gdk-Event-Structures.html#GdkNativeWindow">GdkNativeWindow</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventDND">GdkEventDND</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventProximity">GdkEventProximity</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventClient">GdkEventClient</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventNoExpose">GdkEventNoExpose</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventWindowState">GdkEventWindowState</a>;
+struct      <a href="gdk-Event-Structures.html#GdkEventSetting">GdkEventSetting</a>;
+
+enum        <a href="gdk-Event-Structures.html#GdkScrollDirection">GdkScrollDirection</a>;
+enum        <a href="gdk-Event-Structures.html#GdkVisibilityState">GdkVisibilityState</a>;
+enum        <a href="gdk-Event-Structures.html#GdkCrossingMode">GdkCrossingMode</a>;
+enum        <a href="gdk-Event-Structures.html#GdkNotifyType">GdkNotifyType</a>;
+enum        <a href="gdk-Event-Structures.html#GdkPropertyState">GdkPropertyState</a>;
+enum        <a href="gdk-Event-Structures.html#GdkWindowState">GdkWindowState</a>;
+enum        <a href="gdk-Event-Structures.html#GdkSettingAction">GdkSettingAction</a>;
+
+
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+The event structs contain data specific to each type of event in GDK.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+A common mistake is to forget to set the event mask of a widget so that the
+required events are received. See <a
+href="../gtk/GtkWidget.html#gtk-widget-set-events"
+><tt class="function">gtk_widget_set_events()</tt></a>.
+</p></div></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="GdkEvent"></a>union GdkEvent</h3><a class="indexterm" name="id3237310"></a><pre class="programlisting">union GdkEvent
+{
+  GdkEventType		    type;
+  GdkEventAny		    any;
+  GdkEventExpose	    expose;
+  GdkEventNoExpose	    no_expose;
+  GdkEventVisibility	    visibility;
+  GdkEventMotion	    motion;
+  GdkEventButton	    button;
+  GdkEventScroll            scroll;
+  GdkEventKey		    key;
+  GdkEventCrossing	    crossing;
+  GdkEventFocus		    focus_change;
+  GdkEventConfigure	    configure;
+  GdkEventProperty	    property;
+  GdkEventSelection	    selection;
+  GdkEventProximity	    proximity;
+  GdkEventClient	    client;
+  GdkEventDND               dnd;
+  GdkEventWindowState       window_state;
+  GdkEventSetting           setting;
+};
+</pre><p>
+The <a href="gdk-Event-Structures.html#GdkEvent"><span class="type">GdkEvent</span></a> struct contains a union of all of the event structs,
+and allows access to the data fields in a number of ways.
+</p><p>
+The event type is always the first field in all of the event structs, and
+can always be accessed with the following code, no matter what type of event
+it is:
+</p><div class="informalexample"><pre class="programlisting">
+  GdkEvent *event;  
+  GdkEventType type;
+
+  type = event-&gt;type;
+</pre></div><p>
+</p><p>
+To access other fields of the event structs, the pointer to the event can be
+cast to the appropriate event struct pointer, or the union member name can be
+used. For example if the event type is <tt class="literal">GDK_BUTTON_PRESS</tt> then the x coordinate
+of the button press can be accessed with:
+</p><div class="informalexample"><pre class="programlisting">
+  GdkEvent *event;  
+  gdouble x;
+
+  x = ((GdkEventButton*)event)-&gt;x;
+</pre></div><p>
+or:
+</p><div class="informalexample"><pre class="programlisting">
+  GdkEvent *event;  
+  gdouble x;
+
+  x = event-&gt;button.x;
+</pre></div><p>
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventAny"></a>struct GdkEventAny</h3><a class="indexterm" name="id3236928"></a><pre class="programlisting">struct GdkEventAny {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+};
+</pre><p>
+Contains the fields which are common to all event structs.
+Any event pointer can safely be cast to a pointer to a <a href="gdk-Event-Structures.html#GdkEventAny"><span class="type">GdkEventAny</span></a> to access
+these fields.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event.
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventKey"></a>struct GdkEventKey</h3><a class="indexterm" name="id3237712"></a><pre class="programlisting">struct GdkEventKey {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  guint32 time;
+  guint state;
+  guint keyval;
+  gint length;
+  gchar *string;
+  guint16 hardware_keycode;
+  guint8 group;
+};
+</pre><p>
+Describes a key press or key release event.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_KEY_PRESS</tt> or <tt class="literal">GDK_KEY_RELEASE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>state</tt></i></span></td><td>a bit-mask representing the state of the modifier keys (e.g. Control,
+Shift and Alt) and the pointer buttons. See <a href="gdk-Windows.html#GdkModifierType"><span class="type">GdkModifierType</span></a>.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>keyval</tt></i></span></td><td>the key that was pressed or released. See the 
+<tt class="filename">&lt;gdk/gdkkeysyms.h&gt;</tt>
+header file for a complete list of GDK key codes.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>length</tt></i></span></td><td>the length of <i class="parameter"><tt>string</tt></i>.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gchar"
+>gchar</a> *<i class="structfield"><tt>string</tt></i></span></td><td>a string containing the an approximation of the text that
+would result from this keypress. The only correct way to handle text
+input of text is using input methods (see <a
+href="../gtk/GtkIMContext.html"
+><span class="type">GtkIMContext</span></a>), so this
+field is deprecated and should never be used.
+(<a href="gdk-Keyboard-Handling.html#gdk-unicode-to-keyval"><tt class="function">gdk_unicode_to_keyval()</tt></a> provides a non-deprecated way of getting
+an approximate translation for a key.) The string is encoded in the encoding
+of the current locale (Note: this for backwards compatibility:
+strings in GTK+ and GDK are typically in UTF-8.) and NUL-terminated.
+In some cases, the translation of the key code will be a single
+NUL byte, in which case looking at <i class="parameter"><tt>length</tt></i> is necessary to distinguish
+it from the an empty translation.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint16"
+>guint16</a> <i class="structfield"><tt>hardware_keycode</tt></i></span></td><td>the raw code of the key that was pressed or released.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint8"
+>guint8</a> <i class="structfield"><tt>group</tt></i></span></td><td>the keyboard group.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventButton"></a>struct GdkEventButton</h3><a class="indexterm" name="id3238088"></a><pre class="programlisting">struct GdkEventButton {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  guint32 time;
+  gdouble x;
+  gdouble y;
+  gdouble *axes;
+  guint state;
+  guint button;
+  GdkDevice *device;
+  gdouble x_root, y_root;
+};
+</pre><p>
+Used for button press and button release events. The
+<i class="structfield"><tt>type</tt></i> field will be one of <tt class="literal">GDK_BUTTON_PRESS</tt>,
+<tt class="literal">GDK_2BUTTON_PRESS</tt>, <tt class="literal">GDK_3BUTTON_PRESS</tt>, and <tt class="literal">GDK_BUTTON_RELEASE</tt>.
+</p><p>
+Double and triple-clicks result in a sequence of events being received.
+For double-clicks the order of events will be:
+</p><div class="orderedlist"><ol type="1"><li><p><tt class="literal">GDK_BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_BUTTON_RELEASE</tt></p></li><li><p><tt class="literal">GDK_BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_2BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_BUTTON_RELEASE</tt></p></li></ol></div><p>
+Note that the first click is received just like a normal
+button press, while the second click results in a <tt class="literal">GDK_2BUTTON_PRESS</tt> being
+received just after the <tt class="literal">GDK_BUTTON_PRESS</tt>.
+</p><p>
+Triple-clicks are very similar to double-clicks, except that <tt class="literal">GDK_3BUTTON_PRESS</tt>
+is inserted after the third click. The order of the events is:
+</p><div class="orderedlist"><ol type="1"><li><p><tt class="literal">GDK_BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_BUTTON_RELEASE</tt></p></li><li><p><tt class="literal">GDK_BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_2BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_BUTTON_RELEASE</tt></p></li><li><p><tt class="literal">GDK_BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_3BUTTON_PRESS</tt></p></li><li><p><tt class="literal">GDK_BUTTON_RELEASE</tt></p></li></ol></div><p>
+</p><p>
+For a double click to occur, the second button press must occur within 1/4 of
+a second of the first. For a triple click to occur, the third button press
+must also occur within 1/2 second of the first button press.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_BUTTON_PRESS</tt>, <tt class="literal">GDK_2BUTTON_PRESS</tt>,
+<tt class="literal">GDK_3BUTTON_PRESS</tt> or <tt class="literal">GDK_BUTTON_RELEASE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x</tt></i></span></td><td>the x coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y</tt></i></span></td><td>the y coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> *<i class="structfield"><tt>axes</tt></i></span></td><td><i class="parameter"><tt>x</tt></i>, <i class="parameter"><tt>y</tt></i> translated to the axes of <i class="parameter"><tt>device</tt></i>, or <tt class="literal">NULL</tt> if <i class="parameter"><tt>device</tt></i> is 
+  the mouse.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>state</tt></i></span></td><td>a bit-mask representing the state of the modifier keys (e.g. Control,
+Shift and Alt) and the pointer buttons. See <a href="gdk-Windows.html#GdkModifierType"><span class="type">GdkModifierType</span></a>.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>button</tt></i></span></td><td>the button which was pressed or released, numbered from 1 to 5.
+Normally button 1 is the left mouse button, 2 is the middle button,
+and 3 is the right button. On 2-button mice, the middle button can often
+be simulated by pressing both mouse buttons together.
+</td></tr><tr><td><span class="term"><a href="gdk-Input-Devices.html#GdkDevice">GdkDevice</a> *<i class="structfield"><tt>device</tt></i></span></td><td>the device where the event originated.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x_root</tt></i></span></td><td>the x coordinate of the pointer relative to the root of the screen.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y_root</tt></i></span></td><td>the y coordinate of the pointer relative to the root of the screen.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventScroll"></a>struct GdkEventScroll</h3><a class="indexterm" name="id3239035"></a><pre class="programlisting">struct GdkEventScroll {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  guint32 time;
+  gdouble x;
+  gdouble y;
+  guint state;
+  GdkScrollDirection direction;
+  GdkDevice *device;
+  gdouble x_root, y_root;
+};
+</pre><p>
+Generated from button presses for the buttons 4 to 7. Wheel mice are 
+usually configured to generate button press events for buttons 4 and 5
+when the wheel is turned.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_SCROLL</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x</tt></i></span></td><td>the x coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y</tt></i></span></td><td>the y coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>state</tt></i></span></td><td>a bit-mask representing the state of the modifier keys (e.g. Control,
+Shift and Alt) and the pointer buttons. See <a href="gdk-Windows.html#GdkModifierType"><span class="type">GdkModifierType</span></a>.
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkScrollDirection">GdkScrollDirection</a> <i class="structfield"><tt>direction</tt></i></span></td><td>the direction to scroll to (one of <tt class="literal">GDK_SCROLL_UP</tt>, 
+  <tt class="literal">GDK_SCROLL_DOWN</tt>, <tt class="literal">GDK_SCROLL_LEFT</tt> and <tt class="literal">GDK_SCROLL_RIGHT</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Input-Devices.html#GdkDevice">GdkDevice</a> *<i class="structfield"><tt>device</tt></i></span></td><td>the device where the event originated.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x_root</tt></i></span></td><td>the x coordinate of the pointer relative to the root of the screen.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y_root</tt></i></span></td><td>the y coordinate of the pointer relative to the root of the screen.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventMotion"></a>struct GdkEventMotion</h3><a class="indexterm" name="id3239402"></a><pre class="programlisting">struct GdkEventMotion {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  guint32 time;
+  gdouble x;
+  gdouble y;
+  gdouble *axes;
+  guint state;
+  gint16 is_hint;
+  GdkDevice *device;
+  gdouble x_root, y_root;
+};
+</pre><p>
+Generated when the pointer moves.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event.
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x</tt></i></span></td><td>the x coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y</tt></i></span></td><td>the y coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> *<i class="structfield"><tt>axes</tt></i></span></td><td><i class="parameter"><tt>x</tt></i>, <i class="parameter"><tt>y</tt></i> translated to the axes of <i class="parameter"><tt>device</tt></i>, or <tt class="literal">NULL</tt> if <i class="parameter"><tt>device</tt></i> is 
+  the mouse.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>state</tt></i></span></td><td>a bit-mask representing the state of the modifier keys (e.g. Control,
+  Shift and Alt) and the pointer buttons. See <a href="gdk-Windows.html#GdkModifierType"><span class="type">GdkModifierType</span></a>.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint16"
+>gint16</a> <i class="structfield"><tt>is_hint</tt></i></span></td><td>set to 1 if this event is just a hint, see the <tt class="literal">GDK_POINTER_MOTION_HINT_MASK</tt>
+  value of <a href="gdk-Events.html#GdkEventMask"><span class="type">GdkEventMask</span></a>.
+</td></tr><tr><td><span class="term"><a href="gdk-Input-Devices.html#GdkDevice">GdkDevice</a> *<i class="structfield"><tt>device</tt></i></span></td><td>the device where the event originated.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x_root</tt></i></span></td><td>the x coordinate of the pointer relative to the root of the screen.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y_root</tt></i></span></td><td>the y coordinate of the pointer relative to the root of the screen.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventExpose"></a>struct GdkEventExpose</h3><a class="indexterm" name="id3239807"></a><pre class="programlisting">struct GdkEventExpose {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkRectangle area;
+  GdkRegion *region;
+  gint count; /* If non-zero, how many more events follow. */
+};
+</pre><p>
+Generated when all or part of a window becomes visible and needs to be
+redrawn.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_EXPOSE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Points-Rectangles-and-Regions.html#GdkRectangle">GdkRectangle</a> <i class="structfield"><tt>area</tt></i></span></td><td>bounding box of <i class="parameter"><tt>region</tt></i>.
+</td></tr><tr><td><span class="term"><a href="gdk-Points-Rectangles-and-Regions.html#GdkRegion">GdkRegion</a> *<i class="structfield"><tt>region</tt></i></span></td><td>the region that needs to be redrawn.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>count</tt></i></span></td><td>the number of contiguous <tt class="literal">GDK_EXPOSE</tt> events following this one.
+The only use for this is "exposure compression", i.e. handling all contiguous
+<tt class="literal">GDK_EXPOSE</tt> events in one go, though GDK performs some exposure compression
+so this is not normally needed.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventVisibility"></a>struct GdkEventVisibility</h3><a class="indexterm" name="id3240035"></a><pre class="programlisting">struct GdkEventVisibility {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkVisibilityState state;
+};
+</pre><p>
+Generated when the window visibility status has changed.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_VISIBILITY_NOTIFY</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkVisibilityState">GdkVisibilityState</a> <i class="structfield"><tt>state</tt></i></span></td><td>the new visibility state (<tt class="literal">GDK_VISIBILITY_FULLY_OBSCURED</tt>,
+<tt class="literal">GDK_VISIBILITY_PARTIAL</tt> or <tt class="literal">GDK_VISIBILITY_UNOBSCURED</tt>).
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventCrossing"></a>struct GdkEventCrossing</h3><a class="indexterm" name="id3240211"></a><pre class="programlisting">struct GdkEventCrossing {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkWindow *subwindow;
+  guint32 time;
+  gdouble x;
+  gdouble y;
+  gdouble x_root;
+  gdouble y_root;
+  GdkCrossingMode mode;
+  GdkNotifyType detail;
+  gboolean focus;
+  guint state;
+};
+</pre><p>
+Generated when the pointer enters or leaves a window.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_ENTER_NOTIFY</tt> or <tt class="literal">GDK_LEAVE_NOTIFY</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using 
+<tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>subwindow</tt></i></span></td><td>the window that was entered or left.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x</tt></i></span></td><td>the x coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y</tt></i></span></td><td>the y coordinate of the pointer relative to the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>x_root</tt></i></span></td><td>the x coordinate of the pointer relative to the root of the screen.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gdouble"
+>gdouble</a> <i class="structfield"><tt>y_root</tt></i></span></td><td>the y coordinate of the pointer relative to the root of the screen.
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkCrossingMode">GdkCrossingMode</a> <i class="structfield"><tt>mode</tt></i></span></td><td>the crossing mode (<tt class="literal">GDK_CROSSING_NORMAL</tt>, <tt class="literal">GDK_CROSSING_GRAB</tt> or
+  <tt class="literal">GDK_CROSSING_UNGRAB</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkNotifyType">GdkNotifyType</a> <i class="structfield"><tt>detail</tt></i></span></td><td>the kind of crossing that happened (<tt class="literal">GDK_NOTIFY_INFERIOR</tt>,
+  <tt class="literal">GDK_NOTIFY_ANCESTOR</tt>, <tt class="literal">GDK_NOTIFY_VIRTUAL</tt>, <tt class="literal">GDK_NOTIFY_NONLINEAR</tt> or
+  <tt class="literal">GDK_NOTIFY_NONLINEAR_VIRTUAL</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gboolean"
+>gboolean</a> <i class="structfield"><tt>focus</tt></i></span></td><td><tt class="literal">TRUE</tt> if <i class="parameter"><tt>window</tt></i> is the focus window or an inferior.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>state</tt></i></span></td><td>a bit-mask representing the state of the modifier keys (e.g. Control,
+  Shift and Alt) and the pointer buttons. See <a href="gdk-Windows.html#GdkModifierType"><span class="type">GdkModifierType</span></a>.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventFocus"></a>struct GdkEventFocus</h3><a class="indexterm" name="id3238519"></a><pre class="programlisting">struct GdkEventFocus {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  gint16 in;
+};
+</pre><p>
+Describes a change of keyboard focus.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_FOCUS_CHANGE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint16"
+>gint16</a> <i class="structfield"><tt>in</tt></i></span></td><td><tt class="literal">TRUE</tt> if the window has gained the keyboard focus, <tt class="literal">FALSE</tt> if it has lost
+the focus.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventConfigure"></a>struct GdkEventConfigure</h3><a class="indexterm" name="id3238686"></a><pre class="programlisting">struct GdkEventConfigure {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  gint x, y;
+  gint width;
+  gint height;
+};
+</pre><p>
+Generated when a window size or position has changed.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_CONFIGURE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>x</tt></i></span></td><td>the new x coordinate of the window, relative to its parent.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>y</tt></i></span></td><td>the new y coordinate of the window, relative to its parent.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>width</tt></i></span></td><td>the new width of the window.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> <i class="structfield"><tt>height</tt></i></span></td><td>the new height of the window.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventProperty"></a>struct GdkEventProperty</h3><a class="indexterm" name="id3238913"></a><pre class="programlisting">struct GdkEventProperty {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkAtom atom;
+  guint32 time;
+  guint state;
+};
+</pre><p>
+Describes a property change on a window.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_PROPERTY_NOTIFY</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Properties-and-Atoms.html#GdkAtom">GdkAtom</a> <i class="structfield"><tt>atom</tt></i></span></td><td>the property that was changed.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint"
+>guint</a> <i class="structfield"><tt>state</tt></i></span></td><td>whether the property was changed (<tt class="literal">GDK_PROPERTY_NEW_VALUE</tt>) or
+deleted (<tt class="literal">GDK_PROPERTY_DELETE</tt>).
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventSelection"></a>struct GdkEventSelection</h3><a class="indexterm" name="id3241899"></a><pre class="programlisting">struct GdkEventSelection {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkAtom selection;
+  GdkAtom target;
+  GdkAtom property;
+  guint32 time;
+  GdkNativeWindow requestor;
+};
+</pre><p>
+Generated when a selection is requested or ownership of a selection 
+is taken over by another client application. 
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_SELECTION_CLEAR</tt>, <tt class="literal">GDK_SELECTION_NOTIFY</tt> or 
+<tt class="literal">GDK_SELECTION_REQUEST</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Properties-and-Atoms.html#GdkAtom">GdkAtom</a> <i class="structfield"><tt>selection</tt></i></span></td><td>the selection.
+</td></tr><tr><td><span class="term"><a href="gdk-Properties-and-Atoms.html#GdkAtom">GdkAtom</a> <i class="structfield"><tt>target</tt></i></span></td><td>the target to which the selection should be converted.
+</td></tr><tr><td><span class="term"><a href="gdk-Properties-and-Atoms.html#GdkAtom">GdkAtom</a> <i class="structfield"><tt>property</tt></i></span></td><td>the property in which to place the result of the conversion.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkNativeWindow">GdkNativeWindow</a> <i class="structfield"><tt>requestor</tt></i></span></td><td>the native window on which to place <i class="parameter"><tt>property</tt></i>.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkNativeWindow"></a>GdkNativeWindow</h3><a class="indexterm" name="id3242173"></a><p>
+Used to represent native windows (<span class="type">Window</span>s for the X11 backend, 
+<span class="type">HWND</span>s for Win32).
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventDND"></a>struct GdkEventDND</h3><a class="indexterm" name="id3242206"></a><pre class="programlisting">struct GdkEventDND {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkDragContext *context;
+
+  guint32 time;
+  gshort x_root, y_root;
+};
+</pre><p>
+Generated during DND operations. 
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_DRAG_ENTER</tt>, <tt class="literal">GDK_DRAG_LEAVE</tt>,
+  <tt class="literal">GDK_DRAG_MOTION</tt>, <tt class="literal">GDK_DRAG_STATUS</tt>, <tt class="literal">GDK_DROP_START</tt> or <tt class="literal">GDK_DROP_FINISHED</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Drag-and-Drop.html#GdkDragContext">GdkDragContext</a> *<i class="structfield"><tt>context</tt></i></span></td><td>the <a href="gdk-Drag-and-Drop.html#GdkDragContext"><span class="type">GdkDragContext</span></a> for the current DND operation.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gshort"
+>gshort</a> <i class="structfield"><tt>x_root</tt></i></span></td><td>the x coordinate of the pointer relative to the root of the screen,
+  only set for <tt class="literal">GDK_DRAG_MOTION</tt> and <tt class="literal">GDK_DROP_START</tt>.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gshort"
+>gshort</a> <i class="structfield"><tt>y_root</tt></i></span></td><td>the y coordinate of the pointer relative to the root of the screen,
+  only set for <tt class="literal">GDK_DRAG_MOTION</tt> and <tt class="literal">GDK_DROP_START</tt>.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventProximity"></a>struct GdkEventProximity</h3><a class="indexterm" name="id3242510"></a><pre class="programlisting">struct GdkEventProximity {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  guint32 time;
+  GdkDevice *device;
+};
+</pre><p>
+Proximity events are generated when using GDK's wrapper for the
+XInput extension. The XInput extension is an add-on for standard X
+that allows you to use nonstandard devices such as graphics tablets.
+A proximity event indicates that the stylus has moved in or out of
+contact with the tablet, or perhaps that the user's finger has moved
+in or out of contact with a touch screen.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_PROXIMITY_IN</tt> or <tt class="literal">GDK_PROXIMITY_OUT</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#guint32"
+>guint32</a> <i class="structfield"><tt>time</tt></i></span></td><td>the time of the event in milliseconds.
+</td></tr><tr><td><span class="term"><a href="gdk-Input-Devices.html#GdkDevice">GdkDevice</a> *<i class="structfield"><tt>device</tt></i></span></td><td>the device where the event originated.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventClient"></a>struct GdkEventClient</h3><a class="indexterm" name="id3242702"></a><pre class="programlisting">struct GdkEventClient {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkAtom message_type;
+  gushort data_format;
+  union {
+    char b[20];
+    short s[10];
+    long l[5];
+  } data;
+};
+</pre><p>
+An event sent by another client application.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_CLIENT_EVENT</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Properties-and-Atoms.html#GdkAtom">GdkAtom</a> <i class="structfield"><tt>message_type</tt></i></span></td><td>the type of the message, which can be defined by the
+application.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gushort"
+>gushort</a> <i class="structfield"><tt>data_format</tt></i></span></td><td>the format of the data, given as the number of bits in each
+data element, i.e. 8, 16, or 32. 8-bit data uses the b array of the data
+union, 16-bit data uses the s array, and 32-bit data uses the l array.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventNoExpose"></a>struct GdkEventNoExpose</h3><a class="indexterm" name="id3242887"></a><pre class="programlisting">struct GdkEventNoExpose {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+};
+</pre><p>
+Generated when the area of a <a href="gdk-Drawing-Primitives.html#GdkDrawable"><span class="type">GdkDrawable</span></a> being copied, with <a href="gdk-Drawing-Primitives.html#gdk-draw-drawable"><tt class="function">gdk_draw_drawable()</tt></a>
+or <a href="gdk-Windows.html#gdk-window-copy-area"><tt class="function">gdk_window_copy_area()</tt></a>, was completely available.
+</p><p>
+FIXME: add more here.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_NO_EXPOSE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventWindowState"></a>struct GdkEventWindowState</h3><a class="indexterm" name="id3243056"></a><pre class="programlisting">struct GdkEventWindowState {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkWindowState changed_mask;
+  GdkWindowState new_window_state;
+};
+</pre><p>
+Generated when the state of a toplevel window changes.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_WINDOW_STATE</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkWindowState">GdkWindowState</a> <i class="structfield"><tt>changed_mask</tt></i></span></td><td>mask specifying what flags have changed.
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkWindowState">GdkWindowState</a> <i class="structfield"><tt>new_window_state</tt></i></span></td><td>the new window state, a combination of <a href="gdk-Event-Structures.html#GdkWindowState"><span class="type">GdkWindowState</span></a> bits.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkEventSetting"></a>struct GdkEventSetting</h3><a class="indexterm" name="id3243247"></a><pre class="programlisting">struct GdkEventSetting {
+
+  GdkEventType type;
+  GdkWindow *window;
+  gint8 send_event;
+  GdkSettingAction action;
+  char *name;
+};
+</pre><p>
+Generated when a setting is modified.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><a href="gdk-Events.html#GdkEventType">GdkEventType</a> <i class="structfield"><tt>type</tt></i></span></td><td>the type of the event (<tt class="literal">GDK_SETTING</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Windows.html#GdkWindow">GdkWindow</a> *<i class="structfield"><tt>window</tt></i></span></td><td>the window which received the event.
+</td></tr><tr><td><span class="term"><a
+href="../glib/glib-Basic-Types.html#gint8"
+>gint8</a> <i class="structfield"><tt>send_event</tt></i></span></td><td><tt class="literal">TRUE</tt> if the event was sent explicitly (e.g. using <tt class="function">XSendEvent</tt>).
+</td></tr><tr><td><span class="term"><a href="gdk-Event-Structures.html#GdkSettingAction">GdkSettingAction</a> <i class="structfield"><tt>action</tt></i></span></td><td>what happened to the setting (<tt class="literal">GDK_SETTING_ACTION_NEW</tt>,
+  <tt class="literal">GDK_SETTING_ACTION_CHANGED</tt> or <tt class="literal">GDK_SETTING_ACTION_DELETED</tt>).
+</td></tr><tr><td><span class="term">char *<i class="structfield"><tt>name</tt></i></span></td><td>the name of the setting.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkScrollDirection"></a>enum GdkScrollDirection</h3><a class="indexterm" name="id3243447"></a><pre class="programlisting">typedef enum
+{
+  GDK_SCROLL_UP,
+  GDK_SCROLL_DOWN,
+  GDK_SCROLL_LEFT,
+  GDK_SCROLL_RIGHT
+} GdkScrollDirection;
+</pre><p>
+Specifies the direction for <a href="gdk-Event-Structures.html#GdkEventScroll"><span class="type">GdkEventScroll</span></a>. 
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_SCROLL_UP</tt></span></td><td>the window is scrolled up.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_SCROLL_DOWN</tt></span></td><td>the window is scrolled down.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_SCROLL_LEFT</tt></span></td><td>the window is scrolled to the left.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_SCROLL_RIGHT</tt></span></td><td>the window is scrolled to the right.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkVisibilityState"></a>enum GdkVisibilityState</h3><a class="indexterm" name="id3243571"></a><pre class="programlisting">typedef enum
+{
+  GDK_VISIBILITY_UNOBSCURED,
+  GDK_VISIBILITY_PARTIAL,
+  GDK_VISIBILITY_FULLY_OBSCURED
+} GdkVisibilityState;
+</pre><p>
+Specifies the visiblity status of a window for a <a href="gdk-Event-Structures.html#GdkEventVisibility"><span class="type">GdkEventVisibility</span></a>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_VISIBILITY_UNOBSCURED</tt></span></td><td>the window is completely visible.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_VISIBILITY_PARTIAL</tt></span></td><td>the window is partially visible.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_VISIBILITY_FULLY_OBSCURED</tt></span></td><td>the window is not visible at all.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkCrossingMode"></a>enum GdkCrossingMode</h3><a class="indexterm" name="id3243678"></a><pre class="programlisting">typedef enum
+{
+  GDK_CROSSING_NORMAL,
+  GDK_CROSSING_GRAB,
+  GDK_CROSSING_UNGRAB
+} GdkCrossingMode;
+</pre><p>
+Specifies the crossing mode for <a href="gdk-Event-Structures.html#GdkEventCrossing"><span class="type">GdkEventCrossing</span></a>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_CROSSING_NORMAL</tt></span></td><td>crossing because of pointer motion.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_CROSSING_GRAB</tt></span></td><td>crossing because a grab is activated.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_CROSSING_UNGRAB</tt></span></td><td>crossing because a grab is deactivated.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkNotifyType"></a>enum GdkNotifyType</h3><a class="indexterm" name="id3243782"></a><pre class="programlisting">typedef enum
+{
+  GDK_NOTIFY_ANCESTOR		= 0,
+  GDK_NOTIFY_VIRTUAL		= 1,
+  GDK_NOTIFY_INFERIOR		= 2,
+  GDK_NOTIFY_NONLINEAR		= 3,
+  GDK_NOTIFY_NONLINEAR_VIRTUAL	= 4,
+  GDK_NOTIFY_UNKNOWN		= 5
+} GdkNotifyType;
+</pre><p>
+Specifies the kind of crossing for <a href="gdk-Event-Structures.html#GdkEventCrossing"><span class="type">GdkEventCrossing</span></a>.
+</p><p>
+See the X11 protocol specification of <span class="type">LeaveNotify</span> for
+full details of crossing event generation.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_NOTIFY_ANCESTOR</tt></span></td><td>the window is entered from an ancestor or 
+   left towards an ancestor.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_NOTIFY_VIRTUAL</tt></span></td><td>the pointer moves between an ancestor and an 
+    inferior of the window.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_NOTIFY_INFERIOR</tt></span></td><td>the window is entered from an inferior or 
+   left towards an inferior.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_NOTIFY_NONLINEAR</tt></span></td><td> the window is entered from or left towards 
+   a window which is neither an ancestor nor an inferior.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_NOTIFY_NONLINEAR_VIRTUAL</tt></span></td><td>the pointer moves between two windows 
+   which are not ancestors of each other and the window is part of
+   the ancestor chain between one of these windows and their least
+   common ancestor.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_NOTIFY_UNKNOWN</tt></span></td><td>
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkPropertyState"></a>enum GdkPropertyState</h3><a class="indexterm" name="id3243962"></a><pre class="programlisting">typedef enum
+{
+  GDK_PROPERTY_NEW_VALUE,
+  GDK_PROPERTY_DELETE
+} GdkPropertyState;
+</pre><p>
+Specifies the type of a property change for a <a href="gdk-Event-Structures.html#GdkEventProperty"><span class="type">GdkEventProperty</span></a>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_PROPERTY_NEW_VALUE</tt></span></td><td>the property value was changed.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_PROPERTY_DELETE</tt></span></td><td>the property was deleted.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkWindowState"></a>enum GdkWindowState</h3><a class="indexterm" name="id3244048"></a><pre class="programlisting">typedef enum
+{
+  GDK_WINDOW_STATE_WITHDRAWN  = 1 &lt;&lt; 0,
+  GDK_WINDOW_STATE_ICONIFIED  = 1 &lt;&lt; 1,
+  GDK_WINDOW_STATE_MAXIMIZED  = 1 &lt;&lt; 2,
+  GDK_WINDOW_STATE_STICKY     = 1 &lt;&lt; 3,
+  GDK_WINDOW_STATE_FULLSCREEN = 1 &lt;&lt; 4,
+  GDK_WINDOW_STATE_ABOVE      = 1 &lt;&lt; 5,
+  GDK_WINDOW_STATE_BELOW      = 1 &lt;&lt; 6
+} GdkWindowState;
+</pre><p>
+Specifies the state of a toplevel window.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_WITHDRAWN</tt></span></td><td>the window is not shown.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_ICONIFIED</tt></span></td><td>the window is minimized.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_MAXIMIZED</tt></span></td><td>the window is maximized.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_STICKY</tt></span></td><td>the window is sticky.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_FULLSCREEN</tt></span></td><td>the window is maximized without decorations.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_ABOVE</tt></span></td><td>the window is kept above other windows.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_WINDOW_STATE_BELOW</tt></span></td><td>the window is kept below other windows.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GdkSettingAction"></a>enum GdkSettingAction</h3><a class="indexterm" name="id3244230"></a><pre class="programlisting">typedef enum
+{
+  GDK_SETTING_ACTION_NEW,
+  GDK_SETTING_ACTION_CHANGED,
+  GDK_SETTING_ACTION_DELETED
+} GdkSettingAction;
+</pre><p>
+Specifies the kind of modification applied to a setting in a <a href="gdk-Event-Structures.html#GdkEventSetting"><span class="type">GdkEventSetting</span></a>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">GDK_SETTING_ACTION_NEW</tt></span></td><td>a setting was added.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_SETTING_ACTION_CHANGED</tt></span></td><td>a setting was changed.
+</td></tr><tr><td><span class="term"><tt class="literal">GDK_SETTING_ACTION_DELETED</tt></span></td><td>a setting was deleted.
+
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="gdk-Events.html"><b>&lt;&lt; Events</b></a></td><td align="right"><a accesskey="n" href="gdk-Keyboard-Handling.html"><b>Key Values &gt;&gt;</b></a></td></tr></table></body></html>

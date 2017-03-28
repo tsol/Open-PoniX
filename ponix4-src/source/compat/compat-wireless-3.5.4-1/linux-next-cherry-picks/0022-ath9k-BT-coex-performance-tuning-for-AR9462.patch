@@ -1,0 +1,118 @@
+From 0603143e47a34d0485a13fd7f46e56a97e687e34 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 4 Jun 2012 16:28:36 +0530
+Subject: [PATCH 22/57] ath9k: BT coex performance tuning for AR9462
+
+Use smaller aggregation limit and increasing aggregation threshold
+for osla that could improve wlan performance when there is HID profile.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |    3 --
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h |    1 -
+ drivers/net/wireless/ath/ath9k/mci.c        |   54 +++++++++++++++++----------
+ 3 files changed, 35 insertions(+), 23 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1381,9 +1381,6 @@ u32 ar9003_mci_state(struct ath_hw *ah,
+ 	case MCI_STATE_NEED_FTP_STOMP:
+ 		value = !(mci->config & ATH_MCI_CONFIG_DISABLE_FTP_STOMP);
+ 		break;
+-	case MCI_STATE_NEED_TUNING:
+-		value = !(mci->config & ATH_MCI_CONFIG_DISABLE_TUNING);
+-		break;
+ 	default:
+ 		break;
+ 	}
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -212,7 +212,6 @@ enum mci_state_type {
+ 	MCI_STATE_SET_CONCUR_TX_PRI,
+ 	MCI_STATE_RECOVER_RX,
+ 	MCI_STATE_NEED_FTP_STOMP,
+-	MCI_STATE_NEED_TUNING,
+ 	MCI_STATE_DEBUG,
+ 	MCI_STATE_MAX
+ };
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -116,42 +116,58 @@ static void ath_mci_update_scheme(struct
+ 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
+ 	struct ath_btcoex *btcoex = &sc->btcoex;
+ 	struct ath_mci_profile *mci = &btcoex->mci;
++	struct ath9k_hw_mci *mci_hw = &sc->sc_ah->btcoex_hw.mci;
+ 	struct ath_mci_profile_info *info;
+ 	u32 num_profile = NUM_PROF(mci);
+ 
++	if (mci_hw->config & ATH_MCI_CONFIG_DISABLE_TUNING)
++		goto skip_tuning;
++
+ 	if (num_profile == 1) {
+ 		info = list_first_entry(&mci->info,
+ 					struct ath_mci_profile_info,
+ 					list);
+-		if (mci->num_sco && info->T == 12) {
+-			mci->aggr_limit = 8;
++		if (mci->num_sco) {
++			if (info->T == 12)
++				mci->aggr_limit = 8;
++			else if (info->T == 6) {
++				mci->aggr_limit = 6;
++				btcoex->duty_cycle = 30;
++			}
+ 			ath_dbg(common, MCI,
+-				"Single SCO, aggregation limit 2 ms\n");
+-		} else if ((info->type == MCI_GPM_COEX_PROFILE_BNEP) &&
+-			   !info->master) {
+-			btcoex->btcoex_period = 60;
++				"Single SCO, aggregation limit %d 1/4 ms\n",
++				mci->aggr_limit);
++		} else if (mci->num_pan || mci->num_other_acl) {
++			/*
++			 * For single PAN/FTP profile, allocate 35% for BT
++			 * to improve WLAN throughput.
++			 */
++			btcoex->duty_cycle = 35;
++			btcoex->btcoex_period = 53;
+ 			ath_dbg(common, MCI,
+-				"Single slave PAN/FTP, bt period 60 ms\n");
+-		} else if ((info->type == MCI_GPM_COEX_PROFILE_HID) &&
+-			 (info->T > 0 && info->T < 50) &&
+-			 (info->A > 1 || info->W > 1)) {
++				"Single PAN/FTP bt period %d ms dutycycle %d\n",
++				btcoex->duty_cycle, btcoex->btcoex_period);
++		} else if (mci->num_hid) {
+ 			btcoex->duty_cycle = 30;
+-			mci->aggr_limit = 8;
++			mci->aggr_limit = 6;
+ 			ath_dbg(common, MCI,
+ 				"Multiple attempt/timeout single HID "
+-				"aggregation limit 2 ms dutycycle 30%%\n");
++				"aggregation limit 1.5 ms dutycycle 30%%\n");
+ 		}
+-	} else if ((num_profile == 2) && (mci->num_hid == 2)) {
+-		btcoex->duty_cycle = 30;
+-		mci->aggr_limit = 8;
+-		ath_dbg(common, MCI,
+-			"Two HIDs aggregation limit 2 ms dutycycle 30%%\n");
+-	} else if (num_profile > 3) {
++	} else if (num_profile == 2) {
++		if (mci->num_hid == 2)
++			btcoex->duty_cycle = 30;
+ 		mci->aggr_limit = 6;
+ 		ath_dbg(common, MCI,
+-			"Three or more profiles aggregation limit 1.5 ms\n");
++			"Two BT profiles aggr limit 1.5 ms dutycycle %d%%\n",
++			btcoex->duty_cycle);
++	} else if (num_profile >= 3) {
++		mci->aggr_limit = 4;
++		ath_dbg(common, MCI,
++			"Three or more profiles aggregation limit 1 ms\n");
+ 	}
+ 
++skip_tuning:
+ 	if (IS_CHAN_2GHZ(sc->sc_ah->curchan)) {
+ 		if (IS_CHAN_HT(sc->sc_ah->curchan))
+ 			ath_mci_adjust_aggr_limit(btcoex);

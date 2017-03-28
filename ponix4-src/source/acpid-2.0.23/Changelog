@@ -1,0 +1,532 @@
+* Sat Aug 23 2014  Ted Felix <ted@tedfelix.com>
+  - 2.0.23 release
+    (configure.ac)  (Ted Felix)
+  - Avoid using KEY_MICMUTE if it doesn't exist.
+    (input_layer.c)  (Lonnie Abelbeck)
+  - Add troubleshooting section to man page.
+    (acpid.8)  (Ted Felix)
+
+* Sat March 15 2014  Ted Felix <ted@tedfelix.com>
+  - 2.0.22 release
+    (configure.ac)  (Ted Felix)
+  - Add support for F20.  Debian Bug #738611.
+    (input_layer.c)  (Ted Felix)
+  - Fix for repeated mute keys on some ThinkPad models.
+    (acpid.c acpid.h input_layer.c)
+    (Torsten Hilbrich <torsten.hilbrich@secunet.com>)
+  - Add "-t" short option for "--tpmutefix".
+    (acpid.c)  (Ted Felix)
+  - Update man page for --tpmutefix.
+    (acpid.8)  (Ted Felix)
+
+* Wed Jan 15 2014  Ted Felix <ted@tedfelix.com>
+  - 2.0.21 release
+    (configure.ac)  (Ted Felix)
+  - Add new <drop> action.  Debian #732277.
+    (acpid.c event.h event.c acpid.8)
+    (Pigeon <pigeon@pigeonsnest.co.uk>, Ted Felix)
+
+* Sun Sep 15 2013  Ted Felix <ted -at- tedfelix -dot- com>
+  - 2.0.20 release
+    (configure.ac)  (Ted Felix)
+  - Improve build and release documentation.  
+    (README)  (Ted Felix)
+  - Fix for Debian bug #719659.  Improved handling of systems with
+    large numbers of input layer connections.  Better error handling.
+    (connection_list.h connection_list.c inotify_handler.c input_layer.c 
+    netlink.c proc.c sock.c acpid.c)  (Ted Felix, Ben Winslow)
+  - Update .gitignore for Eclipse.
+    (.gitignore)  (Ted Felix)
+
+* Tue May 28 2013  Ted Felix <ted -at- tedfelix -dot- com>
+  - 2.0.19 release
+    (configure.ac)  (Ted Felix)
+  - README improvements  (README)  (Ted Felix)
+  - man page additions  (acpid.8)  (Ted Felix)
+  - Sync kacpimon's libnetlink.c with acpid's.
+    (kacpimon/libnetlink.c)  (Ted Felix)
+  - Add support for mic mute (KEY_MICMUTE).
+    (input_layer.c)  (Ted Felix)
+
+* Fri Feb 15 2013  Ted Felix <http://www.tedfelix.com>
+  - 2.0.18 release
+    (configure.ac)  (Ted Felix)
+  - README improvements  (README)  (Ted Felix)
+  - Fix format of video/tabletmode event string.  CRITICAL.
+    (input_layer.c)  (Ted Felix)
+  - Add how to kill acpid to kacpimon man page.
+    (kacpimon.8)  (Ted Felix)
+  - Add info on logind.conf's HandlePowerKey to man page.
+    (acpid.8)  (Ted Felix)
+
+* Sat Sep 15 2012  Ted Felix <http://www.tedfelix.com>
+  - 2.0.17 release
+    (configure.ac)  (Ted Felix)
+  - Check for chmod.
+    (configure.ac)  (Ted Felix)
+  - Add support for tablet mode switch.  
+    (input_layer.c)  (Fabian Henze)
+  - Incorrect sizeof() usage for memset.  
+    (libnetlink.c)  (Auke Kok)
+  - Close some unclosed fd's.  
+    (acpid.c event.c ud_socket.c)  (Auke Kok)
+  - Do not create pid file when running in foreground.  
+    (acpid.c)  (Cristian Rodriguez)
+  - Free regular expression.  
+    (event.c)  (Cristian Rodriguez)
+
+* Thu Mar 29 2012  Ted Felix <http://www.tedfelix.com>
+  - 2.0.16 release
+    (configure.ac)  (Ted Felix)
+  - Add tests for required functions to configure.ac.
+    (configure.ac)  (Ted Felix)
+  - Move fchmod() before bind() on socket.  Debian bug #664705.
+    (sock.c ud_socket.c ud_socket.h)  (Ted Felix)
+  - Switch back to chown() as fchown() doesn't appear to work with sockets.
+    (sock.c)  (Ted Felix) 
+  - Add support for headphone (and other) jack switch events.
+    (input_layer.c)  (AlexanderR)
+  - Add notes on making the tarball.
+    (README)  (Ted Felix)
+
+* Thu Mar 15 2012  Ted Felix <http://www.tedfelix.com>
+  - 2.0.15 release
+    (configure.ac)  (Ted Felix)
+  - Improve man page (Debian bug #656676).  
+    (acpid.8 acpi_listen.8)  (Ted Felix)
+  X Change makefile to get rid of double slashes on install paths.
+    Note: This change was lost due to introduction of autoconf which
+    wiped out the old Makefile.
+    (Makefile)  (Gilles Espinasse)
+  - Switch from Makefile to autoconf build system.  Fix some related
+    warnings.
+    (Makefile Makefile.am README TODO acpi_ids.c acpi_ids.h acpid.h 
+    configure.ac connection_list.h event.c kacpimon/Makefile.am 
+    kacpimon/makefile proc.h sock.h)
+    (Cristian Rodriguez)
+  - Fix build warnings uncovered by new gcc settings from autoconf.
+    (inotify_handler.c input_layer.c kacpimon/acpi_ids.c kacpimon/acpi_ids.h 
+    kacpimon/connection_list.c kacpimon/connection_list.h 
+    kacpimon/input_layer.c kacpimon/kacpimon.c kacpimon/netlink.c netlink.c
+    proc.c sock.c)
+    (Ted Felix)
+  - Remove fcntl() calls to set FD_CLOEXEC and replace with
+    CLOEXEC flags within the various open(), recvmsg() and other calls.
+    Requires kernel version 2.6.23 and above.
+    (acpi_listen.c inotify_handler.c input_layer.c libnetlink.c netlink.c
+    proc.c ud_socket.c)
+    (Cristian Rodriguez)
+  - Add SOCK_NONBLOCK to ud_create_socket().
+    (ud_socket.c) (Cristian Rodriguez)
+  - Use isfdtype() instead of getsockopt() in is_socket().  Use fchmod(), 
+    fstat(), and fchown() instead of the non-"f" versions in open_sock().
+    (sock.c) (Cristian Rodriguez)
+  - Use __attribute__ for argument checking in acpid_log().
+    (input_layer.c log.h netlink.c ud_socket.c) (Cristian Rodriguez)
+  - Close only the open fds in close_fds().
+    (acpid.c) (Cristian Rodriguez)
+  - Use accept4() with SOCK_CLOEXEC and SOCK_NONBLOCK in ud_accept().
+    Remove unnecessary calls to fcntl() in process_sock().  
+    (sock.c ud_socket.c) (Cristian Rodriguez)
+  - Use asprintf() instead of snprintf() in process_sock().
+    (sock.c) (Cristian Rodriguez)
+  - Use TEMP_FAILURE_RETRY macro instead of bogus checks for EINTR.
+    (acpi_listen.c acpid.c event.c input_layer.c libnetlink.c netlink.c 
+    proc.c ud_socket.c) (Cristian Rodriguez)
+  - Use safer, faster, and more modern functions asprintf(), fstatat(), 
+    openat(), and fdopen() in the configuration file processing.
+    (event.c) (Cristian Rodriguez)
+
+* Thu Dec 15 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.14 release
+  - Fixed brace style.  (inotify_handler.c acpid.c)  (Ted Felix)
+  - Added support for a "K" suffix on event strings to indicate that they
+    may have originated from a keyboard input layer device.  This can be
+    used to differentiate between a power switch on the keyboard, and a power
+    switch on the computer's case.
+    
+    (connection_list.h inotify_handler.c input_layer.c netlink.c proc.c
+    sock.c)  (Ted Felix)
+    
+  - Added a pathname to connection along with a find_connection_name().  
+    Modifications to process_inotify() to log IN_DELETE events.  Additional 
+    debugging output.
+      
+    These changes were experimentation related to dealing with a ThinkPad 
+    suspend problem.  They should have no effect on acpid's behavior.  They are 
+    mainly noticeable as a change in the logging.
+    
+    The Problem: When resuming from suspend, the lid switch and power button's 
+    /dev/input event files do not trigger an IN_CREATE, so acpid doesn't 
+    reconnect to them.  Restarting acpid fixes this.
+    
+    Tried using IN_DELETE instead of ENODEV to detect the drivers going away.
+    Worked fine for disconnecting/reconnecting a USB keyboard, but not for the
+    ThinkPad suspend problem.  I've given up on fixing this as it appears to be
+    a kernel or driver issue.
+    
+    (connection_list.c connection_list.h inotify_handler.c input_layer.c 
+    netlink.c proc.c sock.c)  (Ted Felix)
+      
+* Tue Nov 15 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.13 release
+  - Fix for socket name buffer overflow.  (ud_socket.c)  (Ted Felix)
+  - Moved acpid_log() out of acpid.h/.c and into log.h/.c to make it easier
+    for all parts of acpid to use.  (Makefile acpid.h acpid.c connection_list.c
+    event.c inotify_handler.c input_layer.c log.h log.c netlink.c proc.c 
+    sock.c ud_socket.c)  (Ted Felix)
+  - Cleaned up #includes and comment style.  (libnetlink.c libnetlink.h)
+    (Ted Felix)
+
+* Mon Aug 15 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.12 release
+  - Changed exit() to _exit() if execl() fails.  (event.c)  (Ted Felix)
+
+* Sat Jul 30 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.11 release
+  - Set umask to 0077 for scripts run by acpid.  (event.c)  (Ted Felix)
+
+* Tue May 17 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.10 release
+  - Fixed compiler warnings in kacpimon.  (kacpimon/libnetlink.c)
+    (Michael Meskes)
+  - systemd support.  The socket acpid creates to connect with clients can now
+    be passed as stdin (fd 0) at startup.  (acpid.c sock.h sock.c acpid.8)  
+    (Reiner Klussmeier)
+  - man page improvements  (acpid.8)  (Ted Felix)
+
+* Fri Apr 15 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.9 release
+  - Removed newlines from acpid_log() calls and modified acpid_log() to
+    no longer need newlines.  This change to acpid prevents blank lines in
+    the log for versions of syslogd that preserve newlines.  (acpid.c 
+    connection_list.c event.c inotify_handler.c input_layer.c netlink.c 
+    proc.c sock.c)  (Michael Meskes, Ted Felix)
+  - Added fcntl() for O_NONBLOCK on the client sockets.  This prevents acpid
+    from hanging if a client behaves badly.  (sock.c)  (Vasiliy Kulikov)
+    From: http://www.openwall.com/lists/oss-security/2011/01/19/4
+  - Improvements to error handling.  (sock.c)  (Ted Felix)
+
+* Tue Feb 15 2011  Ted Felix <http://www.tedfelix.com>
+  - 2.0.8 release
+  - Fixed "comparison between signed and unsigned integer expressions"
+    error with gcc 4.6.  (libnetlink.c) (Eugeni Dodonov)
+  - Fixed unused variable "type" with gcc 4.6.  (libnetlink.c) (Jiri Skala)
+
+* Mon Nov 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.7 release
+  - Reduced the startup logging and skipped processing of "." and ".."
+    in the config files directory.  Debian #598198.  (event.c proc.c)
+    (Ted Felix)
+  - Added CD-related buttons.  Debian #600564.  (input_layer.c)
+    (Stanislav Maslovski)
+  - Removed the "getppid() == 1" hack from daemonize().  
+    Red Hat #629740.  "While forking is ugly in theory, this has the advantage
+    that it is clear that the acpid unix socket is properly installed before 
+    systemd continues starting other units that want to be started after 
+    acpid." - Lennart Poettering
+    For upstart, specify "expect fork" in your upstart .conf file for acpid.
+    For systemd, specify "Type=forking" in your systemd service file for
+    acpid.
+    (acpid.c) (Lennart Poettering)
+  - Added FD_CLOEXEC to the input layer fd's.  Red Hat #648221.  
+    (input_layer.c) (Daniel Walsh)
+
+* Tue Jun 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.6 release
+  - Added getXconsole() to samples/powerbtn/powerbtn.sh to eliminate 
+    dependency on other parts of Debian.  (samples/powerbtn/powerbtn.sh)
+    (Debian and Timo Gurr)
+
+* Sat May 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.5 release
+  - Moved powerbtn.sh to powerbtn.sh.old and brought in the latest
+    powerbtn.sh from Debian which handles KDE4.  
+    (samples/powerbtn/powerbtn.sh samples/powerbtn/powerbtn.sh.old)  
+    (Ted Felix)
+
+* Thu Apr 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.4 release
+  - Replaced all the mandb code in the makefile with a comment.  (Makefile) 
+    (Ted Felix)
+  - Revamped logging.  (acpid.c event.c inotify_handler.c input_layer.c 
+    netlink.c proc.c sock.c) (Ted Felix)
+  - Removed CR's (\r) from files.  (Changelog connection_list.c sock.c)
+    (Ted Felix)
+  - Cleaned up the samples directory a bit.  Also added powerbtn samples
+    taken from Debian.  (samples/*) (Ted Felix)
+  - Removed the %changelog token from the top of the Changelog.  This
+    appears to be a Red Hat-ism.  (Changelog) (Ted Felix)
+
+* Mon Mar 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.3 release
+  - Fixed problem in makefile with mandb line when DESTDIR is not empty.
+    (Makefile) (Jiri Skala)
+  - Added missing headers needed by Red Hat/Fedora.  (acpid.c sock.c)
+    (Jiri Skala)
+  - Updated daemonize() to be in keeping with Doug Potter's "How to Daemonize
+    in Linux".  (acpid.c) (Ted Felix)
+  - Removed the test for bad kernels.  (acpid.c) (Ted Felix)
+
+* Mon Feb 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.2 release
+  - Increased MAX_CONNECTIONS to 20.  (connection_list.c)
+  - Recalculate highestfd in delete_connection().  (connection_list.c)
+    (Willi Mann)
+  - Removed old naming convention code for configuration files.  (event.c)
+  - Fixed unescaped dashes in manpage.  (acpid.8) (Michael Meskes)
+  - Added fix for mandb issue.  (Makefile) (Robby Workman)
+  - Moved README-NETLINK into README.  (README-NETLINK README)
+
+* Fri Jan 15 2010  Ted Felix <http://www.tedfelix.com>
+  - 2.0.1 release
+  - Makefile improvements for packagers.  (Makefile) (Robby Workman)
+    * Use DESTDIR instead of INSTPREFIX
+    * Allow custom compiler optimizations
+    * Allow alternative prefix
+    * Allow custom manpage directory
+    * Add DOCDIR and install docs
+    * Remove reference to "mandb -q" - this doesn't exist everywhere
+
+    After this patch, packagers can do e.g.:
+    
+      make install \
+        OPT="-O3" \
+        PREFIX=/opt \
+        MANDIR=/opt/man \
+        DOCDIR=/opt/doc/apcid \
+        DESTDIR=/tmp/package
+        
+  - run-parts(8) naming convention for configuration files.  (event.c
+    acpid.8) (Debian)
+
+* Tue Dec 15 2009  Ted Felix <http://www.tedfelix.com>
+  - 2.0.0 release
+  - Fixed gcc 4.4 warnings for strict aliasing.  (kacpimon/acpi_ids.c)
+    (Debian)
+  - Fixed a printf() warning.  (kacpimon/input_layer.c) (Debian)
+  - Fixed kacpimon makefile for a release build.  (kacpimon/makefile)
+    (Ted Felix)
+  - Added dist and install targets to kacpimon makefile.  Added
+    a set of CFLAGS for Debian-style (-g -O2) builds.  Fixed error
+    messages in clean target with a "-f" to rm.  (kacpimon/makefile)
+    (Ted Felix)
+  - Increased MAX_CONNECTIONS to 20 for kacpimon.
+    (kacpimon/connection_list.c) (Ted Felix)
+  - Improved "dist" target with DISTNAME in makefile.  (Makefile)
+    (Ted Felix)
+  - Added mandb to the install target so that the man database will get
+    updated after the man pages are installed.  (Makefile)
+    (Ted Felix)
+  - Updated the "event=" line in sample.conf to be more modern.
+    (samples/sample.conf) (Ted Felix)
+  - Improved the Example in the man page.  (acpid.8) (Ted Felix)
+
+* Thu Nov 13 2009  Ted Felix <http://www.tedfelix.com/>
+  - 1.0.10-netlink6 release
+  - Implemented discovery of new input layer devices using inotify(7).
+    (inotify_handler.h inotify_handler.c acpid.c input_layer.h input_layer.c)
+    (Ted Felix)
+  - Updated input layer event table to incorporate more events and
+    to support a format compatible with older event configuration
+    files.  (input_layer.c) (Harald Braumann and Ted Felix)
+  - Cleanup and move of input layer constants.  (acpid.h input_layer.c 
+    inotify_handler.c) (Ted Felix)
+  - kacpimon now opens all event sources and reports where each event 
+    comes from.  This makes it more useful for discovering events.
+    (kacpimon/kacpimon.c kacpimon/input_layer.c kacpimon/netlink.c)
+    (Ted Felix)
+  - Turned off strict aliasing optimizations as the netlink code is
+    filled with strict aliasing problems.  (Makefile) (Ted Felix)
+
+* Fri Nov 6 2009  Ted Felix <http://www.tedfelix.com/>
+  - 1.0.10-netlink5 release
+  - Fixed exit on device removal.  (input_layer.c connection_list.h
+    connection_list.c) (Mikhail Krivtsov)
+
+* Sun Jul 19 2009  Ted Felix <http://www.tedfelix.com/>
+  - 1.0.10-netlink4 release
+  - Added events to input_layer.c to cover more buttons on the Thinkpad X40
+    (input_layer.c) (Peter Stuge)
+  - Fixed Makefile "dist" target to work properly.  (Makefile) (Ted Felix)
+  - Added kacpimon to the codebase as a debugging tool.  (kacpimon directory,
+    Makefile) (Ted Felix)
+  - Removed erroneous comment in sock.c about the 256 connection limit.
+    (sock.c) (Ted Felix)
+  - Removed unnecessary #include from connection_list.c.  (connection_list.c)
+    (Ted Felix)
+
+* Mon May 04 2009  Ted Felix <http://www.tedfelix.com/>
+  - Fixed strict aliasing issue with gcc 4.4. (acpi_ids.c) (Michael Meskes
+    and Peter Alfredsen)
+  - 1.0.10-netlink3 release.
+
+* Sat May 02 2009  Ted Felix <http://www.tedfelix.com/>
+  - Merge of the following three 1.0.10 changes into 1.0.10-netlink2
+    (Michael Meskes and Ted Felix)
+
+* Wed Apr 22 2009  Tim Hockin <thockin@hockin.org>
+  - Bump version to 1.0.10 for release.
+
+* Wed Apr 22 2009  Tim Hockin <thockin@hockin.org>
+  - Add a -C (--clientmax) command line flag to set max number of non-root
+    socket connections. (acpi.c acpid.h acpid.8 event.c)
+  - Set the maximum number of socket clients to 256 by default. (acpid.h)
+  - Close clients that have disconnected. (acpid.c event.c) (Aaron Plattner
+    <aplattner@nvidia.com>)
+  - Give up and exit() if 5 accept() calls fail in a row. (acpid.c)
+
+* Mon Feb 09 2009  Tim Hockin <thockin@hockin.org>
+  - Open /dev/null O_RDWR, rather than O_RDONLY. (acpid.c)
+
+* Thu Dec 11 2008  Ted Felix <http://www.tedfelix.com/>
+  - Version 1.0.8ted1
+  - Netlink and Input Layer support.  Many files have been changed and
+    several have been added.  (Ted Felix <http://www.tedfelix.com/>)
+
+* Tue Oct 28 2008  Tim Hockin <thockin@hockin.org>
+  - Bump version to 1.0.8 for release.
+
+* Sun Oct 26 2008  Tim Hockin <thockin@hockin.org>
+  - Define _GNU_SOURCE. (Makefile) (Ted Felix <http://www.tedfelix.com/>)
+  - Rename a variable to avoid shadowing a global. (event.c) (Ted Felix
+    <http://www.tedfelix.com/>)
+  - Fix typos in man pages. (acpid.8, acpi_listen.8) (Ted Felix
+    <http://www.tedfelix.com/>)
+  - GCC 4.3.2 gives chdir() the _wur attribute (warn unused result). Check
+    for errors. (acpid.c) (Ted Felix <http://www.tedfelix.com/>)
+  - Check for ferror() in parse_file(). (event.c) (Ted Felix
+    <http://www.tedfelix.com/>)
+  - Only read regular files in acpid_read_conf(). (event.c) (Ted Felix
+    <http://www.tedfelix.com/>)
+  - Stop processing ACPI events when a lockfile exists (from Debian).
+    (acpid.8, acpid.c, acpid.h) (Ted Felix <http://www.tedfelix.com/>)
+
+* Sat Nov 24 2007  Tim Hockin <thockin@hockin.org>
+  - Build with -O2 flag (Makefile).
+  - Add -l (--logevents) option to enable logging of all events.  Due to a
+    number of reports of log flooding (bad ACPI BIOS?) The new default is to
+    NOT log events. (acpid.c acpid.h event.h acpid.8)
+  - Add pidfile support and a -p (--pidfile) option to change the pidfile.
+    Default is /var/run/acpid.pid. (acpid.c acpid.8) (Javier Pello
+    <jpello@users.sourceforge.net>)
+  - Rename ACPI_* constants to ACPID_*. (acpid.c acpi_listen.c)
+  - Remove a bad cast of malloc()'s return value. (event.c)
+  - Add proper make dependencies. (Makefile)
+  - Close client file descriptors on exec(). (acpid.c) (Zdenek Prikryl
+    <zprikryl@redhat.com>)
+
+* Mon Sep 24 2007  Tim Hockin <thockin@hockin.org>
+  - Don't use a mode argument on open("/dev/null") (acpid.c) (Steve Grubb
+    <sgrubb@redhat.com>)
+  - Use GCC "__attribute__((format(printf)))" for acpid_log (acpid.c) (Steve
+    Grubb <sgrubb@redhat.com>)
+  - Fix a shadowed variable name (event.c) (Steve Grubb <sgrubb@redhat.com>)
+  - Fix a leaked fd on error (event.c) (Steve Grubb <sgrubb@redhat.com>)
+  - Fix a signed/unsigned comparison (event.c) (Steve Grubb
+    <sgrubb@redhat.com>)
+  - Compile with more warnings (Makefile) (Steve Grubb <sgrubb@redhat.com>)
+
+* Sat June 30 2007  Tim Hockin <thockin@hockin.org>
+  - Bump version to 1.0.6 for release.
+
+* Thu May 24 2007  Tim Hockin <thockin@hockin.org>
+  - Print event handler output to stdout only in debug mode (acpid.c, event.c).
+  - Update man page for new logging.
+
+* Wed May 23 2007  Tim Hockin <thockin@hockin.org>
+  - Correctly check for malloc() failures (event.c)
+  - Skip editor backup files when scanning for conf files (event.c) (Stefan
+    Seyfried <seife@suse.de>)
+  - Use syslog() for logging (acpid.c, event.c, acpid.h) (Stefan Seyfried
+    <seife@suse.de>)
+
+* Fri Dec 30 2005  Tim Hockin <thockin@hockin.org>
+  - Add a do_detach argument to acpid_cleanup_rules() to avoid closing
+    clients on a HUP (acpid.c, event.c) (Frederic Lepied
+    <flepied@users.sourceforge.net>)
+
+* Sat Sep 24 2005  Tim Hockin <thockin@hockin.org>
+  - Document -f option in the acpid man page (acpid.8)
+
+* Fri Sep 23 2005  Tim Hockin <thockin@hockin.org>
+  - Fix rule and fd leak when clients disconnect on socket (event.c) (Timo
+    Hoenig <thoenig@suse.de>)
+
+* Fri Oct 19 2005  Tim Hockin <thockin@hockin.org>
+  - Use socklen_t for sockets calls (ud_socket.c)
+
+* Sun Oct 24 2004  Tim Hockin <thockin@hockin.org>
+  - Update my own email to not say @sun.com anymore
+
+* Sun Oct 17 2004  Tim Hockin <thockin@hockin.org>
+  - mkdir BINDIR in Makefile
+
+* Sun Oct 17 2004  Tim Hockin <thockin@hockin.org>
+  - set acpi_listen stdout to be line-buffered (Gilles Chanteperdrix
+    <gilles.chanteperdrix@laposte.net>)
+  - detect a closed socket and exit (acpi_listen.c)
+  - detect a closed events file and exit (acpid.c)
+  - print read_line() errors (acpi_listen.c, acpid.c)
+  - added sample battery config and handler (Frank Dietrich
+    <ABLEsoft@gmx.de>)
+  - added sample AC adapter config/handler and hotkey config/handler for
+    Panasonic notebooks (David Bronaugh <dbronaugh@linuxboxen.org>)
+  - prep for 1.0.4 release
+
+* Fri Feb 13 2004  Tim Hockin <thockin@sun.com>
+  - dump debian/ and redhat/ dirs -- too much hassle
+  - change 'make rpm' to 'make dist'
+  - minor Makefile cleanup
+  - README cleanup
+  - prep for 1.0.3 release
+
+* Thu Dec 18 2003  Tim Hockin <thockin@sun.com>
+  - unblock signals before exec()ing a handler
+  - remove odd 'been_here' from signals_handled() (debug artifact?)
+
+* Mon Nov 24 2003  Tim Hockin <thockin@sun.com>
+  - add -c, --count option to acpi_listen (Luca Capello <luca.pca.it>)
+  - add -t, --time option to acpi_listen (Luca Capello <luca.pca.it>)
+  - return a meaningful value if we break out of the main loop (acpi_listen.c)
+  - break out usage() from handle_cmdline() (acpi_listen.c)
+
+* Mon Nov 17 2003  Tim Hockin <thockin@sun.com>
+  - Decouple logging to stdout from foregrounding
+  - Add acpi_listen (source and man)
+  - Add ud_connect()
+  - Remove (euid == 0) check
+  - ifdef the bad-kernel checking - it consumes a byte of data!
+
+* Fri Nov 14 2003  Tim Hockin <thockin@sun.com>
+  - Add -f option (run in foreground)
+
+* Tue May 13 2003  Tim Hockin <thockin@sun.com>
+  - Fixed a dumb bug with %e expansion for commands
+  - Add COPYING file
+  - Add TODO file
+
+* Fri Mar 15 2002  Tim Hockin <thockin@sun.com>
+  - Updated RPM spec with patch from sun for chkconfig on/off
+  - Add Changelog, make 'make rpm' use it.
+  - 1.0.1
+
+* Wed Mar 13 2002  Tim Hockin <thockin@sun.com>
+  - Fixed logging bug - not appending to log (O_APPEND needed)
+  - Fix 'make install' to not need root access
+  - Fix RPM spec to not need root
+
+* Thu Sep 6 2001 Tim Hockin <thockin@sun.com>
+  - 1.0.0
+
+* Thu Aug 16 2001  Tim Hockin <thockin@sun.com>
+  - Added commandline options to actions
+
+* Wed Aug 15 2001  Tim Hockin <thockin@sun.com>
+  - Added UNIX domain socket support
+  - Changed /etc/acpid.d to /etc/acpid/events
+
+* Mon Aug 13 2001  Tim Hockin <thockin@sun.com>
+  - added changelog
+  - 0.99.1-1
+

@@ -1,0 +1,352 @@
+@c -*- texinfo -*-
+
+@c To compile: makeinfo --no-validate  --no-headers faq.texi > FAQ
+
+@chapter Frequently Asked Questions
+
+See also @url{http:://sawfish.wikia.com/wiki/Tips}.
+
+@enumerate
+
+@item How can I get information on Sawfish?
+
+@itemize
+@item Homepage: @url{http://sawfish.wikia.com/}.
+@item Mailing list: Please subscribe at @url{http://mail.gnome.org/mailman/listinfo/sawfish-list}. You can browse the archives at @url{http://mail.gnome.org/archives/sawfish-list/}.
+@item IRC: Join @code{#sawfish} on @code{irc.freenode.net}.
+@end itemize
+
+@item How do I read the Info manual?
+
+@itemize
+@item From root menu (middle click the background), choose @code{Help} section.
+@item Execute the command @samp{info sawfish}
+@item In emacs, enter the Info mode (@kbd{C-h i}) and type @kbd{g (sawfish) RET}.
+@item If you're using GNOME, then try executing @samp{gnome-help-browser
+info:sawfish}.
+@end itemize
+
+@item I installed Sawfish but it's not working!  All I see when I
+start X is the default stipple background: no programs, no menus, no
+pager.
+
+This is exactly what it's supposed to do, but first try middle-click
+(by default) on the background. This invokes the menu. (If you have a
+two-button mouse, try clicking both buttons simultaneously).
+
+Why this is so? Because Sawfish is minimal - Sawfish is a @emph{window
+manager} and as such is not responsible for setting the background,
+starting programs or displaying a pager --- these can all be done
+using separate applications (e.g. by using a desktop environment such
+as GNOME).
+
+@item How do I customize Sawfish?
+
+There're two ways, by the configurator GUI and by preparing lisp
+code. The GUI can be run by middle-clicking background ->
+``Customize''. Most customizations similar to other window managers
+can be done through GUI.
+
+For customizations by lisp, first understand that in the startup, files
+@file{~/.sawfish/custom}, @file{.sawfishrc} are read in this order.
+
+@table @asis
+@item @file{~/.sawfish/custom}
+This file is created and edited by the configurator GUI, and stores
+customizations. It shouldn't really be edited manually.
+
+@item @file{~/.sawfish/rc}  or @file{~/.sawfishrc}
+This is the file you edit. It is a hand written lisp code, and almost
+all explicit customizations should be done here.
+
+Choose the filename either @file{~/.sawfish/rc} or
+@file{~/.sawfishrc}. The former is recommended, because the directory
+@file{~/.sawfish} is anyway created to store @file{custom}, and you
+can also put other lisp scripts, like user-contributed codes there.
+
+Sawfish < 1.6 reads @file{sawfish-defaults} by default only if
+@file{~/.sawfishrc} lacks, but now it is always read.
+@end table
+
+@item How can I start an application from Sawfish?
+@itemize @bullet
+@item From a key @*
+Bind a key to the @samp{run-shell-command} command. In the
+configurator, you can enter the command name at the same time.
+
+@item From lisp @*
+The function @code{system} invokes a shell. Don't forget to add ``&''
+not to block the Sawfish execution.
+@lisp
+(system "firefox doodle.com &")
+@end lisp
+
+@item At Sawfish startup @*
+You can use lisp, but you don't have to. Simply execute it from, say,
+@file{.Xclient} or any file. See the above item ``How do I customize
+Sawfish?'' for lisp customization.
+@end itemize
+
+@item How do I make clicking on a window raise the window?
+
+Bind the event @kbd{Button1-Click1} in the @code{window-keymap} to the
+@code{raise-window-and-pass-through-click} command
+
+
+@item How do I redefine the @samp{Applications} menu?
+
+See the @samp{Popup Menus} node in the Info manual (@pxref{Popup
+Menus})
+
+@item How do I compile Lisp files?
+
+Use the shell command:
+
+@example
+sawfish --batch -l compiler -f compile-batch @var{files@dots{}}
+@end example
+
+@noindent where @var{files@dots{}} are the names of the files you want
+to compile. They will normally have @file{.jl} suffixes, the compiler
+will create associated files with @file{.jlc} suffixes containing the
+compiled Lisp code.
+
+Remember that always the latest code is read, i.e., if the source is
+newer than the byte compiled file, the source is used, unlike emacs.
+
+@item How do I create a new theme?
+
+See the @samp{Window Frames} node of the Info manual (@pxref{Window
+Frames})
+
+Basically though, create a directory @file{~/.sawfish/themes/@var{foo}}
+where @var{foo} is the name of your theme. Then copy any images into
+this directory and create a file @file{theme.jl} that will be loaded to
+initialize the theme
+
+
+@item How do I port an Enlightenment theme to Sawfish?
+
+There's no automatic translation available. Get the images used in the
+window border, then write a @file{theme.jl} file telling the window
+manager how they are used to form a window frame
+
+See the @file{themes/brushed-metal} directory for an example, and the
+Info manual for the documentation
+
+
+@item Are there any other themes available?
+
+Yes, there are plenty actually. Most of them reside over at freshmeat: @url{http://themes.freshmeat.net/browse/926/}.
+You can also take a look at the Themes section on the Sawfish website: @url{http://sawfish.wikia.com/wiki/Themes}.
+
+
+@item Why don't GTK themes work with Sawfish?
+
+There was a problem with older versions of the @code{gtk-engines}
+package preventing engine based themes working with several interpreted
+languages. Get the latest @code{gtk-engines} from
+@url{ftp://ftp.gnome.org/}
+
+@item Sound support.
+
+Here we explain sound support which can't be set via Configurator.
+
+You can add sound files under @file{~/.sawfish/sounds/}. This path can
+be changed with @code{audio-load-path} variable. See the file
+@file{OPTIONS} for the format.
+
+The program to play sounds is set by @code{play-sample-program}. If
+you want to pass arguments or redirect the output, prepare a wrapper script,
+for example something like following:
+
+@example
+#!/bin/sh
+
+# No need of backgrounding.
+mplayer -volume 30 "$1" &>/dev/null
+@end example
+
+@item What's this @code{sawfish-client} program?
+
+This allows you to connect to a window manager process and evaluate
+arbitrary Lisp forms. Do @samp{sawfish-client -?} for more details
+(@samp{sawfish-client -} for a read-eval-print loop)
+
+By default you can only connect from the host running the wm (through a
+unix-domain socket). To enable the network based server, evaluate the
+lisp form @code{(server-net-init)}.
+
+Note however that this connects through the X server, meaning that
+anyone who can open windows on your display can also execute any Lisp
+code on the host running the window manager (and by extension,
+@emph{execute any program}).
+
+So @emph{don't} run the net server with X access control disabled
+(unless you're not connected to a network).
+
+@item How do I restart Sawfish?
+
+From a shell lauch the following command: @code{sawfish-client -q -f restart}
+
+@item Shutdown privilege.
+
+The Sawfish root-menu has a ``session'' sub-menu which allows you to
+shutdown your machine. If you use GNOME or KDE, no additional work is
+required. But if you use Sawfish standalone, the user needs the
+privilege to execute @code{shutdown} command.
+
+You can do it, for example, with @code{sudo} combined with user group
+@code{shutdown}:
+
+@example
+$ groupadd shutdown      # add a new group called "shutdown"
+$ adduser john shutdown  # add user "john" to the "shutdown" group
+$ visudo                 # add the group "shutdown" to sudoers
+  
+# add the following:
+%shutdown ALL=(root) NOPASSWD: /sbin/shutdown
+@end example
+
+That's it, now everyone in the @code{shutdown} group can do it!
+
+@item I have multiple heads. Is it possible to switch workspace per head?
+
+You have to devise a trick, because the strict answer is no.  There's
+``sticky-head'' script which partly achives it on the wiki, but it's
+still incomplete: @url{http://sawfish.wikia.com/wiki/Sticky-head}
+
+Technically, Sawfish's workspace implements ``virtual desktop''
+specified in the window manager standard (ewmh), which has to be
+at least the size of the X screen, so the workspace has to containt
+all heads. ``Per head workspace'' has to be implemented as a new
+mechanism on top of workspace.
+
+@item How can I hide the mouse pointer when idle?
+
+Install ``unclutter''.
+
+@item Why don't you use GUILE or other languages?
+
+(Current Sawfish community's attitude.)
+
+We can't afford it. We're understaffed.
+
+(Written by John Harper.)
+
+Mainly because I'm lazy; I had already written rep, and therefore
+understood it completely, whereas I have never used GUILE. Also, rep
+has some features not available in GUILE (byte-code compilation,
+autoloading, built-in event-loop, @dots{})
+
+But before you flame me: yes I do think scheme is a more elegant
+language.
+
+@item Will you add feature @var{x}?
+
+Possibly. But only if it can be written in Lisp, or doesn't conflict
+with the overall design aims.
+
+These aims are to build a lightweight, generally applicable, set of
+core window management functions, then write @emph{all} high-level
+functionality as Lisp extensions
+
+
+@item Will you add background setting?
+
+No. This can easily be done by a separate application (e.g. with the
+GNOME hints, simply monitor property @code{_WIN_WORKSPACE} on the root
+window).
+
+@item Why does Sawfish look weird/crash on Solaris?
+
+Sawfish works stably on Solaris, but you may need to do two things:
+
+@enumerate
+@item
+Disable use of MIT-SHM by Imlib (run the program @code{imlib_config},
+the MIT-SHM option is on the @samp{Rendering} page)
+
+@item
+Recompile GTK+ using the @samp{--disable-xim} option to configure
+@end enumerate
+
+@item Why don't some windows ever get focused?
+
+Because that window doesn't accept it. Technically, windows ask to
+receive focus by setting their WM_HINTS property appropriately; for
+example if I xprop a gnome-terminal:
+
+@example
+WM_HINTS(WM_HINTS):
+                Client accepts input or input focus: True
+                Initial state is Normal State.
+                window id # of group leader: 0x5c00001
+@end example
+
+
+@item Why doesn't the GNOME desk-guide / tasklist show the true state
+of my desktop?
+
+It seems that there is a problem with these applets that only occurs
+after restarting Sawfish - they seem to lose track of the current window
+states.
+
+The simplest way to correct this is to execute the following shell
+commands:
+
+@example
+$ save-session
+$ killall panel
+@end example
+
+@noindent
+(assuming you have a session manager to restart the panel afterwards!)
+
+
+@item What do these @samp{bytecode-error} messages mean?
+
+It means that you're trying to execute Lisp code that was compiled for
+an outdated version of the Lisp virtual machine. Recompile any Lisp
+files that you have installed locally.
+
+@item Historical question: Why is it now called @emph{Sawfish}?
+
+Because the old name (@samp{Sawmill}) was already being used by another
+company, who were in the process of registering it as a trademark.
+
+The rename should be mostly painless, all old binaries still work for
+the time being, but will be phased out over time (final phasing out
+started around 1.5.0). Where before you would execute a program called
+@file{sawmill*}, replace it by @file{sawfish*}. E.g. @file{sawmill}
+becomes @file{sawfish}, and @file{sawmill-client} becomes
+@file{sawfish-client}.
+
+Your @file{~/.sawmill} directory will automatically be renamed
+@file{~/.sawfish} unless it would overwrite an existing file. Only
+user configuration @file{~/.sawfish[/]rc} will be checked currently,
+@file{~/.sawmillrc} is not used anymore (it was also read up to
+version 1.3.5).
+
+My apologies for any inconvenience caused.
+
+@item Historical question: But why @emph{Sawfish}, and not <insert your favourite
+alternative>?
+
+Well I had to choose something! And hopefully it satisfies the main
+requirements:
+
+@itemize @bullet
+@item There are no other computer-related users of the name (as checked
+in April 2000,)
+
+@item It's similar enough to the old name to hopefully carry some
+recognition across,
+
+@item It has no tenuous relationship to window-managing.
+@end itemize
+
+Incidentally, there was no meaning to the name ``Sawmill'', the author
+grepped @file{/usr/dict/words} for something containing ``wm''.
+
+@end enumerate

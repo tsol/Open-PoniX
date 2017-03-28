@@ -1,0 +1,4 @@
+if ENABLE_PANGO
+SUBDIRS = label
+endif
+MAINTAINERCLEANFILES = Makefile.in

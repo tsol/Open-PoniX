@@ -1,0 +1,1 @@
+./config --prefix=/usr shared

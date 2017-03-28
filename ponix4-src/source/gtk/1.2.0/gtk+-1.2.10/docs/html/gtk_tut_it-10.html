@@ -1,0 +1,687 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Il Widget Men&ugrave; (Menu Widgets)</TITLE>
+ <LINK HREF="gtk_tut_it-11.html" REL=next>
+ <LINK HREF="gtk_tut_it-9.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc10" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-11.html">Avanti</A>
+<A HREF="gtk_tut_it-9.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc10">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s10">10. Il Widget Men&ugrave; (Menu Widgets)</A></H2>
+
+<P>Ci sono due modi per creare dei men&ugrave;, quello facile e quello difficile.
+Ognuno &egrave; pi&ugrave; adatto per certe circostanze, ma di solito si pu&ograve; usare il
+modo semplice, cio&eacute; menu_factory (la ``fabbrica dei men&ugrave;''). Il modo 
+``difficile'' &egrave; di crearsi tutti i men&ugrave; usando direttamente le chiamate.
+Quello semplice &egrave; di usare le chiamate di tipo gtk_menu_factory. Anche se
+&egrave; un modo molto pi&ugrave; semplice, ci sono svantaggi e vantaggi per ciascuno
+dei due approcci.
+<P>La menu_factory &egrave; molto pi&ugrave; semplice da usare e per aggiungere dei nuovi
+men&ugrave;, anche se scriversi un po' di funzioni per creare dei men&ugrave; con il
+metodo manuale pu&ograve; dare risultati molto migliori dal punto di vista 
+dell'usabilit&agrave;. Con la menufactory, non &egrave; possibile mettere immagini o
+caratteri '/' nei men&ugrave;.
+<P>
+<H2><A NAME="ss10.1">10.1 Creazione Manuale di Men&ugrave;</A>
+</H2>
+
+<P>Seguendo la tradizionale arte dell'insegnamento, partiamo dal modo
+difficile. <CODE>:)</CODE>
+<P>I widget che hanno a che fare con la creazione di una barra di men&ugrave; e di sottomen&ugrave; sono tre:
+<UL>
+<LI>un elemento di men&ugrave;, che \ quello che l'utente poi selezioner&agrave;, per esempio 'Salva'</LI>
+<LI>un men&ugrave;, che fa la parte di contenitore per gli elementi di men&ugrave;, e</LI>
+<LI>una barra dei men&ugrave;, che &egrave; un contenitore per ciascuno dei men&ugrave;</LI>
+</UL>
+<P>
+<P>La cosa viene un po' complicata dal fatto che i widget elemento di men&ugrave; vngono usati per
+<P>due scopi diversi. Essi sono sia i widget che vengono impacchettati nei men&ugrave;, che 
+<P>quelli che vengono impacchettati nella barra dei men&ugrave; che, quando selezonati, attivano i men&ugrave;.
+<P>Diamo un'occhiata alle funzioni usate per creare i men&ugrave; e le barre di men&ugrave;.
+Con questa prima funzione si crea un nuova barra di men&ugrave;:
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_menu_bar_new(void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione crea una nuova barra di men&ugrave;. Per impacchettarla in una
+finestra o si usa la funzione gtk_container_add, oppure, per impacchettarla
+in una scatola, le funzioni box_pack - come con i bottoni.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_menu_new();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione restituisce un puntatore ad un nuovo men&ugrave;, non viene mai
+realmente mostrato (con gtk_widget_show), serve solo per contenere gli
+elementi del men&ugrave;. Spero che il tutto risulti pi&ugrave; chiaro quando daremo
+un'occhiata all'esempio pi&ugrave; sotto.
+<P>Le prossime due chiamate sono usate per creare degli elementi che poi
+vengono impacchettati nei men&ugrave; e nelle barre dei men&ugrave;..
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_menu_item_new();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>e
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_menu_item_new_with_label(const char *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Queste chiamate sono usate per creare gli elementi di men&ugrave; che devono poi essere mostrati.
+Ricordate la differenza che esiste fra un ``men&ugrave;'' come quelli creati con
+gtk_menu_new e un ``elemento di men&ugrave;'' (menu item) come quelli creati con
+la funzione gtk_menu_item_new. L'elemento di men&ugrave; sar&agrave; un bottone
+vero e proprio con una azione associata, mentre un men&ugrave; &egrave; solo un contenitore che li raccoglie.
+Le funzioni gtk_menu_new_with_label e gtk_menu_new sono esattamente come vi aspettereste che siano dopo
+<P>aver conosciuto i bottoni. Una crea un nuovo elemento di men&ugrave; con un'etichetta gi&agrave; impacchettata,
+<P>mentre l'altra crea un elemento di men&ugrave; vuoto.
+<P>
+<P>Una volta che si \ creato un elemento di men&ugrave;, &egrave; necessario piazzarlo su di un men&ugrave;.
+<P>Per fare ci&ograve; si usa la funzione gtk_menu_append. Per determinare quando l'utente ha selezionato un elemento, abbiamo bisogno di connettere il segnale <CODE>activate</CODE> nel solito modo.
+<P>Quindi, se volessimo creare un normale men&ugrave; <CODE>File</CODE>, con le opzioni <CODE>Open</CODE>, <CODE>Save</CODE> e <CODE>Quit</CODE>, il codice avrebbe pi&ugrave; o meno il seguente aspetto:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+file_menu = gtk_menu_new();    /* Non e' necessario mostrare i menu' */
+
+/* Creiamo gli elementi del menu' */
+open_item = gtk_menu_item_new_with_label("Open");
+save_item = gtk_menu_item_new_with_label("Save");
+quit_item = gtk_menu_item_new_with_label("Quit");
+
+/* Aggiungiamoli al menu' */
+gtk_menu_append( GTK_MENU(file_menu), open_item);
+gtk_menu_append( GTK_MENU(file_menu), save_item);
+gtk_menu_append( GTK_MENU(file_menu), quit_item);
+
+
+/* Colleghiamo le funzioni di callback al segnale activate */
+gtk_signal_connect_object( GTK_OBJECT(open_items), "activate",
+                           GTK_SIGNAL_FUNC(menuitem_response), (gpointer) "file.open");
+gtk_signal_connect_object( GTK_OBJECT(save_items), "activate",
+                           GTK_SIGNAL_FUNC(menuitem_response), (gpointer) "file.save");
+
+/* Possiamo collegare l'elemento Quit alla nostra funzione di uscita */
+gtk_signal_connect_object( GTK_OBJECT(quit_items), "activate",
+                           GTK_SIGNAL_FUNC(destroy), (gpointer) "file.quit");
+
+/* Abbiamo bisogno di mostrare gli elementi di menu' */
+gtk_widget_show( open_item );
+gtk_widget_show( save_item );
+gtk_widget_show( quit_item );
+ 
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>A questo punto abbiamo il nostro men&ugrave; Adesso abbiamo bisogno di creare una barra dei men&ugrave;
+<P>e un elemento di men&ugrave; per <CODE>File</CODE>, a cui aggiungeremo il nostro men&ugrave;. Il codice &egrave; questo:
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+menu_bar = gtk_menu_bar_new();
+gtk_container_add( GTK_CONTAINER(window), menu_bar);
+gtk_widget_show( menu_bar );
+
+file_item = gtk_menu_item_new_with_label("File");
+gtk_widget_show(file_item);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Ora dobbiamo associare il men&ugrave; con <CODE>file_item</CODE>. Lo si pu&ograve; fare con la funzione
+<P>
+<BLOCKQUOTE><CODE>
+void gtk_menu_item_set_submenu( GtkMenuItem *menu_item,
+GtkWidget *submenu);
+</CODE></BLOCKQUOTE>
+<P>
+<P>Quindi, il nostro esempio continuerebbe con
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_menu_item_set_submenu( GTK_MENU_ITEM(file_item), file_menu);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Ci&ograve; che manca a questo punto &egrave; di collegare il men&ugrave; alla barra, cosa che si pu&ograve; ottenere tramite la funzione
+<P>
+<BLOCKQUOTE><CODE>
+void gtk_menu_bar_append( GtkMenuBar *menu_bar, GtkWidget *menu_item);
+</CODE></BLOCKQUOTE>
+<P>che nel nostro caso &egrave;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_menu_bar_append( GTK_MENU_BAR(menu_bar), file_item );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Se volessimo il men&ugrave; giustificato a dstra, come sono spesso i men&ugrave; di aiuto, potremm
+<P>usare la seguente funzioe (di nuovo su <CODE>file_item</CODE>  in questo esempio) prima di fare il collegamento alla barra.
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_menu_item_right_justify (GtkMenuItem *menu_item);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Ecco un riassunto dei passi necessari per creare una barra con i relativi men&ugrave; collegati:
+<P>
+<UL>
+<LI>    Create un nuovo men&ugrave; con gtk_menu_new()</LI>
+<LI>    Usate delle chiamate multiple a gtk_menu_item_new() per ognuno degli
+elementi che volete mettere nel vostro men&ugrave;. Usate inoltre gtk_menu_item_append()
+per mettere ciascuno di questi nuovi elementi sul men&ugrave;..</LI>
+<LI> Create un elemento di men&ugrave; usando gtk_menu_item_new(). Questo rappresenta l'elemento di base 
+
+delmen&ugrave;, e il testo relativo sar&agrave; il testo mostrato sulla barra dei men&ugrave; stessa.
+</LI>
+<LI> Usate gtk_menu_item_set_submenu() per collegare i men&ugrave; all'elemento base del men&ugrave; (cio&egrave; quello creato al passaggio precedente).
+</LI>
+<LI>    Create una nuova barra di men&ugrave; usando gtk_menu_bar_new. Questo passo
+necessita di essere effettuato una sola volta quando si crea una serie di
+men&ugrave; su una sola barra.</LI>
+<LI> Usate gtk_menu_bar_append per mettere il men&ugrave; base sulla barra dei men&ugrave;.</LI>
+</UL>
+<P>Creare un men&ugrave; a comparsa &egrave; pi&ugrave; o meno la stessa cosa. La differenza &egrave; che il
+il men&ugrave; non viene attivato ``automaticamente'' da una barra, bens&igrave; per esempio
+con la chiamata espicita alla funzione gtk_menu_popup() da parte di un evento di pressione di un pulsante.
+Seguite questi passaggi:
+<UL>
+<LI>Create una funzione di gestione di un evento. Essa deve seguire il prototipo
+<BLOCKQUOTE><CODE>
+static gint handler(GtkWidget *widget, GdkEvent *event);
+</CODE></BLOCKQUOTE>
+
+e usare l'evento per scoprire dove il menu deve essere fatto comparire.</LI>
+<LI>Nel gestore di evento, se questo &egrave; la pressione di un bottone, trattate
+<CODE>event</CODE> come l'evento relativo ad un bottone (cosa che in effetti &egrave;)
+e usatelo come mostrato nel codice di esempio per passare informazioni a
+gtk_menu_popup().</LI>
+<LI>Collegate il gestore di evento a un widget con
+<BLOCKQUOTE><CODE>
+gtk_signal_connect_object(GTK_OBJECT(widget), "event",
+GTK_SIGNAL_FUNC (handler), GTK_OBJECT(menu));
+</CODE></BLOCKQUOTE>
+
+in cui <CODE>widget</CODE> &egrave; il widget a cui state effettuando il collegamento, e
+<CODE>handler</CODE> &egrave; la funzione di gestione, mentre <CODE>menu</CODE> &egrave; un men&ugrave;
+creato con gtk_menu_new(). Quest'ultimo pu&ograve; essere un men&ugrave; che viene anche
+attivato da una barra di men&ugrave;, come mostrato nel codice di esempio.</LI>
+</UL>
+<P>
+<P>
+<H2><A NAME="ss10.2">10.2 Esempio di Men&ugrave; Manuale</A>
+</H2>
+
+<P>Per la teoria dovrebbe essere abbastanza. Diamo un'occhiata ad un esempio che
+ci aiuti a chiarire le cose.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* menu.c */
+#include &lt;gtk/gtk.h>
+
+static gint button_press (GtkWidget *, GdkEvent *);
+static void menuitem_response (gchar *);
+
+int main (int argc, char *argv[])
+{
+
+    GtkWidget *window;
+    GtkWidget *menu;
+    GtkWidget *menu_bar;
+    GtkWidget *root_menu;
+    GtkWidget *menu_items;
+    GtkWidget *vbox;
+    GtkWidget *button;
+    char buf[128];
+    int i;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* crea una nuova finestra */
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_usize( GTK_WIDGET (window), 200, 100);
+
+    gtk_window_set_title(GTK_WINDOW (window), "GTK Menu Test");
+    gtk_signal_connect(GTK_OBJECT (window), "delete_event",
+                       (GtkSignalFunc) gtk_main_quit, NULL);
+
+    /* Inizializziamo il men&ugrave;, e ricordate: mai applicare
+     * gtk_show_widget() al widget men&ugrave;!!
+     * Questo &egrave; il men&ugrave; che contiene gli elementi, quello che
+     * spunta quando si fa click sul "Men&ugrave; radice" nell'applicazione */
+    menu = gtk_menu_new();
+
+    /* Ora creiamo un ciclo che crea tre elementi di menu per "test-menu".
+     * Notete la chiamata a gtk_menu_append. In questo punto aggiungiamo una
+     * lista di elementi al nostro men&ugrave;. Normalmente, dovremmo poi catturare
+     * il segnale di attivazione per ognuno degli elementi del menu, e creare
+     * una funzione di ritorno per ciascuno di essi, ma qui non li mettiamo per
+     * brevit&agrave;. */
+
+    for(i = 0; i &lt; 3; i++)
+        {
+            /* Copia i nomi in buf. */
+            sprintf(buf, "Test-undermenu - %d", i);
+
+            /* Crea un nuovo elemento di men&ugrave; con un nome... */
+            menu_items = gtk_menu_item_new_with_label(buf);
+
+            /* ...e aggiungilo al men&ugrave;. */
+            gtk_menu_append(GTK_MENU (menu), menu_items);
+
+            /* Fa qualcosa di interessante quando si seleziona l'elemento */
+            gtk_signal_connect_object(GTK_OBJECT(menu_items), "activate",
+                GTK_SIGNAL_FUNC(menuitem_response), (gpointer) g_strdup(buf));
+
+            /* Mostra il widget */
+            gtk_widget_show(menu_items);
+        }
+
+    /* Questo &egrave; il men&ugrave; radice, e l'etichetta sar&agrave; il nome del men&ugrave; che
+     * verr&agrave; mostrato sulla barra dei men&ugrave;. Non ci sar&agrave; alcun gestore di
+     * segnale collegato, dal momento che non fa altro che mostrare il resto
+     * del men&ugrave; quando viene premuto. */
+    root_menu = gtk_menu_item_new_with_label("Root Menu");
+
+    gtk_widget_show(root_menu);
+
+
+
+
+    /* Ora specifichiamo che vogliamo che il men&ugrave; che abbiamo appena creato
+     * sia il men&ugrave; radice *//
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM (root_menu), menu);
+
+    /* Una vbox in cui mettere un men&ugrave; ed un bottone: */
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+    gtk_widget_show(vbox);
+
+    /* Crea una barra dei men&ugrave; per metterci i men&ugrave; e l'aggiunge alla finestra principale */
+    menu_bar = gtk_menu_bar_new();
+    gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 2);
+    gtk_widget_show(menu_bar);
+
+    /* Crea un bottone a cui collegare un men&ugrave; */
+    button = gtk_button_new_with_label("press me");
+    gtk_signal_connect_object(GTK_OBJECT(button), "event",
+        GTK_SIGNAL_FUNC (button_press), GTK_OBJECT(menu));
+    gtk_box_pack_end(GTK_BOX(vbox), button, TRUE, TRUE, 2);
+    gtk_widget_show(button);
+
+    /* E finalmente attacchiamo l'elemento di men&ugrave; alla barra dei men&ugrave; -- questo
+     * &egrave; l'elemento di men&ugrave; "radice" di cui parlavo */
+    gtk_menu_bar_append(GTK_MENU_BAR (menu_bar), root_menu);
+
+    /* La finestra va mostrata sempre come ultimo passo in modo che sia gi&agrave;
+     * completa di tutti i suoi elementi. */
+    gtk_widget_show(window);
+
+    gtk_main ();
+
+    return 0;
+}
+
+
+
+/* Risponde alla pressione di un bottone impostando un men&ugrave; che
+ * viene passato come widget.
+ * Notate che l'argomento "widget" si riferisce al men&ugrave; impostato
+ * e NON al bottone premuto.
+ */
+
+static gint button_press (GtkWidget *widget, GdkEvent *event)
+{
+
+    if (event->type == GDK_BUTTON_PRESS) {
+        GdkEventButton *bevent = (GdkEventButton *) event; 
+        gtk_menu_popup (GTK_MENU(widget), NULL, NULL, NULL, NULL,
+                        bevent->button, bevent->time);
+        /* Riferisce al codice chiamante che abbiamo trattato l'evento;
+         * la faccenda finisce qui. */
+        return TRUE;
+    }
+
+    /* Riferisce al codice chiamante che abbiamo trattato l'evento; passa avanti. */
+    return FALSE;
+}
+
+
+/* Stampa una stringa quando viene selezionato un elemento di men&ugrave; */
+
+static void menuitem_response (gchar *string)
+{
+    printf("%s\n", string);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Si pu&ograve; anche fare in modo che un elemento di men&ugrave; sia insensibile e, usando
+una tabella di acelleratori, collegare dei tasti a delle funzioni di men&ugrave;.
+<P>
+<P>
+<H2><A NAME="ss10.3">10.3 Usare GtkMenuFactory</A>
+</H2>
+
+<P>Ora che vi abbiamo mostrato il modo difficile, ecco invece come si fa usando
+le chiamate di gtk_menu_factory.
+<P>
+<P>
+<H2><A NAME="ss10.4">10.4 Esempio di Menu Factory</A>
+</H2>
+
+<P>Ecco un esempio di utilizzo della ``Fabbrica'' di Men&ugrave; di GTK (Menu Factory). 
+Questo &egrave; il primo file, menufactoy.h. Teniemo dei file menufactory.c e main.c separati
+a causa delle variabili globali usate nel file menufactory.c.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+/* menufactory.h */
+
+#ifndef __MENUFACTORY_H__
+#define __MENUFACTORY_H__
+ 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+void get_main_menu (GtkWidget **menubar, GtkAcceleratorTable **table);
+void menus_create(GtkMenuEntry *entries, int nmenu_entries);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __MENUFACTORY_H__ */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ed ecco il file menufactory.c.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* menufactory.c */
+#include &lt;gtk/gtk.h>
+#include &lt;strings.h>
+
+#include "mfmain.h"
+
+static void menus_remove_accel(GtkWidget * widget, gchar * signal_name, gchar * path);
+static gint menus_install_accel(GtkWidget * widget, gchar * signal_name, gchar key, gchar modifiers, gchar * path);
+void menus_init(void);
+void menus_create(GtkMenuEntry * entries, int nmenu_entries);
+
+/* Questa &egrave; la struttuta GtkMenuEntry, che viene usata per creare dei nuovi
+ * men&ugrave;. Il primo membro &agrave; la stringa di definizione del men&ugrave;. Il secondo
+ * &egrave; il tasto acceleratore predefinito, usato per accedere a questa funzione
+ * con la tastiera. Il terzo &egrave; la funzione di ritorno che viene chiamata
+ * quando si seleziona con la tastiera o il mouse questo elemento di men&ugrave;.
+ * L'ultimo membro costituisce il dato che viene passato alla funzione di
+ * ritorno. */
+
+static GtkMenuEntry menu_items[] =
+{
+        {"&lt;Main>/File/New", "&lt;control>N", NULL, NULL},
+        {"&lt;Main>/File/Open", "&lt;control>O", NULL, NULL},
+        {"&lt;Main>/File/Save", "&lt;control>S", NULL, NULL},
+        {"&lt;Main>/File/Save as", NULL, NULL, NULL},
+        {"&lt;Main>/File/&lt;separator>", NULL, NULL, NULL},
+        {"&lt;Main>/File/Quit", "&lt;control>Q", file_quit_cmd_callback, "OK, I'll quit"},
+        {"&lt;Main>/Options/Test", NULL, NULL, NULL}
+};
+
+/* calcola il numero di menu_item */
+static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
+
+static int initialize = TRUE;
+static GtkMenuFactory *factory = NULL;
+static GtkMenuFactory *subfactory[1];
+static GHashTable *entry_ht = NULL;
+
+void get_main_menu(GtkWidget ** menubar, GtkAcceleratorTable ** table)
+{
+    if (initialize)
+            menus_init();
+    
+    if (menubar)
+            *menubar = subfactory[0]->widget;
+    if (table)
+            *table = subfactory[0]->table;
+}
+
+void menus_init(void)
+{
+    if (initialize) {
+        initialize = FALSE;
+        
+        factory = gtk_menu_factory_new(GTK_MENU_FACTORY_MENU_BAR);
+        subfactory[0] = gtk_menu_factory_new(GTK_MENU_FACTORY_MENU_BAR);
+        
+        gtk_menu_factory_add_subfactory(factory, subfactory[0], "&lt;Main>");
+        menus_create(menu_items, nmenu_items);
+    }
+}
+
+void menus_create(GtkMenuEntry * entries, int nmenu_entries)
+{
+    char *accelerator;
+    int i;
+    
+    if (initialize)
+            menus_init();
+    
+    if (entry_ht)
+            for (i = 0; i &lt; nmenu_entries; i++) {
+                accelerator = g_hash_table_lookup(entry_ht, entries[i].path);
+                if (accelerator) {
+                    if (accelerator[0] == '\0')
+                            entries[i].accelerator = NULL;
+                    else
+                            entries[i].accelerator = accelerator;
+                }
+            }
+    gtk_menu_factory_add_entries(factory, entries, nmenu_entries);
+    
+    for (i = 0; i &lt; nmenu_entries; i++)
+            if (entries[i].widget) {
+                gtk_signal_connect(GTK_OBJECT(entries[i].widget), "install_accelerator",
+                                   (GtkSignalFunc) menus_install_accel,
+                                   entries[i].path);
+                gtk_signal_connect(GTK_OBJECT(entries[i].widget), "remove_accelerator",
+                                   (GtkSignalFunc) menus_remove_accel,
+                                   entries[i].path);
+            }
+}
+
+static gint menus_install_accel(GtkWidget * widget, gchar * signal_name, gchar key, gchar modifiers, gchar * path)
+{
+    char accel[64];
+    char *t1, t2[2];
+    
+    accel[0] = '\0';
+    if (modifiers &amp; GDK_CONTROL_MASK)
+            strcat(accel, "&lt;control>");
+    if (modifiers &amp; GDK_SHIFT_MASK)
+            strcat(accel, "&lt;shift>");
+    if (modifiers &amp; GDK_MOD1_MASK)
+            strcat(accel, "&lt;alt>");
+    
+    t2[0] = key;
+    t2[1] = '\0';
+    strcat(accel, t2);
+    
+    if (entry_ht) {
+        t1 = g_hash_table_lookup(entry_ht, path);
+        g_free(t1);
+    } else
+            entry_ht = g_hash_table_new(g_str_hash, g_str_equal);
+    
+    g_hash_table_insert(entry_ht, path, g_strdup(accel));
+    
+    return TRUE;
+}
+
+static void menus_remove_accel(GtkWidget * widget, gchar * signal_name, gchar * path)
+{
+    char *t;
+    
+    if (entry_ht) {
+        t = g_hash_table_lookup(entry_ht, path);
+        g_free(t);
+        
+        g_hash_table_insert(entry_ht, path, g_strdup(""));
+    }
+}
+
+void menus_set_sensitive(char *path, int sensitive)
+{
+    GtkMenuPath *menu_path;
+    
+    if (initialize)
+            menus_init();
+    
+    menu_path = gtk_menu_factory_find(factory, path);
+    if (menu_path)
+            gtk_widget_set_sensitive(menu_path->widget, sensitive);
+    else
+            g_warning("Impossibile assegnare sensibilit&agrave; a men&ugrave; inesistente: %s", path);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ed ecco mfmain.h
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* mfmain.h */
+
+
+
+#ifndef __MFMAIN_H__
+#define __MFMAIN_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+void file_quit_cmd_callback(GtkWidget *widget, gpointer data);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __MFMAIN_H__ */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>E mfmain.c
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* mfmain.c */
+
+
+
+#include &lt;gtk/gtk.h>
+
+#include "mfmain.h"
+#include "menufactory.h"
+
+
+int main(int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *main_vbox;
+    GtkWidget *menubar;
+    
+    GtkAcceleratorTable *accel;
+    
+    gtk_init(&amp;argc, &amp;argv);
+    
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_signal_connect(GTK_OBJECT(window), "destroy", 
+                       GTK_SIGNAL_FUNC(file_quit_cmd_callback), 
+                       "WM destroy");
+    gtk_window_set_title(GTK_WINDOW(window), "Menu Factory");
+    gtk_widget_set_usize(GTK_WIDGET(window), 300, 200);
+    
+    main_vbox = gtk_vbox_new(FALSE, 1);
+    gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
+    gtk_container_add(GTK_CONTAINER(window), main_vbox);
+    gtk_widget_show(main_vbox);
+    
+    get_main_menu(&amp;menubar, &amp;accel);
+    gtk_window_add_accelerator_table(GTK_WINDOW(window), accel);
+    gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
+    gtk_widget_show(menubar);
+    
+    gtk_widget_show(window);
+    gtk_main();
+    
+    return(0);
+}
+
+/* Questo &egrave; per mostrare come si usano le funzioni di ritorno quando 
+ * si utilizza la MenuFactory. Spesso, si mettono tutte le funzioni di
+ * callback in un file separato, e le si fanno chiamare le funzioni
+ * appropriate da l&igrave;. Cos&igrave; le cose sono pi&ugrave; organizzate. */
+void file_quit_cmd_callback (GtkWidget *widget, gpointer data)
+{
+    g_print ("%s\n", (char *) data);
+    gtk_exit(0);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ed infine un bel makefile per semplificare la compilazione.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+# Makefile.mf
+
+
+CC      = gcc
+PROF    = -g
+C_FLAGS =  -Wall $(PROF) -L/usr/local/include -DDEBUG
+L_FLAGS =  $(PROF) -L/usr/X11R6/lib -L/usr/local/lib 
+L_POSTFLAGS = -lgtk -lgdk -lglib -lXext -lX11 -lm
+PROGNAME = menufactory
+
+O_FILES = menufactory.o mfmain.o
+
+$(PROGNAME): $(O_FILES)
+        rm -f $(PROGNAME)
+        $(CC) $(L_FLAGS) -o $(PROGNAME) $(O_FILES) $(L_POSTFLAGS)
+
+.c.o: 
+        $(CC) -c $(C_FLAGS) $&lt;
+
+clean: 
+        rm -f core *.o $(PROGNAME) nohup.out
+distclean: clean 
+        rm -f *~
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Per il momento, accontentatevi di questo esempio. Pi&ugrave; avanti aggiungeremo
+una spiegazione ed un bel po' di commenti.
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-11.html">Avanti</A>
+<A HREF="gtk_tut_it-9.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc10">Indice</A>
+</BODY>
+</HTML>

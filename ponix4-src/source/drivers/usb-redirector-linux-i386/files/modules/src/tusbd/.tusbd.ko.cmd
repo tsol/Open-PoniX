@@ -1,0 +1,1 @@
+cmd_/source/drivers/usb-redirector-linux-i386/files/modules/src/tusbd/tusbd.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o /source/drivers/usb-redirector-linux-i386/files/modules/src/tusbd/tusbd.ko /source/drivers/usb-redirector-linux-i386/files/modules/src/tusbd/tusbd.o /source/drivers/usb-redirector-linux-i386/files/modules/src/tusbd/tusbd.mod.o

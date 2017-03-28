@@ -1,0 +1,353 @@
+#!/bin/bash
+PID=$$
+
+# NLS nuisances.
+for as_var in \
+    LANG LANGUAGE LC_ADDRESS LC_ALL LC_COLLATE LC_CTYPE LC_IDENTIFICATION \
+    LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER \
+    LC_TELEPHONE LC_TIME
+do
+    if (set +x; test -z "`(eval $as_var=C; export $as_var) 2>&1`"); then
+        eval $as_var=C; export $as_var
+    else
+        unset $as_var
+    fi
+done
+
+CMD="$@"
+
+#########################
+## Help                ##
+#########################
+function check_help ()
+{
+    [ "$1" == "--help" ] && usage 0
+    return 1
+}
+
+
+
+function usage ()
+{
+    echo "\`configure\' configures this package to adapt to many kinds of systems."
+    echo "Usage: ./configure [variables] [features]"
+    echo
+
+    echo "Variables are set with '--variable=value'"
+    echo "Defined variables are:"
+    for i in $vars; do
+        printf "%11s  "  $i
+        eval echo "\${hlp_$i} [\$$i]"
+    done
+    echo
+
+    echo "Features are set with '--enable-feature' or '--disable-feature'"
+    echo "Defined features are:"
+    for i in $features; do
+        printf "%11s  "  $i
+        eval echo "\${hlp_$i} [\$$i]"
+    done
+    echo
+
+    echo "For example:"
+    echo "./configure --datadir=/usr/local/share --disable-debug"
+    echo
+    exit $1
+}
+
+function error ()
+{
+    echo "error: $@"
+    exit 1
+}
+
+function check_name ()
+{
+    local s=""
+    for i in `eval echo \\$$2`; do
+        [ "$1" == "$i" ] && s=1 && break
+    done
+    [ -z "$s" ] && return 0
+    error "Cam't add '$1' to $2: such name already exists."
+    return 1
+}
+
+
+#########################
+## Variables           ##
+#########################
+
+# $1 - variable's name, shoud survive 'declare $1'
+# $2 - help string, description
+# $3 - default value, any bash code suitable for 'eval var=$default'
+function add_var ()
+{
+    check_name "$1" vars
+    vars="$vars $1" # to know var creation order, it's important
+    eval $1="'$3'"
+    eval hlp_$1="\"$2\""
+}
+
+function check_var ()
+{
+    local var val A
+
+    [ "$(sed -e 's/--[^=]\+=[^=]*/AA/' <<< $1)" != AA ] && return 1
+
+    A=${1:2}
+    var=${A%%=*}
+    var=$(tr "[:upper:]-" "[:lower:]_"  <<< $var)
+    val=${A#*=}
+    [ "$vars" == "${vars/$var/}" ] && error "$var - unknown variable"
+    eval $var="\"${val}\""
+
+    return 0
+}
+
+function update_vars ()
+{
+    local val
+    for i in $vars; do
+        eval val="\$$i"
+        if ! eval $i="\"$val\"" 2>/dev/null ; then
+            echo "Default value of '$i' couldn't be set from '$val'"
+            echo "Set it explicitly with '--$i=value'"
+            exit 1
+        fi
+        #eval echo "2: $i=\$$i"
+    done
+}
+
+function display_vars ()
+{
+    local i
+    for i in $vars; do
+        eval echo "$i=\$$i"
+    done
+}
+
+function dump_vars_h ()
+{
+    local i
+    if true; then
+        for i in $vars; do
+            eval val=\$$i
+            echo "#define  $(tr "[:lower:]-" "[:upper:]_"  <<< $i)  \"${val}\""
+        done
+    fi
+
+}
+
+function dump_vars_mk ()
+{
+    local i
+    if true; then
+        for i in $vars; do
+            eval val=\$$i
+            echo "$(tr "[:lower:]-" "[:upper:]_"  <<< $i) = $val"
+        done
+    fi
+
+}
+
+#########################
+## Features            ##
+#########################
+
+# $1 - feature's name, shoud survive 'declare $1'
+# $2 - help string, description
+# $3 - "enabled" or "disabled" string
+function add_feature ()
+{
+    check_name "$1" features
+    features="$features $1"
+    eval hlp_$1="\"$2\""
+    eval $1="'$3'"
+}
+
+function check_feature ()
+{
+    [ "$(sed  -e 's/--\(enable\|disable\)-.\+/AA/' <<< $1)" != AA ] && return 1
+    A=${1:2}
+    var=${A#*-}
+    val=${A%%-*}
+    #echo "feat=$feat status=$status"
+    [ "$val" != "enable" ] && [ "$val" != "disable" ] && return 1
+    [ "$features" == "${features/$var/}" ] && error "$var - unknown feature"
+    eval $var="$val"d
+
+    return 0
+}
+
+function display_features ()
+{
+    local i
+    for i in $features; do
+        eval echo "$i=\$$i"
+    done
+}
+
+function update_features ()
+{
+    local val
+    for i in $features; do
+        eval val="\$$i"
+        if eval $i="\"$val\"" 2>/dev/null ; then
+            eval [ "\$$i" == "enabled" -o "\$$i" == "disabled" ] && continue
+        fi
+        echo "Default value of '$i' couldn't be set from '$val'"
+        echo "Set it explicitly with '--$i=value'"
+        exit 1
+        #eval echo "2: $i=\$$i"
+    done
+}
+
+function dump_features_h ()
+{
+    local i
+    if true; then
+        for i in $features; do
+            str='#undef'
+            eval [ "\$$i" == "enabled" ] && str='#define'
+            echo "$str $(tr "[:lower:]-" "[:upper:]_"  <<< $i)"
+        done
+    fi
+}
+
+function dump_features_mk ()
+{
+    local i
+    if true; then
+        for i in $features; do
+            eval [ "\$$i" == "enabled" ] && str='#define'
+            eval echo "$(tr "[:lower:]-" "[:upper:]_"  <<< $i):=\$$i"
+        done
+    fi
+}
+
+
+
+#########################
+## Engine              ##
+#########################
+
+function parse_args ()
+{
+    # parse command line variables
+    while [ $# -gt 0 ]; do
+
+        check_help "$1" ||
+            check_feature "$1" ||
+            check_var "$1" ||
+            error "$1: unknown option"
+        shift
+    done
+}
+
+
+
+function bslash ()
+{
+    p1="%%$1%%"
+    t=`eval echo \\${$1}`
+    p2=`sed -e 's/\//\\\\\//g' <<< $t`
+    echo "s/$p1/$p2/g"
+}
+
+function substitute ()
+{
+
+    if true; then
+        for i in $vars $features; do
+            bslash $i
+        done
+        echo
+    fi > subst.sed
+
+    for i in `find . -name '*.in'`; do
+        j="${i%.in}"
+        echo "Creating $j"
+        sed -f subst.sed  < $i > $j
+    done
+}
+
+function dump_config_h ()
+{
+    echo "Creating config.h"
+    if true; then
+        echo "/* Created by configure script ran as"
+        echo "** ./configure $CMD"
+        echo "*/"
+        echo -e "\n#ifndef __CONFIG_H__\n#define __CONFIG_H__"
+        echo -e "\n/* Features */"
+        dump_features_h
+        echo -e "\n/* Variables */"
+        dump_vars_h
+        echo -e "\n#endif"
+    fi > config.h
+}
+
+function dump_config_mk ()
+{
+    echo "Creating config.mk"
+    if true; then
+        echo "# Created by configure script ran as"
+        echo "# ./configure $CMD"
+        echo -e "\n# Features"
+        dump_features_mk
+        echo -e "\n# Variables"
+        dump_vars_mk
+        echo
+    fi > config.mk
+}
+
+function main ()
+{
+    parse_args "$@"
+    update_vars
+    update_features
+    #display_vars
+    #display_features
+
+    substitute
+    dump_config_h
+    dump_config_mk
+}
+
+#########################
+## Mandatory Settings  ##
+#########################
+
+# arch stubs for compatability with autoconf
+add_var build "stab: configure for building on arch" ""
+add_var host  "stab: configure for arch" ""
+add_var target "stab: configure for arch" ""
+
+# N.B. order is important
+add_var prefix "install architecture-independent files" /usr
+add_var eprefix "install architecture-dependent files" '$prefix'
+add_var bindir "user executables" '$eprefix/bin'
+add_var sbindir "system executables" '$eprefix/sbin'
+add_var libexecdir "program executables" '$eprefix/libexec'
+add_var libdir "object code libraries" '$eprefix/lib'
+add_var sysconfdir "read-only single-machine data" '$prefix/etc'
+add_var datadir "read-only architecture-independent data" '$prefix/share'
+add_var includedir "C header files" '$prefix/include'
+add_var mandir "man documentation" '$prefix/man'
+add_var infodir "info documentation" '$prefix/info'
+add_var localstatedir "modifiable single-machine data in DIR" '$prefix/var'
+add_var topdir "project's top directory" '`pwd`'
+add_var version "version" '`< version`'
+add_feature debug "debug build" disabled
+
+#########################
+## User settings here  ##
+#########################
+source scripts/custom.sh
+
+#########################
+## Run It All          ##
+#########################
+main "$@"
+
+

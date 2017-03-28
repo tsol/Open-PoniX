@@ -1,0 +1,57 @@
+From 4ff6a9d200c66f192da61822c36ad14424e218d6 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 18 Jun 2012 19:02:40 +0530
+Subject: [PATCH 71/90] ath9k_hw: fix LNA control on WLAN sleep
+
+When WLAN enter full sleep mode, WLAN HW should send out a LNA_TAKE
+message for BT to take control of the shared LNA. Otherwise BT traffic
+is completely stopped whenever the wlan interface is moved full sleep
+mode.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1015,9 +1015,14 @@ void ar9003_mci_2g5g_switch(struct ath_h
+ 		return;
+ 
+ 	if (mci->is_2g) {
+-		ar9003_mci_send_2g5g_status(ah, true);
++		if (!force) {
++			ar9003_mci_send_2g5g_status(ah, true);
+ 
+-		REG_SET_BIT(ah, AR_MCI_TX_CTRL,
++			ar9003_mci_send_lna_transfer(ah, true);
++			udelay(5);
++		}
++
++		REG_CLR_BIT(ah, AR_MCI_TX_CTRL,
+ 			    AR_MCI_TX_CTRL_DISABLE_LNA_UPDATE);
+ 		REG_CLR_BIT(ah, AR_PHY_GLB_CONTROL,
+ 			    AR_BTCOEX_CTRL_BT_OWN_SPDT_CTRL);
+@@ -1025,6 +1030,11 @@ void ar9003_mci_2g5g_switch(struct ath_h
+ 		if (!(mci->config & ATH_MCI_CONFIG_DISABLE_OSLA))
+ 			ar9003_mci_osla_setup(ah, true);
+ 	} else {
++		if (!force) {
++			ar9003_mci_send_lna_take(ah, true);
++			udelay(5);
++		}
++
+ 		REG_SET_BIT(ah, AR_MCI_TX_CTRL,
+ 			    AR_MCI_TX_CTRL_DISABLE_LNA_UPDATE);
+ 		REG_SET_BIT(ah, AR_PHY_GLB_CONTROL,
+@@ -1251,6 +1261,9 @@ void ar9003_mci_bt_gain_ctrl(struct ath_
+ 
+ 	ath_dbg(common, MCI, "Give LNA and SPDT control to BT\n");
+ 
++	ar9003_mci_send_lna_take(ah, true);
++	udelay(50);
++
+ 	REG_SET_BIT(ah, AR_PHY_GLB_CONTROL, AR_BTCOEX_CTRL_BT_OWN_SPDT_CTRL);
+ 	mci->is_2g = false;
+ 	mci->update_2g5g = true;

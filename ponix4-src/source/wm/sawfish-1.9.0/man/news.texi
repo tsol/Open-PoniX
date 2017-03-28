@@ -1,0 +1,4953 @@
+@c -*- texinfo -*-
+
+@c To compile: makeinfo --no-validate  --no-headers news.texi > NEWS
+
+@chapter News
+
+This lists user-visible changes, and which releases they occurred
+between. For more detailed information see the @file{ChangeLog} file
+in the Sawfish source tree, or git log.  (See the Wiki on how to
+access git repository.)
+
+Each release lists incompatible changes at its top.
+
+@c @heading x.y.z ``Code name''
+@c @itemize @bullet
+
+@c @item Updated or New dependencies
+@c @itemize @minus
+@c @end itemize
+
+@c @item Notes
+@c @itemize @minus
+@c @end itemize
+
+@c @item Build and Installation
+@c @itemize @minus
+@c @end itemize
+
+@c @item Bug Fixes
+@c @itemize @minus
+@c @end itemize
+
+@c @item New Features
+@c @itemize @minus
+@c @end itemize
+
+@c @item Miscellaneous Changes
+@c @itemize @minus
+@c @end itemize
+@c @end itemize
+
+@heading 1.9.0 "Next Dimensional World"
+@itemize @bullet
+
+@item Updated or New dependencies
+@itemize @minus
+
+@item librep 0.92.0 -> 0.92.1
+@item rep-gtk 0.90.4 -> 0.90.7
+@item ssd 0.30 [optional, for built-in poweroff-menu]
+@end itemize
+@item Bug Fixes
+@itemize @minus
+
+@item When cursor-warping was enabled and user switched to a shaded window,
+the cursor warped to the position of the unshaded window. This is fixed now.
+[Christopher Bratusek]
+
+@item When switching between tabbed themes from SawfishConfig, it could happens
+that there were @code{gaps} in the frame. This is fixed now. [Christopher Bratusek]
+
+@item In SawfishConfig one could only grab key-bindings, but not mouse- or mixed
+mouse-key-bindings. This is fixed now. (Move mouse 20 pixels to grab a @code{Move} event).
+[Christopher Bratusek]
+
+@item SawfishConfig became useless when Sawfish restarted. This is now worked-around
+by simply restarting SawfishConfig when Sawfish does. A new @code{before-restart-hook}
+has been added for this purpose. [Christopher Bratusek]
+
+@item In EdgeActions @code{HotSpot}, @code{HotMove} and @code{EdgeFlip}, it was
+possible to trigger the same event multiple times at a time. This is fixed now.
+[Jeremy Hankins]
+
+@item Fixed a bug in apps-menu, failing to generate the menu, if a desktop-file contains
+both Categories and the (errorneous) Category key, or only the later. [Matthew Love]
+
+@item Fixed a bug in window-manager selection handling. Set all fields of the client
+message event. This prevents bugs, where Sawfish sometimes isn't able to replace another
+window-manager or aquiring the screen if no other WM is running. [Timo Korvola]
+
+@item When making X request, we might receive and @code{select} will stuck. This is fixed now
+[Michal Maruska]
+
+@item Avoid calling Xmap for gone windows. [Michal Maruska]
+
+@item Fixed a possible segmentation fault in @code{leave_notify} [Michal Maruska]
+
+@item In SawfishConfig the @code{choice} widget didn't work when the choices were
+numerical values. This is fixed now. [Christopher Bratusek]
+@end itemize
+@item Sawfish-MMC [Michal Maruska]
+
+Sawfish-MMC was a fork of Sawfish active, while the original Sawfish was inactive
+(2004-2007). Next follows a list of changes merged from Sawfish-MMC.
+@itemize @minus
+
+@item Only apply property changes if window as @code{refresh} property.
+
+@item In the pixmap-cache append pixmaps to the age list, rather than prepending.
+
+@item Extend @code{pixmap-cache-control} to reset and return more informations.
+
+@item @code{pixmap-cache-images} returns all images in cache.
+
+@item When initializing Sawfish, try to initialize XKB, too.
+
+@item Misc: Drop unused @code{prog_name} from @file{display.c}. Call @code{XAddToSaveSet}
+from a better position in the code. Mar @code{mapped_not_override_p} static. Simplified
+@code{property_notify}.
+@end itemize
+@item EdgeAction changes [Christopher Bratusek]
+@itemize @minus
+
+@item New EdgeActions:
+@itemize x
+
+@item @code{HotMove}. Calls an EdgeAction when dragging a window over the edge.
+
+@item @code{Expose}. Simple expose (one-shot tiling) EdgeAction (can also be used stand-alone).
+Original code by Mark Triggs.
+
+@item @code{Expand}. Drag a window over the edge and it expand to the half-screen size.
+
+@item @code{Show-Desktop}. Toggles between @code{show-desktop} and @code{hide-desktop}.
+
+@item @code{Maximize}. Just for competitive reasons choosable from configurator.
+@end itemize
+
+@item @code{before-edge-action-hook} and @code{after-edge-action-hook}. While
+@code{enter-flipper-hook} and @code{leave-flipper-hook} simply respond to the mouse
+entering or leaving the flipper-window, the new hooks respond only when an EdgeAction
+was invoked. The two hooks pass the invoked EdgeAction, activated edge and a boolean
+@code{while-moving} value to the child-function (in that order).
+
+@item Simplified, more robust EdgeFlip (flip-viewport and flip-workspace are now split).
+
+@item Improved logic of blocking an action while another is already running. On one hand,
+see `Bug Fixes' above, on the other hand it's now ensured that we dont' activate an edge
+twice when dragging a window over it or when the pointer hits the edge via mouse-trapping.
+
+@item New @code{move-window-to-corner} and @code{move-window-to-edge} helpers.
+
+@item Updated EdgeAction documentation
+@end itemize
+@item SawfishConfig changes [Christopher Bratusek]
+@itemize @minus
+
+@item Updated and Improved widgets in SawfishConfig:
+@itemize x
+
+@item @code{file}. The file(-chooser) widget now uses GtkFileChooserButton in
+favour of the ancient GtkFileSelectionDialog. The GtkEntry and GtkVBox used as
+helpers became useless and are removed.
+
+@item @code{font}. The font(-chooser) widget now uses GtkFontChooserButton in
+favour of the ancient GtkFontSelectionDialog. The GtkEntry used as helper became
+useless and is removed.
+
+@item @code{choice}, @code{symbol}, @code{keymap}, @code{frame-style}. Those widgets
+now use GtkComboBoxText in favour of ancient GtkCombo/GtkComboEntry.
+
+@item @code{scheme-boolean}. This widget is now properly implemented.
+
+Old: two checkboxes. First for activating setting, second for choosing yes or no.
+New: only one checkbox, yes or no as usual, shows minus when unset.
+
+@item @code{number}. The number-widget now has a @code{stepping} property, allowing
+to change the increment of a button-press on the spin-button.
+@end itemize
+
+@item New widgets in SawfishConfig:
+@itemize x
+
+@item @code{range}. The range widget represents an integer with a given range.
+Basically it uses a GtkScale instead of a GtkSpinButton, which results in a
+better user-experience for those values.
+
+@item @code{image}. The image widget contains a preview and image-selector.
+The file-browser openend is setup to display previews, too. Original code by
+Lucas Pandolfo.
+@end itemize
+
+@item Removed widgets in SawfishConfig:
+@itemize x
+
+@item @code{program}. Just an alias to @code{file}.
+
+@item All @code{gtk-only} widgets. Since Sawfish 1.5.0 those have been dummies,
+we don't use @code{libgnome}, @code{libgnomeui} or @code{libgnomecanvas} anymore anyway.
+@end itemize
+
+@item New buttons. SawfishConfig now offers buttons to access Wiki, Help,
+ResourceFile and About. Additionally there's now a file-chooser for installing
+themes from @code{*.tar.*} files.
+
+@item Widgets that depend on an disabled setting are now hidden instead of greyed-out.
+
+@item Merged sawfish.cfg.widgets into sawfish.gtk.widgets. Old widgets aren't loaded
+anymore, even if present from an old installation.
+
+@item All defcustoms do now have a property to change the position of the label.
+To change it, append on of the following to the doc-string: \\left \\right \\top \\bottom.
+
+Example:
+
+@lisp
+(defcustom test-var 'eclipse
+  "This is just a test with label on top. \\top"
+  :type (choice eclipse crosshair none)
+  :group appearance)
+@end lisp
+
+Of course that only works, if the label is a GtkLabel widget on it's own.
+@end itemize
+@item Theme/Theming changes [Christopher Bratusek]
+@itemize @minus
+
+=== spoiler ===
+: StyleTab in Sawfish 1.9 add lots of new fancyness for the price of beeing slow.
+So if you experience a long startup-time of Sawfish, it's a feature, not a bug. :
+== /spoiler ===
+
+@item StyleTab changes [fuchur]:
+@itemize x
+
+@item The theme is now fully re-colorable. You can choose different colors for
+each button and the frame. Furthermore you can choose how much to dimm inactive
+frames (compared to active).
+
+@item Majorly improved the grouping of options in StyleTab.
+
+@item Added corners to frames (allowing resize with mouse at window-corners).
+
+@item Available styles: Default (former Dark), WixDa (former Silver), Reduce,
+Smoothly and Glass (New).
+
+@item Added hash-tables for images.
+@end itemize
+
+@item New themes:
+@itemize x
+
+@item Candido
+@item Zami-like
+@end itemize
+
+@item Improved themes:
+@itemize x
+
+@item Gradient has been replaced by Gradient-tabbed.
+@end itemize
+
+@item Removed themes [still available from Wiki]:
+@itemize x
+
+@item get-S-tabbed
+@item brushed-metal
+@item simple
+@item smaker
+@item mono
+@item gtk
+@end itemize
+
+@item New theme-related configuration-options [theme independent]:
+@itemize x
+
+@item Added an option to control the titlebar text position. If a theme
+draws something additional in the titlebar (eg. StyleTab draws an icon),
+refer to the functions @code{update-title-x-offsets}, @code{update-title-y-offsets}.
+
+@item Added an option to control the cursor-shape when hovering frame-buttons.
+
+@item Added an option to change the font, depending on the window state.
+@end itemize
+
+@item Moved definitons for @code{previous-workspace-button} and @code{next-workspace-button}
+from StyleTab into Sawfish.
+@end itemize
+@item New Features
+@itemize @minus
+
+@item Added @code{cabinet} application-switcher. @code{cabinet} is an advanced application
+switcher for Sawfish. For more information please visit: http://sawfish.wikia.com/wiki/Cabinet
+[Wang HongQin]
+
+@item Added @code{tab-group} window-matcher. It allows window to be auto-tabbed together, if
+they got the same @code{tab-group} property [fuchur]
+
+@item Added @code{single-window-mode}. Basically this feature is known from OS-X, though it's
+implemented in a more strict way. The @code{single-window-mode} window should get all of the users
+attention.
+
+This is ensured by auto-iconifying any up-popping window, which is not in the same
+group. To additionally not annoy the user this is done without animation. Avoided or ignored
+windows are lowered. When @code{single-window-mode} is quit, the opposite happens.
+
+Also @code{single-window-mode} hooks into unmap-notify-hook to check whether the user wants to
+stop @code{single-window-mode} (by either closing or iconifying the window). Besides each
+workspace can hold it's own @code{single-window-mode}.
+
+@item Added @code{mouse-trap} feature. It provides a method for moving the mouse to any place of
+the screen by zooming with just a few keystrokes. The mouse is warped to the center of the screen
+screen and a outline is drawn dividing the screen in 4 squares (like trapping the mouse on it).
+[Fernando Carmano Varo] [Christopher Bratusek]
+
+@item Added @code{shade-stack} feature. It provides an alternative to @code{iconify-window}.
+Instead of iconifying a window or minizing it to a tray, the windows get shaded and sorted in
+a stack starting from the top-left corner (the number of columns can be changed). Combined with
+auto-unshade this offers - possibly - a better way of interacting with windows which aren't
+required at the moment. Original code by Luke Gorrie. [Christopher Bratusek]
+
+@item Integrated settings for selecting wallpaper using an external command (eg: hsetroot).
+Applying settings to GNOME2 or XFCE4 is also supported. Original code by Lucas Pandolfo.
+[Christopher Bratusek]
+
+@item Added @code{toggle-desktop} function. Toggles between @code{show-desktop} and
+@code{hide-desktop} - always logically correct. [Christopher Bratusek]
+@end itemize
+@item Miscellaneous Changes
+@itemize @minus
+
+@item Improved desktop-integration modules [Christopher Bratusek]
+@itemize x
+
+@item KDE integration: added entries for user-switch, hibernate, suspend, lock-screen, menu-editor.
+
+@item XFCE integration: added entries for hibernate, suspend, lock-screen, menu-editor.
+
+@item GNOME integration: added entry for lock-screen, menu-editor.
+
+@item MATE integration: full integration module for MATE Desktop has been added.
+
+@item Razor-Qt integration: full integration module for Razor-Qt has been added.
+
+@item LXDE integration: basic integration module for LXDE has been added.
+@end itemize
+
+@item The fallback poweroff-menu now uses SSD @code{Sawfish-Session-Dialog}, a companion to Sawfish,
+by default. Support for logout and lockdown has been added. [Christopher Bratusek]
+
+@item Added a @code{filemanager} launcher. If set the Sawfish root-menu will show an @code{Open Home}
+entry. The KDE, GNOME, MATE, XFCE and LXDE integration modules will set the program accordingly, unless
+it's already user-defined.
+@end itemize
+@end itemize
+
+@heading 1.8.1 "Sharp As A Knife"
+@itemize @bullet
+
+@item Updated or New dependencies
+@itemize @minus
+
+@item librep 0.91.0 -> 0.92.0
+@end itemize
+
+@item Bug Fixes
+@itemize @minus
+
+@item Fixed jump-or-exec failing when a window without WM_CLASS
+exists [Christopher Bratusek]
+
+@item Fixed failing to uninstall Sawfish [Christopher Bratusek]
+@end itemize
+
+@item Miscellaneous Changes
+@itemize @minus
+
+@item EdgeActions changes [Christopher Bratusek]:
+@itemize +
+
+@item Load from @code{user.jl}, rather than @code{wm.jl}
+@item Add @code{edge-actions-enabled} variable in order to be able
+to completely disable EdgeActions (also via .sawfishrc)
+@item Move all options into new @code{sawfish.wm.edge.conf} module (so
+they appear in the correct order now)
+@item Updated documentation for EdgeActions
+@end itemize
+
+@item Fixed documentation for function @code{insert-workspace}
+[Christopher Bratusek]
+
+@item Removed unused or unneeded 'default, 'viewort and 'advanced
+classes from command definitions [Christopher Bratusek]
+
+@item Fixed two strings in mxflat theme [Christopher Bratusek]
+
+@item Improved Requires in sawfish.pc [Christopher Bratusek]
+
+@item Improved debian packaging-scripts [Ian Zimmermann, Christopher Bratusek]
+
+@item Improved .desktop-files [Kim B. Heino]
+
+@item Updated translations:
+@itemize +
+
+@item Spanish [gnome-es team]
+@item German [gnome-de team]
+@item Czech [gnome-cz team]
+@item Malay [gnome-ms team]
+@item Slovenian [gnome-sl team]
+@end itemize
+
+@item Updated OPTIONS file [Christopher Bratusek]
+@end itemize
+@end itemize
+
+@heading 1.8.0 "思いやり (Omoiyari)"
+
+@itemize @bullet
+
+@item Incompatible changes
+@itemize @minus
+@item Infinite-desktop and edge-flip needs updates.
+
+Open the configurator -> ``Edge Actions''. Changes will be easy. (Set
+4 pull-downs, and you're done mostly. ``Infinite-desktop'' is renamed to
+``viewport-drag''.) For more options, see ``Edge Actions'' below.
+
+If your @file{~/.sawfish/rc} opens related modules, delete those references.
+These modules are renamed, and you don't have to manually load them any
+more.
+
+@item Renamed functions [Teika kazura]
+@itemize
+@item Popup of operations-menu on a window, renamed from @code{popup-window-menu} to @code{popup-window-ops-menu} (both the function and command). Old names are still available.
+@item Renamed window rename, from @code{rename-window-func} to @code{rename-window}. (Old name is still avialable.) The function @code{rename-window-interactive} is deleted. Use @code{(call-command 'rename-window)} instead.
+@end itemize
+
+Even if the old names still remain, it is highly recommended to update.
+
+@item Syntax-change in @code{jump-or-exec} [Christopher Bratusek]
+
+The previous @code{class} and @code{onfocused} parameters are now
+keys, and pass them as ``#:match-class t/nil'' or ``#:onfocused
+value''. Note that @code{match-class} is @emph{boolean}; To pass a
+class, set @code{#:match-class t} and pass the class name to the
+argument @code{regex}. (@pxref{Application Invocation})
+
+@item Apps-menu options @code{apps-menu-show-all} is deleted. See below for more.
+
+@item User option @code{focus-ignore-pointer-events} is deleted. [Teika kazura]@*
+In fact, it's for internal use, and should not have been a user option. Use your favorite focus mode instead.
+
+@item Animation related modules are renamed [Teika kazura]
+
+All are collected under @file{sawfish/wm/animation}. @code{window-anim.jl} -> @code{setup.jl}, @code{outline.jl} -> @code{main.jl}, @code{util/window-outline.jl} -> @code{modes.jl}.
+
+@end itemize
+@item Build and Installation
+@itemize @minus
+
+@item Fixed installation for non-root users [Stefano Sabatini]
+
+Previously when installing to a private directory as an ordinary user, the installation failed, because some files
+were forced to be installed in /usr. This is fixed now.
+
+@item Session files installation [Christopher Bratusek]
+
+Now you can choose which session files (default: all) to install with these configure-options:
+
+@itemize *
+@item @code{--with/out-kde4session}: enable or disable the installation of session files for KDE4.
+@item @code{--with/out-gnome2session}: enable or disable the installation of session files for GNOME2.
+@item @code{--with/out-xdmsession}: enable or disable the installation of session files for XDM (or other display-managers).
+@end itemize
+
+
+@item Spec-File compatibility for RHEL 6 beta [Kim B. Heino]
+@item Debian-Scripts (mostly) updated to the new specification [Christopher Bratusek]
+@end itemize
+@item Bug fixes
+@itemize @minus
+
+@item Poweroff-menu fix [Teika Kazura, Christopher Bratusek]
+
+In Sawfish-1.7.0, poweroff related items in the popup menu couldn't be
+invoked, if run without any desktop environment. Fixed it.
+
+@item Correctly build SawfishPager [Christopher Bratusek]
+
+It is ensured that SawfishPager builds correctly, by improving @file{sawfish.pc} file.
+
+@item At focus in/out, correctly reports the mode [Timo Korvola]
+
+When @code{focus-in-hook} / @code{focus-out-hook} are called,
+Sawfish wrongly reported a focus change during a grab as
+``ungrabbed''. Now it's reported as @code{while-grabbed}.
+
+@item Window cycle among groups [Teika Kazura]
+
+Some windows were skipped in window cycles among groups. This is fixed.
+
+@item No more crash at loading wrong theme code [Teika Kazura]
+
+From Sawfish-1.7.0, Sawfish used to crash when a theme with wrong code
+is loaded, but it's fixed. It's not complete, and for example some
+mxflat options make Sawfish crash.
+
+@item Cancellation of @code{call-command} [Teika kazura]
+
+It used to print an error message when you cancel an interactive call of
+@code{call-command} with the escape key, but it doesn't any more.
+
+@item KDE *.desktop files location [Teika Kazura]
+
+Previously, user's change of the variable @code{kde-desktop-directories} was ignored, but this is fixed.
+@end itemize
+@item New Features
+@itemize @minus
+
+@item Edge Actions [Christopher Bratusek]
+
+``Edge Actions'' is a centralized way to invoke an action when the
+mouse pointer hits a screen-edge. It includes former ``edge-flip'' and
+``infinite-desktop'' (now renamed to ``viewport-drag''), and a new
+feature ``hot-spot''.
+
+Edge-flip and viewport-drag can be configured from the
+configurator ``Edge Actions'' group. Options are easy to
+understand.
+
+``Hot-spot'' lets you assign an action to each screen-edge and
+-corner. An action has to be a lisp function, and can be set in
+@file{~/.sawfish/rc}, like this:
+
+@lisp
+(defvar-setq top-left-corner-function
+  (lambda () (display-message "hello world")))
+@end lisp
+
+Hot-spot variable names consist of position (e.g. top-left or bottom) + ``edge''/''corner'' + ``function''.
+
+Other related changes are:
+@itemize *
+@item Viewport-drag and edge-flip (of course hot-spot, too) can be chosen per direction, top-bottom and left-right. It's also possible to enable / disable dragging of a window for each of them.
+@item It means a window can be dragged during viewport-drag, which was not possible.
+@item There're two delay timers now, for edge-flip and hot-spot.
+@end itemize
+
+Internal changes:
+@itemize *
+@item Codes are found in @code{sawfish.wm.edge.*}. You don't have to import them for ordinary use.
+@item Low-level functions now have API in @code{sawfish.wm.edge.util} written in Lisp.
+@end itemize
+
+@item Replace running window manager with Sawfish [Timo Korvola]@*
+New command line option @code{--replace} is added. With it, Sawfish
+will replace the currently running window manager. It's
+done by ``manager selection'' defined in ICCCM secs 2.8 and 4.3.
+
+@item Toggle-Or-Exec wrapper added to Jump-Or-Exec [Christopher Bratusek]
+
+@code{toggle-or-exec} is similar to jump-or-exec, but turns windows
+into quake-like drop-down/pop-up-windows. That means, when you have
+the toggle-window focused and press its keybinding again, it will be
+hidden.
+
+See the file @file{jump-or-exec.jl} for more detailed examples.
+
+@item @code{iconify-on-leave} window-matcher [Christopher Bratusek]
+
+This new window-matcher is a companion to @code{toggle-or-exec}. When
+a window matched loses the focus, it gets hidden. Use this together
+with @code{toggle-or-exec} for greater toggle-window experience.
+
+@item Error printing during initialization [Teika Kazura]
+
+When an error occurs during initialization, and if you don't customize
+the option @code{error-handler}, then the error is reported to both
+the screen and standard-error. After Sawfish starts, it's printed to
+the standard-error only.
+
+@item New function @code{report-commands} [Teika kazura]@*
+It returns the list of all commands. (@pxref{Operations on Commands}).
+@end itemize
+@item Misc Changes
+@itemize @minus
+
+@item Tabs and themes [fuchur]
+
+A new, tab-capable, highly configurable theme ``StyleTab'' is added. It
+allows the tab-bar to appear in top, left, right, and bottom. Use a
+new window rule @code{title-position} for it. ``StyleTab'' is now the
+default theme.
+
+Many improvements in tab system are done. For example, stickiness change
+on a window applies to all other windows in the same tab group, though
+maybe not yet complete. (Please tell us things you noticed.)
+
+When you used a tab capable theme (Elberg-Tabbed or Get-S-Tabbed), you
+had to manually adjust positions by pixel, but it's not necessary any
+more.
+
+When a lot of windows are open, they should now be more responsive.
+
+@item Application menu is fully customizable [Matthew Love]
+
+With the new option @code{apps-menu-filter}, you can fully customize
+the application menu. For the full description, see @xref{Applications
+Menu}.
+
+It replaces former options like @code{apps-menu-show-all} or
+@code{apps-menu-ignore-no-display}.
+
+@item Per-window animation mode [Teika kazura]
+
+From the configurator ``Window Rules'' you can set the animation
+mode when iconified. (@pxref{Animating Windows})
+
+@item Behavior modification at focus-in [Harald van Dijk]
+
+In order to support ``gnome2-globalmenu'', the reaction policy to
+@code{XFocusInEvent} is slightly modified. Sawfish doesn't emit
+@code{_NET_ACTIVE_WINDOW} if it's done by (un)grabbing the pointer.
+
+@item Revised @code{get-window-by-*} functions [Christopher Bratusek]
+
+For the details, see @xref{Window Attributes}, and @xref{Getting Windows}.
+@itemize *
+@item Added functions @code{window-role} and @code{get-window-by-role} (return NET_WM_ROLE)
+@item Deleted @code{get-window-by-name-re} and @code{get-window-by-class-re}. Use instead @code{get-window-by-name} or @code{get-window-by-class} with the new boolean option @code{#:regex}. (The old name is still supported.)
+@item added @code{#:icon} switch to @code{get-window-by-name} to get a window via NET_WM_ICON_NAME (can be used with #:regex switch, too)
+
+@item Commands to resize a window [Christopher Bratusek, Teika kazura]
+
+Four new commands to resize a window where you can specify
+the size by pixels are there. You're either prompted to type in
+the new size, or you can preset it in the configurator.
+
+For the new command @code{resize-window-to-preset-size}, first you
+specify a size in the configurator. The focused window will be resized
+to that preset size on invocation. There're also commands to change
+only one of the height and width.
+
+@code{resize-window-prompt} prompts you to enter the new size.
+@end itemize
+
+@item Window-operation menu improvements [Christopher Bratusek]
+
+@itemize +
+@item The window-operation menu now honours window rules better.
+For example, if you have a window with @code{fixed-size} flag, the
+window-operations menu-entry @code{Resize} becomes unclickable.
+@item The entries for moving and copying windows to another workspace are
+now bundled in the new @code{Workspace} sub-menu.
+@end itemize
+
+@item Translation related changes [Teika Kazura]
+@itemize +
+@item Added translator instructions in @file{po/README} file.
+@item Before you run @file{po/make-pot} to generate @file{sawfish.pot}, you
+now have to do @code{make all} at the top directory. Previously it was
+possible to produce wrong @file{sawfish.pot}.
+@item Translation updates: Spanish [gnome-es team], German [gnome-de team],
+Simplified-Chinese [gnome-zh_CN team, Wang Lei], Norwegian/bokmål [gnome-no
+team] French [gnome-fr team], Czech [gnome-cs team] and Slovenian [gnome-sl team].
+@item Updated @file{sawfish.pot} and subsequently all @file{*.po}. Banished some bogus items in @file{sawfish.pot}.
+(Developer's personal extensions had sneaked in.)
+@end itemize
+
+@item Emacs sawfish-mode now indents @code{let-fluids} and let-loop correctly, provided by @file{sawfish.el} [Teika Kazura]
+@item Turn `focus-ignore-pointer-events' into an internal variable (has wrongly been a user-option before) [Teika Kazura]
+@item Documentations [Teika kazura]
+@itemize
+@item Section on popup menus is rewritten. (@pxref{Popup Menus})
+@item Functions which return window geometry are now clarified in the point of frames.
+@item Correction: The function @code{commandp} can only take symbols as its argument. (@pxref{Operations on Commands})
+@end itemize
+
+@item SawfishConfig ``Window rules'' section changes [Teika Kazura]
+
+Category @code{Placement} is renamed to @code{Geometry}.  The item
+@code{shade-hover} is moved to @code{appearance} category, and
+@code{fixed-size} to @code{geometry}.
+
+@item Deletion of outdated features in command definition [Teika Kazura]
+
+Function @code{define-command-args} is deleted. In @code{define-command}
+function, the keyword argument @code{doc-key} is dropped.
+@end itemize
+@end itemize
+
+@heading 1.7.0 "Frozen Flame"
+
+@itemize @bullet
+
+@item Update dependencies
+@itemize @minus
+
+@item librep 0.90.5 -> 0.91.0
+
+@item rep-gtk 0.90.2 -> 0.90.4
+@end itemize
+@item Notes
+@itemize @minus
+
+@item When you report a crash, please add the backtrace, by
+invoking Sawfish with the command line option ``---interp''.
+
+Read the file @file{CONTRIBUTING} for more infos.
+
+@item Prompt API change [Jeremy Hankins]
+
+If you have code which utilizes prompt, it is affected. When you
+call the function @code{prompt}, directly pass helper functions
+as function arguments. They used to be set as global variables.
+
+This change is straightforward, so it's not difficult to update your
+code. See @code{sawfish.wm.util.prompt} for details.
+
+@item Mouse-button support state
+
+Sawfish claimed to support mouse-buttons 1 - 9, but it is known that
+drag of buttons 6 - 8 may not work. The button 9 doesn't work at all,
+so we withdraw it.
+
+@item Functions @code{maybe-raise-window} and @code{maybe-lower-window} are
+now obsolete. [Teika Kazura]
+
+Replace them with @code{raise-window*} and @code{lower-window*} defined
+in @code{sawfish.wm.util.stacking}. Only difference is that the obsolete
+version supports a feature of Nautilus (GNOME file manager) which was
+dropped long ago.
+@end itemize
+
+@item Build and Installation
+@itemize @minus
+@item Configure-option @code{--with-nine-mousebuttons} is dropped.@*
+See the item ``Keyboard layout switching support'' below.
+@end itemize
+
+@item Bug Fixes
+@itemize @minus
+@item Maximized windows wrongly covering other windows on startup [Jeremy Hankins]
+
+Sometimes maximized windows would overlap ``avoided'' windows (e.g.,
+the gnome-panel, or a trayer) on startup. Sawfish now defers
+maximization until the initialization is complete, preventing this
+problem.
+
+@item Viewport initialization bugfix [Jeremy Hankins]
+
+Under certain circumstances viewport slots were wrongly shifted when
+Sawfish was restarted, ending up with some windows outside of the
+virtual desktop. This has been fixed.
+
+@item Keyboard-layout switching support [Teika Kazura]
+
+Previously, when you switched the keyboard-layout, or more correctly
+the keyboard-``group'' (which is mainly for multilinguals) keyboard-
+and mouse-bindings got messed-up.
+
+Now, this can be prevented by invoking Sawfish with the new
+commandline-option @code{--5-buttons}. It is assumed that modifiers
+are common among keyboard groups.
+
+More precisely, what's supported is switching by @code{ISO_Next_Group}
+or similar, bound to a key (for example ctrl + alt). It appears as
+``option'' in X keyboard configuration, like ``grp:ctrl_alt_toggle''.
+If you use some utility to switch the layout and it confuses Sawfish
+keybindings, please restart Sawfish.
+
+With that commandline-option, you won't be able to bind Sawfish
+commands to mouse buttons 6 - 8. This may be fixed in future.
+
+@item Atom handling fix on 32-bit architecture (Java fix). [Teika Kazura]
+
+Function @code{x-atom-name} now accepts all 32 bits. Previously only
+30 bits were treated if the architecture was 32-bit. 64-bit systems
+hadn't had this bug.
+
+It used to cause ``Bad argument'' error, most notably on Java
+applications. (In theory, an atom is set by X server, not a client.
+But Java applications seem to be affected often by this bug.)
+
+@item Applications menu bugfix [Matthew Love]
+
+Correct alphabetic ordering of menu-entries is done. Previously they
+were sorted [A-Z][a-z] (first all upper- then all loser-case entries).
+
+Also the function for detecting the language has been improved. It
+now better follows the freedesktop.org specification.
+
+@item Edge-flip and infinite-desktop now work after screen-resolution change. [Christopher Bratusek]
+
+@item Sawfish now starts up correctly when receiving a session-id or
+session-prefix from GNOME-Session [Clinton Ebadi, Christopher Bratusek]
+
+@item Draft animator bugfix. [Christopher Bratusek]
+
+The ``draft'' animator had two issues: on one hand the drawn numbers
+were always black (therefore possibly invisible), on the other hand
+those numbers weren't erased from the screen. Both have been
+fixed. Internally, it's done by the new @code{x-draw-text} function
+described below.
+
+@item Resurrection of two variables [Teika Kazura]
+
+User options @code{workspace-boundary-mode} and
+@code{workspace-send-boundary-mode} couldn't be set from the
+configurator, but this is fixed.
+
+@item Command @code{xterm} fix [Teika kazura]@*
+It couldn't be invoked as a key binging if the optional ``command''
+argument was unset by the configurator, i.e. an empty string.
+@end itemize
+
+@item New Features
+@itemize @minus
+@item Desktop-environment integration [Christopher Bratusek]
+
+Support for XFCE integration was added. It's just like GNOME/KDE4 integration:
+it sets @code{xterm-program} and @code{browser-program} (unless already
+set by user), and adds XFCE logout/help/customization menu-entries to
+the Sawfish root-menu.
+
+Improvements: All menu-entries for GNOME/KDE4 do now have
+accelerators. Entries for invoking @code{gnome-control-center} or KDE
+@code{systemsettings} have been added. The KDE4 detection has been
+improved. See also the item ``Applications menu improvements'' below.
+
+A new variable @code{desktop-environment} tells which desktop
+environment is running (@pxref{External Applications}).
+
+@item Applications menu improvements [Matthew Love]
+
+Applications menu now looks more like that of GNOME / KDE / XFCE if
+one is running. (further improvements are planned)
+
+The user option @code{apps-menu-ignore-no-display} is now gone
+and replaced by @code{apps-menu-show-all}. [Note: After Sawfish-1.8.0,
+this option is superseded by @code{apps-menu-filter}.]
+
+If @code{apps-menu-show-all} is @code{nil} (default), the menu
+looks much like that of GNOME / KDE / Xfce, by hiding some
+applications. If it's @code{t}, then all installed applications are
+shown. An intermediate option, the symbol @code{maybe} is possible, as
+described below.
+
+Technically, fields @code{NotShowIn} and @code{OnlyShowIn} in files
+@file{/usr/share/applications/*.desktop} tell under which
+desktop environment that application wants to be shown. If
+@code{apps-menu-show-all} is @code{nil} or @code{maybe}, they are
+respected.
+
+Items with field @code{Hidden} or @code{NoDisplay} are usually not to
+be shown. They are respected if @code{apps-menu-show-all} is @code{nil}.
+
+The KDE specific directory is now searched, too while menu generation.
+
+@item New window rules [Christopher Bratusek]
+
+@itemize
+@item @code{fixed-size}: this disables resizing, or more precisely,
+functions @code{resize-window-interactively}, @code{halve-window-size}
+and @code{double-window-size}. (Maximization is still possible.  Use
+@code{never-maximize} to prevent maximization.)
+
+@item @code{never-delete}: this disables closing. Only interactive
+closing is prevented, and you can delete windows with
+@code{never-delete} property from a lisp program.
+@end itemize
+
+@item Update of emacs major mode @file{sawfish.el} [Teika kazura]
+
+It is now distributed with Sawfish window manager. Improvements are:
+
+@itemize
+@item Evaluation used to choke when it encountered @code{#f} or @code{#t}. This is fixed.
+@item Highlighting of the keywords like @code{define} works again.
+@item @code{describe-function} have been broken, but it works again.
+@item In @code{describe-variable}, the value of the variable is pretty-printed.
+@item @code{sawfish-load-symbols} can be called interactively to update the cached symbols.
+@item Better introductory part.
+@end itemize
+
+@item New frame-parts @code{border-width} and @code{border-color}
+[Alexey I. Froloff]
+
+A ``border'' of a window surrounds the window and all other frame
+parts. (@pxref{Frame Part Definition})
+
+@item New commandline-option @code{--5-buttons}@*
+See the item ``Keyboard-layout switching support'' above.
+
+@item @code{x-draw-text} function [Christopher Bratusek]
+
+It is similar to @code{x-draw-string}. Generally, if you use a
+@code{display-message} like message, call @code{x-draw-string}.
+If you want to draw on the screen directly use @code{x-draw-text}
+(@pxref{X Drawing}.)
+@end itemize
+
+@item Translation updates
+
+Updated translations since 1.6.0 are Danish (da), British English
+(en_GB), German (de), Spanish (es), Slovenian (sl), and Swedish (sv).
+
+All translation files are now in UTF-8. Changed languages are Galician
+(gl), Italian (it), Romanian (ro), and Turkish (tr). The rest were
+already UTF-8. [Teika Kazura]
+
+@item Miscellaneous Changes
+@itemize @minus
+@item More error and backtrace printing [Teika Kazura]
+
+Due to librep >= 0.91.0, the backtrace is printed by default when an
+error was signaled. It is printed for sawfish-client, too, but it's
+sent to Sawfish's standard error, not to sawfish-client's, sorry.
+
+Phrase ``Sawfish error:'' is prepended to error messages which are
+printed to standard error.
+
+Sawfish-pager's errors are printed to Sawfish's output. More
+precisely, when you connected to Sawfish as a server asynchronously,
+then the error was not printed. But now it is printed, to Sawfish's
+output. (In contrast, a client which connects synchronously receives
+the error message itself.)
+
+@item Pointer warping in window cycling [Teika Kazura]
+
+In window cycling, some unnecessary pointer warping is avoided.
+Previously, the necessity of a warp was judged by the geometry before
+the raise was done. Now the updated one is used.
+
+@item Configurator changes (user visible parts) [Christopher Bratusek]
+
+Icon is now provided. (If it doesn't show up, first run @code{gtk-update-icon-cache}.)
+
+If you run the configurator but the Sawfish window manager is not
+running, then an alert window is displayed before abortion. [Teika
+Kazura, Christopher Bratusek]
+
+Two obsolete features are deleted. One is the command line option
+@code{--socket-id}, which was for ``capplets'', part of very early
+GNOME 2.x. The other is the command line option @code{--single-level}
+which has been broken.
+
+@item Doc improvements
+
+FAQ items, on how to hide the mouse-pointer, and on application execution.@*
+Manuals (1) describe all options. KEYBINDINGS file was revised
+
+Newly described functions are: @code{grab-keymap} and @code{ungrab-keymap}
+(@pxref{Keymaps}), @code{x-raise-window} and @code{x-lower-window}
+(@pxref{Raising and Lowering Windows}), @code{frame-state-mutex}
+(@pxref{Frame Functions}).
+
+@item Root-Menu improvements [Christopher Bratusek]
+
+All menu-entries do now have accelerators. Labels for help entries have
+been improved.
+
+@c sawfish.gtk can be thought as configurator internals.
+@item Configurator internals [Christopher Bratusek]
+
+The module @code{widget-test} is deleted. It provided testing function
+of widgets in modules @code{sawfish.gtk.*}. But allegedly it is broken
+and crashed Sawfish.
+
+@code{widget-dialog.jl} was merged into @code{simple-dialog.jl}
+
+Previously the functions @code{remove-newlines} and
+@code{beautify-symbol-name} were defined in several modules, with the
+same contents. Now they are defined (only once) in a new module
+@code{sawfish.cfg.utils}.
+
+The @code{stock-button} function was defined in Sawfish, but now it's
+replaced by directly using @code{gtk-button-new-from-stock}. Same for the
+@code{about-dialog} function, replaced (in version 1.6.0) by @code{gtk-about-dialog}.
+
+@file{/usr/bin/sawfish-config} is now minimal, moving most of it's
+content to @code{sawfish.cfg.shell} [Teika Kazura]
+
+@item Module @code{3d-hack} is deleted. [Christopher Bratusek]
+
+The @code{3d-hack} module was an animation demo, not a feature. It
+provided two functions similar to @code{glxgears}, rendered in 2d.
+If you want it, it can be downloaded from the Sawfish Wiki, from the
+page ``3d-hack''.
+
+@end itemize
+@end itemize
+
+@heading 1.6.3 "Hava Nagila"
+
+@itemize @bullet
+
+@item Bugfixes
+@itemize @minus
+@item In tabbed-windows the left/right end is no longer outside the
+window, if that is too small [Fuchur]
+
+@item Unsupported option @code{ignore-window-input-hint} is deleted which has been invalid for long. [Teika kazura]
+
+@item Honor the user option @code{maximize-raises} in @code{maximize-window-fullscreen} and
+@code{maximize-window-fullxinerama}, too, not just in maximize-window
+[Nolan Leake]
+
+@item More robustness in applications menu [Teika Kazura, Matthew Love]
+
+Before it broke for 'R' (statistics software), and whitespace handling
+didn't follow the specification.
+
+Some *.desktop files are not ignored any more either, i.e., leading
+empty lines and comments are allowed.
+
+@item Allow compilation with -DDEBUG flag passed [Alexey I. Froloff]
+@end itemize
+
+@item New Features
+@itemize @minus
+
+@item XRandR events (eg resolution changes) call the new hook
+@code{randr-changed-notify-hook} [Daniel M. German] @*
+See @xref{RandR and Xinerama}.
+
+@item Tabbed windowing system improvements [Fuchur]
+@itemize +
+@item Support for transient tab-frames
+
+@item New frame classes:
+@itemize x
+@item tab-s (side tab)
+@item tab-ls (side tab, left/bottom end)
+@item tab-rs (side tab, right/top end)
+@end itemize
+
+@item Tabgroups now support a set of new properties and actions:
+@code{type}, @code{set-frame-style}, @code{fixed-position},
+@code{iconify}. In addition, new tabs gain those properties from their
+parent window.
+@end itemize
+@item New command @code{display-window-position} [Teika kazura]
+
+User chooses a window by cursor and click, and it prints its position
+and size in a popup. Also available as a function, defined in
+@code{sawfish.wm.util.display-wininfo}.
+
+@item New function @code{window-pid} [Teika kazura]
+
+It returns the process ID of a window. (@pxref{Window Attributes}
+
+@item Window instance name is now accessible [Teika kazura]
+
+Technically, the window class consists of ``instance'' and ``class'',
+but only the latter was returned previously by the function
+@code{window-class}. Now with the new optional argument, the instance
+is returned too. (@pxref{Window Attributes})
+
+@item Customizable lisp directory [Teika kazura]
+
+User can add lisp directories to be read with the environmental
+variable @code{SAWFISH_USER_LISP_DIR}. Its value is directories
+separated by colon, like @code{PATH}, and prepended to
+@code{load-path}. If not set, @file{~/.sawfish/lisp} is assumed.
+For example, if you define a module @code{sawfish.wm.super-hack}, then
+it can be read from @file{~/.sawfish/lisp/sawfish/wm/super-hack.jl}.
+
+User can override system lisp files, too. For example, if there is
+@file{~/.sawfish/lisp/sawfish/wm/windows.jl}, then it defines
+@code{sawfish.wm.windows}, instead of the installed one. (But this can
+easily break your Sawfish startup.) In fact, it was possible for some
+lisp files, but now it's guaranteed for all files.
+@end itemize
+
+@item Other Changes
+@itemize @minus
+@item Info improvements [Teika kazura]
+@itemize +
+
+@item ``Windows'' chapter is partly revised. Function @code{display-window}
+is documented. Difference between @code{window-wants-input-p} and
+@code{window-really-wants-input-p} is described. Short description on
+the root window.
+
+@item In past few versions we made more changes which were not described in
+the news, including clarification in viewport, workspace and event,
+and window matching lisp functions.
+
+@item Added a faq item on multi-head and workspace.
+
+@item Edition number and the date of last change are dropped from the info.
+We now edit the info often, so they are not so much meaningful.
+@end itemize
+
+@c The reason that this item is not categorized as ``bugfix'' is that
+@c 1. Lock-button, or more precisely 'fixed-position' property
+@c    lacks precise definition. It forbids moving, but resizing
+@c    is allowed. It also affects window placement, too.
+@c 2. Currently doc of window-state-change-hook is wrong, but
+@c    correction takes long.
+@item Pressing the lock-button does the state-change of the window
+accordingly. [Fuchur]@*
+No theme shipped with Sawfish does have the lock-button yet, though.
+
+@item Make xinerama an optional dependency [original patch from Gentoo]
+@end itemize
+@end itemize
+
+@heading 1.6.2 "Mighty Disco King"
+
+@itemize @bullet
+
+@item The 1.6.2 release has some improvements.
+
+@item Bugfixes
+@itemize @minus
+@item Application menu is more robust now.  [Matthew Love, Christopher Bratusek]
+
+Application menu, introduced in 1.6.0, made Sawfish crash if
+@file{*.desktop} file had a malformed key value (say ; as first
+character or # somewhere inside), or it was unreadable. It is fixed.
+
+@item Minor fix of window placement by direction [Teika kazura]
+
+When the window placement mode is for example @code{east} and the window
+is wider than the screen, then the window was put wrongly. It is fixed.
+@end itemize
+
+@item New features
+@itemize @minus
+@item New command @code{maximize-discard} [Teika kazura]
+
+The command @code{maximize-discard} stops a maximized window to be
+treated as maximized any more, so that you can move and resize the
+window.
+
+The functinon @code{maximize-discard} has existed, and now it's
+exported.
+
+@item New command @code{jump-or-exec} [Christopher Bratusek]
+
+The user uploaded module ``jump-or-exec'' has been merged. It
+provides @code{jump-or-exec}, a command which may be used to focus a
+window, or if it does not exist, start the application.
+
+Unlike the original version this one also supports matching a window
+by its class (returned by @code{window-class} function), which makes
+it more flexible for applications like music player or browsers, which
+tend to change their WM_NAME relatively often.
+
+For usage, see @file{lisp/sawfish/wm/commands/jump-or-exec.jl} file.
+@end itemize
+@item Misc
+@itemize @minus
+@item Improved ebuild and specfile [Christopher Bratusek] [Kim B. Heino]
+
+@item Updated documentation [Christopher Bratusek] [Teika Kazura]
+
+@item Removed @code{frame-style-editable-p} and all other remaining
+sawfish-themer fragments, as it's dead. [Christopher Bratusek]
+@end itemize
+@end itemize
+
+@heading 1.6.1 "Astral"
+
+@itemize @bullet
+
+@item The 1.6.1 release brings several bugfixes and improvements
+
+@item Build and Installation
+@itemize @minus
+@item New/Updated requirements:
+@itemize +
+@item librep 0.90.4 -> 0.90.5
+@item rep-gtk 0.90.0 -> 0.90.2
+@end itemize
+
+@item The configure option @code{--without-nine-mouse-buttons} is not allowed
+to have 4 hyphens, therefore it's renamed to @code{--without-nine-mousebuttons}.
+[Christopher Bratusek]
+
+@item Reworked configures help-message for better readability.
+[Kim B. Heino]
+
+@item Configure now uses @code{kde4-config --install data} rather than
+@code{kde4-config --path data}, so no sed-kludge is needed anymore.
+
+Make $datadir/kde4/apps/ the fallback path, if KDE4 is not installed.
+[Kim B. Heino]
+
+@item Majorly improved debian and rpm packaging scripts.
+[Christopher Bratusek] [Kim B. Heino]
+
+@item The spec has been reworked to detect kde4/librep directories while runtime,
+instead of hardcoding those paths from configure, which makes it more portable.
+[Kim B. Heino]
+
+@item Our own implementation of dlmalloc is disabled since 2002, as it breaks
+sawfish on several architectures. From this version on, we don't ship it anymore.
+[Kim B. Heino]
+
+@item Export the imageloader beeing used by sawfish in the .pc file.
+[Christopher Bratusek]
+
+@item Don't remove the .pot file upon @code{make distclean}.
+[Christopher Bratusek]
+
+@item Install Sawfishs header files to $includedir/sawfish/.
+[Christopher Bratusek]
+
+@item Autotools improvements (Makefile, autogen.sh & Co.)
+[Christopher Bratusek]
+@end itemize
+@item Bugfixes
+@itemize @minus
+
+@item Fixed a bug where the gnome-panels pager gets confused about the current
+viewport when displaying all workspaces.
+[Jeremy Hankins]
+
+@item Fixed minor bugs in viewport.jl.
+[Jeremy Hankins]
+@end itemize
+
+@item Doc
+@itemize @minus
+
+@item Fixed a small doc misstake (refered to window-set instead of window-put).
+[Christopher Bratusek]
+
+@item Fixed the docstrings of shrink and yank.
+[Timo Korvola]
+@end itemize
+@item Misc
+@itemize @minus
+@item Last 3 instances of ``sawmill'' replaced by ``sawfish''.
+[Kim B. Heino]
+@end itemize
+@end itemize
+
+@heading 1.6.0 "Sound Of Thunder"
+
+@itemize @bullet
+
+@item The 1.6.0 release has new features and bugfixes
+
+@item Build and installation changes
+@itemize @minus
+
+@item New/Updated requirements:
+@itemize +
+@item librep 0.90.0 -> 0.90.4
+@item rep-gtk 0.18.4 -> 0.90.0
+@end itemize
+
+@item Removed requirements: LibAudioFile and ESounD
+@item Mouse buttons 6 - 9 support is now optional
+
+(This item is no longer valid from 1.7.0.)  Support for 6 - 9 mouse
+buttons is now optional. X.Org/XFree86 headers only define up to 5
+buttons, and we use a working but somewhat hackish workaround for
+getting buttons 6 - 9 which is suspected to cause some problems with
+modifiers. Support for them is enabled by default. If you want to
+disable it, add the following flag to configure:
+
+@code{--without-nine-mousebuttons}
+@c Well, ``code'' gives ugly (back)quote, but otherwise the first hyphen is dropped.
+
+If you drop it, then you can't use mouse button 8 to, for example,
+drag windows.
+
+@item Installation directory change
+
+Directory @file{libexec} is not used anymore for library files
+installation. Instead, they go into @file{lib} by default.
+@end itemize
+
+@item Incompatible user visible changes:
+@itemize @minus
+
+@item Configurator's binary, @code{sawfish-ui}, is renamed to @code{sawfish-config} [Christopher Bratusek]
+
+Its window class is changed to @code{sawfish-configurator} /
+@code{Sawfish-Configurator}, too. The lisp module is renamed from
+@code{sawfish.ui} to @code{sawfish.cfg}.
+
+@item Infinite Desktop boundary behavior and option
+
+In @code{infinite-desktop}, the option to specify the boundary
+behavior has changed. If @code{viewport-boundary-mode} is
+@code{dynamic}, then you can go as far as you like. Otherwise, it
+stops at the workspace boundary of which size is specified by
+@code{viewport-dimensions}. Now the latter is the default. See also
+``dynamic viewport'' described below.
+
+The previous variable, @code{infinite-desktop.stop-at-workspace-borders},
+which is used for this purpose, no longer exists.
+
+@item User config file changes
+
+In Sawfish < 1.6, @code{sawfish.wm.defaults} is loaded by default,
+only if the @file{~/.sawfishrc} lacks. Now, it is always read, so you
+don't have to @code{require} it. It sets up GNOME or KDE support if
+found running, and does load the error-handling module.
+
+Since Sawfish 1.5 @code{~/.sawmillrc} is no longer a valid configuration-
+file. From this version on, Sawfish will rename @code{~/.sawmillrc} to
+@code{~/.sawfishrc}, if the former does exist on your system, but the
+latter doesn't.
+
+@item In configurator, the "Matched Windows" group has been renamed to "Window Rules"
+
+@item Sound support has changed. [Christopher Bratusek]
+
+Sawfish used to rely on ESounD and LibAudioFile to play sound, but we
+dropped that. If you want sound, set the variable @code{play-sample-program}
+to the path of the program capable of playing *.wav file. You can set the
+variable from the Configurator, too. By default `paplay' is beeing used.
+
+You can't set any arguments to pass from this variable. If you want to
+give arguments or redirect output, write a wrapper
+program. (@pxref{FAQ}, ``Sound support'' section.)
+
+@item GNOME integration updates [Christopher Bratusek]
+
+GNOME support is trimmed down. All we offer now is as follows:
+
+If GNOME runs, in @code{session} submenu under Sawfish root menu,
+logout and shutdown from GNOME are added. Don't remove @code{quit} and
+@code{restart} from menu now. GNOME help is available in menu.
+
+Unless set by user, gnome-terminal.wrapper and gnome-www-browser are used for
+user options @code{xterm-program} and @code{browser-program}.
+
+Most of dropped GNOME integrationcode is ancient, mainly for 1.x and
+early 2.x. Files @file{lisp/sawfish/wm/commands/gnome.jl} and
+@file{lisp/sawfish/wm/state/gnome.jl} are deleted.
+
+GNOME-Detection has been updated for recent versions. [Alexey I. Froloff]
+
+@item xterm and browser changes
+
+Module @code{sawfish.wm.commands.xterm} is renamed to
+@code{sawfish.wm.commands.launcher}. Option @code{xterm-args} is
+dropped. If you use it, simply append its value to @code{xterm-program}.
+
+Customization-group is changed from @code{misc} to @code{External
+Applications}.
+
+The functinon @code{display-url} is renamed to @code{browser}, now
+defined in the module cited above. Variable @code{display-url-command} is
+renamed to @code{browser-program}.
+
+@item Sawfish pager
+
+If you've been using Sawfish-pager, then you have to recompile it,
+due to library files location change.
+
+@item Deletion of @code{user-level} property
+
+(This affects almost none.) There has been a defcustom property
+@code{user-level}. It has been deprecated for years, and it's
+now deleted.
+@end itemize
+
+@item Bugs fixed:
+@itemize @minus
+
+@item Prevents crashes for quick window destructions, especially under high load
+
+There have been crashes if a window is destroyed soon after its creation.
+It happens in @code{add_window} function, and the cause is guessed to be
+garbage collection following window destruction before the object access.
+
+Now most parts of @code{add_window} are protected from garbage
+collection with @code{rep_PUSHGC} / @code{rep_POPGC}. It also prevents
+@code{add_window_hook} from being called with uninitialised argument.
+[Timo Korvola, Janek Kozicki]
+
+@item Random window disapperance prevention
+
+There're reports of sudden, random window disapperance, under Xinerama
+and some other drivers. It is partly prevented, but not completely, as
+this may also be caused by other libraries or buggy video drivers.
+
+Now in error_handler() in src/display.c, when a window sends request_code
+12 (X_ConfigureWindow), don't auto-assume it to be unmapped. [Janek
+Kozicki]
+
+@item Build and Installation:
+@itemize +
+@item Library check: Fix in @code{SMlib} and @code{libICE} check on x11r7 [Christopher Bratusek]
+
+@item @file{.desktop} files fixes: typos fixed and unneeded entries removal [Christopher Bratusek]
+
+@item In spec file, repexecdir definition is fixed [Christopher Bratusek]
+
+@item In @file{po/Makefile.in}, a wrong call of make-pot is fixed [Christopher Bratusek]
+
+@item Always build the FAQ upon make [Christopher Bratusek]
+
+@item Expand REP_ENVIRON in scripts/Makefile.in [Luis Rodrigo Gallardo Cruz]
+
+@item Add @code{--tag=CC} to libtool where necessary. It unbrakes compilation on some arches [Gentoo Linux]
+
+@item Use $prefix/lib instead of $prefix/libexecdir, to satisfy the FHS [Christopher Bratusek]
+@end itemize
+@item In configurator,
+
+Strings are now fully translatable [Alexey I. Froloff]
+
+SpinButton listens to manual value change. (It's now connected to the correct signal.)  [Christoper Bratusek]
+
+Position parameters can be negative [Christopher Bratusek, Teika Kazura]
+
+@item Fixed Focus issues with KDE4 Menu/Run-Dialog [Timo Korvola]
+
+@item Fix cursor-warping in conjuction with Infinite-Desktop [Jeremy Hankins]
+
+@item Fixed group of the stagger options [Christopher Bratusek]
+
+@item Fixed a call of @code{select-workspace-from-first} [Michal Maruška]
+
+@item In @code{Simple} theme, windows are now resizable from the right border [Christopher Bratusek]
+
+@item Missing exports are now supplied, for shrink-yank functions and @code{send-to-workspace}. [Christopher Bratusek]
+
+@item Commands @code{maximize-window-fullscreen} and @code{maximize-window-fullxinerame} work. [Teika kazura]
+
+@item Variable @code{this-command} is @code{nil} outside of command call.
+
+@item Customization option @code{uniconify-to-current-viewport} has been undeprecated. [Teika kazura]
+@end itemize
+@item New features:
+@itemize @minus
+
+@item New application menu [Matthew Love, Timo Korvola]
+
+Sawfish now generates application menu automatically, by reading
+@file{/usr/share/applications/*.desktop} files. If you manually set
+@code{apps-menu}, then it won't be. If you like to have both your
+own applications menu and auto the generated one, then refer back to
+@code{user-apps-menu} rather than @code{apps-menu}. In addition you can
+use the variable @code{desktop-directory} to specify a different directory
+to look for *.desktop files, or a set of directories, if desired.
+
+Root, and Window-Operations menus are revamped, too. [Christopher Bratusek]
+
+@item Added options to change the font color of window title, independent of the theme in use [Matthew Love, Christopher Bratusek, Timo Korvola]
+
+Internally, a new function @code{remove-frame-part-value} which allows to change/remove values from frame-parts is used. [Timo Korvola]
+
+@item Sawfish does now support theme-tarballs compressed with XZ (aka LZMA2) and LZMA [Christopher Bratusek]
+
+@item Xinerama support for Grow/Pack [Nolan Leake]
+
+Make grow/pack Xinerama aware. The support still remains basic, as shrink/yank still lacks it.
+
+@item Window rules can be set by lisp
+
+Window rules (former ``matched windows'') can easily be set from
+configurator, but it can now be set by lisp, too, with
+@code{add-window-matcher} function. For the details, @xref{Window
+Rules by Matching}. An example usage is like this:
+
+
+@lisp
+(add-window-matcher '((WM_NAME . "^root$")
+                      (WM_CLASS . "^XTerm/xterm$"))
+                    '((ignore-program-position . t)
+                      (maximize . vertical)))
+@end lisp
+
+In fact, this function has already existed, but now it can now specify
+both windowname and -class, also the grammar has changed. The old syntax
+is still allowed, but deprecated.
+
+@item Keymap translation [Scott Scriven]
+
+Sawfish can ``translate'' keymaps for each window. Suppose you have
+the following lines in your @file{~/.sawfish/rc}:
+
+@lisp
+(add-window-matcher
+        '((WM_NAME . "^Terminal$"))
+        '(keymap-trans . (("C-n" "C-S-t")
+                          ("C-w" "C-S-w"))))
+@end lisp
+
+Then, when you press @kbd{C-n}, any windows with name ``Terminal''
+receive @kbd{C-S-t}, and so on.
+
+This is part of window rules, but it cannot be exposed in the configurator yet.
+
+@item New window rules
+@itemize +
+@item Maximizations @code{fullscreen} and @code{full-xinerama} are available now (@pxref{Maximizing Without Borders}) [Jeremy Hankins]
+@item Window position can also be specified by the direction, like north or east, instead of the coordinates. [Jeremy Hankins]
+@item New window rules @code{new-workspace} and @code{new-viewport}, which place a window on the first empty Workspace or Viewport (if there's none, one will be generated), have been introduced [Jeremy Hankins]
+
+If @code{new-workspace} is chosen, then the window is put in an empty
+workspace, or a new workspace is created if none. A workspace with
+sticky windows only are considered empty. @code{new-viewport} is
+the same but an empty viewport is chosen. If none is, the workspace is
+enlarged, and the window is put in a new viewport.
+@item @code{window-name} can change the window's name. [Christopher Bratusek]
+@end itemize
+
+@item New commands [Christopher Bratusek]
+
+5 new move-cursor commands, 4 diagonals and 1 to center. (@pxref{Pointer Functions}
+
+Three window manipulation commands, @code{double-window-size}, @code{halve-window-size}, and @code{move-window-center}.
+The former two are based on the @code{resize-by-factor} metafunction.
+
+@code{browser} invokes a browser instance.
+
+@item New functions
+@code{rename-window} changes the window name. [from ``mmc'' fork, Christopher Bratusek]
+
+In practice, it works, but technically speaking, the
+window name is not supposed to be changed in ICCCM, by the Window-Manager.
+
+@code{viewport-windows} returns windows in a viewport. [Jeremy Hankins]
+
+@code{get-window-by-class} and @code{get-window-by-class-re} [Christopher Bratusek]
+
+@item Dynamic Viewport-Boundary-Mode [Jeremy Hankins]
+
+When you set @code{viewport-boundary-mode} to @code{dynamic},
+then the workspace grows and shrinks dynamically so that it contains
+all windows and the current viewport. For the details, @xref{Dynamic
+Viewport}.
+
+@item KDE4 integration module [Christopher Bratusek]
+
+KDE4 is automatically detected. KDE help, and KDE logout, shutdown, and
+reboot are provided in the menu. In KDE4 WM Selector, Sawfish is
+added.
+
+Unless set by user, konsole and konqueror are used for user options
+@code{xterm-program} and @code{browser-program}.
+
+@item Poweroff from menu
+
+Added poweroff commands in menu for non KDE/GNOME users. There are
+reboot, halt, suspend and hibernate. The used shell commands can be
+set from configurator, under ``Misc'' -> ``External Applications''. If
+you don't want it, set @code{want-poweroff-menu} to nil.
+
+User needs the appropriate privilege. For a way to do so, see
+@xref{FAQ}, ``Shutdown privilege'' section.
+
+Reboot and halt call @code{before-exit-hook} and do
+@code{delete-window} to each window before actually rebooting or
+halting, to ensure everything is fine on the next startup.
+
+@item New Frame Classes [Christopher Bratusek] @*
+A ``frame class'' defines frame component and are used by themers to add
+buttons or frames to their theme in charge. There are no user visible changes.
+
+@itemize +
+
+@item @code{sticky-button}, a button to toggle window @code{sticky} or @code{viewport-sticky}
+
+@item @code{lock-button}, a button to toggle window position @code{fixed}
+
+@item @code{rename-button}, a button to rename the window-title and window-icon properties (not ICCCM compliant)
+
+@item @code{move-resize-button}, a button to perform various move and resize actions on a window
+
+@item @code{raise-lower-button}, a button to perform various raising and lowering actions on a window
+@end itemize
+@end itemize
+@item Widget Transistion [Christopher Bratusek]
+@itemize @minus
+
+@item Custom make-url-widget replaced by GtkLinkButton
+
+@item Custom about-dialog replaced by GtkAboutDialog
+
+@item GtkButton + GtkPreview + GtkColorSelection trio replaced by single GtkColorButton
+@end itemize
+@item Other Changes:
+@itemize @minus
+
+@item Startup window placement improvement [Jeremy Hankins]
+
+(Later this item was found wrong. The true fix was done in 1.7.0.)  At
+Sawfish startup including restart, maximized windows and position
+specified windows used to mess up viewport, appearing in wrong
+viewports. It's fixed now.
+
+@item Renamed @code{after-add-window} to @code{maxmize-after-add-window} @*
+This function is only used in a hook [Teika Kazura]
+
+@item Don't let @code{cycle-class} and @code{cycle-class-backwards} ignore @var{window-order} [Daniel M. German]
+
+@item Docks/panels are unframed, and window type is set to @code{dock} by default [Timo Korvola]
+
+@item You can exit from sawfish-client with @code{,quit} (also @code{C-d}), unlike @code{C-c} it won't kill the WM [Teika Kazura, Timo Korvola]
+
+@item Number widget (GtkSpinButton) can take optional initial value [Teika Kazura]
+
+@item Changing @code{raise-tabs-on-hover} takes effect immediately now [Christopher Bratusek]
+
+@item Inactive windows in Crux theme do now have black text for better readability [Christopher Bratusek]
+
+@item With new option @code{customize-redirect}, configurator's output can be redirected. [Teika Kazura]
+
+@item Grow/Pack and Shrink/Yank options are in the same group now [Christopher Bratusek]
+
+These commands are now available from window operation menu, too.
+
+@item When moving a window the cursor shape is now @code{hand2}, when resizing @code{crosshair} [Christopher Bratusek]
+
+@item In the theme document in the configurator, the cursor is invisible and the wrap mode is set to word-char [Christopher Bratusek]
+
+@item Build, installation and source
+@itemize +
+@item Improved ebuild [Christopher Bratusek]
+
+@item Encoding is unified to utf-8 for all distributed files [Teika Kazura]
+
+@item Squashed all bytecompiler warnings [Matthew Love] @*
+Some warnings were superfluous, though.
+
+@item To info file @file{dir} the section @code{sawfish} has been added [Luis Rodrigo Gallardo Cruz]
+
+@item Distclean rule for po/Makefile.in [Christopher Bratusek]
+
+@item Removed ancient sawmill removal fragments from Makefile [Christopher Bratusek]
+
+@item Block comments in lisp files are now semicolons @*
+Sorry, without reason. Block comment remains allowed.
+@end itemize
+
+@item Docs
+@itemize +
+@item Added man-pages for @code{sawfish}, @code{sawfish-client} and @code{sawfish-config} [Debian]
+
+@item News items for 1.5.0 are rewritten in a more readable fashion [Teika Kazura]
+
+@item Info manual updates [Christopher Bratusek, Jeremy Hankins, Teika Kazura]
+
+@item Added new contributors to @code{THANKS} section of @code{CONTRIBUTING} [Christopher Bratusek]
+
+@item Updated OPTIONS and KEYBINDINGS [Christopher Bratusek]
+@item Fixed the license header of tabbed-windowing files [Christopher Bratusek]
+@end itemize
+
+@end itemize
+@end itemize
+
+@heading 1.5.0 "The Hardstyle Factory"
+
+The new release is Sawfish-1.5.0. We don't release 1.4 series for
+historical reason. The next will be 1.6, and 1.5.x are for bugfix
+branches.
+
+@itemize @bullet
+
+@item The 1.5.0 release has new features and bugfixes
+
+@item New/Updated requirements:
+@itemize @minus
+
+@item librep 0.17 -> 0.90.0
+
+@item rep-gtk 0.18.3 -> 0.18.4
+@end itemize
+
+@item User visible changes:
+@itemize @minus
+@item Fully renamed from ``sawmill'' to ``sawfish''
+
+If your @file{.sawfishrc} has a line @code{(require 'sawmill-defaults)},
+then change it to @code{(require 'sawfish-defaults)}.
+
+If your configuration file is named @code{~/.sawmillrc}, then rename it
+to @code{~/.sawfish/rc} or @code{~/.sawfishrc}.
+
+@item Configurator GUI's default style is tree view of categories.
+
+Configurator GUI (sawfish-ui) used to display categories in flat row,
+but now arranges them in tree diagram.
+
+To use the old style, put @code{(define-special-variable customize-program "sawfish-ui --flatten")} in your configuration file.
+@end itemize
+
+@item Bugs fixed:
+@itemize @minus
+
+@item Fixed an compilation-error caused by glib [Michal Jaegermann]
+
+@item Make building with imlib1 instead of gdk-pixbuf work again [Michal Jaegermann]
+
+@item Create src/build.h, since it has been missing before [Christopher Bratusek]
+
+@item Fixed an "unknown remote error" that might appear [Alexey I. Froloff]
+
+@item Make "make uninstall" work again [Christopher Bratusek]
+
+@item Fixed the issue that apps did not start iconified, even if requested [Ian Zimmerman, Teika Kazura]
+
+@item First create $datadir/applications, then install the desktop file [Christopher Bratusek]
+
+@item Fixed default animation outline coordinates [Christopher Bratusek]
+
+@item Don't ignore datarootdir setting [Christopher Bratusek]
+
+@item Make Sawfish more error-tolerant if an app has an icomplete WM_CLASS [Martin Mares]
+
+@item Make sure we don't mix Super and Hyper [Denis Barbier]
+
+@item Fixup the last incomplete AC_DEFINE [Christopher Bratusek]
+
+@item Fixed a speed-issue with ``microGUI'' theme [Christopher Bratusek]
+
+@item Make properly use of WM_NAME in ``Elberg-tabbed'' theme [Christopher Bratusek]
+
+@item UTF-8 Support in window menus [Wang Diancheng]
+
+@item UTF-8 Support in GTK Widgets [Christopher Bratusek]
+@end itemize
+
+@item New features:
+@itemize @minus
+
+@item Tabbed Windowing Support [Yann Hodique, Scott Scriven, Nathan Froyd, Christopher Bratusek], Raise Tabs on hover [Christopher Bratusek]
+
+Windows can be ``tabbed'', or multiple windows bound to one, sharing
+size and frames. It's still under development (sorry). For instructions,
+see our wiki site @url{http://sawfish.wikia.com/Tabs}.
+
+@item Focus enhancements [Timo Korvola]
+
+Improvements in focus are done from which KDE users will benefit.
+Some new windows can receive focus. Some undesired focus transitions
+to desktop windows are suppressed.
+
+In enter-exit and enter-only focus modes, enter-notify events caused
+by grab/ungrab are ignored. This has a bad side effect, too.
+
+In lisp, replaced hardcoded focus logic by @code{focus-revert}
+function. Previously, action when the focused transient window is
+unmapped was not handled by focus modes, but coded elsewhere. Now
+@code{focus-revert} event is invoked, and passed to focus modes. (For
+detail, @pxref{Input Focus}.) This makes the modes' policy clear, and
+programmable.
+
+@item cursor warp enhancements. [Christopher Bratusek]
+
+During window cycling, cursor is warped to the current top window if
+@code{warp-to-window-enabled} and @code{cycle-raise-windows} are
+non-nil.
+
+When the window gets unmaximized, the cursor is retained in that
+window when @code{warp-to-window-enabled} is non-nil.
+
+@item 3 New Window-Animators for moving and resizing: cross, elliptical and draft [Christopher Bratusek, Teika Kazura (draft fixups)]
+
+@item Shrinking/Yanking Support [Timo Korvola]
+
+Shrink and yank are commands to reduce overlap with other windows ``by
+one'', with a motion in direction left/right/up/down. ``Shrink''
+commands move one edge of the window to shrink, and ``yank'' commands
+move the window.
+
+To use them, put @code{(require 'sawfish.wm.commands.shrink-yank)} in
+your configuration file, and use the configurator GUI to bind commands
+to keys.
+
+@item ``Infinite Desktop'' Feature [David T. McWherter]
+
+It makes the virtual desktop bigger than the screen, actually so big
+that there's no limit. You can scroll it with mouse continuously in
+natural manner.
+
+This is in contrast to the coventional viewport; it scrolls
+by a step of one screen size. Thus it may not work so well with
+viewports.
+
+To use it, put @code{(require 'sawfish.wm.ext.infinite-desktop)} in
+your configuration file, and use configurator GUI.
+
+@item In configurator GUI, viewport commands and history appear. Under matched-window, fixed-position, never-iconify, never-maximize are available. [Christopher Bratusek]
+
+@item Added cycle-among-groups(,-backwards) commands (cycle among the most recently used window of groups) [Fernando Carmano Varo]
+
+@item Interactive placement-mode now also for transients [Christopher Bratusek]
+
+@item Improved prompt.jl (allows changing font, fg and bg color) [Sergey I. Sharybin]
+
+@end itemize
+
+@item Other changes:
+@itemize @minus
+@item To build with XFree86/X.Org < 7.0 add --without-xorg-x11r7 flag [Christopher Bratusek]
+
+@item To build without Pango add --without-pango flag [Christopher Bratusek]
+
+@item To prevent installing translations add --without-nls flag [Christopher Bratusek]
+
+@item Set RestartStyleHint to 2 [Christian Marillat]
+
+@item When matching window to alist try WM_NAME if WM_CLASS is unset [Christian Marillat]
+
+@item Major Documentation update [Derek Upham, Teika Kazura]
+
+@item New Sound Theme [glh Pimenta]
+
+@item Added ebuild [Harald van Dijk]
+
+@item Added session desktop file [Christopher Bratusek]
+
+@item rep.m4 has been dropped use librep.pc/rep-gtk.pc instead [Christopher Bratusek]
+
+@item Added sawfish.pc [Christopher Bratusek]
+
+@item Improved Makefile's distclean rule [Christopher Bratusek]
+
+@item Updated .desktop files for gnome-session >=2.23 [Christopher Bratusek]
+
+@item Fixed autogen for libtool >2.2 [Christopher Bratusek]
+
+@item Major configure script rework [Christopher Bratusek]
+
+@item Don't ship config.sub config.guess and install-sh in $srcdir/etc [Christopher Bratusek]
+
+@item Reworked Sawfish-UI [Christopher Bratusek]
+
+@item Dropped libgnome|gnomeui|gnomecanvas widgets, use pure gtk instead [Christopher Bratusek]
+
+@item Merged changes from sawfish-pager [Christopher Bratusek]
+
+@item Major update of the spec file [Christopher Bratusek, Michal Jaegermann, Ritz]
+
+@item Print usefull stuff at the end of configure [Christopher Bratusek]
+
+@item Add distclean rule to all Makefiles [Christopher Bratusek]
+
+@item Add KEYBINDINGS file, containing a list of all default keybindings [Christopher Bratusek]
+
+@item Updated OPTIONS for all new options [Christopher Bratusek]
+
+@item Cleaned Up Makedefs.in [Christopher Bratusek]
+
+@item Move 'avoid' window-matcher from placement to state [Teika Kazura]
+
+@item Updated compat.jl [Teika Kazura]
+
+@item Removed all old ChangeLog files [Christohper Bratusek]
+
+@item Make move-cursor.jl export all functions described in the doc [Christopher Bratusek]
+@end itemize
+@end itemize
+
+@heading 1.3.5
+
+@itemize @bullet
+
+@item The 1.3.5 version has new features and bugfixes
+
+@item New/Updated requirements:
+@itemize @minus
+
+@item librep 0.14 -> 0.17
+
+@item rep-gtk 0.18 -> 0.18.3
+@end itemize
+
+@item New features:
+@itemize @minus
+
+@item Support _NET_WM_USER_TIME by Hellmut Eller
+
+@item Added ATK-A11Y Support by Shobbit Marthur
+
+@item Added Viewport-Boundary by Christopher Bratusek
+
+@item Added Error-Handler "both" by Christopher Bratusek
+
+@item Added 2 new Buttonlayouts to Crux "complete" and "complete inverse" by Christopher Bratusek
+
+@item Honour ICCCM Aspect Ratio by Andrea Vettorello
+
+@item Expose all Keybindings in SawfishUI by Christopher Bratusek
+
+@item Added Animated Viewport Scrolling by Fernando Carmona Varo
+
+@item Also expose the "Stagger" and "Off-Center" placement-modes
+
+@item Add a new hook: "before-slide-hook" by Andrea Vettorello
+
+@item Expose all smart placement-modes, "Best-Fit", "Best-Fit-Group", "First-Fit-Or-Interactively" by Christopher Bratusek
+
+@item Better GNOME Integration by Christian Marillat
+@end itemize
+
+@item Bugfixes:
+@itemize @minus
+
+@item Minimum pango version is 1.8.0 not 1.16.0 by Christopher Bratusek
+
+@item Fix Installation of mxflat by Michal Jaegermann
+@end itemize
+
+@item Other Changes:
+@itemize @minus
+
+@item Remove all ^L in the source by Teika Kazura
+
+@item Small Code-cleanup to make build with "-Wall -ansi -pedantic" possible again (also requires recent librep for this to work)
+
+@item Major Documentation Update by Derek Upham
+
+@item updated the shipped config.sub and config.guess by Christopher Bratusek
+@end itemize
+@end itemize
+
+@heading 1.3.4
+
+@itemize @bullet
+
+@item The 1.3.4 version has new features and bugfixes
+
+@item New features:
+@itemize @minus
+
+@item "Enter-Click focus mode" by Dagfinn I. Mannsake, Christopher Bratusek and Timo Korvola: windows get focus only when mouse enters it or if it is clicked and was unfocused.
+
+@item "Parallel make" by Harald van Dijk: allows building using more processors.
+
+@item Improved window property handling by Teika Kazura.
+
+@item Added new themes: mxflat, get-S-tabbed and elberg-tabbed.
+
+@item Added new binding to maximize window fullscreen on all xinerama screens, by Jonathan Sambrook.
+
+@end itemize
+
+@item Bug fixes:
+@itemize @minus
+
+@item Fixed raise-lower window bug when using transparent windows with xcomposite extension, by Timo Korvola.
+
+@item "Refresh icons" by Timo Korvola: when window changes its icon, the frame gets updated.
+
+@item Major C part cleanup, removing compilation warnings, by Christopher Bratusek.
+
+@item "Keep Focus on move-window-'direction'" by Mark Schreiber: allows moving windows around viewports without losing focus.
+
+@item "Selfdefine xterm command" by Dagfinn I. Mannsaker: allow using custom xterm instead of hardcoded one.
+
+@item "Update the Spec-file" by Ian Dall: update deprecated keywords.
+
+@item "Fix make-pot" by Christopher Bratusek: the make-pot script works again.
+
+@item Themer was removed, because rep-glade is not yet ported to glade2.
+
+@item Added missing keyboard accelerators in window menu and Move and Resize entries, issue reported by Fernando Carmona Varo.
+
+@end itemize
+@end itemize
+
+
+@heading 1.3.3
+
+@itemize @bullet
+
+@item The followup 1.3.3 version is released with bugfixes' fixes
+
+@item Bug fixes:
+@itemize @minus
+
+@item "Utf 8 names fix" by Timo Korvola: window titles with UTF-8 working and
+no openoffice crashes
+
+@item "Pango draw() ignores font" by Yuuki Harano and Rodrigo Gallardo: allows
+using pango fonts correctly.
+
+@item "Titlebar updates" by Harald van Dijk and Timo Korvola: don't forget to
+tell the running theme that window title length has changed.
+
+@item "KDE tray fix 2" by Timo Korvola: KDE is not always using freedesktop.org
+protocol so we need to adjust a few glitches.
+
+@end itemize
+@end itemize
+
+
+@heading 1.3.2
+
+@itemize @bullet
+
+@item The 1.3.2 version is released with bugfixes submitted by sawfish community
+
+@item Strings are re-encoded in UTF-8. Window titles will be set correctly
+regardless of title encoding (Rodrigo Gallardo)
+
+@item updated documentation to v0.12 (Derek Upham)
+
+@item added Occitan Lanaguage (Yannig Marchegay)
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item Nautilus desktop window can now restore its size properly (Rodrigo Gallardo)
+
+@item Sawfish.desktop file now complies with freedesktop.org standard (Rodrigo Gallardo)
+
+@item Fix select workspace to make sure it calls with right arguments (GSR)
+
+@item Fix 64 bit client messages (Thadeu Lima de Souza Cascardo)
+
+@item Don't display unneeded blank lines when window is opened by prompt
+function (Sven Schoenung)
+
+@item KDE system tray no longer fighs with sawfish to reparent a tray icon
+(Timo Korvola)
+
+@item Add bounds checking on _NET_CURRENT_DESKTOP requests (Timo Korvola)
+
+@item QT applications no longer lose focus when menu is active (Harald van Dijk)
+
+@item Corrected window placement in xinerama/dualhead when using
+centered/centered-on-parent (Fuchur, with comments by Andrea Vettorello)
+
+@end itemize
+@end itemize
+
+
+@heading 1.3.1
+
+@itemize @bullet
+
+@item The 1.3.1 version is released to let people know that Sawfish is being
+revived by the community, and we are awaiting patches to be submitted
+for incoming 1.3.2 release
+
+@item John Harper resigns from Sawfish maintainership and Sawfish community takes
+over. Janek Kozicki has SVN access, applies patches and makes releases.
+
+@item new official Sawfish website @url{http://sawfish.wikia.com/}
+
+@item updated documentation to v0.11 from Derek Upham
+
+@item updated FAQ from Sawfish wiki
+
+@item added tool for automatic screenshot generation for huge number of themes (Scott Scriven)
+
+@item Add detection for Xrandr extension (Philip Langdale)
+
+@item added Punjabi Lanaguage (Amanpreet Alam)
+
+@item Makefile.in: install Sawfish.desktop unconditionally (John Harper)
+
+@item generate sawfish.gtk.widgets.font from font.jl.in, define have_pango_xft
+in the substitutions (John Harper)
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item fixed possible buffer overflow in src/fonts.c (Yoshiaki Kasahara)
+
+@item Updated Swedish translation (Daniel Nylander)
+
+@item check for pango libs and flags (optional dependency)
+
+@end itemize
+@end itemize
+
+
+@heading 1.3
+
+@itemize @bullet
+
+@item Implemented EMWH "show desktop" mode
+
+@item Set client window gravity to @code{StaticGravity} while
+reparenting windows (Michal Maruška)
+
+@item Support EWMH @code{SKIP_TASKBAR} state (Chris Boyle, me)
+
+@item Window history keys may have multiple properties (not enabled by
+default for backwards compatibility, see @code{window-history-key}
+variable)
+
+@item More placement modes are now multihead-aware (Steve Hill)
+
+@item Translation updates: el (Simos Xenitellis, Kostas Papadimas), de
+(Christian Neumair), no (Kjartan Maraas), pt_BR (Alexandre Folle de
+Menezes), am (Daniel Yacob), es (German Poo Caaman~o), uk (Maxim
+Dzumanenko), sk (Stanislav Visnovsky)
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item compile with Gtk 2.2
+
+@item don't try to unfocus windows within the X error handler
+
+@item don't cache frame objects while clicking in windows, they may get
+garbage collected -- fixes "crash on shading" bug
+
+@item set @code{_NET_WM_NAME} as @code{UTF8_STRING} type (Christian
+Krause)
+
+@item @file{save-session} is now called @file{gnome-session-save};
+fallback to looking in @file{/usr/gnome} for menus
+
+@item fixed typo in @code{adjust-position-for-gravity/y}
+@end itemize
+@end itemize
+
+
+@heading 1.2
+
+@itemize @bullet
+
+@item Added an @file{OPTIONS} file describing the variables that may be
+customized
+
+@item Some drawing optimizations: don't reinstall frame shape at each
+redraw, turn off graphics exposures in all contexts
+
+@item Added a cache for X properties to minimize server round-trips
+
+@item Added support for Xft fonts
+
+@item Color objects now store alpha as well as rgb data
+
+@item Support useful parts of 1.1 NET WM spec; also fixed some bugs /
+omissions in support for 1.0 spec (e.g. @code{_NET_WORKAREA})
+
+@item Support for two dimensional workspace layouts and edge flipping
+(Michael Toomin)
+
+@item Translation updates (Dmitry G. Mastrukov, Jordi Mallach, Vincent
+van Adrighem, Christian Rose, Stanislav Visnovsky, Daniel Yacob, Andras
+Timar, Sava Chankov, Christian Neumair, Peteris Krisjanis, Gustavo
+Noronha Silva, Christian Meyer, Fatih Demir, Hasbullah Bin Pit,
+Christophe Fergeau)
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item Don't pass null pointers to @code{accept ()}
+
+@item Stacking list assertions no longer abort execution, they just
+print an error message
+
+@item Handle minimum-size hints that are zero
+
+@item Understand the Pango font names that the Gtk2 font selector uses
+
+@item Fixed bugs when iconifying sticky windows
+
+@item When servicing configure-window requests, respect the window's
+locked dimensions. Also handle moving in only one direction
+
+@item @code{grow-pack} bug fixes (Daniel Pfeiffer)
+
+@item Fixed some problems with fullscreen mode
+
+@item Fixed some problems in the Gtk2 config tool
+
+@item Other bug fixes (Greg Morris, Claudio Bley)
+
+@end itemize
+@end itemize
+
+
+@heading 1.1
+
+@itemize @bullet
+
+@item Reorganized the customization options. Removed user levels.
+Removed many obscure options (most are still available as lisp
+variables, just not from the UI). Viewports are no longer available in
+the UI
+
+@item Updates to the @code{grow-pack} module (Kai Großjohann, Daniel
+Pfeiffer)
+
+@item In matched windows, boolean options can be turned off as well as
+on (me, merlin)
+
+@item New full screen maximization mode
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item Miscellaneous focus fixes
+
+@item Be more selective about which X errors imply window deletion
+
+@item Don't trigger a stacking-list assertion on logout
+
+@item Check for window-ness in window-visibility (Michal Maru¹ka)
+
+@item Reread WM_WINDOW_PROTOCOLS when it changes
+
+@item Fixed bug of nautilus windows not being focused in focus follows
+mouse modes
+
+@item Recover "lost" windows when selecting windows (merlin)
+
+@item Show correct size when resizing windows (merlin)
+
+@item Most placement modes now respect workarea (Federico Mena
+Quintero, me)
+
+@item Miscellaneous fixes to wm-spec implementation. Includes code to
+support _NET_WM_STRUT
+
+@item Call @code{bindtextdomaincodeset} function if rep implements it
+(Christophe Fergeau)
+
+@item Make the current-directory stored in the session a valid filename
+
+@item Don't put windows below the default depth just because their
+parent is
+
+@item Miscellaneous viewport fixes (Federico Mena Quintero)
+
+@item Don't let ``transients above'' and ``layer'' stacking constraints
+conflict with one another
+
+@end itemize
+@end itemize
+
+
+@heading 1.0.1
+
+@itemize @bullet
+
+@item Translation updates: pt (Carlos Perelló Marín), it (Michele
+Campeotto), pl (Zbigniew Chyla), zh_CN (Wang Jian), zh_TW (Abel
+Cheung), es (Eneko Lacunza), tr (Ömer Fadýl USTA), sv (Göran Uddeborg,
+Christian Rose), da (Ole Laursen), gl (Jesus Bravo Alvarez)
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item Fixed typo in @code{apply-command-keys} function (David Bustos)
+
+@item Fixed bug in @code{wm-spec} module causing nautilus desktop
+window to cover panel
+
+@item Adopt windows with a maximized hint correctly
+
+@item Fixed bug in @code{display-window} function that can prevent the
+window getting focused
+
+@item Don't allow windows to be moved or resized by third-parties when
+they're maximized (and the necessary option is set)
+
+@item Fixed problem with localizing property names in the
+matched-windows configuration widget
+
+@item Handle window gravity more correctly (Owen Taylor)
+
+@item Forget everything about withdrawn windows -- better ICCCM
+compliance
+
+@item Fixed root-window event proxying (the infamous gmc bug)
+
+@item Don't use dlmalloc on sparcs (Brian Nitz)
+
+@end itemize
+@end itemize
+
+
+@heading 0.99
+
+@itemize @bullet
+
+@item Requires @code{librep} 0.14 or newer
+
+@item Translation updates: ja (Sato Satoru), no (Kjartan Maraas), es
+(Carlos Perelló Marín), fi (Antti Ahvensalmi), cs (Jiri Cerny), fr
+(Christian Marillat), de (Matthias Warkus, Christian Meyer), da (Ole
+Laursen), sk (Stanislav Visnovsky), tr (Özgür), sv (Christian Rose,
+Peter Winnberg), gl (Jesus Bravo Alvarez)
+
+@item Do i18n on more text strings (Vlad Harchev, me)
+
+@item Broken support for multiple-screen displays. Supplying the new
+@samp{--multihead} option will fork extra copies of sawfish for each
+extra screen. This has some fundamental problems, but some people seem
+to want it (Michael Vogt, Mahmood Ali, me)
+
+@item Window manager virtual modifier once again defaults to @kbd{M-}
+instead of @kbd{C-}
+
+@item Added support for @kbd{Off2} and @kbd{Off3} events
+
+@item @code{menu-program-stays-running} variable now defaults to true
+by popular demand
+
+@item New command @code{focus-desktop}
+
+@item Switch viewports more efficiently (by choosing the best order to
+move windows, to minimize the exposed area)
+
+@item Monitor the @code{_WIN_WORKSPACE} property of each window
+
+@item Bug fixes:
+
+@itemize @minus
+@item Check for X SHAPE extension, exit if it's not available
+
+@item Wait for the focus-in event before changing sawfish's knowledge
+of the focused window when moving focus from one window to another
+
+@item Be more ICCCM-compliant, don't send synthetic configure notify
+events when the window was resized
+
+@item Fixed locale font handling
+
+@item Don't leave grid traces when trying to move/resize a window
+that's locked in place
+
+@item Fixed bug where the pointer being over the message window could
+confuse focus after window cycling
+
+@item @code{decorate-transients} option works again with shaded windows
+
+@item Documentation appears in tooltips again
+
+@item Handle sticky properties better in the @code{window-history}
+module
+
+@item Maximization fixes for multi-headed displays (Florent Guillaume)
+
+@item Cancelling a resize of a maximized window no longer discards the
+window's maximized state
+
+@end itemize
+@end itemize
+
+
+@heading 0.38
+
+@itemize @bullet
+
+@item Translation updates: gl (Jesus Bravo Alvarez), sv (Martin
+Norbäck), de (Matthias Warkus, Christian Meyer), ru (Vlad Harchev), es
+(Joseba García Etxebarria), pl (Daniel Koc), fi (Antti Ahvensalmi), sk
+(Stanislav Visnovsky), az (Pablo Saratxaga), cz (Stanislav Brabec), no
+(Kjartan Maraas), el (Simos Xenitellis), it (Michele Campeotto), fr
+(Christian Marillat), ro (Marius Andreiana), ko (?)
+
+Extract some more translatable strings (Vlad Harchev)
+
+@item @code{Crux} theme now has an extra button mode: @code{Default},
+like Mac OS Platinum but also has an iconify button. Used by default
+
+@item The @code{grow-pack} module now works with windows which specify
+increments (Kai Großjohann)
+
+@item New command @code{kill-client}
+
+@item Fixed bugs:
+
+@itemize @minus
+
+@item Don't return a null pointer when no default cursor has been set,
+return @code{nil} instead
+
+@item Avoid triggering assertions in the stacking list code when
+raising or lowering windows and the given sibling has been destroyed
+
+@item Turned off the annoying code that beeps and prints a message when
+unfocusable windows are detected
+
+@item The GNOME hints now listen for the @code{_WIN_WORKSPACE} property
+changing and will move the window in response
+
+@item Don't forget maximized state of windows when they're moved, only
+if they're resized
+
+@item Don't show special cursors when moving or resizing windows, or
+when hovering over the title bar
+
+@item Corrected off-by-one error in `smart' placement modes
+
+@item Identified and fixed some problems in the new GNOME/KDE window
+manager hints implementation (Rob Hodges, me)
+
+@end itemize
+@end itemize
+
+
+@heading 0.37
+
+@itemize @bullet
+
+@item New command line option @samp{--window-history-file=@var{file}}
+
+@item Search for user's rc file in this order: @file{~/.sawfishrc},
+@file{~/.sawfish/rc}, @file{~/.sawmillrc}
+
+@item New option @code{configure-ignore-stacking-requests} and a
+similarly-named window property. When set stacking requests from
+windows are ignored (Matt Tucker)
+
+@item When restarting sawfish, reselect the previously selected
+workspace
+
+@item Added a function that can recolour multiple image channels
+simultaneously
+
+@item New function @code{exit-type} -- returns the type of exit in
+progress
+
+@item Translation updates: ja (Sato Satoru), sk (Stanislav Visnovsky),
+es (Iñaki García Etxebarria), hu (Robert Vanyi), tr (Fatih Demir), ro
+(Tutu Valentin), no (Kjartan Maraas), it (Michele Campeotto), pl
+(Daniel Koc)
+
+@item Fixed bugs:
+
+@itemize @minus
+
+@item Fixed focus-handling in enter-only mode on window close and
+viewport switch
+
+@item Fixed overflow error in the image recolouring module (Simon
+Budig)
+
+@item Session management always uses a unique session file (Timo
+Korvola, me)
+
+@item Fixed bug in random placement mode where windows could sometimes
+be placed off-screen
+
+@item Fixed some auto-raise problems by reverting a misguided bug fix
+
+@item Fixed bugs with aborted session saves
+
+@item Cache stacking order of windows locally -- this allows us to keep
+the order consistent, especially after window reparenting operations
+
+@item Don't call @code{XParseColor} unless we actually @emph{have} a
+display connection (merlin)
+
+@item Merged two calls to @code{setlocale} to avoid trashing the locale
+preferences
+
+@item Check for presence of Xinerama extension before trying to use it
+-- removes the annoying error message at startup
+
+@item Added some more X server timestamp logic to correct for the
+timestamp discontinuities after APM resume
+
+@end itemize
+@end itemize
+
+
+@heading 0.36
+
+@itemize @bullet
+
+@item Added a new default theme: `Crux'. By default it recolours itself
+to match the current GTK+ selection colour. (Arlo Rose, me)
+
+@item Updated translations: it (Michele Campeotto), fr (Christian
+Marillat)
+
+@item Added a @code{shade-button} button class (many themes created it
+anyway)
+
+@item Added a @code{sawfish.wm.util.recolor-image} module, currently
+contains a single function for recolouring parts of images based on a
+given colour gradient
+
+@item Added new command @code{delete-group}. Deletes a whole group of
+windows. With default bindings, shift-click on the close button to
+invoke this command
+
+@item Added support for KDE-style mini-icons. If the window has no
+normal icon, then @code{window-icon-image} will return the mini-icon
+
+@item Fixed bugs:
+
+@itemize @minus
+
+@item Themes that use the module for reading the user's gtk preferences
+will once again get updated when the gtk theme changes
+
+@item Fix another of the null-string translation bugs (Christian
+Marillat)
+
+@item Work around @code{XUrgencyHint} not being defined before X11R6
+
+@item Fixed some long-standing bugs when decorating windows (use the
+correct mask when creating the overall window shape; for frame parts
+with no mask, set the local shape to the appropriate rectangle; be sure
+to generate at least one Expose event when reconfiguring frame parts)
+
+@item Fixed crashing bug when @code{bind-keys} is called with zero
+arguments
+
+@item Fixed typo in @code{crop-image} function when checking validity
+of @var{height} parameter (martin@@whoever.com)
+
+@end itemize
+@end itemize
+
+
+@heading 0.35
+
+@itemize @bullet
+
+@item Translation updates: ja (SATO Satoru), it (Michele Campeotto),
+zh_TW.Big5 (Chun-Chung Chen), pl (Daniel Koc), sk (Stanislav Visnovsky)
+
+@item Items in @code{choice} widgets may now contain descriptive names,
+syntax is @code{(@var{symbol} "@var{description}")}
+
+@item Changed @code{focus-windows-when-mapped} option to only apply to
+non-transient windows (this option is now enabled by default)
+
+@item New placement modes @code{top-left} and @code{off-center}.
+@code{top-left} is now the default mode for non-transients
+
+@item Enabled the module supporting the newly standardized GNOME/KDE
+window manager hints. Also made random changes to support KDE2 a lot
+better
+
+@item Added WM_PROTOCOLS @code{_SAWFISH_WM_RAISE_WINDOW} and
+@code{_SAWFISH_WM_LOWER_WINDOW}. Used by @code{maybe-raise-window} and
+@code{maybe-lower-window} functions.
+
+These are similar to @code{WM_TAKE_FOCUS}, in that if the window
+supports the protocol, it's up to it whether or not it raises (or
+lowers) the window in question. These functions should only be used
+where the user hasn't explicitly requested the restacking
+
+An example usage is an application that doesn't want its window to be
+raised due to a button-press event that initiates a drag operation
+
+@item New option @code{menus-include-shortcuts}, disabled by default
+(Unai Uribarri)
+
+@item Don't interpret windows with @code{WM_TRANSIENT_FOR} set to the
+root window as children of all windows in the group (it causes too many
+annoying effects), instead just decorate these windows as transients
+
+@item Handle @code{group} and @code{transient} iconification modes
+better, don't use a recursive method, instead use one pass to identify
+the windows to change, then another to make the changes. In
+@code{transients} mode, only change the state of shared transients if
+they will have no visible parents afterwards
+
+@item In the (old) GNOME hints code, support a @code{_WIN_HINTS} client
+message (with a similar format to the @code{_WIN_STATE} message)
+
+@item New module @code{sawfish.wm.commands.viewport-extras}, some
+commands for viewport for viewport navigation (Dams Nadé)
+
+@item Check for @code{never-iconify} and @code{never-maximize}
+window properties when appropriate
+
+@item Support sixth and seventh mouse buttons (Steve Haslam)
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item Fixed problems with reverting changes to list-based options
+
+@item Don't allow the empty list as a valid modifier list
+
+@item Fixed bug where restarting the wm with
+@code{focus-windows-when-mapped} set would cause any shaded windows to
+be deleted
+
+@item Ignore iconified windows in the grow-pack code
+
+@item Added @code{font-ascent} and @code{font-descent} functions to the
+gaol
+
+@item Catch errors when loading site-init and rep-defaults files
+
+@item Don't use @code{""} to denote a null doc string (which has bad
+side effects when internationalized)
+
+@item Don't need to run @samp{sawfish-client -} to get a repl anymore,
+just @samp{sawfish-client}
+
+@item Fixed bugs in @code{composite-images} function
+
+@item Fixed ordering of states output by @code{gtk-style} program
+(michaelj@@maine.rr.com)
+
+@item Fixed grabbing mono window icons in gdk-pixbuf mode
+
+@item Reject button event descriptions that don't specify at least one
+mouse button
+
+@item Accept @code{()} as a valid image modifier color component
+
+@item Now grabs translatable strings from @code{defgroup} forms
+correctly
+
+@end itemize
+@end itemize
+
+
+@heading 0.34
+
+@itemize @bullet
+
+@item Added a virtual modifier key, the @kbd{W-} modifier. This
+modifier is used for all standard window-manager key bindings, it may
+be set to any of the standard X modifiers using the configuration tool
+
+@item Optionally show window-icons when cycling through windows (Unai
+Uribarri Rodríguez, me)
+
+@item Event handlers for low-level X windows now get passed the window
+as their second argument (Unai Uribarri Rodríguez)
+
+@item Translation updates: fr (Christian Marillat), sv (Richard Hult),
+pt_BR (Flávio Bruno Leitner), it (Michele Campeotto)
+
+@item Error handler module (@code{sawfish.wm.ext.error-handler}). When
+loaded it records the most recent errors, and the time at which they
+occurred. Use the @code{display-errors} command to display all recorded
+errors.
+
+@item Added an option to not save window-history data for transient
+windows. Also added a @code{window-history-clear} command to forget
+history for all windows.
+
+@item Rearranged window operations menu to hopefully be clearer
+
+@item Attempt to catch and handle errors while loading custom options
+
+@item Labels in menu items can now be functions, they should return the
+label text when called (with any menu arguments)
+
+@item Moved installed message catalogues to $datadir/locale
+
+@item @code{defcustom} forms may now a @code{:widget-flags} keyword, a
+constant list of symbols passed to the configuration tool. Current
+flags include: @code{expand-vertically} and @code{expand-horizontally}
+
+@item Added a @code{sawfish.wm.util.ping} module, it implements the
+@code{_NET_WM_PING} protocol of the new window manager spec.
+
+@item @code{destroy-notify-hook} is no longer called asynchronously
+
+@item Bug fixes:
+
+@itemize @minus
+
+@item Fixed various bugs when dragging/resizing windows
+
+@item Reverted the changes to make the click-to-focus click-through
+setting apply to window decorations
+
+@item Fixed bug when handling 32-bit data in client messages and X
+properties
+
+@item Fixed window-focus problems when switching viewports
+
+@item Many bug-fixes to handling of maximized window state. Maximized
+state should now be preserved across wm and session restarts. It's also
+saved in the window-history attributes
+
+@item Support the function hints of the MWM window manager properties
+
+@item Updated the @code{sawfish.wm.state.wm-spec} module to match the
+current (almost final) draft of the new GNOME/KDE window manager spec
+
+@item Fixed sporadic stacking bugs when unmapped windows exist
+
+@item Fixed miscellaneous click-to-focus and focus-click-through
+related bugs
+
+@end itemize
+@end itemize
+
+
+@heading 0.33
+
+@itemize @bullet
+
+@item Added support for user-levels associated with individual commands
+
+@item The GNOME hints code now understands that the do-not-cover flag
+is the same as sawfish's @code{avoid} property
+
+@item Swap properties of sticky windows when entering and leaving
+workspaces as for normal windows (fixes the old problem where sticky
+windows can grab focus when a workspace is entered)
+
+@item Changed the default settings of some customization options,
+hopefully to give a more ``conventional'' feel for new users
+
+@item Better support for Xinerama (Geoff Reedy)
+
+@item Added a new set of window stacking commands: @code{raise-window},
+@code{lower-window}, @code{raise-lower-window}. The set of windows
+affected by these commands is determined by the @code{user-raise-type}
+(either the individual window, the window and any transients, or the
+entire group). The old commands of these names are now called
+@code{@var{foo}-single-window}.
+
+Most modules now use these commands when raising or lowering windows,
+allowing the stacking model to be configured globally.
+
+@item Translation updates: no (Kjartan Maraas), fi (Antti Ahvensalmi),
+it (Christopher R. Gabriel), pt_BR (Douglas Moura Ferreira), uk (Yuri
+Syrota), de (Matthias Warkus)
+
+@item Fixed bugs:
+
+@itemize @minus
+
+@item If committing changes in the configurator causes new
+customization options or groups to be added, update the UI to reflect
+this
+
+@item Added code to detect and correct the sporadic bug where windows
+become unfocusable in click-to-focus mode
+
+@item Sanitized how the focus gets passed to and from transient windows
+(when passing focus back from a transient, give it to the most recently
+focused window in the group, not the transient's parent)
+
+Also, try to avoid displaying maximize buttons in windows whose hints
+prevent them from being maximized
+
+@item Many fixes to how maximized windows are handled across session
+and window manager restarts. Also support GNOME window maximized hints
+when windows are created
+
+@item Fixed some bugs in the @code{wm-spec} module
+
+@item Don't trigger auto-raise hooks on leave/enter events generated by
+pointer grabs
+
+@item The @code{edge-flip-delay} option now applies when dragging
+windows
+
+@item Fixed the preview command in @code{sawfish-themer}
+
+@item Miscellaneous fixes to the ``smart'' window placement modes
+
+@item Fixed type description of @code{persisitent-group-ids} option
+
+@item In @code{enter-exit} focus mode, focus isn't removed due to
+enter/leave events due to pointer grabs (fixes the bug with Mozilla URL
+completion)
+
+@item Fixed (again) the @code{focus-click-through} behaviour with
+respect to frame decorations
+
+@item Re-added hack to make GMC icons unfocusable
+
+@item Fixed interactive placement to check for window destruction
+(merlin)
+
+@item Fixed bug with tiled images with shapes (the shape mask would
+always be applied an integer number of times, ignoring the size of the
+frame part it's associated with)
+
+@item Fixed @code{window-wants-input-p} to check if the
+@code{InputHint} is set before reading the value
+
+@end itemize
+@end itemize
+
+
+@heading 0.32
+
+@itemize @bullet
+
+@item @kbd{M-TAB} window cycling now works in both directions, bind
+keys to @code{@var{cycle-command}-backwards}, e.g.
+@code{cycle-windows-backwards} (Merlin, me)
+
+@item Added support for X `Urgency' hint: @code{window-urgent-p} and
+@code{window-state-change-hook} is called with @code{urgency} state
+when it changes
+
+@item Some improvements to @code{shade-hover} mode (adapted from Eli
+Barzilay)
+
+@item Functions that raise/lower groups of windows now generate the
+minimum number of expose events (Rob Hodges, me)
+
+@item New window property @code{window-list-skip}. Unified with GNOME
+skip-winlist hint
+
+@item Custom options may have tooltips, use @code{:tooltip} tag
+
+@item Catch errors when applying custom changes and revert to previous
+state
+
+@item Translation updates: uk (Yuri Syrota), pt_BR (Douglas Moura
+Ferreira), hu (Róbert Ványi), de (Christian Meyer), ja (SATO Satoru),
+da (Keld Jørn Simonsen), es (Iñaki García Etxebarria), fr (Christian
+Marillat)
+
+@item Fixed bugs:
+
+@itemize @minus
+@item With click-to-focus in non-click-through mode, don't
+click-through into window decorations
+
+@item @code{dimensions} property in window matching was called
+@code{size} by mistake
+
+@item Export the various @code{sp-cost:} functions from
+the @code{sawfish.wm.placement.smart} module
+
+@item Don't allow cycles in the transient-for relationship
+
+@item Fixed some maximize bugs
+
+@item GNOME skip-focus property no longer causes the window to be
+unfocusable, just uncyclable-to
+
+@item Coerce auto-raise timeout to be at least one millisecond; support
+@code{disable-auto-raise} correctly
+
+@item Window input hints defaults to true not false
+
+@item Fixed typo when loading the defaults file (Ronald Wahl)
+
+@item Fixed command spec of @code{move-window-@var{foo}} commands
+(Yoshiki Hayashi)
+
+@item When sending @code{WM_TAKE_FOCUS} message, only focus the window
+if its `Input' hint is set
+@end itemize
+
+@end itemize
+
+
+@heading 0.31.1
+
+@itemize @bullet
+
+@item Translation updates: da (Kenneth Christiansen), de (Christian
+Meyer), no (Kjartan Maraas), pt_BR (Rui Miguel Silva Seabra), sv (Johan
+Dahlin), uk (Yuri Syrota)
+
+@item Bug fixes:
+
+@itemize @minus
+@item Fixed typos in @code{sawfish.wm.gnome.integration} and
+@code{sawfish-themer} (Christian Marillat)
+
+@item Fixed bug when building on Tru64 (John H. Palmieri)
+
+@item Remember to check return value when initializing Imlib
+@end itemize
+
+@end itemize
+
+
+@heading 0.31
+
+@itemize @bullet
+
+@item Requires librep version @code{0.13}
+
+@item Organized all lisp code into a hierarchy of modules. Root points
+are @code{sawfish.wm} for window manager code, @code{sawfish.ui} for
+configurator and @code{sawfish.gtk} for GTK+ utilities
+
+Compatibility should have been preserved as far as possible, through
+the use of module aliases. The @code{user} module that unmodularized
+user code is loaded in should look very similar to the old environment.
+However, code using private functions, probably will not work
+
+New features written as modules can either import modules individually,
+or just open @code{sawfish.wm} to get the core functionality
+
+@item All command handling is now written in Lisp. It's fully
+compatible except for how commands are defined. Since there is no
+longer a unified namespace the mapping from names to command
+definitions is maintained separately.
+
+@code{define-command} and @code{autoload-command} add entries to this
+mapping. @code{define-command} takes a name and a function (and some
+other optional arguments). The old style of defining commands still
+works, but only in the user module
+
+@item @code{sawfish-client} now provides the same repl as the normal
+@code{rep} program. E.g. this allows the module system to be easily
+inspected
+
+Also, the module of each loaded theme is available for inspection under
+@code{themes.@var{theme-name}}. (With themes using top-level defines
+instead of a single @code{let*} block, this is useful for debugging)
+
+@item @code{sawfish.client} module provides lisp functions for
+communicating with a running window manager. Also, the protocol has
+been modified to support proper communication of errors, which are then
+re-raised on the client-side. This should make debugging client-server
+code more obvious
+
+@item `Action' parts of menu items may now be lisp objects that don't
+have a read syntax. (E.g. this allows closures to be used, avoiding the
+problems arising from modularization)
+
+@item Support for checked and radio-group menu items. Also a new
+function @code{add-window-menu-toggle} to add items to the
+@samp{Toggle} sub-menu of each window
+
+@item Handle @code{ConfigureRequest} events in a way that is compliant
+with the ICCCM---honour the window's @code{win_gravity} setting
+(defaulting to @code{NorthWest} gravity), instead of assuming
+@code{Static} gravity
+
+@item Support more GC attributes in the @code{sawfish.wm.util.x} plugin
+(Ryan Pavlik)
+
+@item Support for handling arbitrary windows as extra ``root'' windows.
+Used, e.g., to support Nautilus' desktop window. Allows the focus modes
+to work correctly
+
+To support this, new window property @code{desktop} denoting a
+``desktop'' window; new function @code{desktop-window-p} recognizing
+one of these things (or the symbol @code{root})
+
+@item Added @code{pointer-motion-threshold} option. Pointer motion
+events are only generated when the pointer moves at this many pixes
+away from the position it had when the button was pressed
+
+@item New functions: @code{scale-image}, @code{composite-images}, and
+@code{crop-image}.
+
+@item New option @code{maximize-avoid-avoided} (Jonas Linde)
+
+@item New functions exported by @code{sawfish.wm.ext.tooltips} module:
+@code{display-tooltip}, @code{remove-tooltip}
+
+@item New function exported from @code{sawfish.wm.viewports} module:
+@code{select-workspace-and-viewport}. Renamed some workspace functions:
+
+@noindent
+@code{ws-move-window} @result{} @code{move-window-to-workspace},
+@code{ws-copy-window} @result{} @code{copy-window-to-workspace},
+@code{ws-insert-workspace} @result{} @code{insert-workspace},
+@code{ws-move-workspace} @result{} @code{move-workspace},
+@code{ws-remove-window} @result{} @code{remove-workspace}.
+
+@item Changed interface of @code{get-visible-window-edges} function to
+use proper keyword parameters, and added some new keywords
+
+@item New commands @code{help:about} and @code{gnome-about}. Added a
+@code{sawfish-about} script to implement the first of these. Added
+associate menu items to the `Help' menu
+
+@item New window property @code{cycle-skip}, defines whether the window
+is included when cycling the focused window. (Dave Dribin, me)
+
+@item Translation additions and updates: es (Iñaki García Etxebarria),
+tr (Fatih Demir), zh_CN.GB2312 (zw@@zhaoway.com), fr (Christian
+Marillat), ja (SATO Satoru), de (Kai Lahmann), el (Simos Xenitellis),
+ga (Seán Ó Ceallaigh), ru (Valek Filippov), sl (Andraz Tori)
+
+@item Bug fixes:
+
+@itemize @minus
+@item Don't let errors in @file{.sawfishrc} prevent customization
+settings being loaded
+
+@item initialize event handler when creating X window proxies (Matt
+Tucker)
+
+@item No longer able to @code{throw} out the top of the program by
+mistake
+
+@item Fixed @code{find-head} function, to allow Xinerama support to
+work
+
+@item When exiting, leave window configurations exactly as they were
+found (E. Jay Berkenbilt)
+
+@item Fixed @code{synthesize-event} to scan the window tree for a child
+window accepting button events (E. Jay Berkenbilt)
+
+@item Removed ``yow! @dots{}'' debugging messages
+
+@item @code{image-set} and related functions will add an alpha channel
+to the image when necessary (when using gdk-pixbuf)
+
+@item Canonify @kbd{S-x} as @kbd{X} where possible
+
+@item Catch and handle errors when matching properties in the
+@code{sawfish.wm.ext.match-window}
+
+@item Escape underscores in menu items where they shouldn't introduce
+accelerators. (Added @code{quote-menu-item} function to help with this)
+
+@item Fixed race-condition when exiting configurator embedded into the
+GNOME control center (Havoc Pennington, me)
+
+@item Fixed bug in @code{set} method of the @code{icon} widget
+
+@item Fixed shading behaviour of included themes (Daniel Lundell)
+
+@item Compute the shape of the frame window each time the background of
+one of its parts changes
+@end itemize
+@end itemize
+
+
+@heading 0.30.3
+
+@itemize @bullet
+
+@item If a frame part has a non-nil @code{hidden} attribute, ignore it
+
+@item When reframing windows, keep the absolute position of the client
+window constant
+
+@item Support @code{FIXED_POSITION} GNOME hint (renamed old
+@code{fixed-position} property as @code{client-set-position};
+@code{fixed-position} now means don't allow the window to be moved by
+the user)
+
+@item @code{transients-above} option can now be set per-window
+
+@item Translation updates: fr (Christian Marillat), en_GB (Robert
+Brady), de (Kai Lahmann), da (Keld Simonsen), ru (Valek Filippov), sl
+(Andraz Tori), no (Kjartan Maraas), gl (Jesus Bravo Alvarez), it
+(Michele Campeotto)
+
+@item Fixed bugs when converting option values
+
+@item Fixed @code{:require} keyword in @code{defcustom} always causing
+the module to be loaded, not just when the option is non-nil
+
+@item Fixed bug when adding windows that are shaded
+
+@item Fixed some minor bugs in the configurator
+
+@end itemize
+
+
+@heading 0.30.2
+
+@itemize @bullet
+
+@item Window cycling now forwards terminating events to external
+applications as well as internal bindings (e.g. @kbd{M-TAB M-w} closes
+an activated Netscape window)
+
+@item @code{quote-event} command now works with applications that
+ignore synthetic events (adapted from code by Timo Korvola)
+
+@item Reorganized frame style and window type management. New function
+@code{define-frame-type-mapper} allows modules to affect the mapping
+from window type to frame type. E.g. the shading module uses this.
+(fixes the bug that changing the frame type of a shaded window didn't
+work)
+
+@item Added function @code{variable-customized-p}; use this to avoid
+redefining user-modified options
+
+@item Do type-directed deep conversion of values when converting
+to/from readable representations. This fixes the bug that options with
+@code{:type (optional color)} weren't being converted when passed
+between the wm and the configurator, leading to reader errors
+
+A side-effect of this is that updated custom files will not be
+compatible with previous versions of the wm (though old custom files
+will work with new versions)
+
+@item Translation updates: no (Kjartan Maraas), de (Kai Lahmann), nl
+(Dennis Smit), sl (Andraz Tori)
+
+@item Added primitives @code{map-windows} and @code{filter-windows}
+
+@item Fixed bug of not retaining focus on startup when originally in
+PointerRoot mode and moving to click-to-focus mode (Brad Thompson)
+
+@item Ensure that apps get sent a synthetic ConfigureNotify event after
+ConfigureRequest events are handled (fixes bug where menus in Java apps
+can appear at wrong position until window is moved)
+
+@item When referencing known variables from subroutines, make sure that
+restricted environment doesn't prevent the variable being accessed
+(fixes bug where @code{default-bevel-percent} was being ignored)
+
+@item When creating transient groups, don't compare null group ids
+(fixes xfmail related bugs)
+
+@item Fixed @code{move-window-to-viewport} command to correct for
+1@dots{} indexing
+
+@item Fixed non-gnome workspace widget in configurator
+
+@end itemize
+
+
+@heading 0.30
+
+@itemize @bullet
+
+@item New commands @code{activate-viewport-column},
+@code{activate-viewport-row}
+
+@item New commands @code{raise-window-and-transients},
+@code{lower-window-and-transients} and
+@code{raise-lower-window-and-transients},
+@code{raise-transients-and-pass-through-click}.
+
+As the normal window stacking commands, but restacks the
+``transient-group'' of the window. This includes the window itself and
+any transients it has, and any windows that it itself is a transient
+of.
+
+These commands are used in the default keymaps
+
+@item Functions that deal with transient windows now understand the de
+facto standard of setting the @code{WM_TRANSIENT_FOR} property to the
+root window denotes that the window is a transient for the whole group
+
+@item New image manipulation functions: @code{image-ref},
+@code{image-set}, @code{image-fill}, @code{image-map}. New color
+accessor function @code{color-rgb-8}. New function
+@code{root-window-id}
+
+@item Improvements to @code{sawfish-ui}: optionally use some GNOME
+widgets, more lisp widget types, some bug fixes
+
+@item New command @code{command-sequence}. Allows individual bindings
+to invoke a sequence of commands
+
+@item Options @code{iconify-group-mode} and @code{uniconify-group-mode}
+replace @code{iconify-whole-group} and @code{uniconify-whole-group}.
+New commands @code{iconify-transient-group}, and
+@code{uniconify-transient-group}
+
+@item Added @code{:type*} key to @code{defcustom}, like @code{:type},
+but value is left unquoted
+
+@item Translation updates: pl (Daniel Koc), ru (Valek Filippov), uk
+(Yuri Syrota), es (Iñaki García Etxebarria)
+
+@item Fixed handling of @code{WM_NORMAL_HINTS} (was using base-size
+instead of min-size in places)
+
+@item Fixed further locale / FontSet bug (Tomohiro KUBOTA)
+
+@item @code{window-history} module won't resize a window to a size that
+violates its size constraints
+
+@end itemize
+
+
+@heading 0.29
+
+@itemize @bullet
+
+@item Rewrote the configuration user interface. Improvements include:
+
+@itemize @minus
+@item Key bindings may now include parameters. E.g. this finally allows
+shell commands to be bound to keys using the GUI (use the new
+@code{run-shell-command} command)
+
+@item Nautilus-like user-levels to tailor the options shown to the
+expertise of the user
+
+@item Options may have much richer type descriptions (including
+@code{match-window} options). Also, extra widget types and containers
+may be added as extra Lisp modules
+
+@item By default the stand-alone configurator commits changes to the
+window manager as they are made, instead of waiting for the @samp{Try}
+button to be pressed
+
+@item Added dependences---options with dependences are only editable
+when the value of their dependence is non-@code{nil}
+@end itemize
+
+@item Rewrote window stacking code to be based on ``stacking
+predicates''---functions that accept or reject a possible stacking
+configuration. This allows the ``stack-transients-above-parents''
+option to work correctly, only keeping transient windows above their
+@emph{own} parent windows
+
+@item The configure-event handler now understands and handles the full
+complexity of stacking requests (Brad Thompson)
+
+@item New frame-part attribute: @code{scale-foreground}. The
+@code{cursor} attribute may now be a function
+
+@item Made the @code{centered}, @code{centered-on-parent} and
+@code{under-pointer} placement modes clamp the window into the current
+work area (i.e. without overlapping windows that shouldn't be covered).
+Added a @code{stagger} placement mode
+
+@item When grabbing window icons to images, preserve their shape masks
+
+@item Moved @code{window-history} options to @code{placement} group.
+Fixed some more bugs and sub-optimal default option values
+
+@item Don't set cursors for button classes, use the default value
+
+@item GNOME @code{SKIP_FOCUS} window hint sets @code{never-focus}
+property on window, as well as the @code{ignored} property
+
+@item Translation updates: de (Karl Eichwalder), ru (Valek Filippov),
+da (Kenneth Christiansen)
+
+@item Added mostly-complete support for using gdk-pixbuf instead of
+Imlib (requires an experimental Xlib version of the gdk-pixbuf library)
+
+@item Various bug fixes and other minor changes@dots{}
+
+@end itemize
+
+
+@heading 0.28.1
+
+@itemize @bullet
+
+@item New options @samp{--visual=@var{TYPE}} and
+@samp{--depth=@var{DEPTH}}. These tell the window manager to use a
+different visual than the default
+
+@item Made the @code{window-history} module behave more sanely (don't
+save iconified or shaded state; include window name when generating
+keys for transient windows)
+
+@item Made @code{beos-window-module} the standard window menu (require
+@code{old-window-menu} to get the original version). Also made this
+display the windows' class names
+
+@item Updated translations: es (Iñaki García Etxebarria), tr (Fatih
+Demir)
+
+@end itemize
+
+
+@heading 0.28
+
+@itemize @bullet
+
+@item New module @code{window-history}---automatically saves window
+attributes when they are explicitly set by the user, then copies these
+attributes to windows with the same @code{WM_CLASS} as they are
+created. This is loaded automatically if you have no @file{.sawfishrc}
+
+@item New method of allowing themes to implement only some of the
+(currently) four frame types. The variable
+@code{frame-type-fallback-alist} maps each frame type to the type to
+try if the original type isn't available in the chosen frame style.
+
+Note that for this to work, themes must return @code{nil} when they
+don't support the requested frame type, until now, the convention had
+been to return the default frame definition, so most if not all themes
+will need changing. (This doesn't include themes created using the
+@code{make-theme} module.)
+
+@item Made the metrics used by the @code{best-fit} placement mode
+user-controllable. Set the @code{sp-cost-components} variable to a list
+of cost functions and the weight to apply to that metric. E.g. by
+default it gives 50% importance to the distance from the placement to
+the focused window, and 25% each to the distance to the pointer and to
+the ``future-unusefulness'' of the area being covered
+
+@item New module @code{beos-window-menu} to redefine the window menu to
+group items by the window group that they are a member of (in the
+absence of actual group information, it will heuristically build groups
+by matching window titles)
+
+@item New option @code{edge-flip-warp-pointer}, whether or not to warp
+the pointer after edge-flipping (Paul Warren)
+
+@item New option @code{display-window:uniconify-to-current-workspace},
+controls whether windows uniconified by @code{display-window} should be
+moved to the current workspace (John N S Gill)
+
+@item Changed method of selecting when to use multi-byte aware
+rendering functions (except when initializing the locale fails, or
+returns a 7-bit locale); also, when creating a fontset fails, try to
+intelligently fall back to a similar group of fonts (Tomohiro Kubota)
+
+@item The @code{x} library now supports creating and then drawing to
+pixmaps. The pixmaps can then be grabbed to images using the
+@code{make-image-from-x-drawable} function
+
+@item Added a @samp{Help} item to the root menu
+
+@item Translation updates: fi (Antti Ahvensalmi), gl (Jesus Bravo
+Alvarez), de (Karl Eichwalder), nl (Jan Nieuwenhuizen), pl (Daniel
+Koc), tr (Fatih Demir)
+
+@item Now supports the @kbd{Super} modifier
+
+@item Fixed bug of sometimes ignoring pending X events
+
+@item Fixed bug of calling focus change hooks too many times (only when
+our view of the focused window has actually changed)
+
+@item Avoid problems when windows set weird size hints structures
+
+@item Raise windows @emph{after} possibly moving them to a different
+layer, when they have been mapped
+
+@item When the @code{cycle-windows} sequence is terminated by an
+unknown event, re-handle that event after exiting (so that e.g.
+@kbd{M-TAB} can be followed by another @kbd{M-} qualified event without
+releasing Meta)
+
+@end itemize
+
+
+@heading 0.27.2
+
+@itemize @bullet
+
+@item Translation updates: da (Kenneth Christiansen), de (Karl
+Eichwalder), es (Iñaki García Etxebarria), ja (SATO Satoru)
+
+@item Attempt to destructure the language code when parsing GNOME
+desktop items (e.g. if @samp{LANG=de_DE} look for both @samp{de_DE} and
+@samp{de} translations)
+
+@item New focus handler events @code{enter-root} and @code{leave-root}
+
+@item Removed @code{raise-groups-on-focus} option, it caused unstable
+window flickering in certain cases
+
+@item Fixed bug When transferring focus after a window is unmapped
+(inverted choice of when to look under pointer, and when to look in
+focus history)
+
+@end itemize
+
+
+@heading 0.27
+
+@itemize @bullet
+
+@item Changed the name from @samp{sawmill} to @samp{sawfish}; all
+user-visible binaries have been renamed appropriately, the old programs
+will still work for now@dots{}
+
+@item Added support for accelerators in menu definitions (this requires
+a new rep-gtk package) (Richard Kilgore). Added accelerators to many of
+the standard menu items
+
+@item Added some (untested) support for Xinerama: @code{current-head},
+@code{current-head-dimensions}, @code{current-head-offset}. Some
+placement modes should handle multiple heads sensibly, as should window
+maximization and edge snapping.
+
+@item Added icons for GNOME control center applets (all icons by
+Tigert, except for the saw-blade logo by Glyph Lefkowitz)
+
+@item New functions @code{map-window-properties} (me),
+@code{window-icon-image} (Bruce Miller)
+
+@item Changed behaviour of @code{raise-group} and @code{lower-group} to
+preserve the stacking of the group, then change the selected window.
+Added new command @code{raise-lower-group}
+
+@item New option @code{raise-groups-on-focus}
+
+@item Updated translations: de (Hubert Nachbaur), es (Iñaki García
+Etxebarria), gl (Jesus Bravo Alvarez), ko
+(Man-Yong Lee), tr (Fatih Demir)
+
+@item Try to handle errors more gracefully when creating window frames
+
+@item Better handling of errors in the control center applet
+
+@item Fixed the @code{below-client} frame-part attribute
+
+@item Fixed the disappearing items in the match-windows dialog
+
+@item Fixed the non-beautified entries in the keymaps dialog
+
+@item Fixed interactive placement mode (Timo Korvola)
+
+@item Invoke audio playing program asynchronously, may avoid deadlocks
+
+@item Fixed @code{workspace-menu} to add the focus-marking asterisk
+(John N S Gill)
+
+@item Fixed menu-obscuring bug after auto-raising windows
+
+@item Ensure that @code{WM_STATE} property is set each time a window is
+mapped, not just the first time
+
+@item Fixed bug when discarding grab in click-to-focus mode, even
+though successive events may be in the window's keymap
+
+@item Only focus windows when they're mapped when they're visible
+
+@item Fixed click-to-focus problems when unmapping transient windows
+
+@end itemize
+
+
+@heading 0.26
+
+@itemize @bullet
+
+@item Added plugin @code{selection}, adds functions
+@code{x-selection-active-p} and @code{x-get-selection} for retrieving X
+selections (Mark Probst)
+
+@item New functions @code{prompt-for-window},
+@code{prompt-for-workspace} and @code{select-workspace-interactively}
+(Dave Pearson)
+
+@item @code{window-anim} module enabling asynchronous animations after
+window events. Currently only two animation styles @code{wireframe} and
+@code{solid}, and they only animate window iconification
+
+@item @code{audio-events} module; maps window manager events to audio
+samples (played using esd by default, but can be configured to use any
+program)
+
+@item When running programs in terminals from the GNOME apps menu, use
+the value of @code{xterm-program} to decide which terminal program to
+use (James Antill)
+
+@item Translation updates: gl (Jesus Bravo Alvarez), pl (Daniel Koc)
+
+@item New command @code{toggle-window-iconified} (Jens-Ulrik Petersen)
+
+@item New option @code{raise-windows-when-unshaded}
+
+@item Customization options for tooltip colors (Erik Assum)
+
+@item Removed default binding to @kbd{A-x}
+
+@item Added support for librep-with-module-system (cvs version)
+
+@item Note that @samp{ko} and @samp{zh} languages need FontSets
+
+@item When sticking a window not on the current viewport, move it to
+the current viewport (Merlin)
+
+@item Fixed bug (?) of placing over avoided windows in @code{random}
+mode; also increased @code{sp-avoided-windows-weight} by an order of
+magnitude (Dan Winship)
+
+@item Fixed bug of maximizing a window changing its viewport
+
+@item Fixed window cycling losing grab if originally focused window is
+unmapped
+
+@item Fixed @code{get-cursor} to use the correct background color when
+creating cursors from vectors (Alexander Barinov)
+
+@item Fixed @code{get-font} to set `descent' property correctly
+
+@item Changed double-buffering semantics in @code{x} plugin, also only
+support this if configure finds the correct header files
+
+@item Fixed @code{synthesize-event} to generate correct relative
+pointer positions
+
+@item Don't focus on non-visible windows (crashes GNOME control center)
+
+@item Fixed bug of using @file{cp} to install GNOME desktop files
+
+@end itemize
+
+
+@heading 0.25.2
+
+@itemize @bullet
+
+@item If no user customization file when saving options, inherit from
+the custom-defaults file
+
+@item Rewrote window stacking (fixes bugs, more efficient)
+
+@item Added @code{input-focus} to theme-callable functions
+
+@item When focused window is unmapped, don't try to focus non-visible
+windows
+
+@item Fixed @code{display-window} when it's applied to iconified
+windows
+
+@item New variables @code{fonts-are-fontsets} and
+@code{fontset-languages-re} to work around broken X servers
+
+@item Update edges for snapping to when dragging windows across
+workspaces or viewports
+
+@item When passing keymaps to customization system, filter out, then
+later restore, bindings that aren't symbols
+
+@item Most commands to move/copy windows between workspaces can now be
+told whether to select the destination workspace or not
+
+@item In GNOME hints, never place windows on workspaces that don't
+exist (from the pager's POV). (Rob Hodges)
+
+@item Fixed @code{ws-move-window} to not remove the window if source
+and dest are the same (Rob Hodges)
+
+@item Fixed @code{sp-prune-points} function (Dan Winship)
+
+@item Fixed @code{move-viewport-to-window} to only flip viewports if
+window isn't already on the current viewport (Merlin)
+
+@item Try to detect and handle system clock being rewound
+
+@item Optional second arg to @code{x-raise-window}; added symmetrical
+function @code{x-lower-window}
+
+@item Fixed unix-domain server code assuming atomic writes to sockets
+
+@item Added double buffering support to @code{x} module
+
+@item Fixed grabs during multi-key sequences; also, print the current
+prefix keys if idle during a multi-key sequence
+
+@end itemize
+
+
+@heading 0.25.1
+
+@itemize @bullet
+
+@item Only force windows onto the visible screen if they didn't
+explicitly set their position
+
+@item Redefine @code{/} in themes to be the @code{quotient} function
+(integer division), which is what they expect. The @code{divide}
+function can be used for real division
+@end itemize
+
+
+@heading 0.25
+
+@itemize @bullet
+
+@item New plugin @code{x}, a basic Xlib binding for creating and
+drawing in windows (Merlin, me)
+
+@item Added a method of reading textual input from the user from
+completion. Provision for completing functions, variables, commands,
+files, directories, etc@dots{}. Also supports reading passwords. (Topi
+Paavola, me)
+
+@item Re-enabled the following interactive codes: @samp{a} (function),
+@samp{C} (command), @samp{D} (directory), @samp{f} (existing file),
+@samp{F} (file), @samp{k} (event), @samp{n} (number), @samp{N} (prefix
+or number), @samp{s} (string), @samp{S} (symbol), @samp{v} (variable)
+
+@item Support prefix keys in bindings (binding an event to a keymap, or
+the name of a keymap, marks that event as a prefix key for the
+associated keymap)
+
+@item New command @code{call-command-with-output-to-screen}, prompts
+for and invokes a command, then displays any output it emitted (bound
+to @kbd{A-x} in default keymaps)
+
+@item New variable @code{multi-click-delay}, maximum time in
+milliseconds between button presses to count as @kbd{click2} or
+@kbd{click3} events (Martin Blais)
+
+@item New option @code{edge-flip-only-when-moving} (Yaron M. Minsky)
+
+@item New window cycling commands @code{cycle-prefix},
+@code{cycle-class} (Kai Großjohann); can now be bound to events with
+more than one modifier (Timo Korvola)
+
+@item New command @code{uniquify-window-name}; new property
+@code{unique-name}. Forces the window to have a unique name
+
+@item New commands @code{size-window-add-column},
+@code{size-window-subtract-column}, @code{size-window-add-row},
+@code{size-window-subtract-row}
+
+@item Window edge snapping now has three variants: @code{magnetism}
+(the old method), @code{attraction} and @code{resistance}. (Merlin, me)
+
+@item New commands @code{grow-window-@{left,right,up,down@}} and
+@code{pack-window-@{left,right,up,down@}} (Kai Großjohann)
+
+@item Support the @code{WM_COLORMAP_WINDOWS} protocol
+
+@item New functions @code{synthesize-event}, @code{font-ascent},
+@code{font-descent}, @code{call-with-keyboard-grabbed}
+
+@item New functions @code{define-placement-mode} and
+@code{define-focus-mode}---make defining these things easier. Focus
+modes are now settable for each window individually
+
+@item Made the tree-organised customization groups work better with the
+GNOME control center. Add the sawmill capplet desktop entries to the
+GNOME programs menu (under Settings). Also, beautify the names
+displayed in the bindings widget
+
+@item When applicable, load the GNOME applications menu when the wm is
+first idle, reduces the latency of displaying the first root menu
+
+@item Translation updates: de (Hubert Nachbaur), es (Iñaki García
+Etxebarria), ja (Sato Satoru), sv (Andreas Persenius)
+
+@item Fix bug of not noticing when the keyboard / pointer / modifier
+mappings change
+
+@item Fixed @code{current-event-string} function
+
+@item Better method of reconfiguring frames when they're resized (helps
+opaque resizing)
+
+@item Added some kludges to try and break the intermittent lockups some
+people have seen
+
+@item Made the auto-gravity option work a lot better (John N S Gill,
+me)
+
+@item Fixed bug where unmapped windows were being included in the
+snapping calculation
+
+@item Fixed bug when uniconifying windows and merging workspaces
+
+@item Fixed bug of warp-cursor-to-window trying to put the pointer
+outside the screen boundaries (Merlin)
+
+@item Fixed bug of losing keyboard grab when originally focused window
+is deleted during @code{x-cycle} command
+
+@item Fixed bug of trying to focus unviewable parent windows when
+focused window is unmapped
+
+@end itemize
+
+
+@heading 0.24
+
+@itemize @bullet
+
+@item Configure requests events are now passed to the hook
+@code{configure-request-hook}. The new configure handler respects
+window gravity when resizing
+
+@item New option @code{configure-auto-gravity}. When enabled the window
+gravity is implied by the position of the center of the window. (e.g.
+try placing the GNOME control center in the bottom right corner of the
+screen, then click on an item that causes it to resize)
+
+@item Worked around the numerous reports of non-existent font errors
+that using @code{XCreateFontSet} causes---fall back to
+@code{XLoadQueryFont} if possible
+
+@item There's now a library @file{custom-defaults} giving default
+customization options (only if the user has no
+@file{~/.sawmill/custom})
+
+Also, remove the need to call @code{custom-add-required} in
+@file{.sawmillrc}, it's always done now
+
+@item New window properties @code{focus-when-mapped}, and
+@code{gravity} (overrides the hinted gravity value)
+
+@item New placement modes @code{under-pointer} and
+@code{centered-on-parent}
+
+@item New option @code{resize-edge-mode}, replaces
+@code{resize-by-frame-class} and @code{resize-add-edges}>. Also allows
+twm-style resizing (Mark Probst, me)
+
+@item Optionally display command documentation in tooltips; tooltips
+are now aligned into columns (if you use a monospaced font for them)
+
+@item Variables @code{default-cursor},
+@code{synthetic-configure-mutex}, @code{frame-draw-mutex},
+@code{frame-state-mutex} are now functions
+
+@item New functions @code{x-keysym-name}, @code{x-lookup-keysym},
+@code{decode-event}, @code{encode-event}.
+
+@item New option @code{move-resize-inhibit-configure}
+
+@item Translation updates: es (Iñaki García Etxebarria), fr (Christian
+Gillot), gl (Jesus Bravo Alvarez), nl (Han-Wen Nienhuys), pt_PT (Rui
+Silva), sv (Andreas Persenius)
+
+@item Fixed single-quoting in client readline (Matt Krai), copied
+bouncing parentheses hack
+
+@item Removed @code{fp->win == 0} assertion, it should be harmless and
+was triggering for some people
+
+@item Fixed bug of sending configure notify events to too many windows
+
+@item Fixed off-by-one error in @code{ws-insert-workspace} (Kirk
+Saranathan)
+
+@item Fixed maximization in single directions to work additively
+
+@item Fixed bug of leaving tooltips displayed after the associated
+window has been deleted
+
+@item Fixed bug of not removing @samp{-clientId} option from restart
+parameters
+
+@item Fixed bug of not translating customize group names
+
+@end itemize
+
+
+@heading 0.23
+
+@itemize @bullet
+
+@item Customization groups are now organized as a tree structure, with
+groups able to contain subgroups
+
+@item Define the list of features that will be presented to the user in
+@file{sawmill-defaults.jl}, by calling @code{custom-add-required}. If
+you have a @file{.sawmillrc} you'll need to do this manually
+
+@item New function @code{move-resize-window-to} doing a combined
+move/resize. New variable @code{synthetic-configure-mutex}, when set
+holds off sending synthetic @code{ConfigureNotify} events to windows
+until it's unset (this is held while interactively moving or resizing
+windows)
+
+@item New hook @code{after-add-window-hook}. Called with a single
+parameter, the window that's has just been adopted
+
+@item New functions @code{x-kill-client}, @code{delete-window-safely}.
+@code{send-client-message} now groks long integers (i.e. cons cells) in
+32-bit data (Timo Korvola)
+
+@item @code{window-put}, @code{window-get}, @code{image-put},
+@code{image-get}, @code{font-put}, @code{font-get}: use @code{equal} to
+compare keys, not @code{eq}
+
+@item New module @code{error-handler}, implements a simple alternative
+error handler (and allows the much-maligned beep to be turned off),
+requires rep 0.11+
+
+@item Allow the pointer-warp position to be defined relative to the
+window (Kai Großjohann)
+
+@item New module @code{shade-hover}, unshades windows while the pointer
+is over them
+
+@item Don't automatically warp to the new workspace when opening
+windows on a different workspace
+
+@item Include iconified sticky windows in the @code{window-menu},
+shorten sticky entries as usual (James Antill)
+
+@item Support the @samp{TryExec} field in GNOME desktop files (Ian)
+
+@item New commands: @code{raise-or-pass-through-click},
+@code{raise-and-pass-through-click-if-focused}
+
+@item New module @code{move-cursor}, various commands for moving the
+mouse pointer; these commands are bound to the cursor keys when moving
+or resizing windows
+
+@item Translation updates: es (Iñaki García Etxebarria), fr (Fabien
+Ninoles), gl (Jesus Bravo Alvarez), ja (Satoru Sato), nl (Jan
+Nieuwenhuizen), tr (Fâtih Demir)
+
+@item Fix bug of leaving window-name unset when @code{WM_NAME} is a
+null text property
+
+@item Don't fail catastrophically if unable to open the default font
+
+@item Fixed method of truncating maximized window dimensions
+
+@item Fixed the match-window @code{skip-winlist} and
+@code{skip-tasklist} properties I'd stupidly broken
+
+@item Fixed bug of trying to edge-flip sticky windows
+
+@item Fixed the @code{move-workspace-forwards} and
+@code{move-workspace-backwards} commands
+
+@item Fixed @code{uniconify-to-current-viewport} option
+
+@item Fixed infinite-loop bug in @code{delete-empty-workspaces} command
+
+@item Avoid generating empty sub-menus when reading GNOME menu tree
+
+@end itemize
+
+
+@heading 0.22
+
+@itemize @bullet
+
+@item Window frame parts are now first-class lisp data objects,
+allowing a higher level of control by themes
+
+New or updated functions to access frame parts directly:
+
+@noindent @code{frame-part-get}, @code{frame-part-put},
+@code{frame-part-window}, @code{frame-part-x-window},
+@code{frame-part-position}, @code{frame-part-dimensions},
+@code{frame-part-state}, @code{map-frame-parts},
+@code{refresh-frame-part}, @code{rebuild-frame-part}
+
+Other new functions: @code{refresh-window}
+
+@item Updated @code{sawmill-themer} to emit code to tell the window
+manager that the theme is editable. The wm adds an @samp{Edit Theme...}
+option to the Customize menu when appropriate
+
+@item The @code{call-after-property-changed} function can now be given
+a list of properties to monitor (James Antill)
+
+@item New function @code{call-after-state-changed}, monitors a list of
+window states (i.e. things like iconified, shaded, @dots{}) and calls a
+function when any of them change. The @code{window-state-change-hook}
+now has a second argument (apart from the window), the list of symbolic
+states that changed (James Antill)
+
+@item Add support for @code{skip-winlist} and @code{skip-tasklist} to
+the window matcher when GNOME support is enabled (Ben Liblit)
+
+@item Integrated patch supporting multi-byte languages from the Kondara
+MNU/Linux distribution (forwarded by Yukihiro Nakai)
+
+@item Translation updates: de (Christoph Rauch), es (Iñaki García
+Etxebarria), gl (Jesus Bravo Alvarez), ja (Satoru Sato), tr (Fâtih
+Demir)
+
+@item Use a combo box in the configurator to display the list of
+themes (it gets given scroll bars when too big for the screen)
+
+@item Changed timestamp handling---attempt to detect and discard
+timestamps that arrive out of order
+
+@item Added option controlling title justification to @code{mono} theme
+
+@item Filter @key{Scroll_Lock} modifiers as well as the other lock
+modifiers (Matt Krai)
+
+@item Fixed @code{display-message} function update background color,
+and gracefully handle invalid color specifiers (Matt Krai)
+
+@item Reverted to grabbing events on the client window, not the frame,
+avoids some awkward-to-fix-correctly problems
+
+@item Load i18n support @emph{before} other libraries; ensures that
+some static strings get translated
+
+@item Fixed annoying flicker when cycling to an iconified window
+
+@end itemize
+
+
+@heading 0.21.1
+
+@itemize @bullet
+
+@item Fixed problem causing spurious double-click events to be reported
+in click-to-focus mode
+
+@item Fixed problem with binding @kbd{-Off} events in the
+@code{window-keymap}. (Matt Krai)
+
+@item Don't try to grab non-existent keys (which actually grabs the
+entire keyboard)
+
+@item Fixed some problems with reading unusually formatted GNOME menu
+entries
+
+@end itemize
+
+
+@heading 0.21
+
+@itemize @bullet
+
+@item Frame pattern definitions (foreground, background, font) may now
+take alists as well as the old single object, or list of four objects.
+Possible states are @code{inactive}, @code{focused},
+@code{highlighted}, @code{clicked}, @code{inactive-highlighted},
+@code{inactive-clicked}. (Last two are new)
+
+@item New program @code{sawmill-themer}. A GUI for creating simple
+themes (those without any parts defined by functions)
+
+@item New module @code{gnome-int}, loaded by @code{sawmill-defaults} if
+GNOME is around, sets up some GNOME'ish things
+
+@item New command @code{toggle-single-window-mode}
+
+@item Translation updates/additions: de (Christoph Rauch), es (Iñaki
+García Etxebarria), nl (Han-Wen Nienhuys)
+
+@item Optional removal of tooltips after time period (Morgan Schweers)
+
+@item @kbd{Any-RET} completes interactive move or resize
+
+@item Work around Imlib's annoying image caching, @code{make-image} now
+@emph{always} returns a new image
+
+@item Fixed gc bug when building window frames
+
+@item Fixed X property handling on Alpha's (George Lebl)
+
+@item Make @code{call-command} accept closures
+
+@item Make @code{(cursor . nil)} work correctly in frame definitions
+
+@item Grab on frame window, not client window (ICCCM compliant)
+
+@item Fixed the ``uniconify to current workspace'' option
+
+@item Added window-maximization predicates to the gaol
+
+@end itemize
+
+
+@heading 0.20
+
+@itemize @bullet
+
+@item Rewrote workspace handling---windows can now appear on multiple
+workspaces, with each instance having different properties (position,
+size, whatever@dots{})
+
+Create new window instances by using the @code{copy-to-next-workspace},
+@code{copy-to-previous-workspace}, and @code{copy-to-workspace:@var{n}}
+commands. Merge instances by moving them to the same workspace, or
+using the @code{delete-window-instance} command
+
+@item Added linear-viewport commands---indexing two-dimensional virtual
+workspace areas by one-dimensional values (adapted from code by Eric
+Kidd)
+
+@item Rewrote tooltips; especially how they're removed (also, don't
+show null keymaps)
+
+@item Added new match-window property @code{ungrouped}. Means to put
+the window in a group on its own
+
+@item Translation additions/updates: da (Wandy Christiansen), en_GB
+(me), es (Iñaki García Etxebarria), fr (Christian Gillot), gl (Jesus
+Bravo Alvarez)
+
+@item Fixed bug of not refocusing unshaded windows
+
+@item Fixed bug of not notifying windows of their actual position after
+placing them
+
+@item Fixed bug when grabbing Hyper-modified buttons
+
+@item Fixed the focus-flickering when moving windows opaquely
+
+@item Fixed the @code{commandp} function when applied to autoload stubs
+
+@item Fixed typo in @code{gnome-logout} command (Jens Finke)
+
+@item Fixed @code{raise-window-and-pass-through-click} command to pass
+@key{click2}, etc, events through to frame parts
+
+@item Fixed infinite-regress bug when reading GNOME menu entries
+(@samp{Type=directory}, but actually a file)
+
+@item Fixed bug when showing window-move position with snapped movement
+(adapted from merlin@@merlin.org)
+
+@item Fixed bug when matching null text properties
+
+@end itemize
+
+
+@heading 0.19
+
+@itemize @bullet
+
+@item Added tooltips for window frames (disabled by default)
+
+@item Added @samp{Grab@dots{}} button to match-windows dialogue, grabs
+the value of an X property from a window
+
+@item Support for creating cursors from bitmaps, and for changing the
+colors of cursors
+
+@item Internationalized all strings in the configurator
+
+@item New functions: @code{frame-part-get}, @code{server-grabbed-p},
+@code{forget-button-press}, @code{resize-window-with-hints},
+@code{window-in-workspace-p}, @code{windows-share-workspace-p}
+
+@item New window properties: @code{never-focus}, @code{raise-on-focus}
+
+@item New pseudo-property (for window matching): @code{size}, in terms
+of the window's size hints
+
+@item Message catalogue additions/updates: Galician (Jesus Bravo
+Alvarez); Danish (Birger Langkjer)
+
+@item Don't ignore initial state property of windows
+
+@item Option to control height of drawn bevels (Chris Hanson)
+
+@item More logical method of drawing diagonal gradients (Chris Hanson)
+
+@item Fixed typo when looking for i18n theme README files (Jesus Bravo
+Alvarez)
+
+@item Fixed @code{popup-apps-menu} command (Gérard Milmeister)
+
+@item Fixed @code{define-frame-class} when creating keymaps
+
+@item Fixed conversion of old-style @code{(set @dots{})} custom types
+
+@item Fixed @code{raise-window-and-pass-through-click} command to
+pass-through subsequent clicks
+
+@item Fixed problems when grabbing/ungrabbing customized keymaps
+
+@item Fixed screen corruption when doing wireframe moving and
+@code{move-resize-raise-window} is set
+
+@item Hacked around window-order problem when sticky windows exist
+
+@end itemize
+
+
+@heading 0.18
+
+@itemize @bullet
+
+@item General subsystem for matching windows to properties as they're
+created. Allows matching on one or more of the window's X properties
+(e.g. name, class, etc@dots{}), and then setting any number of window
+manager properties as a result. See the @samp{Matched Windows}
+customize group
+
+@item Removed all @code{auto-@var{foo}-alist} and
+@code{@var{bar}-windows-re} variables, they're obsoleted by the general
+match-windows mechanism
+
+@item Respect window's size hints when maximizing (both to see if the
+window is maximizable, and to truncate the maximized dimensions to an
+integral number of rows and columns)
+
+@item Show actual colors in the configurator, not just their names
+
+@item Added a new directory to the theme search path:
+@file{@var{prefix}/share/sawmill/themes}. Use this for system-wide
+themes (don't use the version specific directory)
+
+@item Included a new theme @code{mono}
+
+@item Deprecated the @code{show-message} function, replaced by
+@code{display-message} with a better calling interface; also displays
+multi-line strings
+
+@item Deprecated the menu ``expand variables when first in list''
+behaviour. Instead expand variables when the list is dotted to them, as
+is done for functions
+
+@item Support the @code{Hyper} modifier, prefix is @kbd{H-}
+
+@item In the configurator, look for i18n'd theme README files (Yukihiro
+Nakai)
+
+@item Added option to disable the ability to grab a second edge while
+resizing (@code{resize-add-edges})
+
+@item Included Danish message catalogue (Kenneth Christiansen)
+
+@item Renamed @code{fixed-position} property as @code{sticky-viewport},
+and @code{focus-proxy-click} as @code{focus-click-through}
+
+@item When evaluating mouse events, look in the window that the pointer
+was in when the button was pressed, not where the pointer currently is
+
+@item Fixed bug where focus gets totally lost after closing a Motif
+application that has grabbed the keyboard
+
+@item Fixed (again) the problems when handling remapped windows; also
+should be more ICCCM-compliant
+
+@item Fixed typos in one-dimensional maximisation (Gérard Milmeister)
+
+@item Fixed the logic deciding when it's necessary to switch workspaces
+after merging an empty one
+
+@item Fixed interactive placement showing the window when edge-flipping
+(but it still doesn't work properly, rubber band traces are left)
+
+@item Removed flicker when focusing already-focused windows
+
+@end itemize
+
+
+@heading 0.17
+
+@itemize @bullet
+
+@item First version to use lexically scoped librep. This enables themes
+to run in a ``safe'' environment, but all existing themes will need to
+be ported; other language changes include the use of a single symbol
+namespace, and scheme-like function call semantics
+
+@item Support for internationalization of messages and run-time
+documentation; an en_GB catalogue is the only translation currently, so
+please send me .po files for your native languages!
+
+New option @samp{--disable-nls} to disable i18n
+
+@item New functions @code{call-after-property-changed} and
+@code{gtkrc-call-after-changed} to allow themes to receive these events
+(hooks are now off-limits to themes)
+
+@item New command @code{raise-window-and-pass-through-click}; bind it
+to a mouse button in the @code{window-keymap} to get the ``raise window
+on click'' behaviour that seems popular
+
+@item New commands to move windows incrementally:
+@code{slide-window-@var{x}} and @code{slide-group-@var{x}} for @var{x}
+one of: @code{left}, @code{right}, @code{up}, @code{down}
+
+@item New commands to control @code{ignored} property of windows
+(Julian Missig)
+
+@item New commands to toggle GNOME skip-winlist and skip-tasklist
+properties of windows
+
+@item Respect window gravity with program-specified window placement
+(@email{merlin@@merlin.org})
+
+@item Fixed a memory leak in the @code{stacking-order} function
+
+@item Fixed the @code{bevel-image} function (Scott Sams)
+
+@item Never look in the focused window's keymap by default with mouse
+events
+
+@item Hacked around the ``need an X11 connection to compile'' misfeature
+
+@item Fixed bug in @code{gnome-menu} code when GNOME binaries aren't in
+the first $PATH item; also accept non-alphanumeric language codes
+
+@item Fixed interactive window placement (again)
+
+@item Rewrote obscure documentation for some custom options
+
+@item Fixed bug when grabbing events with @code{AnyModifier} and a
+specific button
+
+@end itemize
+
+
+@heading 0.16
+
+@itemize @bullet
+
+@item Support window groups, both as defined by applications, and
+defined by the user (either interactively through the window's menu, or
+via the @code{auto-group-alist} and @code{persistent-group-ids}
+variables).
+
+For most commands working on single windows, there's also one operating
+on the group that the current window is a member of. (With the notable
+exception currently of moving windows.) There's also options
+controlling whether (de)iconification operates on windows or groups
+
+@item Improved GNOME menu support---merge duplicate sub-menus, scan
+PATH for @code{gnome-share-directory}, also look in
+@file{/etc/X11/applnk} for menu entries
+
+@item Option to control whether edge-flipping flips viewports or
+workspaces (@code{edge-flip-type})
+
+@item New hook @code{after-framing-hook}: called whenever a window's
+frame is changed or recalibrated
+
+@item New window placement mode: @code{first-fit-or-interactive}
+
+@item Variables specifying common cursor shapes:
+(@code{move-cursor-shape}, @code{resize-cursor-shape},
+@code{select-window-cursor-shape})
+
+@item Fix interactive placement
+
+@item Fix problem of window losing focus when @code{cycle-windows} only
+finds a single window; also, abort immediately if there's no windows to
+cycle through at all
+
+@item Fix how the @code{WM_NORMAL_HINTS} property is read after it's
+been updated
+
+@item Fix @code{maximize-fill} functions to respect the
+@code{maximize-ignore-when-filling} option
+
+@item Fix interactive move/resize aborting if keyboard is already
+grabbed
+
+@item Ungrab the keyboard as well as the pointer before popping menus
+
+@end itemize
+
+
+@heading 0.15
+
+@itemize @bullet
+
+@item Changed how themes are loaded from tar files---the tar file must
+now contain a directory with the same name as the theme; it's this
+directory that stores the data files
+
+@item Allow viewport edge-flipping to be enabled by the customization
+system, also enable flipping while moving windows
+
+@item Unified the method of marking which windows should be avoided
+when maximizing, and which windows should be avoided when using the
+fitted placement methods. Set the @code{avoid} property instead of the
+@code{maximize-avoid} property; new functions @code{window-avoided-p}
+and @code{avoided-windows}; new regexp @code{avoided-windows-re}
+
+@item New command @code{delete-empty-workspaces}
+
+@item Default theme is now @code{microGUI}
+
+@item When resizing only one edge of a window, moving the pointer past
+one of the perpendicular edges grabs that edge also
+
+@item Only the first three buttons focus a window in click-to-focus
+mode
+
+@item Changed behaviour of @code{window-id} and
+@code{window-frame-dimensions} functions. Replaced
+@code{query-last-pointer} function by @code{query-button-press-pointer}
+
+@item New hooks: @code{while-moving-hook}, @code{while-resizing-hook}
+
+@item Notice when @code{WM_TRANSIENT_FOR} property changes
+
+@item More bug fixes to the maximization code, mainly for efficiency;
+also make first-fit placement work from top-left again
+
+@item Fix bug when matching events with @kbd{Any} modifier as well as
+other modifiers
+
+@item Fix bug in @code{window-outside-viewport-p} (Andreas Degert)
+
+@item Fix bug in @samp{sawmill-client --} with long inputs
+
+@item Fix bug when matching windows with session
+data---@code{SM_CLIENT_ID} or @code{WM_COMMAND} @emph{has} to match
+
+@item Fix bugs when passive grabbing non-button-press pointer events
+
+@end itemize
+
+
+@heading 0.14
+
+@itemize @bullet
+
+@item Rewrote window-maximization, many new options
+
+@item New option @code{resize-by-frame-class}, when enabled (the
+default), the resized window edges are chosen to match the class of the
+clicked frame part (i.e. matching the cursor shape)
+
+@item Load GNOME support code automatically if it looks like GNOME is
+being used
+
+@item Create unix-domain sockets in @file{/tmp}
+
+@item New hooks: @code{window-moved-hook}, @code{window-resized-hook},
+@code{after-initialization-hook}, @code{shape-notify-hook}.
+
+@item Improved how menus are displayed; the window-ops menu is shown by
+ButtonPress not ButtonRelease events
+
+@item Refocus most-recently-focused window when switching viewport
+
+@item Added @code{centered} placement style
+
+@item Added symbol-completion to readline-based client
+
+@item Fix bug of not noticing WM_NORMAL_HINTS property changes; follow
+the window's maximum size hints
+
+@item Fix bug of not reframing windows when they change from unshaped
+to shaped, or vice versa
+
+@end itemize
+
+
+@heading 0.13
+
+@itemize @bullet
+
+@item New option to only highlight frame parts when their window is
+focused (@code{highlight-when-unfocused})
+
+@item Typing @kbd{ESC} while moving/resizing a window cancels the
+operation, restoring the original geometry
+
+@item New session management hook @code{sm-after-restore-hook}
+
+@item New function @code{set-frame-part-value}---makes customizing the
+@code{frame-part-classes} variables easier
+
+@item Support for loading themes from tar files; needs librep 0.7
+
+@item Fix bug when allocating colors (choosing an incorrect cached
+color)
+
+@item Fix image tiling in frame part backgrounds
+
+@item Handle shifted keysyms when passive grabbing
+
+@item Fix another race condition when active grabbing
+
+@item Fix @code{_WIN_CLIENT_LIST} property not being set properly (both
+missing windows immediately after they're adopted, and of intentionally
+skipping ignored windows)
+
+@item Fix some problems with viewports when exiting/restarting
+
+@item Fix broken stacking of windows after they're mapped
+
+@item Prevent smart window placement blowing up when large numbers of
+windows are open/opened (throttle back to random placement when the
+event queue is too large, as well as trying to prune the search space)
+
+@end itemize
+
+
+@heading 0.12
+
+@itemize @bullet
+
+@item Remember most recently focused windows on each workspace,
+activate that window after changing workspaces; also, try to preserve
+focus when moving windows between workspaces
+
+@item Option to disable auto-raise while cycling through windows
+(@code{cycle-disable-auto-raise}); option to restrict cycling to the
+current viewport (@code{cycle-all-viewports})
+
+@item Option @code{lock-first-workspace} is now enabled by default, and
+prevents both the first and last interesting workspaces being moved
+inwards
+
+@item Added readline support to the client program, pass
+@samp{--with-readline} option to configure (from Christopher P Goller
+@email{goller@@eng.utah.edu})
+
+@item Added shaped-transient frame to microGUI theme
+
+@item New frame part attribute @code{below-client}
+
+@item Release passive grabs when unadopting windows
+
+@item When no window has the focus, the @code{root-window-keymap} is
+searched for key-press events
+
+@item Fix bug when binding to the unix-domain socket
+
+@item Fix focus sometimes being lost when the focused window is
+destroyed
+
+@item Fix bug when reading GNOME menu entries without @samp{Type}
+fields
+
+@item Fix bug when removing title or border of @code{shaped-transient}
+window types (make the window completely unframed)
+
+@item Fix bug when shading a transient window with
+@code{decorate-transients} enabled
+
+@item Fix some bugs when placing windows that are almost as big or
+bigger than the screen
+
+@item Fix some race-conditions between wm-generated and
+client-generated map/unmap/reparent events
+
+@item Fix infamous ``jerky pointer'' bug, this will also make
+overlapping shaped frame-parts display correctly
+
+@item Fix bug where @code{cycle-windows} could leave a window
+originally under the pointer that's unfocused, drawn as though it is
+focused
+
+@end itemize
+
+
+@heading 0.11
+
+@itemize @bullet
+
+@item New option @code{lock-first-workspace}, prevent the first
+workspace from being deleted when it's empty
+
+@item New option @code{ignore-window-input-hint}, to always give
+windows the focus, whether they say they will accept it or not
+
+@item New options when cycling windows: @code{cycle-warp-pointer} and
+@code{cycle-focus-windows}
+
+@item Restore the old method of setting the focus, should fix bug of
+losing focus totally when switching to a new workspace
+
+@end itemize
+
+
+@heading 0.10
+
+@itemize @bullet
+
+@item Implemented virtual workspaces, bind to the
+@code{move-viewport-@var{x}} and @code{move-window-@var{x}} commands
+(for @var{x} being @code{left}, @code{right}, @code{up}, or
+@code{down})
+
+@item Added a new theme: @code{microGUI} by Ryan Lovett
+@email{ryan@@ocf.berkeley.edu}, based on the QNX Photon screenshots
+
+@item Added a @samp{Grab key} button in the bindings widget, replaces
+the current binding with the next pressed key
+
+@item Lisp module to load the GNOME menus and use them to replace the
+applications menu. Add @code{(require 'gnome-menu)} to your
+@file{~/.sawmillrc} file to load it
+
+@item Network server is disabled by default (since it can provide a
+security hole if X access control is disabled); re-enabled the old unix
+domain socket code (see the FAQ for more details)
+
+@item Only give the input focus to windows that actually want it
+
+@item New option to keep transient windows above their parents
+(@code{transients-above-parents})
+
+@item New option to control how the workspace boundary is handled when
+moving windows between workspaces (@code{workspace-send-boundary-mode})
+
+@item New commands @code{send-to-workspace:@var{x}} for @var{x} from 1
+to 9
+
+@item While windows are hidden or shaded, unmap the client (for ICCCM
+compliance)
+
+@item Slightly different method of handling destroyed clients,
+hopefully results in fewer annoying error messages
+
+@item Support X installations without X11R6 session management (by not
+doing any session management)
+
+@item Don't ask the session manager to save our environment
+
+@item Fix bug where a window is destroyed/unmapped while it's being
+resized or moved
+
+@item Fix bug where window can still be auto-raised even if it's been
+defocused
+
+@item Fix problems when @samp{--prefix} option has a trailing slash
+
+@item Now handles client windows being reparented by a third party
+(i.e. swallowing apps)
+
+@end itemize
+
+
+@heading 0.9
+
+@itemize @bullet
+
+@item The first-fit and best-fit algorithms are now much more
+intelligent, e.g. instead of falling back to random placement when a
+window can't be placed without overlapping an existing window, they
+will attempt to minimize this degree of overlapping
+
+@item The @code{foreground} property of each frame part may now be an
+image instead of a piece of text
+
+@item New theme @code{smaker}, uses the foreground images capability to
+do a somewhat WindowMaker-like theme (with the absolute-e images). This
+theme is extensively customizable---all images, colors, dimensions,
+etc@dots{}
+
+@item Use Imlib's fuzzy color matching for all color allocation; this
+should help on @code{PseudoColor} visuals
+
+@item Added an @code{xterm} command to launch an xterm
+
+@item Improved the bindings customization widget layout; added a
+@samp{Copy} button to insert a copy of the current binding
+
+@item Added @code{next-workspace-row} and @code{previous-workspace-row}
+commands. Together with the @code{workspace-columns} variable these
+mimic a 2d desktop
+
+@item Removed the @code{cycle-through-workspaces} option, there's now
+@code{workspace-boundary-mode}---one of @code{stop}, @code{wrap-around}
+or @code{keep-going}
+
+@item Added option to include ignored windows when edge snapping
+(@code{move-snap-ignored-windows})
+
+@item Fix race condition between startup of sawmill and gmc; sawmill
+now has earlier priority
+
+@item Fix seg fault when running out of color cells while generating a
+window frame
+
+@item Fix bug where the window-workspace mapping wasn't reloaded from
+saved sessions
+
+@item Fix cancel/revert problems in bindings widget
+
+@item Fix problems binding to shifted keys when using the XKEYBOARD
+extension and XFree86
+
+@item Be ICCCM compliant when a client requests to be moved
+
+@item Fix crash when tiling small images into large images
+
+@item Fix bug where windows could be snapped totally off-screen
+
+@item Fix bug when windows change their @code{override_redirect}
+attribute while unmapped
+
+@item Fix bug associated with WordPerfect's menu window
+
+@end itemize
+
+
+@heading 0.8
+
+@itemize @bullet
+
+@item First attempt at best-fit window placement (doesn't really work
+properly yet@dots{})
+
+@item Added a customization option to focus windows when they're
+un-iconified (@code{focus-windows-on-uniconify})
+
+@item Fix bug in click-to-focus mode where the click is only passed
+through to the client window, not to any local bindings of the wm
+
+@item Don't leave windows unframed if there's an error in the user's
+startup files
+
+@item Fix bug in @code{preallocated-workspaces} option
+
+@item Don't place windows off-screen in first-fit mode
+
+@end itemize
+
+
+@heading 0.7
+
+@itemize @bullet
+
+@item Added stack-based window cycling, bound to @kbd{M-TAB} by
+default. Hold @key{Meta}, keep pressing @key{TAB} until the correct
+window is reached, then let go of @key{Meta}.
+
+@item Added first-fit window placement (a.k.a smart-placement)
+
+@item Completed first stage of workspace rewrite---shouldn't go
+ballistic when windows are removed anymore
+
+@item Added @code{override-frame-part-classes} variable---allows all
+frame properties to be overridden on a per-class basis
+
+@item Click-to-focus now accepts any button and any modifiers
+
+@item Don't snap to gmc icons or panels
+
+@item Added an @code{auto-window-type-alist} variable mapping window
+names to border types
+
+@item New variables @code{eval-modifier-events} and
+@code{eval-key-release-events} to allow catching these types of
+keyboard events, disabled by default
+
+@item Added functions for actively grabbing the keyboard
+
+@item Removed the long names of the keyboard modifiers, only the single
+character modifiers are left
+
+@item If no alt modifier, set it to the same as meta; new variables
+@code{alt-keysyms} and @code{meta-keysyms} describe the virtual
+modifier assignments
+
+@item Fix bug when handling shaped frame parts---it was possible to go
+into a long enter-, leave-notify loop when the old shape was cleared
+
+@item Fix bug where opaque resizing with snap-to-edges on moved the
+window as well as resizing it
+
+@item Fix bug when raising the only managed window
+
+@item Fix bug where very small client windows got weirdly shaped
+frames
+
+@end itemize
+
+
+@heading 0.6
+
+@itemize @bullet
+
+@item Define the standard @dfn{classes} of frame parts (i.e. things
+like close button, title, left border, etc...) then allow the state of
+members of these classes to be set in one place (the
+@code{frame-part-classes} variable). This should ensure that different
+themes have the same feel (but a feel that may be customized by the
+user)
+
+@item Allow frame parts to be removed if possible (if they have the
+@code{removable} property). Nothing makes use of this yet
+
+@item Added window-shading, double-click button1 on the title bar
+
+@item Created a sawmill capplet for the GNOME control center. Use the
+@samp{--enable-capplet} configure option to build it
+
+@item First attempt at a technical manual (very quickly written, so
+probably some inaccuracies)
+
+@item In the @code{gtk} theme, draw bevels on window decorations
+
+@item Use spin-buttons in the configurator to enter numbers
+
+@item Add option @code{focus-proxy-click} controlling whether to pass
+the focus-inducing button-press event to the underlying window (in
+click-to-focus mode)
+
+@item Changed the bindings in window borders, it's now the more usual
+button1 to resize, button2 to move
+
+@item When clicking and dragging windows, ensure that the clicked frame
+part stays clicked until the button is released
+
+@item If in click-to-focus mode, and there's no parent window to focus
+when the focused window is closed, focus the topmost window (not the
+window under the pointer as in the other focus modes)
+
+@item Changing window frames is @emph{much} less ugly, no flicker at
+all!
+
+@item Try to optimise window restacking some more
+
+@item Sped up opaque window moving when the position display is enabled
+
+@item Preserve iconified state across restarts
+
+@item Optimise updating the shape of an unframed window (this stops gmc
+icons flashing annoyingly)
+
+@item Fix bugs in click-to-focus mode where some windows were
+un-focusable
+
+@item Fix bug where cycling through windows in click-to-focus mode
+didn't focus the activated window
+
+@item Fix bug where comparing sawmill lisp objects caused a crash
+
+@item Fix bug where initiating a resize in the middle of the window
+didn't allow any of the edges to be moved
+
+@item Fix bug where changing the ``decorate transients'' option didn't
+alter any existing transient windows
+
+@item Fix bug where iconifying a sticky or ignored window gave no way
+of reclaiming it---these windows now appear at the end of the window
+menu
+
+@end itemize
+
+
+@heading 0.5
+
+@itemize @bullet
+
+@item Now does session management. The scheme is extensible, arbitrary
+Lisp modules can save and restore window state due to their own
+functionality (using the @code{sm-window-save-functions} and
+@code{sm-restore-window-hook} hooks). See @file{lisp/workspace.jl} for
+an example
+
+@item Displays window position or dimensions whilst interactively
+moving or resizing a window (@code{move-show-position},
+@code{resize-show-dimensions})
+
+@item Mechanism for setting frame styles on a per-window basis (this
+was always possible, just not easy). The @code{auto-frame-style-alist}
+variable associates window name regular expressions with frame styles.
+Also, the @code{window-ops-menu} has a new submenu with all possible
+styles
+
+@item New option @code{preallocated-workspaces}, the number of
+workspaces to create at startup
+
+@item Window-workspace mapping is preserved through restart (as long as
+the GNOME hints are enabled)
+
+@item Theme directories may contain a short @file{README} file that
+will be displayed in the configuration tool
+
+@item Changed the custom file to @file{~/.sawmill/custom} instead of
+@file{~/.sawmill-custom}. The old file will be moved to the new
+location if it exists
+
+@item Install @file{sawmill-menu} under @file{libexec} since it
+shouldn't be run manually
+
+@item Option in @code{gradient} theme to create full-sized gradient
+images, trading memory for quality
+
+@item Workaround the flicker when raising windows
+
+@item Changed most of the @code{menus} and @code{custom} customize
+options into normal variables (they're not particularly intuitive)
+
+@end itemize
+
+
+@heading 0.4
+
+@itemize @bullet
+
+@item Frame parts can now be highlighted when the mouse is over them,
+also they ``un-click'' and ``re-click'' as the pointer leaves and
+re-enters their window. ButtonRelease bindings are only activated when
+the mouse is in the window at the time
+
+@item Frame part backgrounds can now be rendered on-the-fly using the
+new @code{renderer} property in frame definitions. This property is a
+function called with args @code{(@var{image} @var{state})}; it should
+draw a background into @var{image} for the specified state (@code{nil},
+@code{focused}, @code{highlighted} or @code{clicked})
+
+@item New theme @code{gtk}. This reads the default GTK style and uses
+the associated colors and pixmaps to decorate windows. It doesn't try
+to handle engine-based themes. It should automatically detect when the
+default style changes (if changed by the GNOME control center). Do
+@samp{sawmill-client -c gtk-reload-style} in the shell to reload the
+style manually
+
+@item Functions for drawing color gradients and bevels into images. The
+new @code{gradient} theme uses these and on-the-fly rendering to do
+@code{afterstep}-like window titles
+
+@item Configurator changes: use a paned widget to separate the list of
+groups from the settings (stops their relative sizes changing), allow
+each group to be customized separately, either through a new set of
+root-submenus or the commands @code{customize:@var{group}} for each
+@var{group}.
+
+@item Changed the way that ``themes'' are organised, each theme now
+gets its own directory, which must include a @file{theme.jl} or
+@file{theme.jlc} script to initialise a frame-style of the same name as
+the directory. While this script is being evaluated the image path is
+set so that the theme can load any images stored in its directory.
+
+Also created the variable @code{theme-load-path} containing the list of
+directories searched when trying to load a theme. By default it
+contains two directories: @file{~/.sawmill/themes/} and
+@file{@var{prefix}/share/sawmill/@var{version}/themes}.
+
+@item Resizing now chooses the direction to resize the window in by the
+initial position of the pointer in relation to the window. The window
+is divided into a 3x3 grid, the pointer must be in one of the outer
+rectangles to resize in that direction
+
+@item New commands @code{select-workspace:@var{X}} for @var{X} between
+1 and 9
+
+@item Support multiple depths, or layers, of windows
+
+@item It's now possible to move the current workspace up or down the
+list of all workspaces
+
+@item New option @samp{-c COMMAND} to @code{sawmill-client}; invokes
+the named interactive function
+
+@item When an app asks for no title and no border, give it what it
+wants---use the new @code{unframed} window type
+
+@item The maximize button works
+
+@item Option to control placement of transient windows
+(@code{place-transient-mode})
+
+@item Changing the frame style preserves the original window stacking
+order
+
+@item Added documentation strings for most built-in functions
+
+@item Fix bug of evaluating both KeyPress @emph{and} KeyRelease events
+
+@item Fix bug of making the shape mask of unshaped client windows too
+big
+
+@item Fix bug where already-handled BadWindow errors were being reported
+
+@item Fix bug where the @code{window-ops-menu} could be displayed from
+one window but then affect a different window
+
+@item Fix bug where click-to-focus doesn't work for new windows
+
+@item Fix bug where deleting the last workspace selected the first, not
+the new last workspace
+
+@item Fix bug where changing a colormap when no window is focused
+causes a segfault
+
+@item Fix bug where iconifying a window may leave it in the clicked
+state after it's uniconified
+
+@item Fix Caps_Lock and Num_Lock modifiers interfering with bindings
+
+@item Fix accessing X properties on 64-bit architectures
+
+@item Fix bug where pointer may be left grabbed after moving a window
+
+@end itemize
+
+
+@heading 0.3a
+
+@itemize @bullet
+
+@item Support the maximized GNOME window states
+
+@item Where available, show documentation strings of commands in the
+configurator
+
+@item Improve the method of handling clicks in frame-parts
+
+@item Fix asynchronous client-server protocol
+
+@item Fix interactive window moving/resizing (don't leave traces of the
+rubber-band, stop the window initially ``jumping'' to the pointer)
+
+@end itemize
+
+
+@heading 0.3
+
+@itemize @bullet
+
+@item Implemented window maximization
+
+@item Added support for snapping to window edges when interactively
+moving windows (@code{move-snap-edges} and @code{move-snap-epsilon})
+
+@item First attempt at handling a subset of the Motif and OpenLook
+window hints
+
+@item Removed the @code{sloppy-focus} variable, it's replaced by
+@code{focus-mode}. This can currently be one of @code{enter-exit}
+(normal focus follows pointer), @code{enter-only} (``sloppy'' focus) or
+@code{click} (click to focus)
+
+@item When resolving pointer events, scan the @code{keymap} property of
+the window under the pointer, not the focused window (as with keypress
+events)
+
+@item The @file{sawmill-client} program can now communicate inter-host,
+since it uses X properties not raw sockets
+
+@item New hook @code{before-exit-hook}, called immediately before
+shutting down
+
+@item Rewrote the GNOME support as a Lisp module
+
+@item Placing windows interactively now works
+
+@item Fixed the bug on Solaris where deleting windows could cause a
+segmentation fault
+
+@end itemize
+
+
+@heading 0.2
+
+@itemize @bullet
+
+@item Added a user-customization system, inspired by Emacs' customize
+facility. Invoke this through the @samp{sawmill-ui} program, or from
+the @samp{Customize...} entry in the main menu. All changes are stored
+in the Lisp script @file{~/.sawmill-custom}
+
+@item Selected windows may now be raised
+(@code{raise-selected-windows})
+
+@item It's possible to prevent the mouse pointer being warped to
+selected windows (@code{warp-to-selected-windows})
+
+@item The @code{brushed-metal} and @code{simple} themes now define all
+four standard frame types
+
+@item Frame themes are now stored in a separate directory
+(@file{@var{prefix}/share/sawmill/@var{version}/lisp/themes}) so that
+the list of all available themes can be made automatically
+
+@item The frame colors of the @code{simple} frame style can now be
+customized (@code{simple-normal-color} and @code{simple-active-color})
+
+@item The @file{sawmill-defaults.jl} script enables GNOME compliance
+unconditionally (since it has no ill-effects even if GNOME isn't being
+used)
+
+@item Transient windows can be given the same frames as normal windows
+(@code{decorate-transients})
+
+@item Newly-displayed transient windows can be automatically given the
+focus if their parent window is focused (@code{transients-get-focus})
+
+@item Any newly-displayed windows can be automatically given the input
+focus (@code{focus-windows-when-mapped})
+
+@item The @code{foreground}, @code{background} and @code{font}
+attributes of each frame part may now refer to a function
+
+@item Fixed the window-move bug whereby the first motion event was
+discarded
+
+@item Fixed the bug where windows may be placed partially off the root
+window, even if they needn't be
+
+@item Fixed the shaped frame parts bug (they didn't work)
+
+@item Miscellaneous other bug-fixes
+
+@end itemize
+
+
+@heading 0.1
+
+First proper release

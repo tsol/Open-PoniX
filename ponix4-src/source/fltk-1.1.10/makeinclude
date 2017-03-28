@@ -1,0 +1,167 @@
+#
+# "$Id: makeinclude.in 6612 2008-12-29 20:21:29Z matt $"
+#
+# Make include file for the Fast Light Tool Kit (FLTK).
+#
+# Copyright 1998-2007 by Bill Spitzak and others.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+#
+# Please report all bugs and problems on the following page:
+#
+#      http://www.fltk.org/str.php
+#
+
+prefix		= /15
+exec_prefix	= ${prefix}
+bindir		= ${exec_prefix}/bin
+datadir		= ${datarootdir}
+datarootdir	= ${prefix}/share
+includedir	= ${prefix}/include
+libdir		= ${exec_prefix}/lib
+mandir		= ${datarootdir}/man
+srcdir		= .
+docdir		= $(datadir)/doc/fltk
+
+
+# programs we use...
+HTMLDOC		= 
+INSTALL		= /bin/install -c
+LN		= ln -s
+NROFF		= 
+RM		= rm -f
+RMDIR		= rm -rf
+SHELL		= /bin/sh
+STRIP		= strip
+
+# compiler names:
+CXX		= i486-TSOL-linux-gnu-g++
+CC		= i486-TSOL-linux-gnu-gcc
+MAKEDEPEND	= $(CXX) -M
+
+# flags for C++ compiler:
+ARCHFLAGS	= 
+OPTIM		=  -Os -Wall -Wunused -Wno-format-y2k  -fPIC -fno-exceptions -fno-strict-aliasing
+CFLAGS		= $(OPTIM)    -O2  -I/usr/xorg/include
+CXXFLAGS	= $(OPTIM)    -O2  -I/usr/xorg/include
+
+# program to make the archive:
+LIBNAME		= ../lib/libfltk.a
+FLLIBNAME	= ../lib/libfltk_forms.a
+GLLIBNAME	= 
+IMGLIBNAME	= ../lib/libfltk_images.a
+LIBCOMMAND	= /toolchain/i486-TSOL-linux-gnu/bin//ar cr
+LIBEXT		= .a
+RANLIB		= ranlib
+DSONAME		= libfltk.so.1.1
+FLDSONAME	= libfltk_forms.so.1.1
+GLDSONAME	= 
+IMGDSONAME	= libfltk_images.so.1.1
+DSOCOMMAND	= $(CXX) $(DSOFLAGS) -Wl,-soname,$@ $(LDLIBS) -shared -fPIC  -o
+
+LIBBASENAME	= libfltk.a
+FLLIBBASENAME	= libfltk_forms.a
+GLLIBBASENAME	= libfltk_gl.a
+IMGLIBBASENAME	= libfltk_images.a
+
+# libraries to link with:
+AUDIOLIBS	= -lasound
+DSOFLAGS	= -L.  -L/usr/xorg/lib 
+LDFLAGS		= $(OPTIM)  -L/usr/xorg/lib -static-libgcc
+LDLIBS		= -ldl -lm  -lXext -lX11 
+GLDLIBS		=  -ldl -lm  -lXext -lX11 
+LINKFLTK	= ../lib/libfltk.a
+LINKFLTKGL	= 
+LINKFLTKFORMS	= ../lib/libfltk_forms.a ../lib/libfltk.a
+LINKFLTKIMG	= ../lib/libfltk_images.a ../lib/libfltk.a $(IMAGELIBS)
+LINKSHARED	= -Wl,-rpath,${exec_prefix}/lib -L../src -lfltk_images -lfltk_forms -lfltk $(IMAGELIBS)
+IMAGELIBS	= -L../lib -lpng -lz -ljpeg 
+
+# image libraries to build...
+IMAGEDIRS	=   
+
+# The extension to use for executables...
+EXEEXT		= 
+
+# Do we build the OpenGL demos?
+GLDEMOS		= 
+
+# Do we build the threads demo?
+THREADS		= 
+
+# Name of FLUID executable we install
+FLUID		= fluid-shared$(EXEEXT)
+
+# Possible steps for OS X build only
+OSX_ONLY	= :
+
+# Possible steps after linking...
+POSTBUILD	= :
+
+# Man page extensions...
+CAT1EXT		= 1
+CAT3EXT		= 3
+CAT6EXT		= 6
+
+#
+# Installation programs...
+#
+
+INSTALL_BIN	= $(INSTALL) -m 755
+INSTALL_DATA	= $(INSTALL) -m 644
+INSTALL_DIR	= $(INSTALL) -d 
+INSTALL_LIB	= $(INSTALL) -m 755
+INSTALL_MAN	= $(INSTALL) -m 644
+INSTALL_SCRIPT	= $(INSTALL) -m 755
+
+# Additional GUI install/uninstall targets...
+INSTALL_DESKTOP	= install-linux
+UNINSTALL_DESKTOP = uninstall-linux
+
+# Be quiet when building...
+.SILENT:
+
+# Build commands and filename extensions...
+.SUFFIXES:	.0 .1 .3 .6 .c .cxx .h .fl .man .o .z $(EXEEXT)
+
+.o$(EXEEXT):
+	echo Linking $@...
+	$(CXX) $(ARCHFLAGS) $(LDFLAGS) $< $(LINKFLTK) $(LDLIBS) -o $@
+	$(POSTBUILD) $@ ../FL/mac.r
+
+.c.o:
+	echo Compiling $<...
+	$(CC) -I.. $(ARCHFLAGS)    $(CFLAGS) -c $<
+
+.cxx.o:
+	echo Compiling $<...
+	$(CXX) -I.. $(ARCHFLAGS)    $(CXXFLAGS) -c $<
+
+.man.0 .man.1 .man.3 .man.6:
+	echo Formatting $<...
+	rm -f $@
+	$(NROFF) -man $< >$@
+
+.man.z:
+	echo Formatting $<...
+	rm -f $@ t.z
+	$(NROFF) -man $< >t
+	pack -f t
+	mv t.z $@
+
+#
+# End of "$Id: makeinclude.in 6612 2008-12-29 20:21:29Z matt $".
+#

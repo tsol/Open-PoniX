@@ -1,0 +1,312 @@
+<refentry id="PangoFcFont">
+<refmeta>
+<refentrytitle>PangoFcFont</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>PangoFcFont</refname><refpurpose>Base font class for Fontconfig-based backends</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+struct      <link linkend="PangoFcFont-struct">PangoFcFont</link>;
+struct      <link linkend="PangoFcFontClass">PangoFcFontClass</link>;
+#define     <link linkend="PANGO-RENDER-TYPE-FC-CAPS">PANGO_RENDER_TYPE_FC</link>
+<link linkend="FT-Face">FT_Face</link>     <link linkend="pango-fc-font-lock-face">pango_fc_font_lock_face</link>         (<link linkend="PangoFcFont">PangoFcFont</link> *font);
+<link linkend="void">void</link>        <link linkend="pango-fc-font-unlock-face">pango_fc_font_unlock_face</link>       (<link linkend="PangoFcFont">PangoFcFont</link> *font);
+<link linkend="gboolean">gboolean</link>    <link linkend="pango-fc-font-has-char">pango_fc_font_has_char</link>          (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="gunichar">gunichar</link> wc);
+<link linkend="guint">guint</link>       <link linkend="pango-fc-font-get-glyph">pango_fc_font_get_glyph</link>         (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="gunichar">gunichar</link> wc);
+<link linkend="PangoGlyph">PangoGlyph</link>  <link linkend="pango-fc-font-get-unknown-glyph">pango_fc_font_get_unknown_glyph</link> (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="gunichar">gunichar</link> wc);
+<link linkend="void">void</link>        <link linkend="pango-fc-font-kern-glyphs">pango_fc_font_kern_glyphs</link>       (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="PangoFont">PangoFont</link>
+         +----PangoFcFont
+               +----<link linkend="PangoXftFont">PangoXftFont</link>
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="PangoFcFont--pattern">pattern</link>&quot;              <link linkend="gpointer">gpointer</link>             : Write / Construct Only
+</synopsis>
+</refsect1>
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+PangoFcFont is a base class for font implementation using the
+FontConfig and FreeType libraries. It is used in the
+<link linkend="pango-Xft-Fonts-and-Rendering">Xft</link> and
+<link linkend="pango-FreeType-Fonts-and-Rendering">FreeType</link>
+backends shipped with Pango, but can also be used when creating
+new backends. Any backend deriving from this base class will 
+take advantage of the wide range of shapers implemented using
+FreeType that come with Pango.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="PangoFcFont-struct"/>struct PangoFcFont</title>
+<indexterm><primary>PangoFcFont</primary></indexterm><programlisting>struct PangoFcFont;</programlisting>
+<para>
+<link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link> is a base class for font implementations
+using the FontConfig and FreeType libraries and is used in
+conjunction with <link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link>. When deriving from this
+class, you need to implement all of its virtual functions
+other than <link linkend="shutdown"><function>shutdown()</function></link> along with the <link linkend="get-glyph-extents"><function>get_glyph_extents()</function></link>
+virtual function from <link linkend="PangoFont"><type>PangoFont</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoFcFontClass"/>struct PangoFcFontClass</title>
+<indexterm><primary>PangoFcFontClass</primary></indexterm><programlisting>struct PangoFcFontClass {
+
+  FT_Face    (*lock_face)         (PangoFcFont      *font);
+  void       (*unlock_face)       (PangoFcFont      *font);
+  gboolean   (*has_char)          (PangoFcFont      *font,
+				   gunichar          wc);
+  guint      (*get_glyph)         (PangoFcFont      *font,
+				   gunichar          wc);
+  PangoGlyph (*get_unknown_glyph) (PangoFcFont      *font,
+				   gunichar          wc);
+  void       (*shutdown)          (PangoFcFont      *font);
+};
+</programlisting>
+<para>
+Class structure for <link linkend="PangoFcFont"><type>PangoFcFont</type></link>.</para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="FT-Face">FT_Face</link> (*<structfield>lock_face</structfield>) (PangoFcFont      *font)</term>
+<listitem><simpara> Returns the FT_Face of the font and increases
+ the reference count for the face by one.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="void">void</link> (*<structfield>unlock_face</structfield>) (PangoFcFont      *font)</term>
+<listitem><simpara> Decreases the reference count for the
+ FT_Face of the font by one. When the count is zero,
+ the <link linkend="PangoFcFont"><type>PangoFcFont</type></link> subclass is allowed to free the
+ FT_Face.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gboolean">gboolean</link> (*<structfield>has_char</structfield>) (PangoFcFont      *font,
+				   gunichar          wc)</term>
+<listitem><simpara> Return <literal>TRUE</literal> if the the font contains a glyph
+  corresponding to the specified character.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint">guint</link> (*<structfield>get_glyph</structfield>) (PangoFcFont      *font,
+				   gunichar          wc)</term>
+<listitem><simpara> Gets the glyph that corresponds to the given
+  Unicode character.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyph">PangoGlyph</link> (*<structfield>get_unknown_glyph</structfield>) (PangoFcFont      *font,
+				   gunichar          wc)</term>
+<listitem><simpara> Gets the glyph that should be used to
+  display an unknown-glyph indication for the specified
+  unicode character.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="void">void</link> (*<structfield>shutdown</structfield>) (PangoFcFont      *font)</term>
+<listitem><simpara> Performs any font-specific shutdown code that
+  needs to be done when pango_fc_font_map_shutdown is called.
+  May be <literal>NULL</literal>.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-RENDER-TYPE-FC-CAPS"/>PANGO_RENDER_TYPE_FC</title>
+<indexterm><primary>PANGO_RENDER_TYPE_FC</primary></indexterm><programlisting>#define PANGO_RENDER_TYPE_FC "PangoRenderFc"
+</programlisting>
+<para>
+A string constant used to identify shape engines that work
+with the fontconfig based backends. See the <parameter>engine_type</parameter> field
+of <link linkend="PangoEngineInfo"><type>PangoEngineInfo</type></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-lock-face"/>pango_fc_font_lock_face ()</title>
+<indexterm><primary>pango_fc_font_lock_face</primary></indexterm><programlisting><link linkend="FT-Face">FT_Face</link>     pango_fc_font_lock_face         (<link linkend="PangoFcFont">PangoFcFont</link> *font);</programlisting>
+<para>
+Gets the FreeType FT_Face associated with a font,
+This face will be kept around until you call
+<link linkend="pango-fc-font-unlock-face"><function>pango_fc_font_unlock_face()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFont"><type>PangoFcFont</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the FreeType FT_Face associated with <parameter>font</parameter>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-unlock-face"/>pango_fc_font_unlock_face ()</title>
+<indexterm><primary>pango_fc_font_unlock_face</primary></indexterm><programlisting><link linkend="void">void</link>        pango_fc_font_unlock_face       (<link linkend="PangoFcFont">PangoFcFont</link> *font);</programlisting>
+<para>
+Releases a font previously obtained with
+<link linkend="pango-fc-font-lock-face"><function>pango_fc_font_lock_face()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFont"><type>PangoFcFont</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-has-char"/>pango_fc_font_has_char ()</title>
+<indexterm><primary>pango_fc_font_has_char</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    pango_fc_font_has_char          (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="gunichar">gunichar</link> wc);</programlisting>
+<para>
+Determines whether <parameter>font</parameter> has a glyph for the codepoint <parameter>wc</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFont"><type>PangoFcFont</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>wc</parameter>&nbsp;:</term>
+<listitem><simpara> Unicode codepoint to look up
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>font</parameter> has the requested codepoint.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-get-glyph"/>pango_fc_font_get_glyph ()</title>
+<indexterm><primary>pango_fc_font_get_glyph</primary></indexterm><programlisting><link linkend="guint">guint</link>       pango_fc_font_get_glyph         (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="gunichar">gunichar</link> wc);</programlisting>
+<para>
+Gets the glyph index for a given unicode codepoint
+for <parameter>font</parameter>. If you only want to determine
+whether the font has the glyph, use <link linkend="pango-fc-font-has-char"><function>pango_fc_font_has_char()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFont"><type>PangoFcFont</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>wc</parameter>&nbsp;:</term>
+<listitem><simpara> Unicode codepoint to look up
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the glyph index, or 0, if the unicode
+ codepoint doesn't exist in the font.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-get-unknown-glyph"/>pango_fc_font_get_unknown_glyph ()</title>
+<indexterm><primary>pango_fc_font_get_unknown_glyph</primary></indexterm><programlisting><link linkend="PangoGlyph">PangoGlyph</link>  pango_fc_font_get_unknown_glyph (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="gunichar">gunichar</link> wc);</programlisting>
+<para>
+Returns the index of a glyph suitable for drawing <parameter>wc</parameter> as an
+unknown character.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFont"><type>PangoFcFont</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>wc</parameter>&nbsp;:</term>
+<listitem><simpara> the Unicode character for which a glyph is needed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a glyph index into <parameter>font</parameter>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-fc-font-kern-glyphs"/>pango_fc_font_kern_glyphs ()</title>
+<indexterm><primary>pango_fc_font_kern_glyphs</primary></indexterm><programlisting><link linkend="void">void</link>        pango_fc_font_kern_glyphs       (<link linkend="PangoFcFont">PangoFcFont</link> *font,
+                                             <link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs);</programlisting>
+<para>
+Adjust each adjacent pair of glyphs in <parameter>glyphs</parameter> according to
+kerning information in <parameter>font</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoFcFont"><type>PangoFcFont</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="PangoFcFont--pattern"/>&quot;<literal>pattern</literal>&quot; (<link linkend="gpointer">gpointer</link> : Write / Construct Only)</term>
+<listitem>
+<para>The fontconfig pattern for this font.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+
+<varlistentry>
+<term><link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link></term>
+<listitem><para>The base class for font maps; creating a new
+Fontconfig-based backend involves deriving from both
+<link linkend="PangoFcFontMap"><type>PangoFcFontMap</type></link> and <link linkend="PangoFcFont"><type>PangoFcFont</type></link>.
+.</para></listitem>
+</varlistentry>
+
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

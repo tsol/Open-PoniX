@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# rc.usbsrvd    Start/stop/restart the USB Redirector for Linux daemon.
+#
+# chkconfig: 345 99 01
+# description: USB Redirector for Linux startup script
+#
+### BEGIN INIT INFO
+# Provides:       rc.usbsrvd
+# Required-Start: $syslog
+# Required-Stop:
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Short-Description: USB Redirector for Linux startup script
+### END INIT INFO
+
+INSTALLDIR=%INSTALLDIR_TAG%
+
+# File names
+PIDFILE=%PIDFILE_TAG%
+STUBNAME=%STUBNAME_TAG%
+DAEMONNAME=%DAEMONNAME_TAG%
+
+usbsrvd_start() 
+{
+  if ( [ -x $INSTALLDIR/bin/$DAEMONNAME ] && [ -f $INSTALLDIR/bin/$STUBNAME.ko ] ); then
+    if [ -f "$PIDFILE" ]; then
+        local pid=`cat "$PIDFILE" 2>/dev/null`
+        if [ -n "$pid" ]; then
+            kill -0 $pid >/dev/null 2>&1
+            if [ $? = 0 ]; then
+                echo "Starting USB Redirector:  already running"
+                exit 0
+            fi
+        fi
+    fi
+    echo "Starting USB Redirector:  /sbin/insmod $INSTALLDIR/bin/$STUBNAME.ko"
+    # load usbcore on virtual machines
+    /sbin/modprobe usbcore >/dev/null 2>&1
+    /sbin/insmod $INSTALLDIR/bin/$STUBNAME.ko
+    if ( [ $? -eq 0 ] ); then
+      echo "                          $INSTALLDIR/bin/$DAEMONNAME"
+      $INSTALLDIR/bin/$DAEMONNAME >/dev/null
+    else
+      echo "                          Cannot load stub driver! Please reinstall the software."
+      exit 255
+    fi
+  fi
+}
+
+usbsrvd_stop() 
+{
+  if [ -f "$PIDFILE" ]; then
+    echo "Stopping USB Redirector"
+
+    local pid=`cat "$PIDFILE" 2>/dev/null`
+
+    if [ -n "$pid" ]; then
+      kill -TERM $pid >/dev/null 2>&1
+
+      # Wait while daemon terminates
+      for second in 0 1 2 3 4 5 6 7 8 9 10; do
+        kill -0 $pid >/dev/null 2>&1
+        if [ $? != 0 ]; then
+          break
+        fi
+        sleep 1
+      done
+      rm -f $PIDFILE
+    fi
+  fi
+
+  /sbin/rmmod $STUBNAME 2>/dev/null
+}
+
+usbsrvd_restart() {
+  usbsrvd_stop
+  sleep 2
+  usbsrvd_start
+}
+
+case "$1" in
+  'start')
+    usbsrvd_start
+    ;;
+  'stop')
+    usbsrvd_stop
+    ;;
+  'restart')
+    usbsrvd_restart
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+

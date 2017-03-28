@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Dynamic Loading of Modules</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.74.0">
+<link rel="home" href="index.html" title="GLib Reference Manual">
+<link rel="up" href="glib-core.html" title="GLib Core Application Support">
+<link rel="prev" href="glib-Asynchronous-Queues.html" title="Asynchronous Queues">
+<link rel="next" href="glib-Memory-Allocation.html" title="Memory Allocation">
+<meta name="generator" content="GTK-Doc V1.10 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="glib.html" title="GLib Overview">
+<link rel="chapter" href="glib-fundamentals.html" title="GLib Fundamentals">
+<link rel="chapter" href="glib-core.html" title="GLib Core Application Support">
+<link rel="chapter" href="glib-utilities.html" title="GLib Utilities">
+<link rel="chapter" href="glib-data-types.html" title="GLib Data Types">
+<link rel="chapter" href="tools.html" title="GLib Tools">
+<link rel="index" href="ix01.html" title="Index">
+<link rel="index" href="ix02.html" title="Index of deprecated symbols">
+<link rel="index" href="ix03.html" title="Index of new symbols in 2.2">
+<link rel="index" href="ix04.html" title="Index of new symbols in 2.4">
+<link rel="index" href="ix05.html" title="Index of new symbols in 2.6">
+<link rel="index" href="ix06.html" title="Index of new symbols in 2.8">
+<link rel="index" href="ix07.html" title="Index of new symbols in 2.10">
+<link rel="index" href="ix08.html" title="Index of new symbols in 2.12">
+<link rel="index" href="ix09.html" title="Index of new symbols in 2.14">
+<link rel="index" href="ix10.html" title="Index of new symbols in 2.16">
+<link rel="index" href="ix11.html" title="Index of new symbols in 2.18">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="glib-Asynchronous-Queues.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="glib-core.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">GLib Reference Manual</th>
+<td><a accesskey="n" href="glib-Memory-Allocation.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts"><nobr><a href="#glib-Dynamic-Loading-of-Modules.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#glib-Dynamic-Loading-of-Modules.description" class="shortcut">Description</a></nobr></td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="glib-Dynamic-Loading-of-Modules"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="glib-Dynamic-Loading-of-Modules.top_of_page"></a>Dynamic Loading of Modules</span></h2>
+<p>Dynamic Loading of Modules — portable method for dynamically loading 'plug-ins'</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="glib-Dynamic-Loading-of-Modules.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+
+#include &lt;gmodule.h&gt;
+
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="glib-Dynamic-Loading-of-Modules.description"></a><h2>Description</h2>
+<p>
+These functions provide a portable way to dynamically load object files
+(commonly known as 'plug-ins').
+The current implementation supports all systems that provide
+an implementation of <code class="function">dlopen()</code> (e.g. Linux/Sun), as well as HP-UX via its
+<code class="function">shl_load()</code> mechanism, and Windows platforms via DLLs.
+</p>
+<p>
+A program which wants to use these functions must be linked to the
+libraries output by the command <span class="command"><strong>pkg-config --libs gmodule-2.0</strong></span>.
+</p>
+<p>
+To use them you must first determine whether dynamic loading
+is supported on the platform by calling <code class="function">g_module_supported()</code>.
+If it is, you can open a module with <code class="function">g_module_open()</code>,
+find the module's symbols (e.g. function names) with <code class="function">g_module_symbol()</code>,
+and later close the module with <code class="function">g_module_close()</code>.
+<code class="function">g_module_name()</code> will return the file name of a currently opened module.
+</p>
+<p>
+If any of the above functions fail, the error status can be found with
+<code class="function">g_module_error()</code>.
+</p>
+<p>
+The <span class="type">GModule</span> implementation features reference counting for opened modules,
+and supports hook functions within a module which are called when the
+module is loaded and unloaded (see <span class="type">GModuleCheckInit</span> and <span class="type">GModuleUnload</span>).
+</p>
+<p>
+If your module introduces static data to common subsystems in the running
+program, e.g. through calling <code class="literal">g_quark_from_static_string ("my-module-stuff")</code>,
+it must ensure that it is never unloaded, by calling <code class="function">g_module_make_resident()</code>.
+</p>
+<p>
+</p>
+<div class="example">
+<a name="id2793784"></a><p class="title"><b>Example 11. Calling a function defined in a <span class="structname">GModule</span></b></p>
+<div class="example-contents"><pre class="programlisting">
+/* the function signature for 'say_hello' */
+typedef void (* SayHelloFunc) (const char *message);
+
+gboolean
+just_say_hello (const char *filename, GError **error)
+{
+  SayHelloFunc  say_hello;
+  GModule      *module;
+
+  module = g_module_open (filename, G_MODULE_BIND_LAZY);
+  if (!module)
+    {
+      g_set_error (error, FOO_ERROR, FOO_ERROR_BLAH,
+		   "%s", g_module_error ());
+      return FALSE;
+    }
+
+  if (!g_module_symbol (module, "say_hello", (gpointer *)&amp;say_hello))
+    {
+      g_set_error (error, SAY_ERROR, SAY_ERROR_OPEN,
+		   "%s: %s", filename, g_module_error ());
+      if (!g_module_close (module))
+	g_warning ("%s: %s", filename, g_module_error ());
+      return FALSE;
+    }
+
+  if (say_hello == NULL)
+    {
+      g_set_error (error, SAY_ERROR, SAY_ERROR_OPEN, "symbol say_hello is NULL");
+      if (!g_module_close (module))
+	g_warning ("%s: %s", filename, g_module_error ());
+      return FALSE;
+    }
+
+  /* call our function in the module */
+  say_hello ("Hello world!");
+
+  if (!g_module_close (module))
+    g_warning ("%s: %s", filename, g_module_error ());
+
+  return TRUE;
+}
+</pre></div>
+</div>
+<p><br class="example-break">
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="glib-Dynamic-Loading-of-Modules.details"></a><h2>Details</h2>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.10</div>
+</body>
+</html>

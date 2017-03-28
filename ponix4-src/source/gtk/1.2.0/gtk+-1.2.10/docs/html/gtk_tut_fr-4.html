@@ -1,0 +1,657 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Placement des widgets</TITLE>
+ <LINK HREF="gtk_tut_fr-5.html" REL=next>
+ <LINK HREF="gtk_tut_fr-3.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc4" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-5.html">Page suivante</A>
+<A HREF="gtk_tut_fr-3.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc4">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s4">4. Placement des widgets</A></H2>
+
+<P>Lorsqu'on crée une application, on veut mettre plus qu'un simple
+bouton dans une fenêtre. Notre premier exemple « Bonjour le monde »
+n'utilisait qu'un seul widget et on pouvait donc simplement faire un
+appel à <EM>gtk_container_add</EM> pour « placer » le widget dans la
+fenêtre. Mais si l'on désire en mettre plus, comment peut-on contrôler
+l'endroit où le widget sera positionné ? C'est ici que le placement
+entre en jeu.
+<P>
+<H2><A NAME="ss4.1">4.1 Théorie des boîtes de placement</A>
+</H2>
+
+<P>La majeure partie du placement est faites en créant des boîtes comme
+dans l'exemple ci-dessus. Ce sont des widgets containers invisibles où
+l'on peut placer nos widgets. Elles existent sous deux formes&nbsp;:
+boîtes horizontales et boîtes verticales. Lorsque l'on place des
+widgets dans une boîte horizontale, les objets sont insérés
+horizontalement de gauche à droite ou de droite à gauche selon l'appel
+utilisé. Dans une boîte verticale, les widgets sont placés de haut en
+bas ou vice versa. On peut utiliser n'importe quelle combinaison de
+boîtes à l'intérieur ou à côté d'autres boîtes pour créer l'effet
+désiré.
+<P>Pour créer une nouvelle boîte horizontale, on appelle
+<EM>gtk_hbox_new()</EM>, et pour les boîtes verticales,
+<EM>gtk_vbox_new()</EM>. Les fonctions <EM>gtk_box_pack_start()</EM> et
+<EM>gtk_box_pack_end()</EM> servent à placer les objets à l'intérieur de
+ces containers.  La fonction <EM>gtk_box_pack_start()</EM> placera de haut
+en bas dans une boîte verticale et de gauche à droite dans une boîte
+horizontale.  <EM>gtk_box_pack_end()</EM> fera le contraire en plaçant de
+bas en haut et de droite à gauche. En utilisant ces fonctions, on peut
+aligner à droite ou à gauche nos widgets et même les mélanger de
+n'importe quelle façon pour obtenir l'effet désiré. Dans la plupart de
+nos exemples, on utilisera <EM>gtk_box_pack_start()</EM>. Un objet peut
+être un autre container ou un widget. En fait, de nombreux widgets
+(dont les boutons) sont eux-mêmes des containers, mais on utilise
+généralement seulement un label dans un bouton.
+<P>En utilisant ces appels, GTK sait où vous voulez placer vos widgets et
+il peut donc les dimensionner automatiquement et faire d'autres choses
+bien pratiques. Il existe aussi plusieurs options permettant de
+préciser comment les widgets doivent être placés. Comme vous pouvez
+l'imaginer, cette méthode nous donne pas mal de liberté pour placer et
+créer les widgets.
+<P>
+<H2><A NAME="ss4.2">4.2 Détails sur les boîtes</A>
+</H2>
+
+<P>À cause de cette liberté, le placement des boîtes avec GTK peut
+paraître déroutant au premier abord. Il existe beaucoup d'options et
+il n'est pas tout de suite évident de comprendre comment elles
+s'accordent toutes ensemble. En fait, il y a 5 styles de base
+différents.
+<P>
+<P>  
+<IMG ALIGN="center" SRC="packbox1.gif"
+VSPACE="15" HSPACE="10" ALT="Box Packing Example Image" WIDTH="528"
+HEIGHT="235">
+<P>Chaque ligne contient une boîte horizontale (<EM>hbox</EM>) contenant
+plusieurs boutons. L'appel à <EM>gtk_box_pack</EM> indique la façon dont
+sont placés tous les boutons dans la hbox.  Chaque bouton est placé
+dans la hbox de la même façon (mêmes paramètres que la fonction
+<EM>gtk_box_pack_start()</EM>).
+<P>Voici la déclaration de la fonction <EM>gtk_box_pack_start</EM>.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_box_pack_start (GtkBox    *box,
+                         GtkWidget *child,
+                         gint       expand,
+                         gint       fill,
+                         gint       padding);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le premier paramètre est la boîte dans laquelle on place l'objet, le
+second est cet objet. Tous les objets sont tous des boutons jusqu'à
+maintenant, on place donc des boutons dans des boîtes.
+<P>Le paramètre <EM>expand</EM> de <EM>gtk_box_pack_start()</EM> ou
+<EM>gtk_box_pack_end()</EM> contrôle la façon dont le widget est placé
+dans la boîte. S'il vaut TRUE, les widgets sont disposés dans la boîte
+de façon à en occuper tout l'espace. S'il vaut FALSE, la boîte est
+rétrécie pour correspondre à la taille du widget. Mettre <EM>expand</EM> à
+FALSE vous permettra d'aligner à droite et à gauche vos
+widgets. Sinon, ils s'élargiront pour occuper toute la boîte. Le même
+effet pourrait être obtenu en utilisant uniquement une des deux
+fonctions <EM>gtk_box_pack_start</EM> ou <EM>pack_end</EM>.
+<P>Le paramètre <EM>fill</EM> des fonctions <EM>gtk_box_pack</EM> contrôle si de
+l'espace supplémentaire doit être alloué aux objets eux-mêmes (TRUE),
+ou si on doit rajouter de l'espace (<EM>padding</EM>) dans la boîte autour
+des objets (FALSE). Il n'a de sens que si le paramètre <EM>expand</EM>
+vaut TRUE.
+<P>Lorsque l'on crée une nouvelle boîte, on utilise une fonction comme&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget * gtk_hbox_new (gint homogeneous,
+                          gint spacing);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le paramètre <EM>homogeneous</EM> de <EM>gtk_hbox_new</EM> (et c'est la même
+chose pour <EM>gtk_vbox_new</EM>) vérifie que chaque objet de la boîte ait
+la même taille (i.e. la même largeur dans une hbox, la même hauteur
+dans une vbox). S'il vaut TRUE, le paramètre <EM>expand</EM> des fonctions
+<EM>gtk_box_pack</EM> sera toujours mis à TRUE.
+<P>Quelle est alors la différence entre les paramètres <EM>spacing</EM>
+(configuré lorsque la boîte est créée) et <EM>padding</EM> (configuré
+lorque les éléments sont placés) ? <EM>spacing</EM> ajoute de l'espace
+entre les objets, et <EM>padding</EM> en ajoute de chaque côté d'un
+objet. La figure suivante devrait éclairer tout cela&nbsp;:
+<P>
+<IMG ALIGN="center" SRC="packbox2.gif"
+VSPACE="15" HSPACE="10" ALT="Box Packing Example Image" WIDTH="509"
+HEIGHT="213">
+<P>Voici le code utilisé pour créer les images ci-dessus. J'y ai mis beaucoup de
+commentaires en espérant que vous n'aurez pas de problème pour le
+relire. Compilez-le et jouez avec les différents paramètres.
+<P>
+<H2><A NAME="ss4.3">4.3 Programme de démonstration des placements</A>
+</H2>
+
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include "gtk/gtk.h"
+
+void
+delete_event (GtkWidget *widget, GdkEvent *event, gpointer *data)
+{
+    gtk_main_quit ();
+}
+
+/* Construction d'une nouvelle hbox remplie de boutons. Les paramètres qui 
+ * nous intéressent sont passés à cette fonction.
+ * On n'affiche pas la boîte, mais tout ce qu'elle contient. */
+
+GtkWidget *make_box (gint homogeneous, gint spacing,
+                     gint expand, gint fill, gint padding) 
+{
+    GtkWidget *box;
+    GtkWidget *button;
+    char padstr[80];
+    
+    /* Création d'une hbox avec les paramètres homogeneous et spacing
+     * voulus. */
+
+    box = gtk_hbox_new (homogeneous, spacing);
+    
+    /* Création d'une série de boutons configurés de façon appropriée */
+
+    button = gtk_button_new_with_label ("gtk_box_pack");
+    gtk_box_pack_start (GTK_BOX (box), button, expand, fill, padding);
+    gtk_widget_show (button);
+    
+    button = gtk_button_new_with_label ("(box,");
+    gtk_box_pack_start (GTK_BOX (box), button, expand, fill, padding);
+    gtk_widget_show (button);
+    
+    button = gtk_button_new_with_label ("button,");
+    gtk_box_pack_start (GTK_BOX (box), button, expand, fill, padding);
+    gtk_widget_show (button);
+    
+    /* Création d'un bouton portant un label dépendant de la valeur
+     * du paramètre expand. */
+
+    if (expand == TRUE)
+            button = gtk_button_new_with_label ("TRUE,");
+    else
+            button = gtk_button_new_with_label ("FALSE,");
+    
+    gtk_box_pack_start (GTK_BOX (box), button, expand, fill, padding);
+    gtk_widget_show (button);
+    
+    /* Même chose que ci-dessus mais sous forme abrégée. */
+
+    button = gtk_button_new_with_label (fill ? "TRUE," : "FALSE,");
+    gtk_box_pack_start (GTK_BOX (box), button, expand, fill, padding);
+    gtk_widget_show (button);
+    
+    /* Récupération du paramètre padding sous forme de chaîne. */
+
+    sprintf (padstr, "%d);", padding);
+    
+    button = gtk_button_new_with_label (padstr);
+    gtk_box_pack_start (GTK_BOX (box), button, expand, fill, padding);
+    gtk_widget_show (button);
+    
+    return box;
+}
+
+int main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *box1;
+    GtkWidget *box2;
+    GtkWidget *separator;
+    GtkWidget *label;
+    GtkWidget *quitbox;
+    int which;
+    
+    /* Initialisation, à ne jamais oublier ! :) */
+
+    gtk_init (&amp;argc, &amp;argv);
+   
+    if (argc != 2) {
+        fprintf (stderr, "usage : %s num, où num vaut 1, 2, ou 3.\n", *argv);
+
+        /* Nettoyage dans GTK et sortie avec un code d'erreur de 1 */
+        gtk_exit (1);
+    }
+    
+    which = atoi (argv[1]);
+
+    /* Création de notre fenêtre. */
+
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    /* Il ne faut jamais oublier de connecter le signal "destroy" à la
+     * fenêtre principale. C'est très important pour disposer d'un 
+     * comportement intuitif adéquat. */
+
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (delete_event), NULL);
+
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+    
+
+    /* Création d'une boîte verticale (vbox) pour y placer les boîtes
+     * horizontales.
+     * Ceci permet de placer les boîtes horizontales contenant les boutons
+     * les unes au dessus des autres dans cette vbox. */
+
+    box1 = gtk_vbox_new (FALSE, 0);
+    
+    /* L'exemple à afficher. Ils correspondent aux images ci-dessus. */
+
+    switch (which) {
+    case 1:
+        /* Création d'un label. */
+
+        label = gtk_label_new ("gtk_hbox_new (FALSE, 0);");
+        
+        /* Alignement du label à gauche.  On précisera cette fonction ainsi
+         * que les autres dans la section sur les attributs des widgets. */
+
+        gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+
+        /* Placement du label dans la boîte verticale (vbox box1). Il ne
+         * faut pas oublier que les widgets qui s'ajoutent à une vbox sont
+         * placés les uns au dessus des autres. */
+
+        gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 0);
+        
+        /* Affichage du label */
+
+        gtk_widget_show (label);
+        
+        /* On appelle notre fonction de construction de boîte :
+         * homogeneous = FALSE, spacing = 0,
+         * expand = FALSE, fill = FALSE, padding = 0 */
+
+        box2 = make_box (FALSE, 0, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+
+        /* On appelle notre fonction de construction de boîte :
+         * homogeneous = FALSE, spacing = 0,
+         * expand = FALSE, fill = FALSE, padding = 0 */
+
+        box2 = make_box (FALSE, 0, TRUE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Paramètres : homogeneous = FALSE, spacing = 0, 
+         * expand = TRUE, fill = TRUE, padding = 0 */
+
+        box2 = make_box (FALSE, 0, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Création d'un séparateur, on verra cela plus tard, mais ils sont
+         * simples à utiliser. */
+
+        separator = gtk_hseparator_new ();
+        
+        /* Placement du séparateur dans la vbox. Ne pas oublier que tous les
+         * widgets sont placés dans une vbox et qu'il seront placés 
+         * verticalement. */
+
+        gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 5);
+        gtk_widget_show (separator);
+        
+        /* Création d'un nouveau label et affichage de celui-ci. */
+
+        label = gtk_label_new ("gtk_hbox_new (TRUE, 0);");
+        gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+        gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 0);
+        gtk_widget_show (label);
+        
+        /* Paramètres : homogeneous = TRUE, spacing = 0, 
+         * expand = TRUE, fill = FALSE, padding = 0 */
+
+        box2 = make_box (TRUE, 0, TRUE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Paramètres : homogeneous = TRUE, spacing = 0, 
+         * expand = TRUE, fill = TRUE, padding = 0 */
+
+        box2 = make_box (TRUE, 0, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Un autre séparateur */
+
+        separator = gtk_hseparator_new ();
+
+        /* Les 3 derniers paramètres de gtk_box_pack_start sont : 
+         * expand = FALSE, fill = TRUE, padding = 5. */
+
+        gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 5);
+        gtk_widget_show (separator);
+        
+        break;
+
+    case 2:
+
+        /* Création d'un label, box1 est une vbox identique à 
+         * celle créée au début de main() */
+
+        label = gtk_label_new ("gtk_hbox_new (FALSE, 10);");
+        gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+        gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 0);
+        gtk_widget_show (label);
+        
+        /* Paramètres : homogeneous = FALSE, spacing = 10, 
+         * expand = TRUE, fill = FALSE, padding = 0 */
+
+        box2 = make_box (FALSE, 10, TRUE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Paramètres : homogeneous = FALSE, spacing = 10, 
+         * expand = TRUE, fill = TRUE, padding = 0 */
+
+        box2 = make_box (FALSE, 10, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        separator = gtk_hseparator_new ();
+
+        /* Les 3 derniers paramètres de gtk_box_pack_start sont : 
+         * expand = FALSE, fill = TRUE, padding = 5. */
+
+        gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 5);
+        gtk_widget_show (separator);
+        
+        label = gtk_label_new ("gtk_hbox_new (FALSE, 0);");
+        gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+        gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 0);
+        gtk_widget_show (label);
+        
+        /* Paramètres : homogeneous = FALSE, spacing = 0, 
+         * expand = TRUE, fill = FALSE, padding = 10 */
+
+        box2 = make_box (FALSE, 0, TRUE, FALSE, 10);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Paramètres : homogeneous = FALSE, spacing = 0, 
+         * expand = TRUE, fill = TRUE, padding = 10 */
+
+        box2 = make_box (FALSE, 0, TRUE, TRUE, 10);
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        separator = gtk_hseparator_new ();
+
+        /* Les 3 derniers paramètres de gtk_box_pack_start sont : 
+         * expand = FALSE, fill = TRUE, padding = 5. */
+        
+        gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 5);
+        gtk_widget_show (separator);
+        break;
+    
+    case 3:
+
+        /* Ceci est une démonstration de la possibilité d'utiliser 
+         * gtk_box_pack_end() pour aligner les widgets à droite.
+         * On crée d'abord une nouvelle boîte comme d'habitude. */
+
+        box2 = make_box (FALSE, 0, FALSE, FALSE, 0);
+
+        /* On crée le label qui sera mis à la fin. */
+
+        label = gtk_label_new ("end");
+
+        /* On le place en utilisant gtk_box_pack_end(), il est ainsi
+         * mis à droite de la hbox créée par l'appel à make_box(). */
+
+        gtk_box_pack_end (GTK_BOX (box2), label, FALSE, FALSE, 0);
+
+        /* Affichage du label. */
+
+        gtk_widget_show (label);
+        
+        /* Placement de box2 dans box1 (la vbox, vous vous rappelez ? :) */
+
+        gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, FALSE, 0);
+        gtk_widget_show (box2);
+        
+        /* Séparateur pour le bas. */
+
+        separator = gtk_hseparator_new ();
+
+        /* Configuration du séparateur en 400x5 pixels. 
+         * La hbox que l'on a créée aura donc 400 pixels de large, 
+         * et le label "end" sera séparé des autres de la hbox.
+         * Sinon, tous les widgets de la hbox seraient placés les plus
+         * près possible les uns des autres. */
+
+        gtk_widget_set_usize (separator, 400, 5);
+
+        /* Placement du séparateur dans la vbox (box1) 
+         * créée au debut de main(). */
+
+        gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 5);
+        gtk_widget_show (separator);    
+    }
+    
+    /* Création d'une nouvelle hbox.. vous pouvez en utiliser autant que
+     * que vous en avez besoin ! */
+
+    quitbox = gtk_hbox_new (FALSE, 0);
+    
+    /* Notre bouton pour quitter. */
+
+    button = gtk_button_new_with_label ("Quit");
+    
+    /* Configuration du signal pour détruire la fenêtre. Ceci enverra le
+     * signal "destroy" à la fenêtre. Ce signal sera à son tour capturé
+     * par notre gestionnaire de signal défini plus haut. */
+
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC (gtk_widget_destroy),
+                               GTK_OBJECT (window));
+
+    /* Placement du bouton dans la « quitbox ».
+     * Les 3 derniers paramètres de gtk_box_pack_start sont : 
+     * expand = TRUE, fill = FALSE, padding = 0. */
+
+    gtk_box_pack_start (GTK_BOX (quitbox), button, TRUE, FALSE, 0);
+
+    /* Placement de la quitbox dans la vbox (box1) */
+
+    gtk_box_pack_start (GTK_BOX (box1), quitbox, FALSE, FALSE, 0);
+    
+    /* Placement de la vbox (box1), qui contient maintenant tous nos
+     * widgets, dans la fenêtre principale. */
+
+    gtk_container_add (GTK_CONTAINER (window), box1);
+    
+    /* Affichage */
+
+    gtk_widget_show (button);
+    gtk_widget_show (quitbox);
+    
+    gtk_widget_show (box1);
+
+    /* Affichage de la fenêtre en dernier */
+
+    gtk_widget_show (window);
+    
+    /* Ne pas oublier notre fonction principale. */
+
+    gtk_main ();
+
+    /* Le contrôle revient ici lorsque gtk_main_quit() est appelée,
+     * jusqu'à ce que  gtk_exit() soitutilisée. */
+    
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<H2><A NAME="ss4.4">4.4 Placement avec les tables</A>
+</H2>
+
+<P>Étudions une autre méthode de placement&nbsp;: les tables. Elles
+peuvent s'avérer très utiles dans certaines situations.
+<P>En utilisant des tables, on crée une grille dans laquelle on peut
+placer les widgets. Ceux-ci peuvent occuper tous les endroits que l'on
+désire.
+<P>La première chose à faire est, bien sûr, d'étudier la fonction
+<EM>gtk_table_new</EM>&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_table_new (gint rows,
+                          gint columns,
+                          gint homogeneous);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le premier paramètre est le nombre de lignes de la table et le
+deuxième, le nombre de colonnes.
+<P>Le paramètre <EM>homogeneous</EM> s'occupe de la façon dont les cases de
+la table seront dimensionnées. Si homogeneous vaut TRUE, les cases
+prennent la taille du plus grand widget de la table. S'il vaut FALSE,
+la taille des cases dépend du widget le plus haut de la ligne et du
+plus large de cette colonne.
+<P>Le nombre de lignes et colonnes va de 0 à n, où n est le nombre spécifié dans
+l'appel à <EM>gtk_table_new</EM>. Ainsi, avec <EM>rows</EM> = 2 et
+<EM>columns</EM> = 2, la table ressemblera à ceci&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+ 0          1          2
+0+----------+----------+
+ |          |          |
+1+----------+----------+
+ |          |          |
+2+----------+----------+
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>On notera que le système de coordonnées part du coin en haut à
+gauche. Pour placer un widget dans une case, ou utilise la fonction
+suivante&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_table_attach (GtkTable      *table,
+                       GtkWidget     *child,
+                       gint           left_attach,
+                       gint           right_attach,
+                       gint           top_attach,
+                       gint           bottom_attach,
+                       gint           xoptions,
+                       gint           yoptions,
+                       gint           xpadding,
+                       gint           ypadding);
+</PRE>
+</CODE></BLOCKQUOTE>
+                                       
+<P>Où le premier paramètre (<EM>table</EM>) est la table que l'on a créée et
+le second (<EM>child</EM>) est le widget que l'on veut placer dans la
+table.
+<P>Les paramètres <EM>left_attach</EM> et <EM>right_attach</EM> spécifient
+l'emplacement du widget et le nombre de cases à utiliser. Par exemple,
+si on veut placer un bouton dans le coin inférieur droit de la table
+décrite plus haut et que l'on désire ne remplir QUE cette case,
+<EM>left_attach</EM> vaudra 1, <EM>right_attach</EM> vaudra 2; <EM>top_attach</EM>
+vaudra 1 et <EM>bottom_attach</EM> vaudra 2.
+<P>Si on veut un widget occupant toute la ligne supérieure de notre table, on utilisera
+les valeurs 0, 2, 0, 1.
+<P>Les paramètres <EM>xoptions</EM> et <EM>yoptions</EM> servent à préciser les
+options de placement et peuvent être combinées par un OU logique pour
+permettre des options multiples.
+<P>Ces options sont&nbsp;:
+<UL>
+<LI>GTK_FILL - Si la case de la table est plus large que le widget, et que
+GTK_FILL est spécifié, le widget s'élargira pour occuper toute la place
+disponible.
+</LI>
+<LI>GTK_SHRINK - Si la table a moins de place qu'il ne lui en faut
+(généralement, à cause d'un redimensionnement de la fenêtre par
+l'utilisateur), les widgets sont alors simplement poussés vers le bas
+de la fenêtre et disparaissent. Si GTK_SHRINK est spécifié, les
+widgets se réduiront en même temps que la table.
+</LI>
+<LI>GTK_EXPAND - Cette option provoque l'extension de la table pour
+qu'elle utilise tout l'espace restant dans la fenêtre.</LI>
+</UL>
+<P>Le paramêtres de <EM>padding</EM> jouent le même rôle que pour les boîtes,
+il créent une zone libre, spécifiée en pixels, autour du widget.
+<P>gtk_table_attach() a BEAUCOUP d'options.  Voici donc une fonction-raccourci&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_table_attach_defaults (GtkTable   *table,
+                                GtkWidget  *widget,
+                                gint        left_attach,
+                                gint        right_attach,
+                                gint        top_attach,
+                                gint        bottom_attach);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><EM>xoptions</EM> et <EM>options</EM> valent par défaut GTK_FILL | GTK_EXPAND,
+et <EM>xpadding</EM> et <EM>ypadding</EM> valent 0. Les autres paramètres sont
+les mêmes que ceux de la fonction précédente.
+<P>Il existe aussi les fonctions <EM>gtk_table_set_row_spacing()</EM> et
+<EM>gtk_table_set_col_spacing()</EM>. Elles permettent de placer des
+espaces après une ligne ou une colonne.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_table_set_row_spacing (GtkTable      *table,
+                                gint           row,
+                                gint           spacing);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+et
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_table_set_col_spacing  (GtkTable      *table,
+                                 gint           column,
+                                 gint           spacing);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Pour les colonnes, l'espace est ajouté à droite de la colonne et pour
+les lignes, il est ajouté en dessous.
+<P>On peut aussi configurer un espacement pour toutes les lignes et/ou
+colonnes avec&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_table_set_row_spacings (GtkTable *table,
+                                 gint      spacing);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Et,
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_table_set_col_spacings (GtkTable  *table,
+                                 gint       spacing);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Avec ces appels, la dernière ligne et la dernière colonne n'ont pas
+d'espace supplémentaire.
+<P>
+<H2><A NAME="ss4.5">4.5 Exemple de placement avec table</A>
+</H2>
+
+<P>Pour le moment, étudiez l'exemple sur les tables (testgtk.c) distribué
+avec les sources de GTK.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-5.html">Page suivante</A>
+<A HREF="gtk_tut_fr-3.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc4">Table des matières</A>
+</BODY>
+</HTML>

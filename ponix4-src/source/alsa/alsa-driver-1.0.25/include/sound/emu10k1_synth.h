@@ -1,0 +1,1 @@
+../../alsa-kernel/include/emu10k1_synth.h

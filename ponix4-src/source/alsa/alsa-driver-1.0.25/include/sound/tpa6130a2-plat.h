@@ -1,0 +1,1 @@
+../../alsa-kernel/include/tpa6130a2-plat.h

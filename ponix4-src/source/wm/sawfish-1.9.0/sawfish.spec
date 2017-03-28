@@ -1,0 +1,149 @@
+Summary: An extensible window manager for the X Window System
+Name: sawfish
+Version: 1.9.0
+Release: 1%{?dist}
+License: GPLv2+ and Artistic 2.0
+# GPLv2+ is for Sawfish
+# Artistic 2.0 is for sounds
+Group: User Interface/Desktops
+Source0: http://download.tuxfamily.org/%{name}/%{name}-%{version}.tar.bz2
+URL: http://sawfish.wikia.com/
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: gmp-devel
+BuildRequires: gtk2-devel
+BuildRequires: libXft-devel
+BuildRequires: libXtst-devel
+BuildRequires: libICE-devel
+BuildRequires: libSM-devel
+BuildRequires: texinfo
+BuildRequires: gettext
+BuildRequires: kde-filesystem
+BuildRequires: desktop-file-utils
+BuildRequires: librep-devel >= 0.92.1
+BuildRequires: rep-gtk-devel >= 0.90.7
+Requires: control-center-filesystem
+Requires: hicolor-icon-theme
+Requires: kde-filesystem
+Requires: librep >= 0.92.1
+Requires: rep-gtk >= 0.90.7
+
+%define rep_execdir %(pkg-config librep --variable=repcommonexecdir)
+
+%description
+Sawfish is an extensible window manager which uses a Lisp-based
+scripting language.  All window decorations are configurable and the
+basic idea is to have as much user-interface policy as possible
+controlled through the Lisp language.  Configuration can be
+accomplished by writing Lisp code in a personal .sawfishrc file, or
+using a GTK+ interface.  Sawfish is mostly GNOME compliant
+
+%package devel
+Summary: Development files for Sawfish
+Group: Development/Languages
+Requires: %{name} = %{version}-%{release}, pkgconfig
+
+%description devel
+Include files for Sawfish development.
+
+%prep
+%setup -q
+
+%build
+%configure
+make %{?_smp_mflags}
+
+%install
+rm -rf %{buildroot}
+
+make install DESTDIR=%{buildroot}
+%find_lang %{name}
+gzip -9nf %{buildroot}%{_infodir}/sawfish*
+rm -f %{buildroot}%{_infodir}/dir
+find %{buildroot}%{_libdir} -name \*.a -exec rm '{}' \;
+find %{buildroot}%{_libdir} -name \*.la -exec rm '{}' \;
+# Fix main.jl (sawfish-config) for rpmlint
+sed -i -e '/^\#!/,/^!\#/d' %{buildroot}%{_datadir}/sawfish/lisp/sawfish/cfg/main.jl
+
+desktop-file-validate %{buildroot}%{_datadir}/applications/sawfish.desktop
+desktop-file-validate %{buildroot}%{_datadir}/gnome/wm-properties/sawfish-wm.desktop
+desktop-file-validate %{buildroot}%{_kde4_appsdir}/ksmserver/windowmanagers/sawfish.desktop
+desktop-file-validate %{buildroot}%{_datadir}/xsessions/sawfish.desktop
+
+%post
+/sbin/install-info %{_infodir}/sawfish.info.gz %{_infodir}/dir
+
+%preun
+if [ "$1" = 0 ]; then
+    /sbin/install-info --delete %{_infodir}/sawfish.info.gz %{_infodir}/dir
+fi
+
+%clean
+rm -rf %{buildroot}
+
+%files -f %{name}.lang
+%doc COPYING COPYING.SOUNDS FAQ KEYBINDINGS NEWS OPTIONS
+%doc README README.IMPORTANT TODO USERDOC
+%dir %{_kde4_appsdir}/ksmserver
+%dir %{_kde4_appsdir}/ksmserver/windowmanagers
+%{_bindir}/*
+%{rep_execdir}/sawfish
+%{_libdir}/sawfish
+%{_datadir}/sawfish
+%{_datadir}/applications/sawfish.desktop
+%{_datadir}/gnome/wm-properties/sawfish-wm.desktop
+%{_kde4_appsdir}/ksmserver/windowmanagers/sawfish.desktop
+%{_datadir}/xsessions/sawfish.desktop
+%{_datadir}/icons/hicolor/32x32/apps/sawfish-config.png
+%{_mandir}/man1/sawfish*.gz
+%{_infodir}/sawfish*
+
+%files devel
+%{_includedir}/sawfish
+%{_libdir}/pkgconfig/sawfish.pc
+
+# Note about rpmlint warning:
+# W: devel-file-in-non-devel-package /usr/bin/sawfish-config
+# This is sawfish GUI configurator, not devel config script.
+
+%changelog
+* Sun Oct  9 2011 Kim B. Heino <b@bbbs.net> - 1.8.91-1
+- Update to 1.8.91
+
+* Mon Aug 22 2011 Kim B. Heino <b@bbbs.net> - 1.8.90-1
+- Update to 1.8.90
+
+* Sat Jul 30 2011 Kim B. Heino <b@bbbs.net> - 1.8.1-2
+- Rebuild for new librep
+
+* Mon May  2 2011 Kim B. Heino <b@bbbs.net> - 1.8.1-1
+- Update to 1.8.1
+
+* Fri Apr 15 2011 Kim B. Heino <b@bbbs.net> - 1.8.0-2
+- Updated spec file
+
+* Thu Mar 31 2011 Kim B. Heino <b@bbbs.net> - 1.8.0-1
+- Update to 1.8.0
+
+* Sat Sep 25 2010 Kim B. Heino <b@bbbs.net> - 1.7.0-1
+- fix url, icons, misc fixes
+
+* Sun Jan 10 2010 Kim B. Heino <b@bbbs.net> - 1.6.2-1
+- fix devel package, fix rpmlint warnings
+
+* Sat Sep 05 2009 Kim B. Heino <b@bbbs.net>
+- add dist-tag, update files list
+
+* Sun Jan 18 2008 Christopher Bratusek <zanghar@freenet.de>
+- several fixups
+
+* Tue Jun 12 2000 John Harper <john@dcs.warwick.ac.uk>
+- merged differences from RH spec file
+
+* Mon Apr 24 2000 John Harper <john@dcs.warwick.ac.uk>
+- s/sawmill/sawfish/
+
+* Fri Sep 17 1999 John Harper <john@dcs.warwick.ac.uk>
+- don't patch the Makefile
+
+* Tue Sep 14 1999 Aron Griffis <agriffis@bigfoot.com>
+- 0.6 spec file update: added buildroot

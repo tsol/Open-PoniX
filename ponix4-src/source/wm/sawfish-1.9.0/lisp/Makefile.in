@@ -1,0 +1,105 @@
+# Makefile.in for sawfish's Lisp files
+# $Id: Makefile.in,v 1.30 2002/07/05 01:17:35 jsh Exp $
+#
+# Copyright (C) 1999 John Harper <john@dcs.warwick.ac.uk>
+#
+# This file is part of sawfish.
+#
+# sawfish is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# sawfish is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sawfish; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+include ../Makedefs
+
+top_builddir=..
+top_srcdir=@top_srcdir@
+
+REP_ENVIRON:=$(REP_ENVIRON) REP_LOAD_PATH=$(top_srcdir)/lisp:$(top_builddir)/lisp
+
+# also in themes/Makefile.in
+sawfish_prog = ../src/sawfish --batch --no-rc
+COMPILE_ENV = SAWFISHLISPDIR=. \
+	      SAWFISHEXECDIR=$(top_builddir)/src/.libexec \
+	      SAWFISHDOCFILE=../DOC \
+	      SAWFISH_USER_LISP_DIR=
+
+SAWFISH_LISP_FILES := sawfish/wm.jlc
+SAWFISH_LISP_DIRS := sawfish/wm
+
+INSTALL_FILES := *.jl *.jlc
+
+SUBDIRS := sawfish/gtk sawfish/cfg
+
+INSTALL_DIRS := \
+	sawfish sawfish/wm sawfish/wm/ext \
+	sawfish/wm/placement sawfish/wm/integration \
+	sawfish/wm/animation sawfish/wm/theming \
+	sawfish/wm/state sawfish/wm/util \
+	sawfish/wm/commands sawfish/wm/session \
+	sawfish/wm/tabs sawfish/wm/edge
+
+all : lisp
+	set -e; for d in $(SUBDIRS); do \
+	  ( cd  $$d && $(MAKE) $@ ); \
+	done
+
+lisp : $(SAWFISH_LISP_FILES)
+	set -e; for d in $(SAWFISH_LISP_DIRS); do \
+	  $(COMPILE_ENV) $(sawfish_prog) compiler -f compile-lib-batch $$d; \
+	done
+
+sawfish/wm.jlc : sawfish/wm.jl
+	$(COMPILE_ENV) $(sawfish_prog) compiler -f compile-batch $^
+
+non-jlc: all
+	rm sawfish/wm/ext/wallpaper.jlc
+
+install : all non-jlc installdirs
+	set -e; for d in $(SUBDIRS); do \
+	  ( cd $$d && $(MAKE) $@ ); \
+	done
+	set -e; for d in $(INSTALL_DIRS); do \
+	  for f in $(foreach x,$(INSTALL_FILES),$$d/$(x)); do \
+	    $(INSTALL_DATA) $$f $(DESTDIR)$(lispdir)/$$d; \
+	  done \
+	done
+	$(rep_INSTALL_ALIASES) -l . $(DESTDIR)$(lispdir)
+
+installdirs : $(top_srcdir)/mkinstalldirs
+	$(SHELL) $< $(foreach x,$(INSTALL_DIRS),$(DESTDIR)$(lispdir)/$(x))
+
+uninstall :
+	set -e; for d in $(SUBDIRS); do \
+	  ( cd $$d && $(MAKE) $@ ); \
+	done
+	for d in $(INSTALL_DIRS); do \
+	  for f in $(foreach x,$(INSTALL_FILES),$$d/$(x)); do \
+	    rm -f $(DESTDIR)$(lispdir)/$$f; \
+	  done \
+	done
+
+clean :
+	set -e; for d in $(SUBDIRS); do \
+	  ( cd $$d && $(MAKE) $@ ); \
+	done
+	rm -f `find . \( -name '*.jlc' -o -name '*~' -o -name core \) -print`
+
+distclean: gitclean
+
+gitclean : clean
+	set -e; for d in $(SUBDIRS); do \
+	  ( cd $$d && $(MAKE) $@ ); \
+	done
+	rm -f Makefile
+
+.PHONY : all lisp install uninstall clean gitclean

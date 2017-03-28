@@ -1,0 +1,39 @@
+
+CC = i486-TSOL-linux-gnu-gcc
+CFLAGS = -O2 -I/usr/xorg/include -I/usr/xorg/include -I/usr/include/freetype2 -I/usr/xorg/include  -DLOCALEDIR=\"/usr/share/locale\"
+CPPFLAGS = 
+LDFLAGS = -static-libgcc -L/usr/xorg/lib -lX11 -L/usr/xorg/lib -lXft -lX11 -lfreetype -lz -lfontconfig -L/usr/xorg/lib -lXrender -lX11 -lXrender -lXpm -lXmu 
+BINDIR = $(DESTDIR)/usr/bin
+
+VPATH=.:os
+
+OBJECTS = background.o border.o button.o client.o clientlist.o clock.o \
+	color.o command.o confirm.o cursor.o debug.o desktop.o dock.o event.o \
+   error.o font.o gradient.o group.o help.o hint.o icon.o image.o \
+   key.o lex.o main.o match.o menu.o misc.o move.o outline.o pager.o \
+   parse.o place.o popup.o render.o resize.o root.o screen.o spacer.o \
+   status.o swallow.o taskbar.o timing.o tray.o traybutton.o winmenu.o
+
+EXE = jwm
+
+.SUFFIXES: .o .h .c
+
+all: $(EXE)
+
+install: all
+	install -d $(BINDIR)
+	install $(EXE) $(BINDIR)/$(EXE)
+	strip $(BINDIR)/$(EXE)
+
+depend:
+	makedepend -m -DMAKE_DEPEND -- $(CFLAGS) -- *.c
+
+$(EXE): $(OBJECTS)
+	$(CC) -o $(EXE) $(OBJECTS) $(LDFLAGS)
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
+
+clean:
+	rm -f $(OBJECTS) $(EXE) core
+

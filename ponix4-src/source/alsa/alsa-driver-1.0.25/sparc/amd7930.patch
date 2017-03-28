@@ -1,0 +1,198 @@
+--- ../alsa-kernel/sparc/amd7930.c	2008-09-01 11:20:14.000000000 +0200
++++ amd7930.c	2008-09-01 11:42:41.000000000 +0200
+@@ -1,3 +1,4 @@
++#include "adriver.h"
+ /*
+  * Driver for AMD7930 sound chips found on Sparcs.
+  * Copyright (C) 2002, 2008 David S. Miller <davem@davemloft.net>
+@@ -35,8 +36,12 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/moduleparam.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#else
++#include <asm/sbus.h>
++#endif
+ 
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+@@ -339,6 +344,9 @@
+ 	struct of_device	*op;
+ 	unsigned int		irq;
+ 	struct snd_amd7930	*next;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++	unsigned int		regs_size;
++#endif
+ };
+ 
+ static struct snd_amd7930 *amd7930_list;
+@@ -906,17 +914,21 @@
+ 
+ static int snd_amd7930_free(struct snd_amd7930 *amd)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	struct of_device *op = amd->op;
+-
++#endif
+ 	amd7930_idle(amd);
+ 
+ 	if (amd->irq)
+ 		free_irq(amd->irq, amd);
+ 
+ 	if (amd->regs)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 		of_iounmap(&op->resource[0], amd->regs,
+ 			   resource_size(&op->resource[0]));
+-
++#else
++		sbus_iounmap(amd->regs, amd->regs_size);
++#endif
+ 	kfree(amd);
+ 
+ 	return 0;
+@@ -934,7 +946,12 @@
+ };
+ 
+ static int __devinit snd_amd7930_create(struct snd_card *card,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 					struct of_device *op,
++#else
++					struct resource *rp,
++					unsigned int reg_size,
++#endif
+ 					int irq, int dev,
+ 					struct snd_amd7930 **ramd)
+ {
+@@ -949,10 +966,14 @@
+ 
+ 	spin_lock_init(&amd->lock);
+ 	amd->card = card;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	amd->op = op;
+-
+ 	amd->regs = of_ioremap(&op->resource[0], 0,
+ 			       resource_size(&op->resource[0]), "amd7930");
++#else
++	amd->regs_size = reg_size;
++	amd->regs = sbus_ioremap(rp, 0, amd->regs_size, "amd7930");
++#endif
+ 	if (!amd->regs) {
+ 		snd_printk("amd7930-%d: Unable to map chip registers.\n", dev);
+ 		return -EIO;
+@@ -1001,16 +1022,23 @@
+ 	return 0;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ static int __devinit amd7930_sbus_probe(struct of_device *op, const struct of_device_id *match)
++#else
++static int __devinit amd7930_attach_common(struct resource *rp, int irq)
++#endif
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	struct resource *rp = &op->resource[0];
++#endif
+ 	static int dev_num;
+ 	struct snd_card *card;
+ 	struct snd_amd7930 *amd;
+ 	int err, irq;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	irq = op->irqs[0];
+-
++#endif
+ 	if (dev_num >= SNDRV_CARDS)
+ 		return -ENODEV;
+ 	if (!enable[dev_num]) {
+@@ -1030,8 +1058,14 @@
+ 		(unsigned long long)rp->start,
+ 		irq);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	if ((err = snd_amd7930_create(card, op,
+ 				      irq, dev_num, &amd)) < 0)
++#else
++	if ((err = snd_amd7930_create(card, rp,
++				      (rp->end - rp->start) + 1,
++				      irq, dev_num, &amd)) < 0)
++#endif
+ 		goto out_err;
+ 
+ 	if ((err = snd_amd7930_pcm(amd)) < 0)
+@@ -1055,6 +1089,44 @@
+ 	return err;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 28)
++static int __devinit amd7930_obio_attach(struct device_node *dp)
++{
++	const struct linux_prom_registers *regs;
++	const struct linux_prom_irqs *irqp;
++	struct resource res, *rp;
++	int len;
++
++	irqp = of_get_property(dp, "intr", &len);
++	if (!irqp) {
++		snd_printk("%s: Firmware node lacks IRQ property.\n",
++			   dp->full_name);
++		return -ENODEV;
++	}
++
++	regs = of_get_property(dp, "reg", &len);
++	if (!regs) {
++		snd_printk("%s: Firmware node lacks register property.\n",
++			   dp->full_name);
++		return -ENODEV;
++	}
++
++	rp = &res;
++	rp->start = regs->phys_addr;
++	rp->end = rp->start + regs->reg_size - 1;
++	rp->flags = IORESOURCE_IO | (regs->which_io & 0xff);
++
++	return amd7930_attach_common(rp, irqp->pri);
++}
++
++static int __devinit amd7930_sbus_probe(struct of_device *dev, const struct of_device_id *match)
++{
++	struct sbus_dev *sdev = to_sbus_device(&dev->dev);
++
++	return amd7930_attach_common(&sdev->resource[0], sdev->irqs[0]);
++}
++#endif
++
+ static const struct of_device_id amd7930_match[] = {
+ 	{
+ 		.name = "audio",
+@@ -1070,7 +1142,24 @@
+ 
+ static int __init amd7930_init(void)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 28)
+ 	return of_register_driver(&amd7930_sbus_driver, &of_bus_type);
++#else
++	struct device_node *dp;
++
++	/* Try to find the sun4c "audio" node first. */
++	dp = of_find_node_by_path("/");
++	dp = dp->child;
++	while (dp) {
++		if (!strcmp(dp->name, "audio"))
++			amd7930_obio_attach(dp);
++
++		dp = dp->sibling;
++	}
++
++	/* Probe each SBUS for amd7930 chips. */
++	return of_register_driver(&amd7930_sbus_driver, &sbus_bus_type);
++#endif
+ }
+ 
+ static void __exit amd7930_exit(void)
+@@ -1092,3 +1181,4 @@
+ 
+ module_init(amd7930_init);
+ module_exit(amd7930_exit);
++EXPORT_NO_SYMBOLS;

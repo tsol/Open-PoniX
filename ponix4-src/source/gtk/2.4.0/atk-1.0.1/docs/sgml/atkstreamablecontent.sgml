@@ -1,0 +1,164 @@
+<refentry id="atk-AtkStreamableContent">
+<refmeta>
+<refentrytitle>AtkStreamableContent</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkStreamableContent</refname><refpurpose></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+
+
+struct      <link linkend="AtkStreamableContent">AtkStreamableContent</link>;
+struct      <link linkend="AtkStreamableContentIface">AtkStreamableContentIface</link>;
+<link linkend="gint">gint</link>        <link linkend="atk-streamable-content-get-n-mime-types">atk_streamable_content_get_n_mime_types</link>
+                                            (<link linkend="AtkStreamableContent">AtkStreamableContent</link> *streamable);
+G_CONST_RETURN <link linkend="gchar">gchar</link>* <link linkend="atk-streamable-content-get-mime-type">atk_streamable_content_get_mime_type</link>
+                                            (<link linkend="AtkStreamableContent">AtkStreamableContent</link> *streamable,
+                                             <link linkend="gint">gint</link> i);
+<link linkend="GIOChannel">GIOChannel</link>* <link linkend="atk-streamable-content-get-stream">atk_streamable_content_get_stream</link>
+                                            (<link linkend="AtkStreamableContent">AtkStreamableContent</link> *streamable,
+                                             const <link linkend="gchar">gchar</link> *mime_type);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="AtkStreamableContent">struct AtkStreamableContent</title>
+<programlisting>struct AtkStreamableContent;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="AtkStreamableContentIface">struct AtkStreamableContentIface</title>
+<programlisting>struct AtkStreamableContentIface
+{
+  GTypeInterface parent;
+
+  /*
+   * Get the number of mime types supported by this object
+   */
+  gint                      (* get_n_mime_types)  (AtkStreamableContent     *streamable);
+  /*
+   * Gets the specified mime type supported by this object.
+   * The mime types are 0-based so the first mime type is 
+   * at index 0, the second at index 1 and so on.
+   *
+   * This assumes that the strings for the mime types are stored in the
+   * AtkStreamableContent. Alternatively the G_CONST_RETURN could be removed
+   * and the caller would be responsible for calling g_free() on the
+   * returned value.
+   */
+  G_CONST_RETURN gchar*     (* get_mime_type)     (AtkStreamableContent     *streamable,
+                                                   gint                     i);
+  /*
+   * Is one possible implementation for this method that it constructs the
+   * content appropriate for the mime type and then creates a temporary
+   * file containing the content, opens the file and then calls
+   * g_io_channel_unix_new_fd().
+   */
+  GIOChannel*               (* get_stream)        (AtkStreamableContent     *streamable,
+                                                   const gchar              *mime_type);
+
+  AtkFunction               pad1;
+  AtkFunction               pad2;
+  AtkFunction               pad3;
+  AtkFunction               pad4;
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="atk-streamable-content-get-n-mime-types">atk_streamable_content_get_n_mime_types ()</title>
+<programlisting><link linkend="gint">gint</link>        atk_streamable_content_get_n_mime_types
+                                            (<link linkend="AtkStreamableContent">AtkStreamableContent</link> *streamable);</programlisting>
+<para>
+Gets the number of mime types supported by this object.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>streamable</parameter>&nbsp;:</entry>
+<entry> a GObject instance that implements AtkStreamableContentIface
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> a gint which is the number of mime types supported by the object.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-streamable-content-get-mime-type">atk_streamable_content_get_mime_type ()</title>
+<programlisting>G_CONST_RETURN <link linkend="gchar">gchar</link>* atk_streamable_content_get_mime_type
+                                            (<link linkend="AtkStreamableContent">AtkStreamableContent</link> *streamable,
+                                             <link linkend="gint">gint</link> i);</programlisting>
+<para>
+Gets the character string of the specified mime type. The first mime
+type is at position 0, the second at position 1, and so on.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>streamable</parameter>&nbsp;:</entry>
+<entry> a GObject instance that implements AtkStreamableContent
+</entry></row>
+<row><entry align="right"><parameter>i</parameter>&nbsp;:</entry>
+<entry> a gint representing the position of the mime type starting from 0
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry>: a gchar* representing the specified mime type; the caller
+should not free the character string.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="atk-streamable-content-get-stream">atk_streamable_content_get_stream ()</title>
+<programlisting><link linkend="GIOChannel">GIOChannel</link>* atk_streamable_content_get_stream
+                                            (<link linkend="AtkStreamableContent">AtkStreamableContent</link> *streamable,
+                                             const <link linkend="gchar">gchar</link> *mime_type);</programlisting>
+<para>
+Gets the content in the specified mime type.</para>
+<para>
+
+</para><informaltable pgwide="1" frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>streamable</parameter>&nbsp;:</entry>
+<entry> a GObject instance that implements AtkStreamableContentIface
+</entry></row>
+<row><entry align="right"><parameter>mime_type</parameter>&nbsp;:</entry>
+<entry> a gchar* representing the mime type
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> A <link linkend="GIOChannel">GIOChannel</link> which contains the content in the specified mime
+type.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

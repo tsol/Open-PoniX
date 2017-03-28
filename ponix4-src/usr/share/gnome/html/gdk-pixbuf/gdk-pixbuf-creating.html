@@ -1,0 +1,1009 @@
+<HTML
+><HEAD
+><TITLE
+>Image Data in Memory</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.54"><LINK
+REL="HOME"
+TITLE="The gdk-pixbuf Library"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="API Reference"
+HREF="r27.html"><LINK
+REL="PREVIOUS"
+TITLE="File Loading"
+HREF="gdk-pixbuf-file-loading.html"><LINK
+REL="NEXT"
+TITLE="Rendering"
+HREF="gdk-pixbuf-rendering.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> Library</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="gdk-pixbuf-file-loading.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="r27.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="gdk-pixbuf-rendering.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+><A
+NAME="GDK-PIXBUF-CREATING"
+>Image Data in Memory</A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN488"
+></A
+><H2
+>Name</H2
+>Image Data in Memory&nbsp;--&nbsp;Creating a pixbuf from image data that is already in memory.</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN491"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW"
+>gdk_pixbuf_new</A
+>                  (<A
+HREF="gdk-pixbuf-gdk-pixbuf.html#GDKCOLORSPACE"
+>GdkColorspace</A
+> colorspace,
+                                             <GTKDOCLINK
+HREF="GBOOLEAN"
+>gboolean</GTKDOCLINK
+> has_alpha,
+                                             int bits_per_sample,
+                                             int width,
+                                             int height);
+<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>        (const <GTKDOCLINK
+HREF="GUCHAR"
+>guchar</GTKDOCLINK
+> *data,
+                                             <A
+HREF="gdk-pixbuf-gdk-pixbuf.html#GDKCOLORSPACE"
+>GdkColorspace</A
+> colorspace,
+                                             <GTKDOCLINK
+HREF="GBOOLEAN"
+>gboolean</GTKDOCLINK
+> has_alpha,
+                                             int bits_per_sample,
+                                             int width,
+                                             int height,
+                                             int rowstride,
+                                             <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFDESTROYNOTIFY"
+>GdkPixbufDestroyNotify</A
+> destroy_fn,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> destroy_fn_data);
+<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-XPM-DATA"
+>gdk_pixbuf_new_from_xpm_data</A
+>    (const char **data);
+<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-COPY"
+>gdk_pixbuf_copy</A
+>                 (const <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN510"
+></A
+><H2
+>Description</H2
+><P
+>    The most basic way to create a pixbuf is to wrap an existing pixel
+    buffer with a <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structure.  You can use the
+    <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>() function to do this You need to specify
+    the destroy notification function that will be called when the
+    data buffer needs to be freed; this will happen when a <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>
+    is finalized by the reference counting functions If you have a
+    chunk of static data compiled into your application, you can pass
+    in <GTKDOCLINK
+HREF="NULL"
+>NULL</GTKDOCLINK
+> as the destroy notification function so that the data
+    will not be freed.
+  </P
+><P
+>    The <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW"
+>gdk_pixbuf_new</A
+>() function can be used as a convenience to
+    create a pixbuf with an empty buffer.  This is equivalent to
+    allocating a data buffer using <GTKDOCLINK
+HREF="MALLOC"
+>malloc</GTKDOCLINK
+>() and then wrapping it with
+    <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>().  The <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW"
+>gdk_pixbuf_new</A
+>() function will
+    compute an optimal rowstride so that rendering can be performed
+    with an efficient algorithm.
+  </P
+><P
+>    As a special case, you can use the <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-XPM-DATA"
+>gdk_pixbuf_new_from_xpm_data</A
+>()
+    function to create a pixbuf from inline XPM image data.
+  </P
+><P
+>    You can also copy an existing pixbuf with the <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-COPY"
+>gdk_pixbuf_copy</A
+>()
+    function.  This is not the same as just doing a <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-REF"
+>gdk_pixbuf_ref</A
+>()
+    on the old pixbuf; the copy function will actually duplicate the
+    pixel data in memory and create a new <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structure for it.
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN528"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN530"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-NEW"
+></A
+>gdk_pixbuf_new ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  gdk_pixbuf_new                  (<A
+HREF="gdk-pixbuf-gdk-pixbuf.html#GDKCOLORSPACE"
+>GdkColorspace</A
+> colorspace,
+                                             <GTKDOCLINK
+HREF="GBOOLEAN"
+>gboolean</GTKDOCLINK
+> has_alpha,
+                                             int bits_per_sample,
+                                             int width,
+                                             int height);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structure and allocates a buffer for it.  The buffer
+has an optimal rowstride.  Note that the buffer is not cleared; you will have
+to fill it completely yourself.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>colorspace</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Color space for image.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>has_alpha</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Whether the image should have transparency information.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bits_per_sample</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Number of bits per color sample.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Width of image in pixels.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Height of image in pixels.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A newly-created <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> with a reference count of 1, or NULL
+if not enough memory could be allocated for the image buffer.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN570"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-NEW-FROM-DATA"
+></A
+>gdk_pixbuf_new_from_data ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  gdk_pixbuf_new_from_data        (const <GTKDOCLINK
+HREF="GUCHAR"
+>guchar</GTKDOCLINK
+> *data,
+                                             <A
+HREF="gdk-pixbuf-gdk-pixbuf.html#GDKCOLORSPACE"
+>GdkColorspace</A
+> colorspace,
+                                             <GTKDOCLINK
+HREF="GBOOLEAN"
+>gboolean</GTKDOCLINK
+> has_alpha,
+                                             int bits_per_sample,
+                                             int width,
+                                             int height,
+                                             int rowstride,
+                                             <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFDESTROYNOTIFY"
+>GdkPixbufDestroyNotify</A
+> destroy_fn,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> destroy_fn_data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> out of in-memory image data.  Currently only RGB
+images with 8 bits per sample are supported.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Image data in 8-bit/sample packed format.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>colorspace</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Colorspace for the image data.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>has_alpha</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Whether the data has an opacity channel.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bits_per_sample</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Number of bits per sample.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Width of the image in pixels.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Height of the image in pixels.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rowstride</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Distance in bytes between rows.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>destroy_fn</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Function used to free the data when the pixbuf's reference count
+drops to zero, or NULL if the data should not be freed.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>destroy_fn_data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Closure data to pass to the destroy notification function.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A newly-created <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structure with a reference count of
+1.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN629"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-NEW-FROM-XPM-DATA"
+></A
+>gdk_pixbuf_new_from_xpm_data ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  gdk_pixbuf_new_from_xpm_data    (const char **data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new pixbuf by parsing XPM data in memory.  This data is commonly
+the result of including an XPM file into a program's C source.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Pointer to inline XPM data.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A newly-created pixbuf with a reference count of 1.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN649"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-COPY"
+></A
+>gdk_pixbuf_copy ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  gdk_pixbuf_copy                 (const <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> with a copy of the information in the specified
+<TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A pixbuf.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A newly-created pixbuf with a reference count of 1, or NULL if
+not enough memory could be allocated.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN672"
+></A
+><H2
+>See Also</H2
+><P
+>    <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-FINALIZE"
+>gdk_pixbuf_finalize</A
+>().
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="gdk-pixbuf-file-loading.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="r27.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="gdk-pixbuf-rendering.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>File Loading</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Rendering</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

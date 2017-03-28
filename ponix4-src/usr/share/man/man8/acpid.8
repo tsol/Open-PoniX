@@ -1,0 +1,232 @@
+.TH acpid 8 ""
+.\" Portions Copyright (c) 2001 Sun Microsystems
+.\" Portions Copyright (c) Tim Hockin (thockin@hockin.org)
+.SH NAME
+acpid \- Advanced Configuration and Power Interface event daemon
+.SH SYNOPSIS
+\fBacpid\fP [\fIoptions\fP]
+
+.SH DESCRIPTION
+\fBacpid\fP is designed to notify user-space programs of ACPI events.
+\fBacpid\fP should be started during the system boot, and will run as a
+background process, by default.  It will open an events file
+(\fI/proc/acpi/event\fP by default) and attempt to read whole lines which
+represent ACPI events.  If the events file does not exist, \fBacpid\fP will
+attempt to connect to the Linux kernel via the input layer and netlink.  When an
+ACPI event is received from one of these sources, \fBacpid\fP will examine a
+list of rules, and execute the rules that match the event. \fBacpid\fP will
+ignore all incoming ACPI events if a lock file exists (\fI/var/lock/acpid\fP by
+default).
+.PP
+\fIRules\fP are defined by simple configuration files.  \fBacpid\fP
+will look in a configuration directory (\fI/etc/acpi/events\fP by default),
+and parse all regular files with names that consist entirely of upper and
+lower case letters, digits, underscores, and hyphens (similar to 
+run-parts(8)).
+.\" that do not begin with a period ('.') or end with a tilde (~).  
+Each file must define two things: an \fIevent\fP and an
+\fIaction\fP.  Any blank lines, or lines where the first character is a
+hash ('#') are ignored.  Extraneous lines are flagged as warnings, but
+are not fatal.  Each line has three tokens: the key, a literal equal sign,
+and the value.  The key can be up to 63 characters, and is case-insensitive
+(but whitespace matters).  The value can be up to 511 characters, and is
+case and whitespace sensitive.
+.PP
+The event value is a regular expression (see regcomp(3)), against which events are matched.
+.PP
+The action value is a commandline, which will be invoked via \fI/bin/sh\fP
+whenever an event matching the rule in question occurs.  The commandline may
+include shell-special characters, and they will be preserved.  The only special
+characters in an action value are "%" escaped.  The string "%e" will be
+replaced by the literal text of the event for which the action was invoked.
+This string may contain spaces, so the commandline must take care to quote the "%e" if it wants a single token.  The string "%%" will be replaced by a
+literal "%".  All other "%" escapes are reserved, and will cause a rule to
+not load.
+.PP
+This feature allows multiple rules to be defined for the same event (though no
+ordering is guaranteed), as well as one rule to be defined for multiple events.
+To force \fBacpid\fP to reload the rule configuration, send it a SIGHUP.
+.PP
+The pseudo-action \fI<drop>\fP causes the event to be dropped
+completely and no further processing undertaken; clients connecting
+via the UNIX domain socket (see below) will not be notified of the
+event. This may be useful on some machines, such as certain laptops which
+generate spurious battery events at frequent intervals. The name of
+this pseudo-action may be redefined with a commandline option.
+.PP
+In addition to rule files, \fBacpid\fP also accepts connections on a UNIX
+domain socket (\fI/var/run/acpid.socket\fP by default).  Any application may
+connect to this socket.  Once connected, \fBacpid\fP will send the text of
+all ACPI events to the client.  The client has the responsibility of filtering
+for messages about which it cares.  \fBacpid\fP will not close the client
+socket except in the case of a SIGHUP or \fBacpid\fP exiting.
+.PP
+For faster startup, this socket can be passed in as stdin so that \fBacpid\fP
+need not create the socket.  In addition, if a socket is passed in as stdin, 
+\fBacpid\fP will not daemonize.  It will be run in foreground.  This behavior 
+is provided to support systemd(1).
+.PP
+.B acpid
+will log all of its activities, as well as the stdout and stderr of any
+actions, to syslog.
+.PP
+All the default files and directories can be changed with commandline options.
+.SH OPTIONS
+.TP 12
+.BI \-c "\fR, \fP" \-\-confdir " directory"
+This option changes the directory in which \fBacpid\fP looks for rule
+configuration files.  Default is \fI/etc/acpi/events\fP.
+.TP 12
+.BI \-C "\fR, \fP" \-\-clientmax " number"
+This option changes the maximum number of non-root socket connections which
+can be made to the \fBacpid\fP socket.  Default is \fI256\fP.
+.TP 12
+.BI \-d "\fR, \fP" \-\-debug
+This option increases the \fBacpid\fP debug level by one.  If the debug level
+is non-zero, \fBacpid\fP will run in the foreground, and will log to
+stderr, in addition to the regular syslog.
+.TP
+.BI \-e "\fR, \fP" \-\-eventfile " filename"
+This option changes the event file from which \fBacpid\fP reads events.
+Default is \fI/proc/acpi/event\fP.
+.TP
+.BI \-n "\fR, \fP" \-\-netlink
+This option forces \fBacpid\fP to use the Linux kernel input layer and netlink interface for ACPI events.
+.TP
+.BI \-f "\fR, \fP" \-\-foreground
+This option keeps \fBacpid\fP in the foreground by not forking at startup.
+.TP
+.BI \-l "\fR, \fP" \-\-logevents
+This option tells \fBacpid\fP to log information about all events and actions.
+.TP
+.BI \-L "\fR, \fP" \-\-lockfile " filename"
+This option changes the lock file used to stop event processing.
+Default is \fI/var/lock/acpid\fP.
+.TP
+.BI \-g "\fR, \fP" \-\-socketgroup " groupname"
+This option changes the group ownership of the UNIX domain socket to which
+\fBacpid\fP publishes events.
+.TP
+.BI \-m "\fR, \fP" \-\-socketmode " mode"
+This option changes the permissions of the UNIX domain socket to which
+\fBacpid\fP publishes events.  Default is \fI0666\fP.
+.TP
+.BI \-s "\fR, \fP" \-\-socketfile " filename"
+This option changes the name of the UNIX domain socket which \fBacpid\fP opens.
+Default is \fI/var/run/acpid.socket\fP.
+.TP
+.BI \-S "\fR, \fP" \-\-nosocket " filename"
+This option tells \fBacpid\fP not to open a UNIX domain socket.  This
+overrides the \fI-s\fP option, and negates all other socket options.
+.TP
+.BI \-p "\fR, \fP" \-\-pidfile " filename"
+This option tells \fBacpid\fP to use the specified file as its pidfile.  If
+the file exists, it will be removed and over-written.
+Default is \fI/var/run/acpid.pid\fP.
+.TP
+.BI \-r "\fR, \fP" \-\-dropaction " action"
+This option defines the pseudo-action which tells \fBacpid\fP to abort
+all processing of an event, including client notifications.
+Default is \fI<drop>\fP.
+.TP
+.BI \-t "\fR, \fP" \-\-tpmutefix
+This option enables special handling of the mute button for certain
+ThinkPad models with mute LEDs that get out of sync with the mute state
+when the mute button is held down.  With this option, the mute button
+will generate the following events in sync with the number of presses
+(and, by extension, the state of the LED):
+.IP
+.br
+button/mute MUTE (key pressed) K
+.br
+button/mute MUTE (key released) K
+.TP
+.BI \-v "\fR, \fP" \-\-version
+Print version information and exit.
+.TP
+.BI \-h "\fR, \fP" \-\-help
+Show help and exit.
+.SH EXAMPLE
+This example will shut down your system if you press the power button.
+.PP
+Create a file named /etc/acpi/events/power that contains the following:
+.IP
+.br
+event=button/power
+.br
+action=/etc/acpi/power.sh "%e"
+.PP
+Then create a file named /etc/acpi/power.sh that contains the following:
+.IP
+/sbin/shutdown \-h now "Power button pressed"
+.PP
+Now, when \fBacpid\fP is running, a press of the power button will cause the
+rule in /etc/acpi/events/power to trigger the script in /etc/acpi/power.sh.
+The script will then shut down the system.
+.SH TROUBLESHOOTING
+\fBacpid\fP is a simple program that runs scripts in response to ACPI
+events from the kernel.  When there's trouble, the problem is rarely
+with \fBacpid\fP itself.  The following are some suggestions for
+finding the most common sources of ACPI-related problems.
+.PP
+When troubleshooting \fBacpid\fP, it is important to be aware that other parts
+of a system might be handling ACPI events.
+\fBsystemd\fP(1) is capable of handling the power switch and various other
+events that are commonly handled by \fBacpid\fP.  See the description of
+HandlePowerKey in \fBlogind.conf\fP(5) for more.  Some window managers also
+take over \fBacpid\fP's normal handling of the power button and other events.
+.PP
+kacpimon(8) can be used to verify that the expected ACPI events are
+coming in.  See the man page for kacpimon(8) for the proper procedure.
+If the events aren't
+coming in, you've probably got a kernel driver issue.
+.PP
+If the expected events are coming in, then you'll need
+to check and see if your window manager is responsible for
+handling these events.  Some are, some aren't.  (E.g. in Ubuntu
+14.04 (Unity/GNOME), there are settings for the laptop lid in the
+System Settings > Power > "When the lid is closed" fields.)
+If your window manager is responsible for handling the problematic
+event, and you've got it configured properly, then you may have a
+window manager issue.
+.PP
+Lastly, take a look in \fI/etc/acpi/events\fP (see above).  Is there
+a configuration file in there for the event
+in question (e.g. /etc/acpi/events/lidbtn for laptop lid open/close
+events)?  Is it properly connected to a
+script (e.g. /etc/acpi/lid.sh)?  Is that script working?  It's not
+unusual for an \fBacpid\fP script to check and see if there is a window
+manager running, then do nothing if there is.  This means it is up
+to the window manager to handle this event.
+.SH DEPENDENCIES
+\fBacpid\fP should work on any linux kernel released since 2003.
+.SH FILES
+.PD 0
+.B /proc/acpi/event
+.br
+.B /dev/input/event*
+.br
+.B /etc/acpi/
+.br
+.B /var/run/acpid.socket
+.br
+.B /var/run/acpid.pid
+.br
+.B /var/lock/acpid
+.br
+.PD
+.SH BUGS
+There are no known bugs.  To file bug reports, see \fBPROJECT WEBSITE\fP 
+below.
+.SH SEE ALSO
+regcomp(3), sh(1), socket(2), connect(2), init(1), systemd(1), 
+acpi_listen(8), kacpimon(8)
+.SH PROJECT WEBSITE
+http://sourceforge.net/projects/acpid2/
+.SH AUTHORS
+Ted Felix <ted@tedfelix.com>
+.br
+Tim Hockin <thockin@hockin.org>
+.br
+Andrew Henroid
+

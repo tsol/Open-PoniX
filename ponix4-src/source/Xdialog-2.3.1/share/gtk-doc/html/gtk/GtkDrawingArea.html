@@ -1,0 +1,165 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>GtkDrawingArea</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="MiscObjects.html" title="Miscellaneous"><link rel="previous" href="GtkCalendar.html" title="GtkCalendar"><link rel="next" href="GtkEventBox.html" title="GtkEventBox"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="GtkCalendar.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="MiscObjects.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="GtkEventBox.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="GtkDrawingArea"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">GtkDrawingArea</span></h2><p>GtkDrawingArea &#8212; a widget for custom user interface elements.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <a href="GtkDrawingArea.html#GtkDrawingArea-struct">GtkDrawingArea</a>;
+<a href="GtkWidget.html" title="GtkWidget">GtkWidget</a>*  <a href="GtkDrawingArea.html#gtk-drawing-area-new">gtk_drawing_area_new</a>            (void);
+void        <a href="GtkDrawingArea.html#gtk-drawing-area-size">gtk_drawing_area_size</a>           (<a href="GtkDrawingArea.html" title="GtkDrawingArea">GtkDrawingArea</a> *darea,
+                                             <a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> width,
+                                             <a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> height);
+
+
+</pre></div><div class="refsect1" lang="en"><h2>Object Hierarchy</h2><pre class="synopsis">
+
+  <a
+href="../gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="GtkObject.html" title="GtkObject">GtkObject</a>
+         +----<a href="GtkWidget.html" title="GtkWidget">GtkWidget</a>
+               +----GtkDrawingArea
+                     +----<a href="GtkCurve.html" title="GtkCurve">GtkCurve</a>
+</pre></div><div class="refsect1" lang="en"><h2>Implemented Interfaces</h2><p>
+GtkDrawingArea implements
+ AtkImplementorIface.</p></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+
+The <a href="GtkDrawingArea.html" title="GtkDrawingArea"><span class="type">GtkDrawingArea</span></a> widget is used for creating custom user interface
+elements. It's essentially a blank widget; you can draw on
+<tt class="literal">widget-&gt;window</tt>. After creating a drawing area,
+the application may want to connect to:
+
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+    Mouse and button press signals to respond to input from
+    the user. (Use <a href="GtkWidget.html#gtk-widget-add-events"><tt class="function">gtk_widget_add_events()</tt></a> to enable events 
+    you wish to receive.)
+    </p></li><li><p>
+    The "realize" signal to take any necessary actions
+    when the widget is instantiated on a particular display.
+    (Create GDK resources in response to this signal.)
+    </p></li><li><p>
+    The "configure_event" signal to take any necessary actions
+    when the widget changes size.
+    </p></li><li><p>
+    The "expose_event" signal to handle redrawing the
+    contents of the widget.
+    </p></li></ul></div><p>
+</p><p>
+The following code portion demonstrates using a drawing
+area to display a circle in the normal widget foreground 
+color.
+Note that GDK automatically clears the exposed area
+to the background color before sending the expose event, and 
+that drawing is implicitly clipped to the exposed area.
+</p><div class="example"><a name="id4342452"></a><p class="title"><b>Example 1. Simple <span class="structname">GtkDrawingArea</span> usage.</b></p><pre class="programlisting">
+gboolean
+expose_event_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+  gdk_draw_arc (widget-&gt;window,
+                widget-&gt;style-&gt;fg_gc[GTK_WIDGET_STATE (widget)],
+                TRUE,
+                0, 0, widget-&gt;allocation.width, widget-&gt;allocation.height,
+                0, 64 * 360);
+ 
+  return TRUE;
+}
+[...]
+  GtkWidget *drawing_area = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (drawing_area, 100, 100);
+  g_signal_connect (G_OBJECT (drawing_area), "expose_event",  
+                    G_CALLBACK (expose_event_callback), NULL);
+</pre></div><p>
+Expose events are normally delivered when a drawing area first comes
+onscreen, or when it's covered by another window and then uncovered
+(exposed). You can also force an expose event by adding to the "damage
+region" of the drawing area's window; <a href="GtkWidget.html#gtk-widget-queue-draw-area"><tt class="function">gtk_widget_queue_draw_area()</tt></a> and
+<a
+href="../gdk/gdk-Windows.html#gdk-window-invalidate-rect"
+><tt class="function">gdk_window_invalidate_rect()</tt></a> are equally good ways to do this. You'll
+then get an expose event for the invalid region.
+</p><p>
+The available routines for drawing are documented on the <a
+href="../gdk/gdk-Drawing-Primitives.html"
+>GDK Drawing Primitives</a> page.
+See also <a
+href="../gdk/gdk-Pixbufs.html#gdk-pixbuf-render-to-drawable"
+><tt class="function">gdk_pixbuf_render_to_drawable()</tt></a> for drawing a <a
+href="../gdk-pixbuf/gdk-pixbuf-gdk-pixbuf.html#GdkPixbuf"
+><span class="type">GdkPixbuf</span></a>.
+</p><p>
+To receive mouse events on a drawing area, you will need to enable
+them with <a href="GtkWidget.html#gtk-widget-add-events"><tt class="function">gtk_widget_add_events()</tt></a>. To receive keyboard events, you
+will need to set the <span class="type">GTK_CAN_FOCUS</span> flag on the drawing area, and
+should probably draw some user-visible indication that the drawing
+area is focused. Use the <tt class="function">GTK_HAS_FOCUS()</tt> macro in your expose event
+handler to decide whether to draw the focus indicator. See
+<a href="GtkStyle.html#gtk-paint-focus"><tt class="function">gtk_paint_focus()</tt></a> for one way to draw focus.
+</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="GtkDrawingArea-struct"></a>struct GtkDrawingArea</h3><a class="indexterm" name="id4342801"></a><pre class="programlisting">struct GtkDrawingArea;</pre><p>
+The <a href="GtkDrawingArea.html" title="GtkDrawingArea"><span class="type">GtkDrawingArea</span></a> struct contains private data only, and
+should be accessed using the functions below.
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="gtk-drawing-area-new"></a>gtk_drawing_area_new ()</h3><a class="indexterm" name="id4342844"></a><pre class="programlisting"><a href="GtkWidget.html" title="GtkWidget">GtkWidget</a>*  gtk_drawing_area_new            (void);</pre><p>
+Creates a new drawing area.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td>a new <a href="GtkDrawingArea.html" title="GtkDrawingArea"><span class="type">GtkDrawingArea</span></a>
+
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="gtk-drawing-area-size"></a>gtk_drawing_area_size ()</h3><a class="indexterm" name="id4342912"></a><pre class="programlisting">void        gtk_drawing_area_size           (<a href="GtkDrawingArea.html" title="GtkDrawingArea">GtkDrawingArea</a> *darea,
+                                             <a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> width,
+                                             <a
+href="../glib/glib-Basic-Types.html#gint"
+>gint</a> height);</pre><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p><tt class="literal">gtk_drawing_area_size</tt> is deprecated and should not be used in newly-written code.</p></div><p>
+(Use <a href="GtkWidget.html#gtk-widget-set-size-request"><tt class="function">gtk_widget_set_size_request()</tt></a> instead.)
+Sets the size that the drawing area will request
+in response to a "size_request" signal. The 
+drawing area may actually be allocated a size
+larger than this depending on how it is packed
+within the enclosing containers.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>darea</tt></i> :</span></td><td>a <a href="GtkDrawingArea.html" title="GtkDrawingArea"><span class="type">GtkDrawingArea</span></a>.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>width</tt></i> :</span></td><td>the width to request.
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>height</tt></i> :</span></td><td>the height to request.
+
+
+</td></tr></tbody></table></div></div></div><div class="refsect1" lang="en"><h2>See Also</h2><p>
+Sometimes <a href="GtkImage.html" title="GtkImage"><span class="type">GtkImage</span></a> is a useful alternative to a drawing area. 
+You can put a <a
+href="../gdk/gdk-Bitmaps-and-Pixmaps.html#GdkPixmap"
+><span class="type">GdkPixmap</span></a> in the <a href="GtkImage.html" title="GtkImage"><span class="type">GtkImage</span></a> and draw to the <a
+href="../gdk/gdk-Bitmaps-and-Pixmaps.html#GdkPixmap"
+><span class="type">GdkPixmap</span></a>, 
+calling <a href="GtkWidget.html#gtk-widget-queue-draw"><tt class="function">gtk_widget_queue_draw()</tt></a> on the <a href="GtkImage.html" title="GtkImage"><span class="type">GtkImage</span></a> when you want to 
+refresh to the screen.
+</p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="GtkCalendar.html"><b>&lt;&lt; GtkCalendar</b></a></td><td align="right"><a accesskey="n" href="GtkEventBox.html"><b>GtkEventBox &gt;&gt;</b></a></td></tr></table></body></html>

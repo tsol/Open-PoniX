@@ -1,0 +1,89 @@
+# Makefile.in for nokogiri subdirectory
+
+# $Id: Makefile.in,v 1.13 2002/04/21 03:38:25 jsh Exp $
+
+# Copyright (C) 2000 John Harper <john@dcs.warwick.ac.uk>
+
+# This file is part of sawfish.
+
+# sawfish is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# sawfish is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with sawfish; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+makepp_percent_subdirs=1
+include ../../../Makedefs
+
+top_builddir=../../..
+top_srcdir=@top_srcdir@
+srcdir=@srcdir@
+
+REP_ENVIRON:=$(REP_ENVIRON) REP_LOAD_PATH=$(top_srcdir)/lisp:$(top_builddir)/lisp
+
+SRCS :=	apply.jl		\
+	config.jl		\
+	group.jl		\
+	i18n.jl			\
+	layout.jl		\
+	main.jl			\
+	shell.jl		\
+	slot.jl			\
+	wm.jl
+
+L_SRCS := layouts/keymaps.jl
+
+OBJS := $(SRCS:.jl=.jlc)
+L_OBJS := $(L_SRCS:.jl=.jlc)
+
+ALL_SRCS := $(SRCS) $(L_SRCS)
+ALL_OBJS := $(OBJS) $(L_OBJS)
+
+SUBSTS := -e "s|__nokogiridir__|$(lispdir)|" 
+
+%.jlc : %.jl
+	$(REP_ENVIRON) rep compiler -f compile-batch $<
+
+all : $(ALL_SRCS) $(ALL_OBJS)
+
+%.jl : %.jl.in ./Makefile
+	sed $(SUBSTS) $< >$@
+
+install : all installdirs
+	set -e; for p in $(SRCS) $(OBJS); do \
+	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/cfg; \
+	done
+	set -e; for p in $(L_SRCS) $(L_OBJS); do \
+	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/cfg/layouts; \
+	done
+	$(INSTALL_SCRIPT) main.jlc $(DESTDIR)${bindir}/sawfish-config
+	$(INSTALL_DATA) sawfish-config.png $(DESTDIR)${datadir}/icons/hicolor/32x32/apps/
+
+uninstall :
+	rm -rf $(DESTDIR)${lispdir}/sawfish/cfg
+	rm -f $(DESTDIR)${datadir}/icons/hicolor/32x32/apps/sawfish-config.png
+	rm -f $(DESTDIR)${bindir}/sawfish-config
+
+installdirs : $(top_srcdir)/mkinstalldirs
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(lispdir)/sawfish/cfg \
+	  $(DESTDIR)$(lispdir)/sawfish/cfg/layouts $(DESTDIR)$(bindir) \
+	  $(DESTDIR)${datadir}/icons/hicolor/32x32/apps/
+
+clean : 
+	rm -f *.jlc *~ core
+	rm -f layouts/*~ layouts/*.jlc
+
+distclean : gitclean
+
+gitclean : clean
+	rm -f Makefile main.jl
+
+.PHONY: all install uninstall clean gitclean distclean

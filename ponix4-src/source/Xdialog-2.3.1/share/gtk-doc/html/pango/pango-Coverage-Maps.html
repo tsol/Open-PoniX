@@ -1,0 +1,159 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Coverage Maps</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="Pango Reference Manual"><link rel="up" href="lowlevel.html" title="Low Level Functionality"><link rel="previous" href="pango-OpenType-Font-Handling.html" title="OpenType Font Handling"><link rel="next" href="pango-Engines.html" title="Engines"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="pango-OpenType-Font-Handling.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="lowlevel.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Pango Reference Manual</th><td><a accesskey="n" href="pango-Engines.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="pango-Coverage-Maps"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Coverage Maps</span></h2><p>Coverage Maps &#8212; Unicode character range coverage storage</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+
+
+enum        <a href="pango-Coverage-Maps.html#PangoCoverageLevel">PangoCoverageLevel</a>;
+#define     <a href="pango-Coverage-Maps.html#PANGO-TYPE-COVERAGE-LEVEL-CAPS">PANGO_TYPE_COVERAGE_LEVEL</a>
+struct      <a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>;
+
+<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* <a href="pango-Coverage-Maps.html#pango-coverage-new">pango_coverage_new</a>           (void);
+<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* <a href="pango-Coverage-Maps.html#pango-coverage-ref">pango_coverage_ref</a>           (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage);
+void        <a href="pango-Coverage-Maps.html#pango-coverage-unref">pango_coverage_unref</a>            (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage);
+<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* <a href="pango-Coverage-Maps.html#pango-coverage-copy">pango_coverage_copy</a>          (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage);
+<a href="pango-Coverage-Maps.html#PangoCoverageLevel">PangoCoverageLevel</a> <a href="pango-Coverage-Maps.html#pango-coverage-get">pango_coverage_get</a>       (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             int index_);
+void        <a href="pango-Coverage-Maps.html#pango-coverage-max">pango_coverage_max</a>              (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             <a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *other);
+void        <a href="pango-Coverage-Maps.html#pango-coverage-set">pango_coverage_set</a>              (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             int index_,
+                                             <a href="pango-Coverage-Maps.html#PangoCoverageLevel">PangoCoverageLevel</a> level);
+void        <a href="pango-Coverage-Maps.html#pango-coverage-to-bytes">pango_coverage_to_bytes</a>         (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             <a
+href="../glib/glib-Basic-Types.html#guchar"
+>guchar</a> **bytes,
+                                             int *n_bytes);
+<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* <a href="pango-Coverage-Maps.html#pango-coverage-from-bytes">pango_coverage_from_bytes</a>    (<a
+href="../glib/glib-Basic-Types.html#guchar"
+>guchar</a> *bytes,
+                                             int n_bytes);
+
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+It is often necessary in Pango to determine if a particular font can
+represent a particular character, and also how well it can represent
+that character. The <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a> is a data structure that is used
+to represent that information.
+</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="PangoCoverageLevel"></a>enum PangoCoverageLevel</h3><a class="indexterm" name="id3608652"></a><pre class="programlisting">typedef enum {
+  PANGO_COVERAGE_NONE,
+  PANGO_COVERAGE_FALLBACK,
+  PANGO_COVERAGE_APPROXIMATE,
+  PANGO_COVERAGE_EXACT
+} PangoCoverageLevel;
+</pre><p>
+Used to indicate how well a font can represent a particular ISO 10646
+character point for a particular script.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><tt class="literal">PANGO_COVERAGE_NONE</tt></span></td><td>The character is not representable with the font.
+</td></tr><tr><td><span class="term"><tt class="literal">PANGO_COVERAGE_FALLBACK</tt></span></td><td>The character is represented in a way that may be
+                          comprehensible but is not the correct graphical form.
+                          For instance, a Hangul character represented as a
+                          a sequence of Jamos, or a Latin transliteration of
+                          a Cyrillic word.
+</td></tr><tr><td><span class="term"><tt class="literal">PANGO_COVERAGE_APPROXIMATE</tt></span></td><td>The character is represented as basically the correct
+                             graphical form, but with a stylistic variant inappropriate for
+                             the current script.
+</td></tr><tr><td><span class="term"><tt class="literal">PANGO_COVERAGE_EXACT</tt></span></td><td>The character is represented as the correct graphical form.
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="PANGO-TYPE-COVERAGE-LEVEL-CAPS"></a>PANGO_TYPE_COVERAGE_LEVEL</h3><a class="indexterm" name="id3608238"></a><pre class="programlisting">#define PANGO_TYPE_COVERAGE_LEVEL (pango_coverage_level_get_type())
+</pre><p>
+The GObject type for <a href="pango-Coverage-Maps.html#PangoCoverageLevel"><span class="type">PangoCoverageLevel</span></a>.
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PangoCoverage"></a>struct PangoCoverage</h3><a class="indexterm" name="id3608282"></a><pre class="programlisting">struct PangoCoverage;</pre><p>
+The <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a> structure represents a map from ISO-10646 character
+point to <a href="pango-Coverage-Maps.html#PangoCoverageLevel"><span class="type">PangoCoverageLevel</span></a>. It is an opaque structure with no public fields.
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-new"></a>pango_coverage_new ()</h3><a class="indexterm" name="id3609030"></a><pre class="programlisting"><a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* pango_coverage_new           (void);</pre><p>
+Create a new <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a></p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> a new PangoCoverage object, initialized to <tt class="literal">PANGO_COVERAGE_NONE</tt>
+              with a reference count of 0.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-ref"></a>pango_coverage_ref ()</h3><a class="indexterm" name="id3609108"></a><pre class="programlisting"><a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* pango_coverage_ref           (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage);</pre><p>
+Increase the reference count on the <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a> by one</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> <i class="parameter"><tt>coverage</tt></i>
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-unref"></a>pango_coverage_unref ()</h3><a class="indexterm" name="id3609221"></a><pre class="programlisting">void        pango_coverage_unref            (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage);</pre><p>
+Increase the reference count on the <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a> by one.
+if the result is zero, free the coverage and all associated memory.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-copy"></a>pango_coverage_copy ()</h3><a class="indexterm" name="id3609316"></a><pre class="programlisting"><a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* pango_coverage_copy          (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage);</pre><p>
+Copy an existing <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>. (This function may now be unecessary 
+since we refcount the structure. Mail otaylor<i class="parameter"><tt>redhat.com</tt></i> if you
+use it.)</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> a copy of <i class="parameter"><tt>coverage</tt></i> with a reference count of 1
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-get"></a>pango_coverage_get ()</h3><a class="indexterm" name="id3609437"></a><pre class="programlisting"><a href="pango-Coverage-Maps.html#PangoCoverageLevel">PangoCoverageLevel</a> pango_coverage_get       (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             int index_);</pre><p>
+Determine whether a particular index is covered by <i class="parameter"><tt>coverage</tt></i></p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>index_</tt></i> :</span></td><td> the index to check
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> 
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-max"></a>pango_coverage_max ()</h3><a class="indexterm" name="id3609565"></a><pre class="programlisting">void        pango_coverage_max              (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             <a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *other);</pre><p>
+Set the coverage for each index in <i class="parameter"><tt>coverage</tt></i> to be the max (better)
+value of the current coverage for the index and the coverage for
+the corresponding index in <i class="parameter"><tt>other</tt></i>.</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>other</tt></i> :</span></td><td> another <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-set"></a>pango_coverage_set ()</h3><a class="indexterm" name="id3609700"></a><pre class="programlisting">void        pango_coverage_set              (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             int index_,
+                                             <a href="pango-Coverage-Maps.html#PangoCoverageLevel">PangoCoverageLevel</a> level);</pre><p>
+Modify a particular index within <i class="parameter"><tt>coverage</tt></i></p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>index_</tt></i> :</span></td><td> the index to modify
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>level</tt></i> :</span></td><td> the new level for <i class="parameter"><tt>index_</tt></i>
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-to-bytes"></a>pango_coverage_to_bytes ()</h3><a class="indexterm" name="id3608771"></a><pre class="programlisting">void        pango_coverage_to_bytes         (<a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a> *coverage,
+                                             <a
+href="../glib/glib-Basic-Types.html#guchar"
+>guchar</a> **bytes,
+                                             int *n_bytes);</pre><p>
+Convert a PangoCoverage structure into a flat binary format</p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>coverage</tt></i> :</span></td><td> a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>bytes</tt></i> :</span></td><td> location to store result (must be freed with <a
+href="../glib/glib-Memory-Allocation.html#g-free"
+><tt class="function">g_free()</tt></a>)
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>n_bytes</tt></i> :</span></td><td> location to store size of result
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="pango-coverage-from-bytes"></a>pango_coverage_from_bytes ()</h3><a class="indexterm" name="id3608920"></a><pre class="programlisting"><a href="pango-Coverage-Maps.html#PangoCoverage">PangoCoverage</a>* pango_coverage_from_bytes    (<a
+href="../glib/glib-Basic-Types.html#guchar"
+>guchar</a> *bytes,
+                                             int n_bytes);</pre><p>
+Convert data generated from <tt class="function">pango_converage_to_bytes()</tt> back
+to a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a></p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>bytes</tt></i> :</span></td><td> binary data representing a <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>n_bytes</tt></i> :</span></td><td> the size of <i class="parameter"><tt>bytes</tt></i> in bytes
+</td></tr><tr><td><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></td><td> a newly allocated <a href="pango-Coverage-Maps.html#PangoCoverage"><span class="type">PangoCoverage</span></a>, or NULL if
+              the data was invalid.
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="pango-OpenType-Font-Handling.html"><b>&lt;&lt; OpenType Font Handling</b></a></td><td align="right"><a accesskey="n" href="pango-Engines.html"><b>Engines &gt;&gt;</b></a></td></tr></table></body></html>

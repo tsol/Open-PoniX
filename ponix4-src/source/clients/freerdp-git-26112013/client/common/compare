@@ -1,0 +1,89 @@
+32d31
+< #include <freerdp/crypto/crypto.h>
+36d34
+< #include <freerdp/version.h>
+55,57d52
+< 	{ "restricted-admin", COMMAND_LINE_VALUE_FLAG, NULL, NULL, NULL, -1, "restrictedAdmin", "Restricted admin mode" },
+< 	{ "pth", COMMAND_LINE_VALUE_REQUIRED, "<password hash>", NULL, NULL, -1, "pass-the-hash", "Pass the hash (restricted admin mode)" },
+< 	{ "client-hostname", COMMAND_LINE_VALUE_REQUIRED, "<name>", NULL, NULL, -1, NULL, "Client Hostname to send to server" },
+110d104
+< 	{ "gfx", COMMAND_LINE_VALUE_OPTIONAL, NULL, NULL, NULL, -1, NULL, "RDP8 graphics pipeline (experimental)" },
+149,150d142
+< 	{ "reconnect-cookie", COMMAND_LINE_VALUE_REQUIRED, "<base64 cookie>", NULL, NULL, -1, NULL, "Pass base64 reconnect cookie to the connection" },
+< 	{ "print-reconnect-cookie", COMMAND_LINE_VALUE_BOOL, NULL, BoolValueFalse, NULL, -1, NULL, "Print base64 reconnect cookie after connecting" },
+441c433
+< 	assert(NULL != count); 
+---
+> 	assert(NULL != count);
+1017c1009
+< int freerdp_client_settings_command_line_status_print(rdpSettings* settings, int status, int argc, char** argv)
+---
+> int freerdp_client_command_line_status_print(int argc, char** argv, rdpSettings* settings, int status)
+1074c1066
+< int freerdp_client_settings_parse_command_line_arguments(rdpSettings* settings, int argc, char** argv)
+---
+> int freerdp_client_parse_command_line_arguments(int argc, char** argv, rdpSettings* settings)
+1238,1252d1229
+< 		CommandLineSwitchCase(arg, "restricted-admin")
+< 		{
+< 			settings->ConsoleSession = TRUE;
+< 			settings->RestrictedAdminModeRequired = TRUE;
+< 		}
+< 		CommandLineSwitchCase(arg, "pth")
+< 		{
+< 			settings->ConsoleSession = TRUE;
+< 			settings->RestrictedAdminModeRequired = TRUE;
+< 			settings->PasswordHash = _strdup(arg->Value);
+< 		}
+< 		CommandLineSwitchCase(arg, "client-hostname")
+< 		{
+< 			settings->ClientHostname = _strdup(arg->Value);
+< 		}
+1492,1495d1468
+< 		CommandLineSwitchCase(arg, "gfx")
+< 		{
+< 			settings->SupportGraphicsPipeline = TRUE;
+< 		}
+1518d1490
+< 			settings->FastPathOutput = TRUE;
+1520,1521d1491
+< 			settings->LargePointerFlag = TRUE;
+< 			settings->FrameMarkerCommandEnabled = TRUE;
+1702,1722d1671
+< 		CommandLineSwitchCase(arg, "reconnect-cookie")
+< 		{
+< 			BYTE *base64;
+< 			int length;
+< 			crypto_base64_decode((BYTE *) (arg->Value),
+< 				(int) strlen(arg->Value), &base64, &length);
+< 			if ((base64 != NULL) && (length == sizeof(ARC_SC_PRIVATE_PACKET)))
+< 			{
+< 				memcpy(settings->ServerAutoReconnectCookie, base64, length);
+< 				free(base64);
+< 			}
+< 			else
+< 			{
+< 				fprintf(stderr, "reconnect-cookie:  invalid base64 '%s'\n",
+< 					arg->Value);
+< 			}
+< 		}
+< 		CommandLineSwitchCase(arg, "print-reconnect-cookie")
+< 		{
+< 			settings->PrintReconnectCookie = arg->Value ? TRUE : FALSE;
+< 		}
+1769c1718
+< 	entry = freerdp_load_channel_addin_entry(name, NULL, NULL, FREERDP_ADDIN_CHANNEL_STATIC);
+---
+> 	entry = freerdp_load_channel_addin_entry(name, NULL, NULL, 0);
+1868,1878d1816
+< 	}
+< 
+< 	if (settings->SupportGraphicsPipeline)
+< 	{
+< 		char* p[1];
+< 		int count;
+< 
+< 		count = 1;
+< 		p[0] = "rdpgfx";
+< 
+< 		freerdp_client_add_dynamic_channel(settings, count, p);

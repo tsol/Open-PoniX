@@ -1,0 +1,406 @@
+# Makefile for GNU patch.
+
+# Copyright (C) 1993, 1997, 1998, 1999, 2001, 2002, 2003, 2009
+# Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; see the file COPYING.
+# If not, write to the Free Software Foundation,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+#### Start of system configuration section. ####
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+@SET_MAKE@
+
+CC = @CC@
+ed_PROGRAM = @ed_PROGRAM@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+TEST_SHELL = @TEST_SHELL@
+transform = @program_transform_name@
+
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+EXEEXT = @EXEEXT@
+LDFLAGS = @LDFLAGS@
+LIBOBJDIR = gl/lib/
+LIBOBJS = @LIBOBJS@ ${LIBOBJDIR}full-write$U.o
+LIBS = @LIBS@
+OBJEXT = @OBJEXT@
+PACKAGE_NAME = @PACKAGE_NAME@
+PACKAGE_VERSION = @PACKAGE_VERSION@
+STDBOOL_H = @STDBOOL_H@
+GETOPT_H = @GETOPT_H@
+HAVE__BOOL = @HAVE__BOOL@
+ENABLE_MERGE = @ENABLE_MERGE@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+
+# Where to put the manual pages.
+datarootdir = @datarootdir@
+mandir = @mandir@
+man1dir = $(mandir)/man1
+# Extension (including `.') for the manual page filenames.
+man1ext = .1
+
+# Hook for nonstandard builds.
+CONFIG_STATUS = config.status
+
+#### End of system configuration section. ####
+
+SHELL = /bin/sh
+
+LIBSRCS = \
+	gl/lib/argmatch.c \
+	gl/lib/backupfile.c \
+	gl/lib/basename.c \
+	gl/lib/dirname.c \
+	gl/lib/error.c \
+	gl/lib/exitfail.c \
+	gl/lib/full-write.c \
+	gl/lib/getopt1.c \
+	gl/lib/getopt.c \
+	gl/lib/hash.c \
+	gl/lib/malloc.c \
+	gl/lib/mbrtowc.c \
+	gl/lib/memchr.c \
+	gl/lib/quotearg.c \
+	gl/lib/quote.c \
+	gl/lib/realloc.c \
+	gl/lib/rename.c \
+	gl/lib/safe-read.c \
+	gl/lib/safe-write.c \
+	gl/lib/strcasecmp.c \
+	gl/lib/stripslash.c \
+	gl/lib/strncasecmp.c \
+	gl/lib/strndup.c \
+	gl/lib/xmalloc.c \
+	gl/lib/xstrndup.c
+
+SRCS = $(LIBSRCS) \
+	src/inp.c \
+	src/maketime.c \
+	src/merge.c \
+	src/partime.c \
+	src/patch.c \
+	src/pch.c \
+	src/quotesys.c \
+	src/util.c \
+	src/version.c
+
+ifeq ($(ENABLE_MERGE),1)
+MERGEOBJ = src/merge.$(OBJEXT)
+endif
+
+OBJS = $(LIBOBJS) $(MERGEOBJ) \
+	src/inp.$(OBJEXT) \
+	src/maketime.$(OBJEXT) \
+	src/partime.$(OBJEXT) \
+	src/patch.$(OBJEXT) \
+	src/pch.$(OBJEXT) \
+	src/quotesys.$(OBJEXT) \
+	src/util.$(OBJEXT) \
+	src/version.$(OBJEXT)
+
+LIBHDRS = \
+	gl/lib/argmatch.h \
+	gl/lib/backupfile.h \
+	gl/lib/dirname.h \
+	gl/lib/error.h \
+	gl/lib/exitfail.h \
+	gl/lib/full-write.h \
+	gl/lib/getopt.hin \
+	gl/lib/getopt_int.h \
+	gl/lib/gettext.h \
+	gl/lib/hash.h \
+	gl/lib/minmax.h \
+	gl/lib/quotearg.h \
+	gl/lib/quote.h \
+	gl/lib/safe-write.h \
+	gl/lib/stdbool.hin \
+	gl/lib/unlocked-io.h \
+	gl/lib/verify.h \
+	gl/lib/xalloc.h \
+	gl/lib/xstrndup.h
+
+HDRS = $(LIBHDRS) \
+	src/bestmatch.h \
+	src/common.h \
+	src/diffseq.h \
+	src/inp.h \
+	src/maketime.h \
+	src/partime.h \
+	src/pch.h \
+	src/quotesys.h \
+	src/util.h \
+	src/version.h
+
+MISC = \
+	AUTHORS \
+	COPYING \
+	ChangeLog \
+	INSTALL \
+	Makefile.in \
+	NEWS \
+	README \
+	VERSION \
+	aclocal.m4 \
+	config.guess\
+	config.hin \
+	config.sub \
+	configure \
+	configure.ac \
+	install-sh \
+	mkinstalldirs \
+	patch.man \
+	tests/test-lib.sh \
+	update-version.sh
+
+DISTFILES = $(MISC) $(SRCS) $(HDRS) $(M4FILES) \
+	pc/chdirsaf.c \
+	pc/djgpp/config.sed \
+	pc/djgpp/configure.bat \
+	pc/djgpp/configure.sed \
+	pc/djgpp/README
+
+MORE_DISTFILES = $(TESTS) $(BROKEN_TESTS)
+
+patch_name = `echo patch | sed '$(transform)'`
+
+all:: src/patch$(EXEEXT)
+
+info::
+installcheck::
+
+TESTS = \
+	tests/asymmetric-hunks \
+	tests/backup-prefix-suffix \
+	tests/corrupt-reject-files \
+	tests/create-delete \
+	tests/crlf-handling \
+	tests/filename-choice \
+	tests/global-reject-files \
+	tests/inname \
+	tests/line-numbers \
+	tests/merge \
+	tests/munged-context-format \
+	tests/need-filename \
+	tests/no-newline-triggers-assert \
+	tests/preserve-c-function-names \
+	tests/preserve-mode-and-timestamp \
+	tests/reject-format \
+	tests/remember-backup-files \
+	tests/remember-reject-files \
+	tests/unmodified-files
+
+BROKEN_TESTS = \
+	tests/dash-o-append
+
+check:: $(TESTS)
+	@echo All tests succeeded!
+
+.PHONY: $(TESTS) $(BROKEN_TESTS)
+$(TESTS) $(BROKEN_TESTS): all
+	@echo "[$@]"
+	@srcdir=$(srcdir)/tests $(TEST_SHELL) $(srcdir)/$@
+
+ifeq ($(ENABLE_MERGE),1)
+DEFINE_ENABLE_MERGE = -DENABLE_MERGE
+endif
+COMPILE = $(CC) -c $(CPPFLAGS) $(DEFS) -Ded_PROGRAM=\"$(ed_PROGRAM)\" \
+	$(DEFINE_ENABLE_MERGE) -I. -I$(srcdir)/src -I$(srcdir)/gl/lib $(CFLAGS)
+
+.c.$(OBJEXT):
+	@mkdir -p $(@D)
+	$(COMPILE) -o $@ $<
+
+src/patch$(EXEEXT): $(OBJS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS)
+
+install:: all
+	$(SHELL) $(srcdir)/mkinstalldirs $(DESTDIR)$(bindir) $(DESTDIR)$(man1dir)
+	$(INSTALL_PROGRAM) src/patch$(EXEEXT) $(DESTDIR)$(bindir)/$(patch_name)$(EXEEXT)
+	$(INSTALL_DATA) $(srcdir)/patch.man $(DESTDIR)$(man1dir)/$(patch_name)$(man1ext)
+
+install-strip::
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+
+uninstall::
+	rm -f $(DESTDIR)$(bindir)/$(patch_name)$(EXEEXT) \
+		$(DESTDIR)$(man1dir)/$(patch_name)$(man1ext)
+
+Makefile: Makefile.in $(CONFIG_STATUS)
+	$(SHELL) $(CONFIG_STATUS)
+FORCE:
+VERSION: FORCE
+	@cd $(srcdir) && $(SHELL) ./update-version.sh VERSION
+config.status: configure
+	$(SHELL) $(CONFIG_STATUS) --recheck
+configure: configure.ac $(srcdir)/aclocal.m4 $(srcdir)/VERSION
+	cd $(srcdir) && autoconf --force
+config.hin: configure.ac $(srcdir)/aclocal.m4
+	cd $(srcdir) && autoheader --force
+
+# We need the following in order to create <getopt.h> when the system
+# doesn't have one that works with the given compiler.
+getopt.h: gl/lib/getopt.hin
+	rm -f $@-t $@
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/gl/lib/getopt.hin; \
+	} > $@-t
+	mv -f $@-t $@
+
+# We need the following in order to create <stdbool.h> when the system
+# doesn't have one that works.
+#gl/lib/stdbool.h: gl/lib/stdbool.hin
+stdbool.h: gl/lib/stdbool.hin
+	rm -f $@-t $@
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  sed -e 's/@''HAVE__BOOL''@/$(HAVE__BOOL)/g' \
+	    < $(srcdir)/gl/lib/stdbool.hin; \
+	} > $@-t
+	mv $@-t $@
+
+LIBM4FILES = \
+	gl/m4/argmatch.m4 \
+	gl/m4/backupfile.m4 \
+	gl/m4/d-ino.m4 \
+	gl/m4/dirname.m4 \
+	gl/m4/dos.m4 \
+	gl/m4/double-slash-root.m4 \
+	gl/m4/error.m4 \
+	gl/m4/exitfail.m4 \
+	gl/m4/extensions.m4 \
+	gl/m4/getopt.m4 \
+	gl/m4/gettext.m4 \
+	gl/m4/hash.m4 \
+	gl/m4/inline.m4 \
+	gl/m4/malloc.m4 \
+	gl/m4/mbrtowc.m4 \
+	gl/m4/mbstate_t.m4 \
+	gl/m4/memchr.m4 \
+	gl/m4/minmax.m4 \
+	gl/m4/onceonly.m4 \
+	gl/m4/quotearg.m4 \
+	gl/m4/quote.m4 \
+	gl/m4/realloc.m4 \
+	gl/m4/rename.m4 \
+	gl/m4/safe-write.m4 \
+	gl/m4/ssize_t.m4 \
+	gl/m4/stdbool.m4 \
+	gl/m4/strcase.m4 \
+	gl/m4/strndup.m4 \
+	gl/m4/unlocked-io.m4 \
+	gl/m4/utimbuf.m4 \
+	gl/m4/xalloc.m4 \
+	gl/m4/xstrndup.m4
+
+M4FILES = $(LIBM4FILES) \
+	m4/mkdir.m4 \
+	m4/setmode.m4
+
+$(srcdir)/aclocal.m4: $(M4FILES)
+	aclocal -I m4 -I gl/m4
+
+TAGS: $(HDRS) $(SRCS)
+	etags $(HDRS) $(SRCS)
+
+mostlyclean::
+	rm -f core* *core src/*.$(OBJEXT) gl/lib/*.$(OBJEXT) \
+	    stdbool.h getopt.h gl/lib/*.h-t
+
+clean:: mostlyclean
+	rm -f src/patch$(EXEEXT)
+
+distclean:: clean
+	rm -f Makefile config.cache config.hin~ config.log config.status \
+	      config.h
+	rm -rf autom4te.cache/
+
+maintainer-clean::
+	@echo "This command is intended for maintainers to use;"
+	@echo "rebuilding the deleted files requires special tools."
+	$(MAKE) distclean
+	rm -f TAGS VERSION aclocal.m4 config.hin configure \
+	      patch-*.tar.gz patch-*.tar.gz.sig
+
+PV = $(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+dist:: $(DISTFILES)
+	@rm -rf $(PV)
+	@ln -s . $(PV)
+	@tar -cf - `( printf "%s\n" $(DISTFILES) $(MORE_DISTFILES); \
+		      grep -q -E -- '-[0-9]+-[0-9a-z]+(-dirty)?$$' VERSION \
+		        && echo README-alpha \
+		    ) | sed -e 's,^$(srcdir)/,,' -e "s,^,$(PV)/," \
+		    | LC_ALL=C sort` \
+	  | gzip -9 > $(PV).tar.gz
+	@if which bzip2 >/dev/null 2>/dev/null; then \
+	    gzip -d < $(PV).tar.gz | bzip2 -9 > $(PV).tar.bz2; fi
+	@if which xz >/dev/null 2>/dev/null; then \
+	    gzip -d < $(PV).tar.gz | xz -9 > $(PV).tar.xz; fi
+	@rm -rf $(PV)
+	@whereto=$$(if grep -q -E -- '-[0-9]+-[0-9a-z]+(-dirty)?$$' VERSION; \
+		   then echo alpha; else echo ftp; fi); \
+	    echo; \
+	    echo "# gnupload --to $$whereto.gnu.org:patch $(PV).tar.gz"; \
+	    test ! -e $(PV).tar.bz2 || echo "# gnupload" \
+	      "--to $$whereto.gnu.org:patch $(PV).tar.bz2"; \
+	    test ! -e $(PV).tar.xz || echo "# gnupload" \
+	      "--to $$whereto.gnu.org:patch $(PV).tar.xz"; \
+	    echo
+
+$(OBJS): config.h
+COMMON = src/common.h $(STDBOOL_H)
+
+gl/lib/addext.$(OBJEXT): gl/lib/backupfile.h gl/lib/dirname.h
+gl/lib/argmatch.$(OBJEXT): $(STDBOOL_H) gl/lib/argmatch.h gl/lib/gettext.h \
+	gl/lib/error.h gl/lib/quote.h gl/lib/quotearg.h gl/lib/unlocked-io.h
+gl/lib/backupfile.$(OBJEXT): gl/lib/argmatch.h gl/lib/backupfile.h \
+	gl/lib/dirname.h
+gl/lib/basename.$(OBJEXT): gl/lib/dirname.h
+gl/lib/dirname.$(OBJEXT): gl/lib/dirname.h gl/lib/xalloc.h
+gl/lib/error.$(OBJEXT): gl/lib/error.h gl/lib/gettext.h gl/lib/unlocked-io.h
+gl/lib/exitfail.$(OBJEXT): gl/lib/exitfail.h
+gl/lib/full-write.$(OBJEXT): gl/lib/full-write.h gl/lib/safe-write.h
+gl/lib/getopt.$(OBJEXT) gl/lib/getopt1.$(OBJEXT): getopt.h
+gl/lib/hash.$(OBJEXT): $(STDBOOL_H) gl/lib/hash.h
+gl/lib/safe-read.$(OBJEXT): gl/lib/safe-write.h
+gl/lib/safe-write.$(OBJEXT): gl/lib/safe-read.c
+
+src/inp.$(OBJEXT): gl/lib/backupfile.h $(COMMON) src/inp.h src/pch.h \
+	gl/lib/quotearg.h src/util.h gl/lib/xalloc.h
+src/maketime.$(OBJEXT): src/maketime.h src/partime.h
+src/partime.$(OBJEXT): src/partime.h
+src/patch.$(OBJEXT): gl/lib/argmatch.h gl/lib/backupfile.h $(COMMON) \
+	gl/lib/exitfail.h $(GETOPT_H) src/inp.h src/pch.h \
+	gl/lib/quotearg.h src/util.h src/version.h gl/lib/xalloc.h
+src/pch.$(OBJEXT): gl/lib/backupfile.h $(COMMON) gl/lib/dirname.h src/inp.h \
+	src/pch.h gl/lib/quotearg.h src/util.h
+gl/lib/quote.$(OBJECT): gl/lib/quote.h gl/lib/quotearg.h
+gl/lib/quotearg.$(OBJEXT): gl/lib/gettext.h gl/lib/quotearg.h gl/lib/xalloc.h
+src/quotesys.$(OBJEXT): src/quotesys.h
+gl/lib/strncasecmp.$(OBJEXT): gl/lib/strcasecmp.c
+src/util.$(OBJEXT): gl/lib/backupfile.h $(COMMON) gl/lib/dirname.h gl/lib/full-write.h \
+	gl/lib/hash.h src/maketime.h src/partime.h gl/lib/quotearg.h \
+	src/quotesys.h src/util.h src/version.h gl/lib/xalloc.h
+src/version.$(OBJEXT): $(COMMON) src/version.h
+gl/lib/xmalloc.$(OBJEXT): gl/lib/error.h gl/lib/exitfail.h gl/lib/gettext.h \
+	gl/lib/xalloc.h

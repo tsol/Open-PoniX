@@ -1,0 +1,24 @@
+#!/bin/sh
+
+s=$1
+test -z "$s" && s=$0
+
+case "$s" in
+*gnome|GNOME)
+	test -x /usr/bin/gconftool-2 && gconftool-2 --set /desktop/gnome/session/required_components/windowmanager --type string e16
+	WINDOW_MANAGER=e16
+	export WINDOW_MANAGER
+	exec gnome-session
+	;;
+*kde|KDE)
+	KDEWM=e16
+	export KDEWM
+	exec startkde
+	;;
+*window)
+	exec %bindir%/e16 -w ${SIZE:-800x600}
+	;;
+*)
+	exec %bindir%/e16
+	;;
+esac

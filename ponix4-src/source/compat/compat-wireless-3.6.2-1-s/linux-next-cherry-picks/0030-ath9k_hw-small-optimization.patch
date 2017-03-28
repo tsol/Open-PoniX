@@ -1,0 +1,53 @@
+From 4653356f695900de170779fc522e2fc41d710897 Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Fri, 24 Aug 2012 16:27:06 +0530
+Subject: [PATCH] ath9k_hw: small optimization
+
+Assign the MCI BT state locally, rather than unnecessarily calling
+ar9003_mci_state and updating it.
+
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c | 6 ------
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h | 2 --
+ drivers/net/wireless/ath/ath9k/mci.c        | 2 +-
+ 3 files changed, 1 insertion(+), 9 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1201,12 +1201,6 @@ u32 ar9003_mci_state(struct ath_hw *ah,
+ 
+ 		ar9003_mci_2g5g_switch(ah, false);
+ 		break;
+-	case MCI_STATE_SET_BT_CAL_START:
+-		mci->bt_state = MCI_BT_CAL_START;
+-		break;
+-	case MCI_STATE_SET_BT_CAL:
+-		mci->bt_state = MCI_BT_CAL;
+-		break;
+ 	case MCI_STATE_RESET_REQ_WAKE:
+ 		ar9003_mci_reset_req_wakeup(ah);
+ 		mci->update_2g5g = true;
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -190,8 +190,6 @@ enum mci_bt_state {
+ enum mci_state_type {
+ 	MCI_STATE_ENABLE,
+ 	MCI_STATE_SET_BT_AWAKE,
+-	MCI_STATE_SET_BT_CAL_START,
+-	MCI_STATE_SET_BT_CAL,
+ 	MCI_STATE_LAST_SCHD_MSG_OFFSET,
+ 	MCI_STATE_REMOTE_SLEEP,
+ 	MCI_STATE_RESET_REQ_WAKE,
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -201,7 +201,7 @@ static void ath_mci_cal_msg(struct ath_s
+ 	switch (opcode) {
+ 	case MCI_GPM_BT_CAL_REQ:
+ 		if (mci_hw->bt_state == MCI_BT_AWAKE) {
+-			ar9003_mci_state(ah, MCI_STATE_SET_BT_CAL_START);
++			mci_hw->bt_state = MCI_BT_CAL_START;
+ 			ath9k_queue_reset(sc, RESET_TYPE_MCI);
+ 		}
+ 		ath_dbg(common, MCI, "MCI State : %d\n", mci_hw->bt_state);

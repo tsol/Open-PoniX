@@ -1,0 +1,706 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Getting Started</TITLE>
+ <LINK HREF="gtk_tut-3.html" REL=next>
+ <LINK HREF="gtk_tut-1.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc2" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-3.html">Next</A>
+<A HREF="gtk_tut-1.html">Previous</A>
+<A HREF="gtk_tut.html#toc2">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s2">2. Getting Started</A></H2>
+
+<P>The first thing to do, of course, is download the GTK source and
+install it. You can always get the latest version from ftp.gtk.org in
+/pub/gtk. You can also view other sources of GTK information on
+<A HREF="http://www.gtk.org/">http://www.gtk.org/</A>. GTK
+uses GNU autoconf for configuration. Once untar'd, type ./configure
+--help to see a list of options.
+<P>The GTK source distribution also contains the complete source to all
+of the examples used in this tutorial, along with Makefiles to aid
+compilation.
+<P>To begin our introduction to GTK, we'll start with the simplest
+program possible. This program will create a 200x200 pixel window and
+has no way of exiting except to be killed by using the shell.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start base base.c */
+
+#include &lt;gtk/gtk.h>
+
+int main( int   argc,
+          char *argv[] )
+{
+    GtkWidget *window;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_widget_show  (window);
+    
+    gtk_main ();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You can compile the above program with gcc using:
+<BLOCKQUOTE><CODE>
+<PRE>
+gcc base.c -o base `gtk-config --cflags --libs`
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The meaning of the unusual compilation options is explained below in
+<A HREF="#sec_compiling">Compiling Hello World</A>.
+<P>All programs will of course include gtk/gtk.h which declares the
+variables, functions, structures, etc. that will be used in your GTK
+application.
+<P>The next line:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_init (&amp;argc, &amp;argv);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>calls the function gtk_init(gint *argc, gchar ***argv) which will be
+called in all GTK applications. This sets up a few things for us such
+as the default visual and color map and then proceeds to call
+gdk_init(gint *argc, gchar ***argv). This function initializes the
+library for use, sets up default signal handlers, and checks the
+arguments passed to your application on the command line, looking for
+one of the following:
+<P>
+<UL>
+<LI> <CODE>--gtk-module</CODE></LI>
+<LI> <CODE>--g-fatal-warnings</CODE></LI>
+<LI> <CODE>--gtk-debug</CODE></LI>
+<LI> <CODE>--gtk-no-debug</CODE></LI>
+<LI> <CODE>--gdk-debug</CODE></LI>
+<LI> <CODE>--gdk-no-debug</CODE></LI>
+<LI> <CODE>--display</CODE></LI>
+<LI> <CODE>--sync</CODE></LI>
+<LI> <CODE>--no-xshm</CODE></LI>
+<LI> <CODE>--name</CODE></LI>
+<LI> <CODE>--class</CODE></LI>
+</UL>
+<P>It removes these from the argument list, leaving anything it does not
+recognize for your application to parse or ignore. This creates a set
+of standard arguments accepted by all GTK applications.
+<P>The next two lines of code create and display a window.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_widget_show (window);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>GTK_WINDOW_TOPLEVEL</CODE> argument specifies that we want the
+window to undergo window manager decoration and placement. Rather than
+create a window of 0x0 size, a window without children is set to
+200x200 by default so you can still manipulate it.
+<P>The gtk_widget_show() function lets GTK know that we are done setting
+the attributes of this widget, and that it can display it.
+<P>The last line enters the GTK main processing loop.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  gtk_main ();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>gtk_main() is another call you will see in every GTK application.
+When control reaches this point, GTK will sleep waiting for X events
+(such as button or key presses), timeouts, or file IO notifications to
+occur. In our simple example, however, events are ignored.
+<P>
+<H2><A NAME="ss2.1">2.1 Hello World in GTK</A>
+</H2>
+
+<P>Now for a program with a widget (a button).  It's the classic
+hello world a la GTK.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start helloworld helloworld.c */
+
+#include &lt;gtk/gtk.h>
+
+/* This is a callback function. The data arguments are ignored
+ * in this example. More on callbacks below. */
+void hello( GtkWidget *widget,
+            gpointer   data )
+{
+    g_print ("Hello World\n");
+}
+
+gint delete_event( GtkWidget *widget,
+                   GdkEvent  *event,
+                   gpointer   data )
+{
+    /* If you return FALSE in the "delete_event" signal handler,
+     * GTK will emit the "destroy" signal. Returning TRUE means
+     * you don't want the window to be destroyed.
+     * This is useful for popping up 'are you sure you want to quit?'
+     * type dialogs. */
+
+    g_print ("delete event occurred\n");
+
+    /* Change TRUE to FALSE and the main window will be destroyed with
+     * a "delete_event". */
+
+    return(TRUE);
+}
+
+/* Another callback */
+void destroy( GtkWidget *widget,
+              gpointer   data )
+{
+    gtk_main_quit();
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+    /* GtkWidget is the storage type for widgets */
+    GtkWidget *window;
+    GtkWidget *button;
+    
+    /* This is called in all GTK applications. Arguments are parsed
+     * from the command line and are returned to the application. */
+    gtk_init(&amp;argc, &amp;argv);
+    
+    /* create a new window */
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    /* When the window is given the "delete_event" signal (this is given
+     * by the window manager, usually by the "close" option, or on the
+     * titlebar), we ask it to call the delete_event () function
+     * as defined above. The data passed to the callback
+     * function is NULL and is ignored in the callback function. */
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (delete_event), NULL);
+    
+    /* Here we connect the "destroy" event to a signal handler.  
+     * This event occurs when we call gtk_widget_destroy() on the window,
+     * or if we return FALSE in the "delete_event" callback. */
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (destroy), NULL);
+    
+    /* Sets the border width of the window. */
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+    
+    /* Creates a new button with the label "Hello World". */
+    button = gtk_button_new_with_label ("Hello World");
+    
+    /* When the button receives the "clicked" signal, it will call the
+     * function hello() passing it NULL as its argument.  The hello()
+     * function is defined above. */
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (hello), NULL);
+    
+    /* This will cause the window to be destroyed by calling
+     * gtk_widget_destroy(window) when "clicked".  Again, the destroy
+     * signal could come from here, or the window manager. */
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC (gtk_widget_destroy),
+                               GTK_OBJECT (window));
+    
+    /* This packs the button into the window (a gtk container). */
+    gtk_container_add (GTK_CONTAINER (window), button);
+    
+    /* The final step is to display this newly created widget. */
+    gtk_widget_show (button);
+    
+    /* and the window */
+    gtk_widget_show (window);
+    
+    /* All GTK applications must have a gtk_main(). Control ends here
+     * and waits for an event to occur (like a key press or
+     * mouse event). */
+    gtk_main ();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="sec_compiling"></A> <A NAME="ss2.2">2.2 Compiling Hello World </A>
+</H2>
+
+<P>To compile use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gcc -Wall -g helloworld.c -o helloworld `gtk-config --cflags` \
+    `gtk-config --libs`
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This uses the program <CODE>gtk-config</CODE>, which comes with GTK. This
+program "knows" what compiler switches are needed to compile programs
+that use GTK. <CODE>gtk-config --cflags</CODE> will output a list of include
+directories for the compiler to look in, and <CODE>gtk-config --libs</CODE>
+will output the list of libraries for the compiler to link with and
+the directories to find them in. In the above example they could have
+been combined into a single instance, such as
+<CODE>`gtk-config --cflags --libs`</CODE>.
+<P>Note that the type of single quote used in the compile command above
+is significant.
+<P>The libraries that are usually linked in are:
+<UL>
+<LI>The GTK library (-lgtk), the widget library, based on top of GDK.</LI>
+<LI>The GDK library (-lgdk), the Xlib wrapper.</LI>
+<LI>The gmodule library (-lgmodule), which is used to load run time
+extensions.</LI>
+<LI>The GLib library (-lglib), containing miscellaneous functions;
+only g_print() is used in this particular example. GTK is built on top
+of glib so you will always require this library. See the section on
+<A HREF="gtk_tut-20.html#sec_glib">GLib</A> for details.</LI>
+<LI>The Xlib library (-lX11) which is used by GDK.</LI>
+<LI>The Xext library (-lXext). This contains code for shared memory
+pixmaps and other X extensions.</LI>
+<LI>The math library (-lm). This is used by GTK for various purposes.</LI>
+</UL>
+<P>
+<H2><A NAME="ss2.3">2.3 Theory of Signals and Callbacks</A>
+</H2>
+
+<P>Before we look in detail at <EM>helloworld</EM>, we'll discuss signals
+and callbacks. GTK is an event driven toolkit, which means it will
+sleep in gtk_main until an event occurs and control is passed to the
+appropriate function.
+<P>This passing of control is done using the idea of "signals". (Note
+that these signals are not the same as the Unix system signals, and
+are not implemented using them, although the terminology is almost
+identical.) When an event occurs, such as the press of a mouse button,
+the appropriate signal will be "emitted" by the widget that was
+pressed.  This is how GTK does most of its useful work. There are
+signals that all widgets inherit, such as "destroy", and there are
+signals that are widget specific, such as "toggled" on a toggle
+button.
+<P>To make a button perform an action, we set up a signal handler to
+catch these signals and call the appropriate function. This is done by
+using a function such as:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_signal_connect( GtkObject     *object,
+                         gchar         *name,
+                         GtkSignalFunc  func,
+                         gpointer       func_data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>where the first argument is the widget which will be emitting the
+signal, and the second the name of the signal you wish to catch. The
+third is the function you wish to be called when it is caught, and the
+fourth, the data you wish to have passed to this function.
+<P>The function specified in the third argument is called a "callback
+function", and should generally be of the form
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void callback_func( GtkWidget *widget,
+                    gpointer   callback_data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>where the first argument will be a pointer to the widget that emitted
+the signal, and the second a pointer to the data given as the last
+argument to the gtk_signal_connect() function as shown above.
+<P>Note that the above form for a signal callback function declaration is
+only a general guide, as some widget specific signals generate
+different calling parameters. For example, the CList "select_row"
+signal provides both row and column parameters.
+<P>Another call used in the <EM>helloworld</EM> example, is:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_signal_connect_object( GtkObject     *object,
+                                gchar         *name,
+                                GtkSignalFunc  func,
+                                GtkObject     *slot_object );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>gtk_signal_connect_object() is the same as gtk_signal_connect() except
+that the callback function only uses one argument, a pointer to a GTK
+object. So when using this function to connect signals, the callback
+should be of the form
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void callback_func( GtkObject *object );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>where the object is usually a widget. We usually don't setup callbacks
+for gtk_signal_connect_object however. They are usually used to call a
+GTK function that accepts a single widget or object as an argument, as
+is the case in our <EM>helloworld</EM> example.
+<P>The purpose of having two functions to connect signals is simply to
+allow the callbacks to have a different number of arguments. Many
+functions in the GTK library accept only a single GtkWidget pointer as
+an argument, so you want to use the gtk_signal_connect_object() for
+these, whereas for your functions, you may need to have additional
+data supplied to the callbacks.
+<P>
+<H2><A NAME="ss2.4">2.4 Events</A>
+</H2>
+
+<P>In addition to the signal mechanism described above, there is a set
+of <EM>events</EM> that reflect the X event mechanism. Callbacks may
+also be attached to these events. These events are:
+<P>
+<UL>
+<LI> event</LI>
+<LI> button_press_event</LI>
+<LI> button_release_event</LI>
+<LI> motion_notify_event</LI>
+<LI> delete_event</LI>
+<LI> destroy_event</LI>
+<LI> expose_event</LI>
+<LI> key_press_event</LI>
+<LI> key_release_event</LI>
+<LI> enter_notify_event</LI>
+<LI> leave_notify_event</LI>
+<LI> configure_event</LI>
+<LI> focus_in_event</LI>
+<LI> focus_out_event</LI>
+<LI> map_event</LI>
+<LI> unmap_event</LI>
+<LI> property_notify_event</LI>
+<LI> selection_clear_event</LI>
+<LI> selection_request_event</LI>
+<LI> selection_notify_event</LI>
+<LI> proximity_in_event</LI>
+<LI> proximity_out_event</LI>
+<LI> drag_begin_event</LI>
+<LI> drag_request_event</LI>
+<LI> drag_end_event</LI>
+<LI> drop_enter_event</LI>
+<LI> drop_leave_event</LI>
+<LI> drop_data_available_event</LI>
+<LI> other_event</LI>
+</UL>
+<P>In order to connect a callback function to one of these events, you
+use the function gtk_signal_connect, as described above, using one of
+the above event names as the <CODE>name</CODE> parameter. The callback
+function for events has a slightly different form than that for
+signals:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void callback_func( GtkWidget *widget,
+                    GdkEvent  *event,
+                    gpointer   callback_data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>GdkEvent is a C <CODE>union</CODE> structure whose type will depend upon which
+of the above events has occurred. In order for us to tell which event
+has been issued each of the possible alternatives has a <CODE>type</CODE>
+parameter which reflects the event being issued. The other components
+of the event structure will depend upon the type of the
+event. Possible values for the type are:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GDK_NOTHING
+  GDK_DELETE
+  GDK_DESTROY
+  GDK_EXPOSE
+  GDK_MOTION_NOTIFY
+  GDK_BUTTON_PRESS
+  GDK_2BUTTON_PRESS
+  GDK_3BUTTON_PRESS
+  GDK_BUTTON_RELEASE
+  GDK_KEY_PRESS
+  GDK_KEY_RELEASE
+  GDK_ENTER_NOTIFY
+  GDK_LEAVE_NOTIFY
+  GDK_FOCUS_CHANGE
+  GDK_CONFIGURE
+  GDK_MAP
+  GDK_UNMAP
+  GDK_PROPERTY_NOTIFY
+  GDK_SELECTION_CLEAR
+  GDK_SELECTION_REQUEST
+  GDK_SELECTION_NOTIFY
+  GDK_PROXIMITY_IN
+  GDK_PROXIMITY_OUT
+  GDK_DRAG_BEGIN
+  GDK_DRAG_REQUEST
+  GDK_DROP_ENTER
+  GDK_DROP_LEAVE
+  GDK_DROP_DATA_AVAIL
+  GDK_CLIENT_EVENT
+  GDK_VISIBILITY_NOTIFY
+  GDK_NO_EXPOSE
+  GDK_OTHER_EVENT       /* Deprecated, use filters instead */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>So, to connect a callback function to one of these events we would use
+something like:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_connect( GTK_OBJECT(button), "button_press_event",
+                    GTK_SIGNAL_FUNC(button_press_callback), 
+                    NULL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This assumes that <CODE>button</CODE> is a Button widget. Now, when the
+mouse is over the button and a mouse button is pressed, the function
+<CODE>button_press_callback</CODE> will be called. This function may be
+declared as:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static gint button_press_callback( GtkWidget      *widget, 
+                                   GdkEventButton *event,
+                                   gpointer        data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Note that we can declare the second argument as type
+<CODE>GdkEventButton</CODE> as we know what type of event will occur for this
+function to be called.
+<P>The value returned from this function indicates whether the event
+should be propagated further by the GTK event handling
+mechanism. Returning TRUE indicates that the event has been handled,
+and that it should not propagate further. Returning FALSE continues
+the normal event handling.  See the section on
+<A HREF="gtk_tut-18.html#sec_Adv_Events_and_Signals">Advanced Event and Signal Handling</A> for more details on this
+propagation process.
+<P>For details on the GdkEvent data types, see the appendix entitled
+<A HREF="gtk_tut-29.html#sec_GDK_Event_Types">GDK Event Types</A>.
+<P>
+<H2><A NAME="ss2.5">2.5 Stepping Through Hello World</A>
+</H2>
+
+<P>Now that we know the theory behind this, let's clarify by walking
+through the example <EM>helloworld</EM> program.
+<P>Here is the callback function that will be called when the button is
+"clicked". We ignore both the widget and the data in this example, but
+it is not hard to do things with them. The next example will use the
+data argument to tell us which button was pressed.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void hello( GtkWidget *widget,
+            gpointer   data )
+{
+    g_print ("Hello World\n");
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The next callback is a bit special. The "delete_event" occurs when the
+window manager sends this event to the application. We have a choice
+here as to what to do about these events. We can ignore them, make
+some sort of response, or simply quit the application.
+<P>The value you return in this callback lets GTK know what action to
+take.  By returning TRUE, we let it know that we don't want to have
+the "destroy" signal emitted, keeping our application running. By
+returning FALSE, we ask that "destroy" be emitted, which in turn will
+call our "destroy" signal handler.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint delete_event( GtkWidget *widget,
+                   GdkEvent  *event,
+                   gpointer   data )
+{
+    g_print ("delete event occurred\n");
+
+    return (TRUE); 
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here is another callback function which causes the program to quit by
+calling gtk_main_quit(). This function tells GTK that it is to exit
+from gtk_main when control is returned to it.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void destroy( GtkWidget *widget,
+              gpointer   data )
+{
+    gtk_main_quit ();
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>I assume you know about the main() function... yes, as with other
+applications, all GTK applications will also have one of these.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+int main( int   argc,
+          char *argv[] )
+{
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This next part declares pointers to a structure of type
+GtkWidget. These are used below to create a window and a button.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    GtkWidget *window;
+    GtkWidget *button;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here is our gtk_init again. As before, this initializes the toolkit,
+and parses the arguments found on the command line. Any argument it
+recognizes from the command line, it removes from the list, and
+modifies argc and argv to make it look like they never existed,
+allowing your application to parse the remaining arguments.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_init (&amp;argc, &amp;argv);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Create a new window. This is fairly straightforward. Memory is
+allocated for the GtkWidget *window structure so it now points to a
+valid structure. It sets up a new window, but it is not displayed
+until we call gtk_widget_show(window) near the end of our program.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here are two examples of connecting a signal handler to an object, in
+this case, the window. Here, the "delete_event" and "destroy" signals
+are caught. The first is emitted when we use the window manager to
+kill the window, or when we use the gtk_widget_destroy() call passing
+in the window widget as the object to destroy. The second is emitted
+when, in the "delete_event" handler, we return FALSE.
+<P>The <CODE>GTK_OBJECT</CODE> and <CODE>GTK_SIGNAL_FUNC</CODE> are macros that perform
+type casting and checking for us, as well as aid the readability of
+the code.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (delete_event), NULL);
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (destroy), NULL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This next function is used to set an attribute of a container object.
+This just sets the window so it has a blank area along the inside of
+it 10 pixels wide where no widgets will go. There are other similar
+functions which we will look at in the section on
+<A HREF="gtk_tut-16.html#sec_setting_widget_attributes">Setting Widget Attributes</A><P>And again, <CODE>GTK_CONTAINER</CODE> is a macro to perform type casting.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This call creates a new button. It allocates space for a new GtkWidget
+structure in memory, initializes it, and makes the button pointer
+point to it. It will have the label "Hello World" on it when
+displayed.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    button = gtk_button_new_with_label ("Hello World");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here, we take this button, and make it do something useful. We attach
+a signal handler to it so when it emits the "clicked" signal, our
+hello() function is called. The data is ignored, so we simply pass in
+NULL to the hello() callback function. Obviously, the "clicked" signal
+is emitted when we click the button with our mouse pointer.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (hello), NULL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>We are also going to use this button to exit our program. This will
+illustrate how the "destroy" signal may come from either the window
+manager, or our program. When the button is "clicked", same as above,
+it calls the first hello() callback function, and then this one in the
+order they are set up. You may have as many callback functions as you
+need, and all will be executed in the order you connected
+them. Because the gtk_widget_destroy() function accepts only a
+GtkWidget *widget as an argument, we use the
+gtk_signal_connect_object() function here instead of straight
+gtk_signal_connect().
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC (gtk_widget_destroy),
+                               GTK_OBJECT (window));
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is a packing call, which will be explained in depth later on in
+<A HREF="gtk_tut-4.html#sec_packing_widgets">Packing Widgets</A>. But it is
+fairly easy to understand. It simply tells GTK that the button is to
+be placed in the window where it will be displayed. Note that a GTK
+container can only contain one widget. There are other widgets, that
+are described later, which are designed to layout multiple widgets in
+various ways.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_container_add (GTK_CONTAINER (window), button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Now we have everything set up the way we want it to be. With all the
+signal handlers in place, and the button placed in the window where it
+should be, we ask GTK to "show" the widgets on the screen. The window
+widget is shown last so the whole window will pop up at once rather
+than seeing the window pop up, and then the button form inside of
+it. Although with such a simple example, you'd never notice.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_widget_show (button);
+
+    gtk_widget_show (window);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>And of course, we call gtk_main() which waits for events to come from
+the X server and will call on the widgets to emit signals when these
+events come.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_main ();
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>And the final return. Control returns here after gtk_quit() is called.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    return (0);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Now, when we click the mouse button on a GTK button, the widget emits
+a "clicked" signal. In order for us to use this information, our
+program sets up a signal handler to catch that signal, which
+dispatches the function of our choice. In our example, when the button
+we created is "clicked", the hello() function is called with a NULL
+argument, and then the next handler for this signal is called. This
+calls the gtk_widget_destroy() function, passing it the window widget
+as its argument, destroying the window widget. This causes the window
+to emit the "destroy" signal, which is caught, and calls our destroy()
+callback function, which simply exits GTK.
+<P>Another course of events is to use the window manager to kill the
+window, which will cause the "delete_event" to be emitted. This will
+call our "delete_event" handler. If we return TRUE here, the window
+will be left as is and nothing will happen. Returning FALSE will cause
+GTK to emit the "destroy" signal which of course calls the "destroy"
+callback, exiting GTK.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-3.html">Next</A>
+<A HREF="gtk_tut-1.html">Previous</A>
+<A HREF="gtk_tut.html#toc2">Contents</A>
+</BODY>
+</HTML>

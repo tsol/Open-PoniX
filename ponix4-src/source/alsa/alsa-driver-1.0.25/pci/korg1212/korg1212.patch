@@ -1,0 +1,24 @@
+--- korg1212.c.orig	2008-07-21 15:01:15.000000000 +0200
++++ korg1212.c	2008-07-21 15:04:21.000000000 +0200
+@@ -1,3 +1,4 @@
++#include "adriver.h"
+ /*
+  *   Driver for the Korg 1212 IO PCI card
+  *
+@@ -2338,7 +2339,11 @@
+         korg1212->AdatTimeCodePhy = korg1212->sharedBufferPhy +
+ 		offsetof(struct KorgSharedBuffer, AdatTimeCode);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 0)
+ 	err = request_firmware(&dsp_code, "korg/k1212.dsp", &pci->dev);
++#else
++	err = request_firmware(&dsp_code, "korg/k1212.dsp", pci_name(pci));
++#endif
+ 	if (err < 0) {
+ 		release_firmware(dsp_code);
+ 		snd_printk(KERN_ERR "firmware not available\n");
+@@ -2490,3 +2495,4 @@
+ 
+ module_init(alsa_card_korg1212_init)
+ module_exit(alsa_card_korg1212_exit)
++EXPORT_NO_SYMBOLS;

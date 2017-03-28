@@ -1,0 +1,730 @@
+<refentry id="pango-Glyph-Storage">
+<refmeta>
+<refentrytitle>Glyph Storage</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Glyph Storage</refname><refpurpose>Structures for storing information about glyphs</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+#define     <link linkend="PANGO-SCALE-CAPS">PANGO_SCALE</link>
+#define     <link linkend="PANGO-PIXELS-CAPS">PANGO_PIXELS</link>                    (d)
+struct      <link linkend="PangoRectangle">PangoRectangle</link>;
+#define     <link linkend="PANGO-ASCENT-CAPS">PANGO_ASCENT</link>                    (rect)
+#define     <link linkend="PANGO-DESCENT-CAPS">PANGO_DESCENT</link>                   (rect)
+#define     <link linkend="PANGO-LBEARING-CAPS">PANGO_LBEARING</link>                  (rect)
+#define     <link linkend="PANGO-RBEARING-CAPS">PANGO_RBEARING</link>                  (rect)
+typedef     <link linkend="PangoGlyph">PangoGlyph</link>;
+struct      <link linkend="PangoGlyphInfo">PangoGlyphInfo</link>;
+struct      <link linkend="PangoGlyphGeometry">PangoGlyphGeometry</link>;
+typedef     <link linkend="PangoGlyphUnit">PangoGlyphUnit</link>;
+struct      <link linkend="PangoGlyphVisAttr">PangoGlyphVisAttr</link>;
+struct      <link linkend="PangoGlyphString">PangoGlyphString</link>;
+struct      <link linkend="PangoGlyphItem">PangoGlyphItem</link>;
+#define     <link linkend="PANGO-TYPE-GLYPH-STRING-CAPS">PANGO_TYPE_GLYPH_STRING</link>
+<link linkend="PangoGlyphString">PangoGlyphString</link>* <link linkend="pango-glyph-string-new">pango_glyph_string_new</link>    (void);
+<link linkend="PangoGlyphString">PangoGlyphString</link>* <link linkend="pango-glyph-string-copy">pango_glyph_string_copy</link>   (<link linkend="PangoGlyphString">PangoGlyphString</link> *string);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-set-size">pango_glyph_string_set_size</link>     (<link linkend="PangoGlyphString">PangoGlyphString</link> *string,
+                                             <link linkend="gint">gint</link> new_len);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-free">pango_glyph_string_free</link>         (<link linkend="PangoGlyphString">PangoGlyphString</link> *string);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-extents">pango_glyph_string_extents</link>      (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="PangoFont">PangoFont</link> *font,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *ink_rect,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *logical_rect);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-extents-range">pango_glyph_string_extents_range</link>
+                                            (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="int">int</link> start,
+                                             <link linkend="int">int</link> end,
+                                             <link linkend="PangoFont">PangoFont</link> *font,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *ink_rect,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *logical_rect);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-index-to-x">pango_glyph_string_index_to_x</link>   (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length,
+                                             <link linkend="PangoAnalysis">PangoAnalysis</link> *analysis,
+                                             <link linkend="int">int</link> index_,
+                                             <link linkend="gboolean">gboolean</link> trailing,
+                                             <link linkend="int">int</link> *x_pos);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-x-to-index">pango_glyph_string_x_to_index</link>   (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length,
+                                             <link linkend="PangoAnalysis">PangoAnalysis</link> *analysis,
+                                             <link linkend="int">int</link> x_pos,
+                                             <link linkend="int">int</link> *index_,
+                                             <link linkend="int">int</link> *trailing);
+<link linkend="void">void</link>        <link linkend="pango-glyph-string-get-logical-widths">pango_glyph_string_get_logical_widths</link>
+                                            (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             const <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length,
+                                             <link linkend="int">int</link> embedding_level,
+                                             <link linkend="int">int</link> *logical_widths);
+<link linkend="PangoGlyphItem">PangoGlyphItem</link>* <link linkend="pango-glyph-item-split">pango_glyph_item_split</link>      (<link linkend="PangoGlyphItem">PangoGlyphItem</link> *orig,
+                                             const <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> split_index);
+<link linkend="GSList">GSList</link>*     <link linkend="pango-glyph-item-apply-attrs">pango_glyph_item_apply_attrs</link>    (<link linkend="PangoGlyphItem">PangoGlyphItem</link> *glyph_item,
+                                             const <link linkend="char">char</link> *text,
+                                             <link linkend="PangoAttrList">PangoAttrList</link> *list);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="pango-shape"><function>pango_shape()</function></link> produces a string of glyphs which
+can be measured or drawn to the screen. The following
+structures are used to store information about
+glyphs.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="PANGO-SCALE-CAPS"/>PANGO_SCALE</title>
+<indexterm><primary>PANGO_SCALE</primary></indexterm><programlisting>#define PANGO_SCALE 1024
+</programlisting>
+<para>
+The PANGO_SCALE macro represents the scale between dimensions used
+for Pango distances and device units. (The definition of device
+units is dependent on the output device; it will typically be pixels
+for a screen, and points for a printer.) PANGO_SCALE is currently
+1024, but this may be changed in the future.
+</para>
+<para>
+When setting font sizes, device units are always considered to be
+points (as in "12 point font"), rather than pixels. 
+</para></refsect2>
+<refsect2>
+<title><anchor id="PANGO-PIXELS-CAPS"/>PANGO_PIXELS()</title>
+<indexterm><primary>PANGO_PIXELS</primary></indexterm><programlisting>#define     PANGO_PIXELS(d)</programlisting>
+<para>
+Converts a dimension to device units.
+</para><variablelist role="params">
+<varlistentry><term><parameter>d</parameter>&nbsp;:</term>
+<listitem><simpara>a dimension in Pango units.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PangoRectangle"/>struct PangoRectangle</title>
+<indexterm><primary>PangoRectangle</primary></indexterm><programlisting>struct PangoRectangle {
+
+  int x;
+  int y;
+  int width;
+  int height;
+};
+</programlisting>
+<para>
+The <link linkend="PangoRectangle"><type>PangoRectangle</type></link> structure represents a rectangle. It is frequently
+used to represent the logical or ink extents of a single glyph or section
+of text. (See, for instance, <link linkend="pango-font-get-glyph-extents"><function>pango_font_get_glyph_extents()</function></link>)
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="int">int</link> <structfield>x</structfield></term>
+<listitem><simpara>X coordinate of the left side of the rectangle.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="int">int</link> <structfield>y</structfield></term>
+<listitem><simpara>Y coordinate of the the top side of the rectangle.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="int">int</link> <structfield>width</structfield></term>
+<listitem><simpara>width of the rectangle.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="int">int</link> <structfield>height</structfield></term>
+<listitem><simpara>height of the rectangle.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-ASCENT-CAPS"/>PANGO_ASCENT()</title>
+<indexterm><primary>PANGO_ASCENT</primary></indexterm><programlisting>#define PANGO_ASCENT(rect) (-(rect).y)
+</programlisting>
+<para>
+Extracts the <firstterm>ascent</firstterm> from a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+representing glyph extents. The ascent is the distance from the
+baseline to the highest point of the character. This is positive if the
+glyph ascends above the baseline.
+</para><variablelist role="params">
+<varlistentry><term><parameter>rect</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-DESCENT-CAPS"/>PANGO_DESCENT()</title>
+<indexterm><primary>PANGO_DESCENT</primary></indexterm><programlisting>#define PANGO_DESCENT(rect) ((rect).y + (rect).height)
+</programlisting>
+<para>
+Extracts the <firstterm>descent</firstterm> from a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+representing glyph extents. The descent is the distance from the
+baseline to the lowest point of the character. This is positive if the
+glyph descends below the baseline.
+</para><variablelist role="params">
+<varlistentry><term><parameter>rect</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-LBEARING-CAPS"/>PANGO_LBEARING()</title>
+<indexterm><primary>PANGO_LBEARING</primary></indexterm><programlisting>#define PANGO_LBEARING(rect) ((rect).x)
+</programlisting>
+<para>
+Extracts the <firstterm>left bearing</firstterm> from a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+representing glyph extents. The left bearing is the distance from the
+horizontal origin to the farthest left point of the character.
+This is positive for characters drawn completely to the right of the
+glyph origin.
+</para><variablelist role="params">
+<varlistentry><term><parameter>rect</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-RBEARING-CAPS"/>PANGO_RBEARING()</title>
+<indexterm><primary>PANGO_RBEARING</primary></indexterm><programlisting>#define PANGO_RBEARING(rect) ((rect).x + (rect).width)
+</programlisting>
+<para>
+Extracts the <firstterm>right bearing</firstterm> from a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+representing glyph extents. The right bearing is the distance from the
+horizontal origin to the farthest right point of the character.
+This is positive except for characters drawn completely to the left of the
+horizontal origin.
+</para><variablelist role="params">
+<varlistentry><term><parameter>rect</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="PangoRectangle"><type>PangoRectangle</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyph"/>PangoGlyph</title>
+<indexterm><primary>PangoGlyph</primary></indexterm><programlisting>typedef guint32 PangoGlyph;
+</programlisting>
+<para>
+A <link linkend="PangoGlyph"><type>PangoGlyph</type></link> represents a single glyph in the output form of a string.
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyphInfo"/>struct PangoGlyphInfo</title>
+<indexterm><primary>PangoGlyphInfo</primary></indexterm><programlisting>struct PangoGlyphInfo {
+
+  PangoGlyph    glyph;
+  PangoGlyphGeometry geometry;
+  PangoGlyphVisAttr  attr;
+};
+</programlisting>
+<para>
+The <link linkend="PangoGlyphInfo"><type>PangoGlyphInfo</type></link> structure represents a single glyph together with
+positioning information and visual attributes.
+It contains the following fields.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="PangoGlyph">PangoGlyph</link> <structfield>glyph</structfield></term>
+<listitem><simpara>the glyph itself.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyphGeometry">PangoGlyphGeometry</link> <structfield>geometry</structfield></term>
+<listitem><simpara>the positional information about the glyph.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyphVisAttr">PangoGlyphVisAttr</link> <structfield>attr</structfield></term>
+<listitem><simpara>the visual attributes of the glyph.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyphGeometry"/>struct PangoGlyphGeometry</title>
+<indexterm><primary>PangoGlyphGeometry</primary></indexterm><programlisting>struct PangoGlyphGeometry {
+
+  PangoGlyphUnit width;
+  PangoGlyphUnit x_offset;  
+  PangoGlyphUnit y_offset;
+};
+</programlisting>
+<para>
+The <link linkend="PangoGlyphGeometry"><type>PangoGlyphGeometry</type></link> structure contains width and positioning
+information for a single glyph. 
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="PangoGlyphUnit">PangoGlyphUnit</link> <structfield>width</structfield></term>
+<listitem><simpara>the logical width to use for the the character.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyphUnit">PangoGlyphUnit</link> <structfield>x_offset</structfield></term>
+<listitem><simpara>horizontal offset from nominal character position.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyphUnit">PangoGlyphUnit</link> <structfield>y_offset</structfield></term>
+<listitem><simpara>vertical offset from nominal character position.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyphUnit"/>PangoGlyphUnit</title>
+<indexterm><primary>PangoGlyphUnit</primary></indexterm><programlisting>typedef gint32 PangoGlyphUnit;
+</programlisting>
+<para>
+The <link linkend="PangoGlyphUnit"><type>PangoGlyphUnit</type></link> type is used to store dimensions within
+Pango. Dimensions are stored in 1/PANGO_SCALE of a device unit.
+(A device unit might be a pixel for screen display, or
+a point on a printer.) PANGO_SCALE is currently 1024, and
+is unlikely to change, but you should not depend on its
+exact value. The <link linkend="PANGO-PIXELS-CAPS"><function>PANGO_PIXELS()</function></link> macro can be used to convert
+from glyph units into device units with correct rounding.
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyphVisAttr"/>struct PangoGlyphVisAttr</title>
+<indexterm><primary>PangoGlyphVisAttr</primary></indexterm><programlisting>struct PangoGlyphVisAttr {
+
+  guint is_cluster_start : 1;
+};
+</programlisting>
+<para>
+The PangoGlyphVisAttr is used to communicate information between
+the shaping phase and the rendering phase. It's contents
+are still evolving.
+
+<informaltable pgwide="1" frame="none" role="struct">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry><link linkend="guint"><type>guint</type></link> is_cluster_start : 1;</entry>
+<entry>set for the first logical glyph in each cluster. (Clusters
+       are stored in visual order, within the cluster, glyphs
+       are always ordered in logical order, since visual
+       order is meaningless; that is, in Arabic text, accent glyphs
+       follow the glyphs for the base character.)
+</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyphString"/>struct PangoGlyphString</title>
+<indexterm><primary>PangoGlyphString</primary></indexterm><programlisting>struct PangoGlyphString {
+
+  gint num_glyphs;
+
+  PangoGlyphInfo *glyphs;
+
+  /* This is a memory inefficient way of representing the information
+   * here - each value gives the byte index within the text
+   * corresponding to the glyph string of the start of the cluster to
+   * which the glyph belongs.
+   */
+  gint *log_clusters;
+
+};
+</programlisting>
+<para>
+The <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link> structure is used to store strings
+of glyphs with geometry and visual attribute information.
+The storage for the glyph information is owned
+by the structure which simplifies memory management.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>num_glyphs</structfield></term>
+<listitem><simpara>the number of glyphs in the string.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyphInfo">PangoGlyphInfo</link> *<structfield>glyphs</structfield></term>
+<listitem><simpara>an array of <link linkend="PangoGlyphInfo"><type>PangoGlyphInfo</type></link> structures of length <structfield>num_glyphs</structfield>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> *<structfield>log_clusters</structfield></term>
+<listitem><simpara>for each glyph, byte index of the starting character for the
+cluster. The indices are relative to the start of the text
+corresponding to the PangoGlyphString.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PangoGlyphItem"/>struct PangoGlyphItem</title>
+<indexterm><primary>PangoGlyphItem</primary></indexterm><programlisting>struct PangoGlyphItem {
+
+  PangoItem        *item;
+  PangoGlyphString *glyphs;
+};
+</programlisting>
+<para>
+A <link linkend="PangoGlyphItem"><type>PangoGlyphItem</type></link> is a pair of a <link linkend="PangoItem"><type>PangoItem</type></link> and the glyphs
+resulting from shaping the text corresponding to an item.
+As an example of the usage of <link linkend="PangoGlyphItem"><type>PangoGlyphItem</type></link>, the results
+of shaping text with <link linkend="PangoLayout"><type>PangoLayout</type></link> is a list of <link linkend="PangoLayoutLine"><type>PangoLayoutLine</type></link>,
+each of which contains a list of <link linkend="PangoGlyphItem"><type>PangoGlyphItem</type></link>.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="PangoItem">PangoItem</link> *<structfield>item</structfield></term>
+<listitem><simpara>a <link linkend="PangoItem"><type>PangoItem</type></link> structure that provides information
+       about a segment of text.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoGlyphString">PangoGlyphString</link> *<structfield>glyphs</structfield></term>
+<listitem><simpara>the glyphs obtained by shaping the text
+         corresponding to <parameter>item</parameter>.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-TYPE-GLYPH-STRING-CAPS"/>PANGO_TYPE_GLYPH_STRING</title>
+<indexterm><primary>PANGO_TYPE_GLYPH_STRING</primary></indexterm><programlisting>#define PANGO_TYPE_GLYPH_STRING (pango_glyph_string_get_type ())
+</programlisting>
+<para>
+The GObject type for <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link>.
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-new"/>pango_glyph_string_new ()</title>
+<indexterm><primary>pango_glyph_string_new</primary></indexterm><programlisting><link linkend="PangoGlyphString">PangoGlyphString</link>* pango_glyph_string_new    (void);</programlisting>
+<para>
+Create a new PangoGlyphString.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the new PangoGlyphString
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-copy"/>pango_glyph_string_copy ()</title>
+<indexterm><primary>pango_glyph_string_copy</primary></indexterm><programlisting><link linkend="PangoGlyphString">PangoGlyphString</link>* pango_glyph_string_copy   (<link linkend="PangoGlyphString">PangoGlyphString</link> *string);</programlisting>
+<para>
+Copy a glyph string and associated storage.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara> a PangoGlyphString.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the copied PangoGlyphString
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-set-size"/>pango_glyph_string_set_size ()</title>
+<indexterm><primary>pango_glyph_string_set_size</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_set_size     (<link linkend="PangoGlyphString">PangoGlyphString</link> *string,
+                                             <link linkend="gint">gint</link> new_len);</programlisting>
+<para>
+Resize a glyph string to the given length.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara>    a PangoGlyphString.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_len</parameter>&nbsp;:</term>
+<listitem><simpara>   the new length of the string.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-free"/>pango_glyph_string_free ()</title>
+<indexterm><primary>pango_glyph_string_free</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_free         (<link linkend="PangoGlyphString">PangoGlyphString</link> *string);</programlisting>
+<para>
+Free a glyph string and associated storage.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>string</parameter>&nbsp;:</term>
+<listitem><simpara>    a PangoGlyphString.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-extents"/>pango_glyph_string_extents ()</title>
+<indexterm><primary>pango_glyph_string_extents</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_extents      (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="PangoFont">PangoFont</link> *font,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *ink_rect,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *logical_rect);</programlisting>
+<para>
+Compute the logical and ink extents of a glyph string. See the documentation
+for <link linkend="pango-font-get-glyph-extents"><function>pango_font_get_glyph_extents()</function></link> for details about the interpretation
+of the rectangles.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>   a <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara>     a <link linkend="PangoFont"><type>PangoFont</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ink_rect</parameter>&nbsp;:</term>
+<listitem><simpara> rectangle used to store the extents of the glyph string as drawn
+           or <literal>NULL</literal> to indicate that the result is not needed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>logical_rect</parameter>&nbsp;:</term>
+<listitem><simpara> rectangle used to store the logical extents of the glyph string
+           or <literal>NULL</literal> to indicate that the result is not needed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-extents-range"/>pango_glyph_string_extents_range ()</title>
+<indexterm><primary>pango_glyph_string_extents_range</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_extents_range
+                                            (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="int">int</link> start,
+                                             <link linkend="int">int</link> end,
+                                             <link linkend="PangoFont">PangoFont</link> *font,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *ink_rect,
+                                             <link linkend="PangoRectangle">PangoRectangle</link> *logical_rect);</programlisting>
+<para>
+Computes the extents of a sub-portion of a glyph string. The extents are
+relative to the start of the glyph string range (the origin of their
+coordinate system is at the start of the range, not at the start of the entire
+glyph string).</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>   a <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start</parameter>&nbsp;:</term>
+<listitem><simpara>    start index
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>end</parameter>&nbsp;:</term>
+<listitem><simpara>      end index (the range is the set of bytes with
+              indices such that start &lt;= index &lt; end)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>font</parameter>&nbsp;:</term>
+<listitem><simpara>     a <link linkend="PangoFont"><type>PangoFont</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ink_rect</parameter>&nbsp;:</term>
+<listitem><simpara> rectangle used to store the extents of the glyph string range as drawn
+           or <literal>NULL</literal> to indicate that the result is not needed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>logical_rect</parameter>&nbsp;:</term>
+<listitem><simpara> rectangle used to store the logical extents of the glyph string range
+           or <literal>NULL</literal> to indicate that the result is not needed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-index-to-x"/>pango_glyph_string_index_to_x ()</title>
+<indexterm><primary>pango_glyph_string_index_to_x</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_index_to_x   (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length,
+                                             <link linkend="PangoAnalysis">PangoAnalysis</link> *analysis,
+                                             <link linkend="int">int</link> index_,
+                                             <link linkend="gboolean">gboolean</link> trailing,
+                                             <link linkend="int">int</link> *x_pos);</programlisting>
+<para>
+Converts from character position to x position. (X position
+is measured from the left edge of the run). Character positions
+are computed by dividing up each cluster into equal portions.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>    the glyphs return from <link linkend="pango-shape"><function>pango_shape()</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>      the text for the run
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara>    the number of bytes (not characters) in <parameter>text</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>analysis</parameter>&nbsp;:</term>
+<listitem><simpara>  the analysis information return from <link linkend="pango-itemize"><function>pango_itemize()</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara>    the byte index within <parameter>text</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>trailing</parameter>&nbsp;:</term>
+<listitem><simpara>  whether we should compute the result for the beginning
+            or end of the character.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x_pos</parameter>&nbsp;:</term>
+<listitem><simpara>     location to store result
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-x-to-index"/>pango_glyph_string_x_to_index ()</title>
+<indexterm><primary>pango_glyph_string_x_to_index</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_x_to_index   (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length,
+                                             <link linkend="PangoAnalysis">PangoAnalysis</link> *analysis,
+                                             <link linkend="int">int</link> x_pos,
+                                             <link linkend="int">int</link> *index_,
+                                             <link linkend="int">int</link> *trailing);</programlisting>
+<para>
+Convert from x offset to character position. Character positions
+are computed by dividing up each cluster into equal portions.
+In scripts where positioning within a cluster is not allowed
+(such as Thai), the returned value may not be a valid cursor
+position; the caller must combine the result with the logical
+attributes for the text to compute the valid cursor position.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara>    the glyphs return from <link linkend="pango-shape"><function>pango_shape()</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>      the text for the run
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara>    the number of bytes (not characters) in text.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>analysis</parameter>&nbsp;:</term>
+<listitem><simpara>  the analysis information return from <link linkend="pango-itemize"><function>pango_itemize()</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x_pos</parameter>&nbsp;:</term>
+<listitem><simpara>     the x offset (in <link linkend="PangoGlyphUnit"><type>PangoGlyphUnit</type></link>)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>index_</parameter>&nbsp;:</term>
+<listitem><simpara>    location to store calculated byte index within <parameter>text</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>trailing</parameter>&nbsp;:</term>
+<listitem><simpara>  location to store a integer indicating where
+            whether the user clicked on the leading or trailing
+            edge of the character.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-string-get-logical-widths"/>pango_glyph_string_get_logical_widths ()</title>
+<indexterm><primary>pango_glyph_string_get_logical_widths</primary></indexterm><programlisting><link linkend="void">void</link>        pango_glyph_string_get_logical_widths
+                                            (<link linkend="PangoGlyphString">PangoGlyphString</link> *glyphs,
+                                             const <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length,
+                                             <link linkend="int">int</link> embedding_level,
+                                             <link linkend="int">int</link> *logical_widths);</programlisting>
+<para>
+Given a <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link> resulting from <link linkend="pango-shape"><function>pango_shape()</function></link> and the corresponding
+text, determine the screen width corresponding to each character. When
+multiple characters compose a single cluster, the width of the entire
+cluster is divided equally among the characters.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>glyphs</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara> the text corresponding to the glyphs
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> the length of <parameter>text</parameter>, in bytes
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>embedding_level</parameter>&nbsp;:</term>
+<listitem><simpara> the embedding level of the string
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>logical_widths</parameter>&nbsp;:</term>
+<listitem><simpara> an array whose length is g_utf8_strlen (text, length)
+                 to be filled in with the resulting character widths.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-item-split"/>pango_glyph_item_split ()</title>
+<indexterm><primary>pango_glyph_item_split</primary></indexterm><programlisting><link linkend="PangoGlyphItem">PangoGlyphItem</link>* pango_glyph_item_split      (<link linkend="PangoGlyphItem">PangoGlyphItem</link> *orig,
+                                             const <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> split_index);</programlisting>
+<para>
+Modifies <parameter>orig</parameter> to cover only the text after <parameter>split_index</parameter>, and
+returns a new item that covers the text before <parameter>split_index</parameter> that
+used to be in <parameter>orig</parameter>. You can think of <parameter>split_index</parameter> as the length of
+the returned item. <parameter>split_index</parameter> may not be 0, and it may not be
+greater than or equal to the length of <parameter>orig</parameter> (that is, there must
+be at least one byte assigned to each item, you can't create a
+zero-length item).
+</para>
+<para>
+This function is similar in function to <link linkend="pango-item-split"><function>pango_item_split()</function></link> (and uses
+it internally)</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>orig</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoItem"><type>PangoItem</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara> text to which positions in <parameter>orig</parameter> apply.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>split_index</parameter>&nbsp;:</term>
+<listitem><simpara> byte index of position to split item, relative to the start of the item
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> new item representing text before <parameter>split_index</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-glyph-item-apply-attrs"/>pango_glyph_item_apply_attrs ()</title>
+<indexterm><primary>pango_glyph_item_apply_attrs</primary></indexterm><programlisting><link linkend="GSList">GSList</link>*     pango_glyph_item_apply_attrs    (<link linkend="PangoGlyphItem">PangoGlyphItem</link> *glyph_item,
+                                             const <link linkend="char">char</link> *text,
+                                             <link linkend="PangoAttrList">PangoAttrList</link> *list);</programlisting>
+<para>
+Splits a shaped item (PangoGlyphItem) into multiple items based
+on an attribute list. The idea is that if you have attributes
+that don't affect shaping, such as color or underline, to avoid
+affecting shaping, you filter them out (<link linkend="pango-attr-list-filter"><function>pango_attr_list_filter()</function></link>),
+apply the shaping process and then reapply them to the result using
+this function.
+</para>
+<para>
+All attributes that start or end inside a cluster are applied
+to that cluster; for instance, if half of a cluster is underlined
+and the other-half strikethough, then the cluster will end
+up with both underline and strikethrough attributes. In these
+cases, it may happen that item->extra_attrs for some of the
+result items can have multiple attributes of the same type.
+</para>
+<para>
+This function takes ownership of <parameter>glyph_item</parameter>; it will be reused
+as one of the elements in the list.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>glyph_item</parameter>&nbsp;:</term>
+<listitem><simpara> a shaped item 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara> text that <parameter>list</parameter> applies to
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>list</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoAttrList"><type>PangoAttrList</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a list of glyph items resulting from splitting
+  <parameter>glyph_item</parameter>. Free the elements using <link linkend="pango-glyph-item-free"><function>pango_glyph_item_free()</function></link>,
+  the list using <link linkend="g-slist-free"><function>g_slist_free()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

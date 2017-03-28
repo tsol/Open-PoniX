@@ -1,0 +1,676 @@
+<!-- ##### SECTION Title ##### -->
+GtkFileChooser
+
+<!-- ##### SECTION Short_Description ##### -->
+File chooser interface used by #GtkFileChooserWidget and #GtkFileChooserDialog.
+
+<!-- ##### SECTION Long_Description ##### -->
+    <para>
+      #GtkFileChooser is an interface that can be implemented by file
+      selection widgets.  In GTK+, the main objects that implement
+      this interface are #GtkFileChooserWidget and
+      #GtkFileChooserDialog.  You do not need to write an object that
+      implements the #GtkFileChooser interface unless you are trying
+      to adapt an existing file selector to expose a standard
+      programming interface.
+    </para>
+
+    <refsect2 id="gtkfilechooser-preview">
+      <title>Adding a Preview Widget</title>
+
+      <para>
+	You can add a custom preview widget to a file chooser and then
+	get notification about when the preview needs to be updated.
+	To install a preview widget, use
+	gtk_file_chooser_set_preview_widget().  Then, connect to the
+	#GtkFileChooser::update-preview signal to get notified when
+	you need to update the contents of the preview.
+      </para>
+
+      <para>
+	Your callback should use
+	gtk_file_chooser_get_preview_filename() to see what needs
+	previewing.  Once you have generated the preview for the
+	corresponding file, you must call
+	gtk_file_chooser_set_preview_widget_active() with a boolean
+	flag that indicates whether your callback could successfully
+	generate a preview.
+      </para>
+
+      <example id="example-gtkfilechooser-preview">
+	<title>Sample Usage</title>
+
+	<programlisting>
+{
+  GtkImage *preview;
+
+  ...
+
+  preview = gtk_image_new (<!-- -->);
+
+  gtk_file_chooser_set_preview_widget (my_file_chooser, preview);
+  g_signal_connect (my_file_chooser, "update-preview",
+		    G_CALLBACK (update_preview_cb), preview);
+}
+
+static void
+update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
+{
+  GtkWidget *preview;
+  char *filename;
+  GdkPixbuf *pixbuf;
+  gboolean have_preview;
+
+  preview = GTK_WIDGET (data);
+  filename = gtk_file_chooser_get_preview_filename (file_chooser);
+
+  pixbuf = gdk_pixbuf_new_from_file_at_size (filename, 128, 128, NULL);
+  have_preview = (pixbuf != NULL);
+  g_free (filename);
+
+  gtk_image_set_from_pixbuf (GTK_IMAGE (preview), pixbuf);
+  if (pixbuf)
+    gdk_pixbuf_unref (pixbuf);
+
+  gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
+}
+	</programlisting>
+      </example>
+    </refsect2>
+
+    <refsect2 id="gtkfilechooser-extra">
+      <title>Adding Extra Widgets</title>
+
+      <para>
+	You can add extra widgets to a file chooser to provide options
+	that are not present in the default design.  For example, you
+	can add a toggle button to give the user the option to open a
+	file in read-only mode.  You can use
+	gtk_file_chooser_set_extra_widget() to insert additional
+	widgets in a file chooser.
+      </para>
+
+      <example id="example-gtkfilechooser-extra">
+	<title>Sample Usage</title>
+
+	<programlisting>
+{
+  GtkWidget *toggle;
+
+  ...
+
+  toggle = gtk_check_button_new_with_label ("Open file read-only");
+  gtk_widget_show (toggle);
+  gtk_file_chooser_set_extra_widget (my_file_chooser, toggle);
+}
+	</programlisting>
+      </example>
+
+      <note>
+	<para>
+	  If you want to set more than one extra widget in the file
+	  chooser, you can a container such as a GtkVBox or a GtkTable
+	  and include your widgets in it.  Then, set the container as
+	  the whole extra widget.
+	</para>
+      </note>
+    </refsect2>
+
+<!-- ##### SECTION See_Also ##### -->
+    <para>
+      #GtkFileChooserDialog, #GtkFileChooserWidget
+    </para>
+
+<!-- ##### STRUCT GtkFileChooser ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SIGNAL GtkFileChooser::current-folder-changed ##### -->
+<para>
+
+</para>
+
+@filechooser: the object which received the signal.
+
+<!-- ##### SIGNAL GtkFileChooser::file-activated ##### -->
+<para>
+
+</para>
+
+@filechooser: the object which received the signal.
+
+<!-- ##### SIGNAL GtkFileChooser::selection-changed ##### -->
+<para>
+
+</para>
+
+@filechooser: the object which received the signal.
+
+<!-- ##### SIGNAL GtkFileChooser::update-preview ##### -->
+<para>
+
+</para>
+
+@filechooser: the object which received the signal.
+
+<!-- ##### ARG GtkFileChooser:action ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:extra-widget ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:file-system-backend ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:filter ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:local-only ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:preview-widget ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:preview-widget-active ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:select-multiple ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:show-hidden ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG GtkFileChooser:use-preview-label ##### -->
+<para>
+
+</para>
+
+<!-- ##### ENUM GtkFileChooserAction ##### -->
+    <para>
+      Describes whether a #GtkFileChooser is being used to open
+      existing files or to save to a possibly new file.
+    </para>
+
+@GTK_FILE_CHOOSER_ACTION_OPEN: Indicates open mode.  The file chooser
+    will only let the user pick an existing file.
+@GTK_FILE_CHOOSER_ACTION_SAVE: Indicates save mode.  The file chooser
+    will let the user pick an existing file, or type in a new
+    filename.
+@GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER: Indicates an Open mode for
+    selecting folders.  The file chooser will let the user pick an
+    existing folder.
+@GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER: Indicates a mode for creating a
+    new folder.  The file chooser will let the user name an existing or
+    new folder.
+
+<!-- ##### MACRO GTK_FILE_CHOOSER_ERROR ##### -->
+    <para>
+      Used to get the #GError quark for #GtkFileChooser errors.
+    </para>
+
+
+
+<!-- ##### ENUM GtkFileChooserError ##### -->
+    <para>
+      These identify the various errors that can occur while calling
+      #GtkFileChooser functions.
+    </para>
+
+@GTK_FILE_CHOOSER_ERROR_NONEXISTENT: Indicates that a file does not exist.
+@GTK_FILE_CHOOSER_ERROR_BAD_FILENAME: Indicates a malformed filename.
+
+<!-- ##### FUNCTION gtk_file_chooser_error_quark ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_action ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@action: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_action ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_local_only ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@local_only: 
+<!-- # Unused Parameters # -->
+@files_only: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_local_only ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_select_multiple ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@select_multiple: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_select_multiple ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_current_name ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@name: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_filename ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_filename ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filename: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_select_filename ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filename: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_unselect_filename ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filename: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_select_all ##### -->
+<para>
+
+</para>
+
+@chooser: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_unselect_all ##### -->
+<para>
+
+</para>
+
+@chooser: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_filenames ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_current_folder ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filename: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_current_folder ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@uri: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_select_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@uri: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_unselect_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@uri: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_uris ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_current_folder_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@uri: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_current_folder_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_preview_widget ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@preview_widget: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_preview_widget ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_preview_widget_active ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@active: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_preview_widget_active ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_use_preview_label ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@use_label: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_use_preview_label ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_preview_filename ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+<!-- # Unused Parameters # -->
+@file_chooser: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_preview_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+<!-- # Unused Parameters # -->
+@file_chooser: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_extra_widget ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@extra_widget: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_extra_widget ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_add_filter ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filter: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_remove_filter ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filter: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_list_filters ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_set_filter ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@filter: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_get_filter ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_add_shortcut_folder ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@folder: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_remove_shortcut_folder ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@folder: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_list_shortcut_folders ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_add_shortcut_folder_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@uri: 
+@error: 
+@Returns: 
+<!-- # Unused Parameters # -->
+@folder: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_remove_shortcut_folder_uri ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@uri: 
+@error: 
+@Returns: 
+<!-- # Unused Parameters # -->
+@folder: 
+
+
+<!-- ##### FUNCTION gtk_file_chooser_list_shortcut_folder_uris ##### -->
+<para>
+
+</para>
+
+@chooser: 
+@Returns: 
+
+
+
+<!--
+Local variables:
+mode: sgml
+sgml-parent-document: ("../gtk-docs.sgml" "book" "refentry")
+End:
+-->
+
+

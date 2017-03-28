@@ -1,0 +1,131 @@
+'\" t
+.\"     Title: drmModeGetResources
+.\"    Author: David Herrmann <dh.herrmann@googlemail.com>
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: September 2012
+.\"    Manual: Direct Rendering Manager
+.\"    Source: libdrm
+.\"  Language: English
+.\"
+.TH "DRMMODEGETRESOURCES" "3" "September 2012" "libdrm" "Direct Rendering Manager"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+drmModeGetResources \- retrieve current display configuration information
+.SH "SYNOPSIS"
+.sp
+.ft B
+.nf
+#include <xf86drm\&.h>
+.fi
+.ft
+.sp
+.ft B
+.nf
+#include <xf86drmMode\&.h>
+.fi
+.ft
+.HP \w'drmModeResPtr\ drmModeGetResources('u
+.BI "drmModeResPtr drmModeGetResources(int\ " "fd" ");"
+.SH "DESCRIPTION"
+.PP
+\fBdrmModeGetResources\fR
+allocates, populates, and returns a
+drmModeRes
+structure containing information about the current display configuration\&. The structure contains the following fields:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+typedef struct _drmModeRes {
+    int count_fbs;
+    uint32_t *fbs;
+
+    int count_crtcs;
+    uint32_t *crtcs;
+
+    int count_connectors;
+    uint32_t *connectors;
+
+    int count_encoders;
+    uint32_t *encoders;
+
+    uint32_t min_width, max_width;
+    uint32_t min_height, max_height;
+} drmModeRes, *drmModeResPtr;
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The
+\fIcount_fbs\fR
+and
+\fIfbs\fR
+fields indicate the number of currently allocated framebuffer objects (i\&.e\&., objects that can be attached to a given CRTC or sprite for display)\&.
+.PP
+The
+\fIcount_crtcs\fR
+and
+\fIcrtcs\fR
+fields list the available CRTCs in the configuration\&. A CRTC is simply an object that can scan out a framebuffer to a display sink, and contains mode timing and relative position information\&. CRTCs drive encoders, which are responsible for converting the pixel stream into a specific display protocol (e\&.g\&., MIPI or HDMI)\&.
+.PP
+The
+\fIcount_connectors\fR
+and
+\fIconnectors\fR
+fields list the available physical connectors on the system\&. Note that some of these may not be exposed from the chassis (e\&.g\&., LVDS or eDP)\&. Connectors are attached to encoders and contain information about the attached display sink (e\&.g\&., width and height in mm, subpixel ordering, and various other properties)\&.
+.PP
+The
+\fIcount_encoders\fR
+and
+\fIencoders\fR
+fields list the available encoders on the device\&. Each encoder may be associated with a CRTC, and may be used to drive a particular encoder\&.
+.PP
+The
+\fImin*\fR
+and
+\fImax*\fR
+fields indicate the maximum size of a framebuffer for this device (i\&.e\&., the scanout size limit)\&.
+.SH "RETURN VALUE"
+.PP
+\fBdrmModeGetResources\fR
+returns a drmModeRes structure pointer on success,
+NULL
+on failure\&. The returned structure must be freed with
+\fBdrmModeFreeResources\fR(3)\&.
+.SH "REPORTING BUGS"
+.PP
+Bugs in this function should be reported to http://bugs\&.freedesktop\&.org under the "Mesa" product, with "Other" or "libdrm" as the component\&.
+.SH "SEE ALSO"
+.PP
+
+\fBdrm\fR(7),
+\fBdrm-kms\fR(7),
+\fBdrmModeGetFB\fR(3),
+\fBdrmModeAddFB\fR(3),
+\fBdrmModeAddFB2\fR(3),
+\fBdrmModeRmFB\fR(3),
+\fBdrmModeDirtyFB\fR(3),
+\fBdrmModeGetCrtc\fR(3),
+\fBdrmModeSetCrtc\fR(3),
+\fBdrmModeGetEncoder\fR(3),
+\fBdrmModeGetConnector\fR(3)

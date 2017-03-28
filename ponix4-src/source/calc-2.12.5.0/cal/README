@@ -1,0 +1,1827 @@
+Calc standard resource files
+----------------------------
+
+To load a resource file, try:
+
+    read filename
+
+You do not need to add the .cal extension to the filename.  Calc
+will search along the $CALCPATH (see ``help environment'').
+
+Normally a resource file will simply define some functions.  By default,
+most resource files will print out a short message when they are read.
+For example:
+
+    ; read lucas
+    lucas(h,n) defined
+    gen_u0(h,n,v1) defined
+    gen_v1(h,n) defined
+    ldebug(funct,str) defined
+
+will cause calc to load and execute the 'lucas.cal' resource file.
+Executing the resource file will cause several functions to be defined.
+Executing the lucas function:
+
+    ; lucas(149,60)
+	    1
+    ; lucas(146,61)
+	    0
+
+shows that 149*2^60-1 is prime whereas 146*2^61-1 is not.
+
+=-=
+
+Calc resource file files are provided because they serve as examples of
+how use the calc language, and/or because the authors thought them to
+be useful!
+
+If you write something that you think is useful, please join the
+low volume calc mailing list calc-tester.  Then send your contribution
+to the calc-tester mailing list.
+
+To subscribe to the calc-tester mailing list, visit the following URL:
+
+	https://www.listbox.com/subscribe/?list_id=239342
+
+    To help determine you are a human and not just a spam bot,
+    you will be required to provide the following additional info:
+
+	Your Name
+	Calc Version
+	Operating System
+	The date 7 days ago
+
+    This is a low volume moderated mailing list.
+
+    This mailing list replaces calc-tester at asthe dot com list.
+
+    If you need a human to help you with your mailing list subscription,
+    please send EMail to our special:
+
+	calc-tester-maillist-help at asthe dot com
+
+	NOTE: Remove spaces and replace 'at' with @, 'dot' with .
+
+    address.  To be sure we see your EMail asking for help with your
+    mailing list subscription, please use the following phase in your
+    EMail Subject line:
+
+	calc tester mailing list help
+
+    That phrase in your subject line will help ensure your
+    request will get past our anti-spam filters.  You may have
+    additional words in your subject line.
+
+=-=
+
+By convention, a resource file only defines and/or initializes functions,
+objects and variables.	(The regress.cal and testxxx.cal regression test
+suite is an exception.)	 Also by convention, an additional usage message
+regarding important object and functions is printed.
+
+If a resource file needs to load another resource file, it should use
+the -once version of read:
+
+    /* pull in needed resource files */
+    read -once "surd"
+    read -once "lucas"
+
+This will cause the needed resource files to be read once.  If these
+files have already been read, the read -once will act as a noop.
+
+The "resource_debug" parameter is intended for controlling the possible
+display of special information relating to functions, objects, and
+other structures created by instructions in calc resource files.
+Zero value of config("resource_debug") means that no such information
+is displayed.  For other values, the non-zero bits which currently
+have meanings are as follows:
+
+    n		Meaning of bit n of config("resource_debug")
+
+    0	When a function is defined, redefined or undefined at
+	interactive level, a message saying what has been done
+	is displayed.
+
+    1	When a function is defined, redefined or undefined during
+	the reading of a file, a message saying what has been done
+	is displayed.
+
+    2	Show func will display more information about a functions
+	arguments as well as more argument summary information.
+
+    3	During execution, allow calc standard resource files
+	to output additional debugging information.
+
+The value for config("resource_debug") in both oldstd and newstd is 3,
+but if calc is invoked with the -d flag, its initial value is zero.
+Thus, if calc is started without the -d flag, until config("resource_debug")
+is changed, a message will be output when a function is defined
+either interactively or during the reading of a file.
+
+Sometimes the information printed is not enough.  In addition to the
+standard information, one might want to print:
+
+	* useful obj definitions
+	* functions with optional args
+	* functions with optional args where the param() interface is used
+
+For these cases we suggest that you place at the bottom of your code
+something that prints extra information if config("resource_debug") has
+either of the bottom 2 bits set:
+
+	if (config("resource_debug") & 3) {
+		print "obj xyz defined";
+		print "funcA([val1 [, val2]]) defined";
+		print "funcB(size, mass, ...) defined";
+	}
+
+If your the resource file needs to output special debugging information,
+we recommend that you check for bit 3 of the config("resource_debug")
+before printing the debug statement:
+
+	if (config("resource_debug") & 8) {
+		print "DEBUG: This a sample debug statement";
+	}
+
+=-=
+
+The following is a brief description of some of the calc resource files
+that are shipped with calc.  See above for example of how to read in
+and execute these files.
+
+alg_config.cal
+
+    global test_time
+    mul_loop(repeat,x) defined
+    mul_ratio(len) defined
+    best_mul2() defined
+    sq_loop(repeat,x) defined
+    sq_ratio(len) defined
+    best_sq2() defined
+    pow_loop(repeat,x,ex) defined
+    pow_ratio(len) defined
+    best_pow2() defined
+
+    These functions search for an optimal value of config("mul2"),
+    config("sq2"), and config("pow2").  The calc default values of these
+    configuration values were set by running this resource file on a
+    1.8GHz AMD 32-bit CPU of ~3406 BogoMIPS.
+
+    The best_mul2() function returns the optimal value of config("mul2").
+    The best_sq2() function returns the optimal value of config("sq2").
+    The best_pow2() function returns the optimal value of config("pow2").
+    The other functions are just support functions.
+
+    By design, best_mul2(), best_sq2(), and best_pow2() take a few
+    minutes to run.  These functions increase the number of times a
+    given computational loop is executed until a minimum amount of CPU
+    time is consumed.  To watch these functions progress, one can set
+    the config("user_debug") value.
+
+    Here is a suggested way to use this resource file:
+
+	; read alg_config
+	; config("user_debug",2),;
+	; best_mul2(); best_sq2(); best_pow2();
+	; best_mul2(); best_sq2(); best_pow2();
+	; best_mul2(); best_sq2(); best_pow2();
+
+    NOTE: It is perfectly normal for the optimal value returned to differ
+    slightly from run to run.  Slight variations due to inaccuracy in
+    CPU timings will cause the best value returned to differ slightly
+    from run to run.
+
+    One can use a calc startup file to change the initial values of
+    config("mul2"), config("sq2"), and config("pow2").  For example one
+    can place into ~/.calcrc these lines:
+
+	config("mul2", 1780),;
+	config("sq2", 3388),;
+	config("pow2", 176),;
+
+    to automatically and silently change these config values.
+    See help/config and CALCRC in help/environment for more information.
+
+
+beer.cal
+
+    This calc resource is calc's contribution to the 99 Bottles of Beer
+    web page:
+
+	http://www.ionet.net/~timtroyr/funhouse/beer.html#calc
+
+     NOTE: This resource produces a lot of output.  :-)
+
+
+bernoulli.cal
+
+    B(n)
+
+    Calculate the nth Bernoulli number.
+
+    NOTE: There is now a bernoulli() builtin function.  This file is
+    	  left here for backward compatibility and now simply returns
+	  the builtin function.
+
+
+bernpoly.cal
+
+    bernpoly(n,z)
+
+    Computes the nth Bernoulli polynomial at z for arbitrary n,z.  See:
+
+        http://en.wikipedia.org/wiki/Bernoulli_polynomials
+        http://mathworld.wolfram.com/BernoulliPolynomial.html
+
+    for further information
+
+
+bigprime.cal
+
+    bigprime(a, m, p)
+
+    A prime test, base a, on p*2^x+1 for even x>m.
+
+
+brentsolve.cal
+
+    brentsolve(low, high,eps)
+
+    A root-finder implementwed with the Brent-Dekker trick.
+
+    brentsolve2(low, high,which,eps)
+
+    The second function, brentsolve2(low, high,which,eps) has some lines
+    added to make it easier to hardcode the name of the helper function
+    different from the obligatory "f".
+
+    See:
+
+        http://en.wikipedia.org/wiki/Brent%27s_method
+        http://mathworld.wolfram.com/BrentsMethod.html
+
+    to find out more about the Brent-Dekker method.
+
+
+constants.cal
+
+    e()
+    G()
+
+    An implementation of different constants to arbitrary precision.
+
+
+chi.cal
+
+    Z(x[, eps])
+    P(x[, eps])
+    chi_prob(chi_sq, v[, eps])
+
+    Computes the Probability, given the Null Hypothesis, that a given
+    Chi squared values >= chi_sq with v degrees of freedom.
+
+    The chi_prob() function does not work well with odd degrees of freedom.
+    It is reasonable with even degrees of freedom, although one must give
+    a sufficiently small error term as the degrees gets large (>100).
+
+    The Z(x) and P(x) are internal statistical functions.
+
+    eps is an optional epsilon() like error term.
+
+
+chrem.cal
+
+    chrem(r1,m1 [,r2,m2, ...])
+    chrem(rlist, mlist)
+
+    Chinese remainder theorem/problem solver.
+
+
+deg.cal
+
+    deg(deg, min, sec)
+    deg_add(a, b)
+    deg_neg(a)
+    deg_sub(a, b)
+    deg_mul(a, b)
+    deg_print(a)
+
+    Calculate in degrees, minutes, and seconds.  For a more functional
+    version see dms.cal.
+
+
+dms.cal
+
+    dms(deg, min, sec)
+    dms_add(a, b)
+    dms_neg(a)
+    dms_sub(a, b)
+    dms_mul(a, b)
+    dms_print(a)
+    dms_abs(a)
+    dms_norm(a)
+    dms_test(a)
+    dms_int(a)
+    dms_frac(a)
+    dms_rel(a,b)
+    dms_cmp(a,b)
+    dms_inc(a)
+    dms_dec(a)
+
+    Calculate in degrees, minutes, and seconds.  Unlike deg.cal, increments
+    are on the arc second level.  See also hms.cal.
+
+
+dotest.cal
+
+    dotest(dotest_file [,dotest_code [,dotest_maxcond]])
+
+    dotest_file
+
+	Search along CALCPATH for dotest_file, which contains lines that
+	should evaluate to 1.  Comment lines and empty lines are ignored.
+	Comment lines should use ## instead of the multi like /* ... */
+	because lines are evaluated one line at a time.
+
+    dotest_code
+
+	Assign the code number that is to be printed at the start of
+	each non-error line and after **** in each error line.
+	The default code number is 999.
+
+    dotest_maxcond
+
+	The maximum number of error conditions that may be detected.
+	An error condition is not a sign of a problem, in some cases
+	a line deliberately forces an error condition.	A value of -1,
+	the default, implies a maximum of 2147483647.
+
+    Global variables and functions must be declared ahead of time because
+    the dotest scope of evaluation is a line at a time.  For example:
+
+	read dotest.cal
+	read set8700.cal
+	dotest("set8700.line");
+
+
+factorial.cal
+
+    factorial(n)
+
+    Calculates the product of the positive integers up to and including n.
+
+    See:
+
+	http://en.wikipedia.org/wiki/Factorial
+
+    for information on the factorial. This function depends on the script
+    toomcook.cal.
+
+
+    primorial(a,b)
+
+    Calculates the product of the primes between a and b. If a is not prime
+    the next higher prime is taken as the starting point. If b is not prime
+    the next lower prime is taking as the end point b. The end point b must
+    not exceed 4294967291.  See:
+
+	http://en.wikipedia.org/wiki/Primorial
+
+    for information on the primorial.
+
+
+factorial2.cal
+
+    This file contents a small variety of integer functions that can, with
+    more or less pressure, be related to the factorial.
+
+    doublefactorial(n)
+
+    Calculates the double factorial n!! with different algorithms for
+        - n odd
+        - n even and positive
+        - n (real|complex) sans the negative half integers
+
+    See:
+
+        http://en.wikipedia.org/wiki/Double_factorial
+        http://mathworld.wolfram.com/DoubleFactorial.html
+
+    for information on the double factorial. This function depends on
+    the script toomcook.cal, factorial.cal and specialfunctions.cal.
+
+
+    binomial(n,k)
+
+    Calculates the binomial coefficients for n large and k = k \pm
+    n/2. Defaults to the built-in function for smaller and/or different
+    values. Meant as a complete replacement for comb(n,k) with only a
+    very small overhead.  See:
+
+        http://en.wikipedia.org/wiki/Binomial_coefficient
+
+    for information on the binomial. This function depends on the script
+    toomcook.cal factorial.cal and specialfunctions.cal.
+
+
+    bigcatalan(n)
+
+    Calculates the n-th Catalan number for n large. It is usefull
+    above n~50,000 but defaults to the builtin function for smaller
+    values.Meant as a complete replacement for catalan(n) with only a
+    very small overhead.  See:
+
+        http://en.wikipedia.org/wiki/Catalan_number
+        http://mathworld.wolfram.com/CatalanNumber.html
+
+    for information on Catalan numbers. This function depends on the scripts
+    toomcook.cal, factorial.cal and specialfunctions.cal.
+
+
+    stirling1(n,m)
+
+    Calculates the Stirling number of the first kind. It does so with
+    building a list of all of the smaller results. It might be a good
+    idea, though, to run it once for the highest n,m first if many
+    Stirling  numbers are needed at once, for example in a series.  See:
+
+        http://en.wikipedia.org/wiki/Stirling_numbers_of_the_first_kind
+        http://mathworld.wolfram.com/StirlingNumberoftheFirstKind.html
+        Algorithm 3.17,  Donald Kreher and Douglas Simpson, "Combinatorial
+          Algorithms", CRC Press, 1998, page 89.
+
+    for information on Stirling numbers of the first kind.
+
+
+    stirling2(n,m)
+    stirling2caching(n,m)
+
+    Calculate the Stirling number of the second kind.
+    The first function stirling2(n,m) does it with the sum
+                       m
+                      ====
+                 1    \      n      m - k
+                 --    >    k  (- 1)      binomial(m, k)
+                 m!   /
+                      ====
+                      k = 0
+
+    The other function stirling2caching(n,m) does it by way of the
+    reccurence relation and keeps all earlier results. This function
+    is much slower for computing a single value than stirling2(n,m) but
+    is very usefull if many Stirling numbers are needed, for example in
+    a series.  See:
+
+        http://en.wikipedia.org/wiki/Stirling_numbers_of_the_second_kind
+        http://mathworld.wolfram.com/StirlingNumberoftheSecondKind.html
+
+        Algorithm 3.17,  Donald Kreher and Douglas Simpson, "Combinatorial
+          Algorithms", CRC Press, 1998, page 89.
+
+    for information on Stirling numbers of the second kind.
+
+
+    bell(n)
+
+    Calculate the n-th Bell number. This may take some time for large n.
+    See:
+
+        http://oeis.org/A000110
+        http://en.wikipedia.org/wiki/Bell_number
+        http://mathworld.wolfram.com/BellNumber.html
+
+    for information on Bell numbers.
+
+
+    subfactorial(n)
+
+    Calculate the n-th subfactorial or derangement. This may take some
+    time for large n.  See:
+
+        http://mathworld.wolfram.com/Derangement.html
+        http://en.wikipedia.org/wiki/Derangement
+
+    for information on subfactorials.
+
+
+    risingfactorial(x,n)
+
+    Calculates the rising factorial or Pochammer symbol of almost arbitrary
+    x,n.  See:
+
+        http://en.wikipedia.org/wiki/Pochhammer_symbol
+        http://mathworld.wolfram.com/PochhammerSymbol.html
+
+    for information on rising factorials.
+
+    fallingfactorial(x,n)
+
+    Calculates the rising factorial of almost arbitrary x,n.  See:
+
+        http://en.wikipedia.org/wiki/Pochhammer_symbol
+        http://mathworld.wolfram.com/PochhammerSymbol.html
+
+    for information on falling factorials.
+
+
+ellip.cal
+
+    efactor(iN, ia, B, force)
+
+    Attempt to factor using the elliptic functions: y^2 = x^3 + a*x + b.
+
+
+gvec.cal
+
+    gvec(function, vector)
+
+    Vectorize any single-input function or trailing operator.
+
+
+hello.cal
+
+    Calc's contribution to the Hello World! page:
+
+	http://www.latech.edu/~acm/HelloWorld.shtml
+	http://www.latech.edu/~acm/helloworld/calc.html
+
+     NOTE: This resource produces a lot of output.  :-)
+
+
+hms.cal
+
+    hms(hour, min, sec)
+    hms_add(a, b)
+    hms_neg(a)
+    hms_sub(a, b)
+    hms_mul(a, b)
+    hms_print(a)
+    hms_abs(a)
+    hms_norm(a)
+    hms_test(a)
+    hms_int(a)
+    hms_frac(a)
+    hms_rel(a,b)
+    hms_cmp(a,b)
+    hms_inc(a)
+    hms_dec(a)
+
+    Calculate in hours, minutes, and seconds.  See also dmscal.
+
+
+infinities.cal
+
+    isinfinite(x)
+    iscinf(x)
+    ispinf(x)
+    isninf(x)
+    cinf()
+    ninf()
+    pinf()
+
+    The symbolic handling of infinities. Needed for intnum.cal but might be
+    usefull elsewhere, too.
+
+
+intfile.cal
+
+    file2be(filename)
+
+	Read filename and return an integer that is built from the
+	octets in that file in Big Endian order.  The first octets
+	of the file become the most significant bits of the integer.
+
+    file2le(filename)
+
+	Read filename and return an integer that is built from the
+	octets in that file in Little Endian order.  The first octets
+	of the file become the most significant bits of the integer.
+
+    be2file(v, filename)
+
+	Write the absolute value of v into filename in Big Endian order.
+	The v argument must be on integer.  The most significant bits
+	of the integer become the first octets of the file.
+
+    le2file(v, filename)
+
+	Write the absolute value of v into filename in Little Endian order.
+	The v argument must be on integer.  The least significant bits
+	of the integer become the last octets of the file.
+
+
+intnum.cal
+
+    quadtsdeletenodes()
+    quadtscomputenodes(order, expo, eps)
+    quadtscore(a, b, n)
+    quadts(a, b, points)
+    quadglcomputenodes(N)
+    quadgldeletenodes()
+    quadglcore(a, b, n)
+    quadgl(a, b, points)
+    quad(a, b, points = -1, method = "tanhsinh")
+    makerange(start, end, steps)
+    makecircle(radius, center, points)
+    makeellipse(angle, a, b, center, points)
+    makepoints()
+
+    This file offers some methods for numerical integration. Implemented are
+    the Gauss-Legendre and the tanh-sinh quadrature.
+
+    All functions are usefull to some extend but the main function for
+    quadrature is quad(), which is not much more than an abstraction layer.
+
+    The main workers are quadgl() for Gauss-legendre and quadts() for the
+    tanh-sinh quadrature. The limits of the integral can be anything in the
+    complex plane and the extended real line. The latter means that infinite
+    limits are supported by way of the smbolic infinities implemented in the
+    file infinities.cal (automatically linked in by intnum.cal).
+
+    Integration in parts and contour is supported by the "points" argument
+    which takes either a number or a list. the functions starting with "make"
+    allow for a less error prone use.
+
+    The function to evaluate must have the name "f".
+
+    Examples (shamelessly stolen from mpmath):
+
+        ; define f(x){return sin(x);}
+        f(x) defined
+        ; quadts(0,pi())  -  2
+	    0.00000000000000000000
+        ; quadgl(0,pi())  -  2
+	    0.00000000000000000000
+
+    Sometimes rounding errors accumulate, it might be a good idea to crank up
+    the working precision a notch or two.
+
+        ; define f(x){ return exp(-x^2);}
+        f(x) redefined
+        ; quadts(0,pinf())  - pi()
+	    0.00000000000000000000
+        ; quadgl(0,pinf())  - pi()
+	    0.00000000000000000001
+
+        ; define f(x){ return exp(-x^2);}
+        f(x) redefined
+        ; quadgl(ninf(),pinf()) - sqrt(pi())
+	    0.00000000000000000000
+        ; quadts(ninf(),pinf()) - sqrt(pi())
+	   -0.00000000000000000000
+
+    Using the "points" parameter is a bit tricky
+
+        ; define f(x){ return 1/x;  }
+        f(x) redefined
+        ; quadts(1,1,mat[3]={1i,-1,-1i})  -  2i*pi()
+	    0.00000000000000000001i
+        ; quadgl(1,1,mat[3]={1i,-1,-1i})  -  2i*pi()
+	    0.00000000000000000001i
+
+    The make* functions make it a bit simpler
+
+        ; quadts(1,1,makepoints(1i,-1,-1i))  -  2i*pi()
+	    0.00000000000000000001i
+        ; quadgl(1,1,makepoints(1i,-1,-1i))  -  2i*pi()
+	    0.00000000000000000001i
+
+        ; define f(x){ return abs(sin(x));}
+        f(x) redefined
+        ; quadts(0,2*pi(),makepoints(pi()))  - 4
+	    0.00000000000000000000
+        ; quadgl(0,2*pi(),makepoints(pi()))  - 4
+	    0.00000000000000000000
+
+    The quad*core functions do not offer anything fancy but the third parameter
+    controls the so called "order" which is just the number of nodes computed.
+    This can be quite usefull in some circumstances.
+
+        ; quadgldeletenodes()
+        ; define f(x){ return exp(x);}
+        f(x) redefined
+        ; s=usertime();quadglcore(-3,3)- (exp(3)-exp(-3));e=usertime();e-s
+	    0.00000000000000000001
+	    2.632164
+        ; s=usertime();quadglcore(-3,3)- (exp(3)-exp(-3));e=usertime();e-s
+	    0.00000000000000000001
+	    0.016001
+        ; quadgldeletenodes()
+        ; s=usertime();quadglcore(-3,3,14)- (exp(3)-exp(-3));e=usertime();e-s
+	   -0.00000000000000000000
+	    0.024001
+        ; s=usertime();quadglcore(-3,3,14)- (exp(3)-exp(-3));e=usertime();e-s
+	   -0.00000000000000000000
+	    0
+
+    It is not much but can sum up. The tanh-sinh algorithm is not optimizable
+    as much as the Gauss-Legendre algorithm but is per se much faster.
+
+        ; s=usertime();quadtscore(-3,3)- (exp(3)-exp(-3));e=usertime();e-s
+	    -0.00000000000000000001
+	     0.128008
+        ; s=usertime();quadtscore(-3,3)- (exp(3)-exp(-3));e=usertime();e-s
+	    -0.00000000000000000001
+	     0.036002
+        ; s=usertime();quadtscore(-3,3,49)- (exp(3)-exp(-3));e=usertime();e-s
+	    -0.00000000000000000000
+	     0.036002
+        ; s=usertime();quadtscore(-3,3,49)- (exp(3)-exp(-3));e=usertime();e-s
+	    -0.00000000000000000000
+	     0.01200
+
+
+lambertw.cal
+
+     lambertw(z,branch)
+
+     Computes Lambert's W-function at "z" at branch "branch". See
+
+         http://en.wikipedia.org/wiki/Lambert_W_function
+         http://mathworld.wolfram.com/LambertW-Function.html
+         https://cs.uwaterloo.ca/research/tr/1993/03/W.pdf
+         http://arxiv.org/abs/1003.1628
+
+     to get more information.
+
+     This file includes also an implementation for the series described in
+     Corless et al. (1996) eq. 4.22 (W-pdf) and Verebic (2010) (arxive link)
+     eqs.35-37.
+
+     The series has been implemented to get a different algorithm
+     for checking the results. This was necessary because the results
+     of the implementation in Maxima, the only program with a general
+     lambert-w implementation at hand at that time, differed slightly. The
+     Maxima versions tested were: Maxima 5.21.1 and 5.29.1. The current
+     version of this code concurs with the results of Mathematica`s(tm)
+     ProductLog[branch,z] with the tested values.
+
+     The series is only valid for the branches 0,-1, real z, converges
+     for values of z _very_ near the branchpoint -exp(-1) only, and must
+     be given the branches explicitly.  See the code in lambertw.cal
+     for further information.
+
+
+linear.cal
+
+    linear(x0, y0, x1, y1, x)
+
+    Returns the value y such that (x,y) in on the line (x0,y0), (x1,y1).
+    Requires x0 != y0.
+
+
+lnseries.cal
+
+    lnseries(limit)
+    lnfromseries(n)
+    deletelnseries()
+
+    Calculates a series of n natural logarithms at 1,2,3,4...n. It
+    does so by computing the prime factorization of all of the number
+    sequence 1,2,3...n, calculates the natural logarithms of the primes
+    in 1,2,3...n and uses the above factorization to build the natural
+    logarithms of the rest of the sequence by sadding the logarithms of
+    the primes in the factorization.  This is faster for high precision
+    of the logarithms and/or long sequences.
+
+    The sequence need to be initiated by running either lnseries(n) or
+    lnfromseries(n) once with n the upper limit of the sequence.
+
+
+lucas.cal
+
+    lucas(h, n)
+
+    Perform a primality test of h*2^n-1, with 1<=h<2*n.
+
+
+lucas_chk.cal
+
+    lucas_chk(high_n)
+
+    Test all primes of the form h*2^n-1, with 1<=h<200 and n <= high_n.
+    Requires lucas.cal to be loaded.  The highest useful high_n is 1000.
+
+    Used by regress.cal during the 2100 test set.
+
+
+lucas_tbl.cal
+
+    Lucasian criteria for primality tables.
+
+
+mersenne.cal
+
+    mersenne(p)
+
+    Perform a primality test of 2^p-1, for prime p>1.
+
+
+mfactor.cal
+
+    mfactor(n [, start_k=1 [, rept_loop=10000 [, p_elim=17]]])
+
+    Return the lowest factor of 2^n-1, for n > 0.  Starts looking for factors
+    at 2*start_k*n+1.  Skips values that are multiples of primes <= p_elim.
+    By default, start_k == 1, rept_loop = 10000 and p_elim = 17.
+
+    The p_elim == 17 overhead takes ~3 minutes on an 200 Mhz r4k CPU and
+    requires about ~13 Megs of memory.	The p_elim == 13 overhead
+    takes about 3 seconds and requires ~1.5 Megs of memory.
+
+    The value p_elim == 17 is best for long factorizations.  It is the
+    fastest even thought the initial startup overhead is larger than
+    for p_elim == 13.
+
+
+mod.cal
+
+    lmod(a)
+    mod_print(a)
+    mod_one()
+    mod_cmp(a, b)
+    mod_rel(a, b)
+    mod_add(a, b)
+    mod_sub(a, b)
+    mod_neg(a)
+    mod_mul(a, b)
+    mod_square(a)
+    mod_inc(a)
+    mod_dec(a)
+    mod_inv(a)
+    mod_div(a, b)
+    mod_pow(a, b)
+
+    Routines to handle numbers modulo a specified number.
+
+
+natnumset.cal
+
+    isset(a)
+    setbound(n)
+    empty()
+    full()
+    isin(a, b)
+    addmember(a, n)
+    rmmember(a, n)
+    set()
+    mkset(s)
+    primes(a, b)
+    set_max(a)
+    set_min(a)
+    set_not(a)
+    set_cmp(a, b)
+    set_rel(a, b)
+    set_or(a, b)
+    set_and(a, b)
+    set_comp(a)
+    set_setminus(a, b)
+    set_diff(a,b)
+    set_content(a)
+    set_add(a, b)
+    set_sub(a, b)
+    set_mul(a, b)
+    set_square(a)
+    set_pow(a, n)
+    set_sum(a)
+    set_plus(a)
+    interval(a, b)
+    isinterval(a)
+    set_mod(a, b)
+    randset(n, a, b)
+    polyvals(L, A)
+    polyvals2(L, A, B)
+    set_print(a)
+
+    Demonstration of how the string operators and functions may be used
+    for defining and working with sets of natural numbers not exceeding a
+    user-specified bound.
+
+
+pell.cal
+
+    pellx(D)
+    pell(D)
+
+    Solve Pell's equation; Returns the solution X to: X^2 - D * Y^2 = 1.
+    Type the solution to Pell's equation for a particular D.
+
+
+pi.cal
+
+    qpi(epsilon)
+    piforever()
+
+    The qpi() calculate pi within the specified epsilon using the quartic
+    convergence iteration.
+
+    The piforever() prints digits of pi, nicely formatted, for as long
+    as your free memory space and system up time allows.
+
+    The piforever() function (written by Klaus Alexander Seistrup
+    <klaus@seistrup.dk>) was inspired by an algorithm conceived by
+    Lambert Meertens.  See also the ABC Programmer's Handbook, by Geurts,
+    Meertens & Pemberton, published by Prentice-Hall (UK) Ltd., 1990.
+
+
+pix.cal
+
+    pi_of_x(x)
+
+    Calculate the number of primes < x using A(n+1)=A(n-1)+A(n-2).  This
+    is a SLOW painful method ... the builtin pix(x) is much faster.
+    Still, this method is interesting.
+
+
+pollard.cal
+
+    pfactor(N, N, ai, af)
+
+    Factor using Pollard's p-1 method.
+
+
+poly.cal
+
+    Calculate with polynomials of one variable.	 There are many functions.
+    Read the documentation in the resource file.
+
+
+prompt.cal
+
+    adder()
+    showvalues(str)
+
+    Demonstration of some uses of prompt() and eval().
+
+
+psqrt.cal
+
+    psqrt(u, p)
+
+    Calculate square roots modulo a prime
+
+
+qtime.cal
+
+    qtime(utc_hr_offset)
+
+    Print the time as English sentence given the hours offset from UTC.
+
+
+quat.cal
+
+    quat(a, b, c, d)
+    quat_print(a)
+    quat_norm(a)
+    quat_abs(a, e)
+    quat_conj(a)
+    quat_add(a, b)
+    quat_sub(a, b)
+    quat_inc(a)
+    quat_dec(a)
+    quat_neg(a)
+    quat_mul(a, b)
+    quat_div(a, b)
+    quat_inv(a)
+    quat_scale(a, b)
+    quat_shift(a, b)
+
+    Calculate using quaternions of the form: a + bi + cj + dk.	In these
+    functions, quaternions are manipulated in the form: s + v, where
+    s is a scalar and v is a vector of size 3.
+
+
+randbitrun.cal
+
+    randbitrun([run_cnt])
+
+    Using randbit(1) to generate a sequence of random bits, determine if
+    the number and length of identical bits runs match what is expected.
+    By default, run_cnt is to test the next 65536 random values.
+
+    This tests the a55 generator.
+
+
+randmprime.cal
+
+    randmprime(bits, seed [,dbg])
+
+    Find a prime of the form h*2^n-1 >= 2^bits for some given x.  The
+    initial search points for 'h' and 'n' are selected by a cryptographic
+    pseudo-random number generator.  The optional argument, dbg, if set
+    to 1, 2 or 3 turn on various debugging print statements.
+
+
+randombitrun.cal
+
+    randombitrun([run_cnt])
+
+    Using randombit(1) to generate a sequence of random bits, determine if
+    the number and length of identical bits runs match what is expected.
+    By default, run_cnt is to test the next 65536 random values.
+
+    This tests the Blum-Blum-Shub generator.
+
+
+randomrun.cal
+
+    randomrun([run_cnt])
+
+    Perform the "G. Run test" (pp. 65-68) as found in Knuth's "Art of
+    Computer Programming - 2nd edition", Volume 2, Section 3.3.2 on
+    the builtin rand() function.  This function will generate run_cnt
+    64 bit values.  By default, run_cnt is to test the next 65536
+    random values.
+
+    This tests the Blum-Blum-Shub generator.
+
+
+randrun.cal
+
+    randrun([run_cnt])
+
+    Perform the "G. Run test" (pp. 65-68) as found in Knuth's "Art of
+    Computer Programming - 2nd edition", Volume 2, Section 3.3.2 on
+    the builtin rand() function.  This function will generate run_cnt
+    64 bit values.  By default, run_cnt is to test the next 65536
+    random values.
+
+    This tests the a55 generator.
+
+repeat.cal
+
+    repeat(digit_set, repeat_count)
+
+    Return the value of the digit_set repeated repeat_count times.
+    Both digit_set and repeat_count must be integers > 0.
+
+    For example repeat(423,5) returns the value 423423423423423,
+    which is the digit_set 423 repeated 5 times.
+
+
+regress.cal
+
+    Test the correct execution of the calculator by reading this resource
+    file.  Errors are reported with '****' messages, or worse. :-)
+
+
+screen.cal
+
+    up
+    CUU	/* same as up */
+    down = CUD
+    CUD	/* same as down */
+    forward
+    CUF	/* same as forward */
+    back = CUB
+    CUB	/* same as back */
+    save
+    SCP	/* same as save */
+    restore
+    RCP	/* same as restore */
+    cls
+    home
+    eraseline
+    off
+    bold
+    faint
+    italic
+    blink
+    rapidblink
+    reverse
+    concealed
+    /* Lowercase indicates foreground, uppercase background */
+    black
+    red
+    green
+    yellow
+    blue
+    magenta
+    cyan
+    white
+    Black
+    Red
+    Green
+    Yellow
+    Blue
+    Magenta
+    Cyan
+    White
+
+    Define ANSI control sequences providing (i.e., cursor movement,
+    changing foreground or background color, etc.) for VT100 terminals
+    and terminal window emulators (i.e., xterm, Apple OS/X Terminal,
+    etc.) that support them.
+
+    For example:
+
+	read screen
+	print green:"This is green. ":red:"This is red.":black
+
+
+seedrandom.cal
+
+    seedrandom(seed1, seed2, bitsize [,trials])
+
+    Given:
+	seed1 - a large random value (at least 10^20 and perhaps < 10^93)
+	seed2 - a large random value (at least 10^20 and perhaps < 10^93)
+	size - min Blum modulus as a power of 2 (at least 100, perhaps > 1024)
+	trials - number of ptest() trials (default 25) (optional arg)
+
+    Returns:
+	the previous random state
+
+    Seed the cryptographically strong Blum generator.  This functions allows
+    one to use the raw srandom() without the burden of finding appropriate
+    Blum primes for the modulus.
+
+
+set8700.cal
+
+    set8700_getA1() defined
+    set8700_getA2() defined
+    set8700_getvar() defined
+    set8700_f(set8700_x) defined
+    set8700_g(set8700_x) defined
+
+    Declare globals and define functions needed by dotest() (see
+    dotest.cal) to evaluate set8700.line a line at a time.
+
+
+set8700.line
+
+    A line-by-line evaluation file for dotest() (see dotest.cal).
+    The set8700.cal file (and dotest.cal) should be read first.
+
+
+smallfactors.cal
+
+    smallfactors(x0)
+    printsmallfactors(flist)
+
+    Lists the prime factors of numbers smaller than 2^32. Try for example:
+    printsmallfactors(smallfactors(10!)).
+
+
+solve.cal
+
+    solve(low, high, epsilon)
+
+    Solve the equation f(x) = 0 to within the desired error value for x.
+    The function 'f' must be defined outside of this routine, and the
+    low and high values are guesses which must produce values with
+    opposite signs.
+
+
+specialfunctions.cal
+
+    beta(a,b)
+
+    Calculates the value of the beta function.  See:
+
+	https://en.wikipedia.org/wiki/Beta_function
+        http://mathworld.wolfram.com/BetaFunction.html
+        http://dlmf.nist.gov/5.12
+
+    for information on the beta function.
+
+
+    betainc(a,b,z)
+
+    Calculates the value of the regularized incomplete beta function.  See:
+
+	https://en.wikipedia.org/wiki/Beta_function
+        http://mathworld.wolfram.com/RegularizedBetaFunction.html
+        http://dlmf.nist.gov/8.17
+
+    for information on the regularized incomplete beta function.
+
+
+    expoint(z)
+
+    Calculates the value of the exponential integral Ei(z) function at z.
+    See:
+
+	http://en.wikipedia.org/wiki/Exponential_integral
+        http://www.cs.utah.edu/~vpegorar/research/2011_JGT/
+
+    for information on the exponential integral Ei(z) function.
+
+
+    erf(z)
+
+    Calculates the value of the error function at z.  See:
+
+	http://en.wikipedia.org/wiki/Error_function
+
+    for information on the error function function.
+
+
+    erfc(z)
+
+    Calculates the value of the complementary error function at z.  See:
+
+	http://en.wikipedia.org/wiki/Error_function
+
+    for information on the complementary error function function.
+
+
+    erfi(z)
+
+    Calculates the value of the imaginary error function at z.  See:
+
+	http://en.wikipedia.org/wiki/Error_function
+
+    for information on the imaginary error function function.
+
+
+    erfinv(x)
+
+    Calculates the inverse of the error function at x.  See:
+
+	http://en.wikipedia.org/wiki/Error_function
+
+    for information on the inverse of the error function function.
+
+
+    faddeeva(z)
+
+    Calculates the value of the complex error function at z.  See:
+
+	http://en.wikipedia.org/wiki/Faddeeva_function
+
+    for information on the complex error function function.
+
+
+    gamma(z)
+
+    Calculates the value of the Euler gamma function at z.  See:
+
+	http://en.wikipedia.org/wiki/Gamma_function
+        http://dlmf.nist.gov/5
+
+    for information on the Euler gamma function.
+
+
+    gammainc(a,z)
+
+    Calculates the value of the lower incomplete gamma function for
+    arbitrary a, z.  See:
+
+	http://en.wikipedia.org/wiki/Incomplete_gamma_function
+
+    for information on the lower incomplete gamma function.
+
+    gammap(a,z)
+
+    Calculates the value of the regularized lower incomplete gamma
+    function for a, z with a not in -N.  See:
+
+	http://en.wikipedia.org/wiki/Incomplete_gamma_function
+
+    for information on the regularized lower incomplete gamma function.
+
+    gammaq(a,z)
+
+    Calculates the value of the regularized upper incomplete gamma
+    function for a, z with a not in -N.  See:
+
+	http://en.wikipedia.org/wiki/Incomplete_gamma_function
+
+    for information on the regularized upper incomplete gamma function.
+
+
+    heavisidestep(x)
+
+    Computes the Heaviside stepp function (1+sign(x))/2
+
+
+    harmonic(limit)
+
+    Calculates partial values of the harmonic series up to limit.  See:
+
+	http://en.wikipedia.org/wiki/Harmonic_series_(mathematics)
+        http://mathworld.wolfram.com/HarmonicSeries.html
+
+    for information on the harmonic series.
+
+
+    lnbeta(a,b)
+
+    Calculates the natural logarithm of the beta function.  See:
+
+	https://en.wikipedia.org/wiki/Beta_function
+        http://mathworld.wolfram.com/BetaFunction.html
+        http://dlmf.nist.gov/5.12
+
+    for information on the beta function.
+
+    lngamma(z)
+
+    Calculates the value of the logarithm of the Euler gamma function
+    at z.  See:
+
+	http://en.wikipedia.org/wiki/Gamma_function
+        http://dlmf.nist.gov/5.15
+
+    for information on the derivatives of the the Euler gamma function.
+
+
+    polygamma(m,z)
+
+    Calculates the value of the m-th derivative of the Euler gamma
+    function at z.  See:
+
+	http://en.wikipedia.org/wiki/Polygamma
+        http://dlmf.nist.gov/5
+
+    for information on the n-th derivative ofthe Euler gamma function. This
+    function depends on the script zeta2.cal.
+
+
+    psi(z)
+
+    Calculates the value of the first derivative of the Euler gamma
+    function at z.  See:
+
+	http://en.wikipedia.org/wiki/Digamma_function
+        http://dlmf.nist.gov/5
+
+    for information on the first derivative of the Euler gamma function.
+
+
+    zeta(s)
+
+    Calculates the value of the Rieman Zeta function at s.  See:
+
+	http://en.wikipedia.org/wiki/Riemann_zeta_function
+        http://dlmf.nist.gov/25.2
+
+    for information on the Riemann zeta function. This function depends
+    on the script zeta2.cal.
+
+
+statistics.cal
+
+    gammaincoctave(z,a)
+
+    Computes the regularized incomplete gamma function in a way to
+    correspond with the function in Octave.
+
+    invbetainc(x,a,b)
+
+    Computes the inverse of the regularized beta function. Does so the
+    brute-force way wich makes it a bit slower.
+
+    betapdf(x,a,b)
+    betacdf(x,a,b)
+    betacdfinv(x,a,b)
+    betamedian(a,b)
+    betamode(a,b)
+    betavariance(a,b)
+    betalnvariance(a,b)
+    betaskewness(a,b)
+    betakurtosis(a,b)
+    betaentropy(a,b)
+    normalpdf(x,mu,sigma)
+    normalcdf(x,mu,sigma)
+    probit(p)
+    normalcdfinv(p,mu,sigma)
+    normalmean(mu,sigma)
+    normalmedian(mu,sigma)
+    normalmode(mu,sigma)
+    normalvariance(mu,sigma)
+    normalskewness(mu,sigma)
+    normalkurtosis(mu,sigma)
+    normalentropy(mu,sigma)
+    normalmgf(mu,sigma,t)
+    normalcf(mu,sigma,t)
+    chisquaredpdf(x,k)
+    chisquaredpcdf(x,k)
+    chisquaredmean(x,k)
+    chisquaredmedian(x,k)
+    chisquaredmode(x,k)
+    chisquaredvariance(x,k)
+    chisquaredskewness(x,k)
+    chisquaredkurtosis(x,k)
+    chisquaredentropy(x,k)
+    chisquaredmfg(k,t)
+    chisquaredcf(k,t)
+
+    Calculates a bunch of (hopefully) aptly named statistical functions.
+
+
+strings.cal
+
+    isascii(c)
+    isblank(c)
+
+    Implements some of the functions of libc's ctype.h and strings.h.
+
+    NOTE: A number of the ctype.h and strings.h functions are now builtin
+          functions in calc.
+
+   WARNING: If the remaining functions in this calc resource file become
+	    calc builtin functions, then strings.cal may be removed in
+	    a future release.
+
+
+sumsq.cal
+
+    ss(p)
+
+    Determine the unique two positive integers whose squares sum to the
+    specified prime.  This is always possible for all primes of the form
+    4N+1, and always impossible for primes of the form 4N-1.
+
+
+sumtimes.cal
+
+    timematsum(N)
+    timelistsum(N)
+    timematsort(N)
+    timelistsort(N)
+    timematreverse(N)
+    timelistreverse(N)
+    timematssq(N)
+    timelistssq(N)
+    timehmean(N,M)
+    doalltimes(N)
+
+    Give the user CPU time for various ways of evaluating sums, sums of
+    squares, etc, for large lists and matrices.  N is the size of
+    the list or matrix to use.  The doalltimes() function will run
+    all fo the sumtimes tests.  For example:
+
+    	doalltimes(1e6);
+
+
+surd.cal
+
+    surd(a, b)
+    surd_print(a)
+    surd_conj(a)
+    surd_norm(a)
+    surd_value(a, xepsilon)
+    surd_add(a, b)
+    surd_sub(a, b)
+    surd_inc(a)
+    surd_dec(a)
+    surd_neg(a)
+    surd_mul(a, b)
+    surd_square(a)
+    surd_scale(a, b)
+    surd_shift(a, b)
+    surd_div(a, b)
+    surd_inv(a)
+    surd_sgn(a)
+    surd_cmp(a, b)
+    surd_rel(a, b)
+
+    Calculate using quadratic surds of the form: a + b * sqrt(D).
+
+
+test1700.cal
+
+    value
+
+    This resource files is used by regress.cal to test the read and
+    use keywords.
+
+
+test2600.cal
+
+    global defaultverbose
+    global err
+    testismult(str, n, verbose)
+    testsqrt(str, n, eps, verbose)
+    testexp(str, n, eps, verbose)
+    testln(str, n, eps, verbose)
+    testpower(str, n, b, eps, verbose)
+    testgcd(str, n, verbose)
+    cpow(x, n, eps)
+    cexp(x, eps)
+    cln(x, eps)
+    mkreal()
+    mkcomplex()
+    mkbigreal()
+    mksmallreal()
+    testappr(str, n, verbose)
+    checkappr(x, y, z, verbose)
+    checkresult(x, y, z, a)
+    test2600(verbose, tnum)
+
+    This resource files is used by regress.cal to test some of builtin
+    functions in terms of accuracy and roundoff.
+
+
+test2700.cal
+
+    global defaultverbose
+    mknonnegreal()
+    mkposreal()
+    mkreal_2700()
+    mknonzeroreal()
+    mkposfrac()
+    mkfrac()
+    mksquarereal()
+    mknonsquarereal()
+    mkcomplex_2700()
+    testcsqrt(str, n, verbose)
+    checksqrt(x, y, z, v)
+    checkavrem(A, B, X, eps)
+    checkrounding(s, n, t, u, z)
+    iscomsq(x)
+    test2700(verbose, tnum)
+
+    This resource files is used by regress.cal to test sqrt() for real and
+    complex values.
+
+
+test3100.cal
+
+    obj res
+    global md
+    res_test(a)
+    res_sub(a, b)
+    res_mul(a, b)
+    res_neg(a)
+    res_inv(a)
+    res(x)
+
+    This resource file is used by regress.cal to test determinants of
+    a matrix.
+
+
+test3300.cal
+
+    global defaultverbose
+    global err
+    testi(str, n, N, verbose)
+    testr(str, n, N, verbose)
+    test3300(verbose, tnum)
+
+    This resource file is used by regress.cal to provide for more
+    determinant tests.
+
+
+test3400.cal
+
+    global defaultverbose
+    global err
+    test1(str, n, eps, verbose)
+    test2(str, n, eps, verbose)
+    test3(str, n, eps, verbose)
+    test4(str, n, eps, verbose)
+    test5(str, n, eps, verbose)
+    test6(str, n, eps, verbose)
+    test3400(verbose, tnum)
+
+    This resource file is used by regress.cal to test trig functions.
+    containing objects.
+
+test3500.cal
+
+    global defaultverbose
+    global err
+    testfrem(x, y, verbose)
+    testgcdrem(x, y, verbose)
+    testf(str, n, verbose)
+    testg(str, n, verbose)
+    testh(str, n, N, verbose)
+    test3500(verbose, n, N)
+
+    This resource file is used by regress.cal to test the functions frem,
+    fcnt, gcdrem.
+
+
+test4000.cal
+
+    global defaultverbose
+    global err
+    global BASEB
+    global BASE
+    global COUNT
+    global SKIP
+    global RESIDUE
+    global MODULUS
+    global K1
+    global H1
+    global K2
+    global H2
+    global K3
+    global H3
+    plen(N) defined
+    rlen(N) defined
+    clen(N) defined
+    ptimes(str, N, n, count, skip, verbose) defined
+    ctimes(str, N, n, count, skip, verbose) defined
+    crtimes(str, a, b, n, count, skip, verbose) defined
+    ntimes(str, N, n, count, skip, residue, mod, verbose) defined
+    testnextcand(str, N, n, cnt, skip, res, mod, verbose) defined
+    testnext1(x, y, count, skip, residue, modulus) defined
+    testprevcand(str, N, n, cnt, skip, res, mod, verbose) defined
+    testprev1(x, y, count, skip, residue, modulus) defined
+    test4000(verbose, tnum) defined
+
+    This resource file is used by regress.cal to test ptest, nextcand and
+    prevcand builtins.
+
+
+test4100.cal
+
+    global defaultverbose
+    global err
+    global K1
+    global K2
+    global BASEB
+    global BASE
+    rlen_4100(N) defined
+    olen(N) defined
+    test1(x, y, m, k, z1, z2) defined
+    testall(str, n, N, M, verbose) defined
+    times(str, N, n, verbose) defined
+    powtimes(str, N1, N2, n, verbose) defined
+    inittimes(str, N, n, verbose) defined
+    test4100(verbose, tnum) defined
+
+    This resource file is used by regress.cal to test REDC operations.
+
+
+test4600.cal
+
+    stest(str [, verbose]) defined
+    ttest([m, [n [,verbose]]]) defined
+    sprint(x) defined
+    findline(f,s) defined
+    findlineold(f,s) defined
+    test4600(verbose, tnum) defined
+
+    This resource file is used by regress.cal to test searching in files.
+
+
+test5100.cal
+
+    global a5100
+    global b5100
+    test5100(x) defined
+
+    This resource file is used by regress.cal to test the new code generator
+    declaration scope and order.
+
+
+test5200.cal
+
+    global a5200
+    static a5200
+    f5200(x) defined
+    g5200(x) defined
+    h5200(x) defined
+
+    This resource file is used by regress.cal to test the fix of a
+    global/static bug.
+
+
+test8400.cal
+
+    test8400() defined
+
+    This resource file is used by regress.cal to check for quit-based
+    memory leaks.
+
+
+test8500.cal
+
+    global err_8500
+    global L_8500
+    global ver_8500
+    global old_seed_8500
+    global cfg_8500
+    onetest_8500(a,b,rnd) defined
+    divmod_8500(N, M1, M2, testnum) defined
+
+    This resource file is used by regress.cal to the // and % operators.
+
+
+test8600.cal
+
+    global min_8600
+    global max_8600
+    global hash_8600
+    global hmean_8600
+
+    This resource file is used by regress.cal to test a change of
+    allowing up to 1024 args to be passed to a builtin function.
+
+
+test8900.cal
+
+    This function tests a number of calc resource functions contributed
+    by Christoph Zurnieden.  These include:
+
+	bernpoly.cal
+	brentsolve.cal
+	constants.cal
+	factorial2.cal
+	factorial.cal
+	lambertw.cal
+	lnseries.cal
+	specialfunctions.cal
+	statistics.cal
+	toomcook.cal
+	zeta2.cal
+
+
+unitfrac.cal
+
+    unitfrac(x)
+
+    Represent a fraction as sum of distinct unit fractions.
+
+
+toomcook.cal
+
+
+    toomcook3(a,b)
+    toomcook4(a,b)
+
+    Toom-Cook multiplication algorithm.  Multiply two integers a,b by
+    way of the Toom-Cook algorithm.  See:
+
+	http://en.wikipedia.org/wiki/Toom%E2%80%93Cook_multiplication
+
+    toomcook3square(a)
+    toomcook4square(a)
+
+    Square the integer a by way of the Toom-Cook algorithm.  See:
+
+	http://en.wikipedia.org/wiki/Toom%E2%80%93Cook_multiplication
+
+    The function toomCook4(a,b) calls the function toomCook3(a,b) which
+    calls built-in multiplication at a specific cut-off point. The
+    squaring functions act in the same way.
+
+
+varargs.cal
+
+    sc(a, b, ...)
+
+    Example program to use 'varargs'.  Program to sum the cubes of all
+    the specified numbers.
+
+
+xx_print.cal
+
+    is_octet(a) defined
+    list_print(a) defined
+    mat_print (a) defined
+    octet_print(a) defined
+    blk_print(a) defined
+    nblk_print (a) defined
+    strchar(a) defined
+    file_print(a) defined
+    error_print(a) defined
+
+    Demo for the xx_print object routines.
+
+
+zeta2.cal
+
+    hurwitzzeta(s,a)
+
+    Calculate the value of the Hurwitz Zeta function.  See:
+
+	http://en.wikipedia.org/wiki/Hurwitz_zeta_function
+        http://dlmf.nist.gov/25.11
+
+    for information on this special zeta function.
+
+
+## Copyright (C) 2000,2014  David I. Bell and Landon Curt Noll
+##
+## Primary author: Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.9 $
+## @(#) $Id: README,v 30.9 2014/10/06 08:44:18 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/cal/RCS/README,v $
+##
+## Under source code control:	1990/02/15 01:50:32
+## File existed as early as:	before 1990
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

@@ -1,0 +1,490 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Widgets containers</TITLE>
+ <LINK HREF="gtk_tut_fr-9.html" REL=next>
+ <LINK HREF="gtk_tut_fr-7.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc8" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-9.html">Page suivante</A>
+<A HREF="gtk_tut_fr-7.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc8">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s8">8. Widgets containers</A></H2>
+
+<H2><A NAME="ss8.1">8.1 Bloc-notes</A>
+</H2>
+
+<P>Le widget bloc-notes est un ensemble de « pages » qui se
+chevauchent. Chaque page contient des informations
+différentes. Récemment, ce widget est devenu plus commun dans la
+programmation des interfaces graphiques et c'est un bon moyen de
+montrer des blocs d'information similaires qui justifient une
+séparation de leur affichage.
+<P>Le premier appel de fonction que l'on doit connaître est, vous
+l'aviez deviné, celui qui crée un widget bloc-notes.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_notebook_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Lorsque le bloc-notes a été créé, il y a 12 fonctions permettant de
+travailler sur les blocs-notes. Étudions-les séparément.
+<P>La première permet de positionner les indicateurs de pages. Ceux-ci
+(désignés par le mot « tab » (signet)), peuvent se trouver en haut, en
+bas, à gauche ou à droite des pages.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_tab_pos (GtkNotebook *notebook, GtkPositionType pos);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><EM>GtkPositionType</EM> peut prendre les valeurs suivantes qu'il n'est
+pas nécessaire d'expliquer&nbsp;:
+<UL>
+<LI> GTK_POS_LEFT</LI>
+<LI> GTK_POS_RIGHT</LI>
+<LI> GTK_POS_TOP</LI>
+<LI> GTK_POS_BOTTOM</LI>
+</UL>
+<P>GTK_POS_TOP est la valeur par défaut.
+<P>La fonction suivante permet d'ajouter des pages à un bloc-notes. Il y
+a trois façons d'ajouter des pages. Regardons les deux premières qui
+sont très semblables.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_append_page (GtkNotebook *notebook, GtkWidget *child, 
+                               GtkWidget *tab_label);
+
+void gtk_notebook_prepend_page (GtkNotebook *notebook, GtkWidget *child, 
+                                GtkWidget *tab_label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ces fonctions ajoutent des pages au bloc-notes<EM>*notebook</EM> en les
+insérant à la fin (<EM>append</EM>) ou au début
+(<EM>prepend</EM>). <EM>*child</EM> est le widget qui est placé dans la page
+du bloc-notes, et <EM>*tab_label</EM> est le label de la page qui est
+ajoutée.
+<P>La troisième fonction ajoutant une page à un bloc-notes conserve
+toutes les propriétés des deux précédentes, mais elle nous permet en
+plus de spécifier la position où l'on désire insérer cette page.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_insert_page (GtkNotebook *notebook, GtkWidget *child, 
+                               GtkWidget *tab_label, gint position);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Les paramètres sont les mêmes que <EM>_append_</EM> et <EM>_prepend_</EM> sauf
+qu'il y en a un de plus&nbsp;: <EM>position</EM>. Celui-ci sert à
+spécifier l'endroit où cette page sera insérée.
+<P>Maintenant que nous savons insérer une page, voyons comment en supprimer une.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_remove_page (GtkNotebook *notebook, gint page_num);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cette fonction ôte la page spécifiée par <EM>page_num</EM> du widget
+<EM>*notebook</EM>.
+<P>Pour connaître la page courante d'un bloc-notes, on dispose de la
+fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_notebook_current_page (GtkNotebook *notebook);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Les deux fonctions suivantes permettent de passer à la page suivante
+ou précédente d'un bloc-notes. Il suffit de faire l'appel de la
+fonction adéquate avec le widget sur lequel on veut
+opérer. Remarque&nbsp;: lorsqu'on est sur la dernière page du
+bloc-notes et que l'on appelle <EM>gtk_notebook_next_page</EM>, on revient
+à la première page. De même, si l'on est sur la première page et que
+l'onappelle <EM>gtk_notebook_prev_page</EM>, on se retrouve sur sa
+dernière page.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_next_page (GtkNoteBook *notebook);
+void gtk_notebook_prev_page (GtkNoteBook *notebook);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La fonction qui suit permet de choisir la page « active ». Si vous
+voulez ouvrir le bloc-notes à la page 5, par exemple, vous utiliserez
+cette fonction. Sans elle, le bloc-notes s'ouvre sur sa première page
+par défaut.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_page (GtkNotebook *notebook, gint page_num);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Les deux fonctions suivantes ajoutent ou ôtent les indicateurs de page
+et le contour du bloc-notes, respectivement.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_show_tabs (GtkNotebook *notebook, gint show_tabs);
+void gtk_notebook_set_show_border (GtkNotebook *notebook, gint show_border);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><EM>show_tabs</EM> et <EM>show_border</EM> peuvent valoir TRUE ou FALSE (0 ou 1).
+<P>Voyons maintenant un exemple, il est tiré du code de <EM>testgtk.c</EM> de
+la distribution GTK et montre l'utilisation des 13 fonctions. Ce petit
+programme crée une fenêtre contenant un bloc-notes et six boutons. Le
+bloc-notes contient 11 pages, ajoutées par trois moyens
+différents&nbsp;: à la fin, au milieu et au début. Les boutons
+permettent de faire tourner les indicateurs de page, ajouter/ôter les
+indicateurs et le contour, ôter une page, passer à la page suivante et
+précédente, et sortir du programme.
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+#include &lt;gtk/gtk.h>
+
+/* Rotation des indicateurs de page  */
+
+void rotate_book (GtkButton *button, GtkNotebook *notebook)
+{
+    gtk_notebook_set_tab_pos (notebook, (notebook->tab_pos +1) %4);
+}
+
+/* Ajout/Suppression des indicateurs de pages et des contours */
+
+void tabsborder_book (GtkButton *button, GtkNotebook *notebook)
+{
+    gint tval = FALSE;
+    gint bval = FALSE;
+    if (notebook->show_tabs == 0)
+            tval = TRUE; 
+    if (notebook->show_border == 0)
+            bval = TRUE;
+    
+    gtk_notebook_set_show_tabs (notebook, tval);
+    gtk_notebook_set_show_border (notebook, bval);
+}
+
+/* Suppression d'une page */
+
+void remove_book (GtkButton *button, GtkNotebook *notebook)
+{
+    gint page;
+    
+    page = gtk_notebook_current_page(notebook);
+    gtk_notebook_remove_page (notebook, page);
+
+    /* Il faut rafraîchir  le widget --
+     * ce qui force le widget à se redessiner. */
+
+      gtk_widget_draw(GTK_WIDGET(notebook), NULL);
+}
+
+void delete (GtkWidget *widget, GdkEvent *event, gpointer *data)
+{
+    gtk_main_quit ();
+}
+
+int main (int argc, char *argv[])
+{
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *table;
+    GtkWidget *notebook;
+    GtkWidget *frame;
+    GtkWidget *label;
+    GtkWidget *checkbutton;
+    int i;
+    char bufferf[32];
+    char bufferl[32];
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (delete), NULL);
+    
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+    
+    table = gtk_table_new(2,6,TRUE);
+    gtk_container_add (GTK_CONTAINER (window), table);
+    
+    /* Création d'un bloc-notes, placement des indicateurs de page. */
+
+    notebook = gtk_notebook_new ();
+    gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_TOP);
+    gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0,6,0,1);
+    gtk_widget_show(notebook);
+    
+    /* Ajoute un groupe de pages à la fin du bloc-notes. */
+
+    for (i=0; i &lt; 5; i++) {
+        sprintf(bufferf, "Append Frame %d", i+1);
+        sprintf(bufferl, "Page %d", i+1);
+        
+        frame = gtk_frame_new (bufferf);
+        gtk_container_border_width (GTK_CONTAINER (frame), 10);
+        gtk_widget_set_usize (frame, 100, 75);
+        gtk_widget_show (frame);
+        
+        label = gtk_label_new (bufferf);
+        gtk_container_add (GTK_CONTAINER (frame), label);
+        gtk_widget_show (label);
+        
+        label = gtk_label_new (bufferl);
+        gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
+    }
+    
+    
+    /* Ajoute une page à un endroit précis. */
+
+    checkbutton = gtk_check_button_new_with_label ("Cochez moi !");
+    gtk_widget_set_usize(checkbutton, 100, 75);
+    gtk_widget_show (checkbutton);
+    
+    label = gtk_label_new ("Emplacement de la nouvelle page");
+    gtk_container_add (GTK_CONTAINER (checkbutton), label);
+    gtk_widget_show (label);
+    label = gtk_label_new ("Ajout de page");
+    gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), checkbutton, label, 2);
+    
+    /* Ajout de pages au début du bloc-notes */
+
+    for (i=0; i &lt; 5; i++) {
+        sprintf(bufferf, "Prepend Frame %d", i+1);
+        sprintf(bufferl, "Page %d", i+1);
+        
+        frame = gtk_frame_new (bufferf);
+        gtk_container_border_width (GTK_CONTAINER (frame), 10);
+        gtk_widget_set_usize (frame, 100, 75);
+        gtk_widget_show (frame);
+        
+        label = gtk_label_new (bufferf);
+        gtk_container_add (GTK_CONTAINER (frame), label);
+        gtk_widget_show (label);
+        
+        label = gtk_label_new (bufferl);
+        gtk_notebook_prepend_page (GTK_NOTEBOOK(notebook), frame, label);
+    }
+    
+    /* Configuration de la page de départ (page 4) */
+
+    gtk_notebook_set_page (GTK_NOTEBOOK(notebook), 3);
+    
+    
+    /* Création des boutons */
+
+    button = gtk_button_new_with_label ("Fermer");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC (delete), NULL);
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 0,1,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("Page suivante");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_notebook_next_page,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 1,2,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("Page précédente");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_notebook_prev_page,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 2,3,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("Position des indicateurs");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) rotate_book, GTK_OBJECT(notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 3,4,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("Indicateurs/Contours oui/non");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) tabsborder_book,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 4,5,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("Oter page");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) remove_book,
+                               GTK_OBJECT(notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 5,6,1,2);
+    gtk_widget_show(button);
+    
+    gtk_widget_show(table);
+    gtk_widget_show(window);
+    
+    gtk_main ();
+    
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>En espérant que ceci vous aide à créer des blocs-notes pour vos
+applications GTK.
+<P>
+<P>
+<H2><A NAME="ss8.2">8.2 Fenêtres avec barres de défilement</A>
+</H2>
+
+<P>Les fenêtres avec barres de défilement servent à créer des zones
+défilantes à l'intérieur d'une vraie fenêtre. On peut insérer
+n'importe quel widget dans ces fenêtres, ils seront accessibles quelle
+que soit leur taille en utilisant les barres de défilement.
+<P>
+<P>La fonction suivante sert à créer une fenêtre avec barre de
+défilement&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_scrolled_window_new (GtkAdjustment *hadjustment,
+                                    GtkAdjustment *vadjustment);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le premier paramètre est l'ajustement horizontal, et le second
+l'ajustement vertical. Ils sont presque toujours positionnés à NULL.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scrolled_window_set_policy      (GtkScrolledWindow *scrolled_window,
+                                          GtkPolicyType      hscrollbar_policy,
+                                          GtkPolicyType      vscrollbar_policy);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cela permet de configurer le fonctionnement des barres de
+défilement. Le premier paramètre est la fenêtre à défilement que l'on
+veut modifier, le second configure le fonctionnement de la barre
+horizontale et le troisième celui de la barre verticale.
+<P>Ce fonctionnement peut être GTK_POLICY AUTOMATIC ou GTK_POLICY_ALWAYS.
+GTK_POLICY_AUTOMATIC décidera automatiquement de votre besoin en
+barres de défilement, alors que GTK_POLICY_ALWAYS mettra toujours
+celles-ci.
+<P>Voici un exemple simple qui place 100 boutons commutateurs dans une
+fenêtre à défilement. Je n'ai commenté que les parties qui sont
+nouvelles pour vous.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+
+void destroy(GtkWidget *widget, gpointer *data)
+{
+    gtk_main_quit();
+}
+
+int main (int argc, char *argv[])
+{
+    static GtkWidget *window;
+    GtkWidget *scrolled_window;
+    GtkWidget *table;
+    GtkWidget *button;
+    char buffer[32];
+    int i, j;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    /* Création d'une boîte de dialogue pour y placer la fenêtre à défilement.
+     * Une boîte de dialogue est une fenêtre comme les autres sauf qu'elle contient
+     * une vbox et un séparateur horizontal. Ce n'est qu'un raccourci pour créer des
+     * zones de dialogue. */
+
+    window = gtk_dialog_new ();
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        (GtkSignalFunc) destroy, NULL);
+    gtk_window_set_title (GTK_WINDOW (window), "dialog");
+    gtk_container_border_width (GTK_CONTAINER (window), 0);
+    
+    /* Création d'une fenêtre à défilement. */
+
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    
+    gtk_container_border_width (GTK_CONTAINER (scrolled_window), 10);
+    
+    /* La gestion des barres est soit GTK_POLICY AUTOMATIC, soit  GTK_POLICY_ALWAYS.
+     * GTK_POLICY_AUTOMATIC décide automatiquement s'il faut ou non des barres,
+     * GTK_POLICY_ALWAYS met toujours des barres
+     * Le premier paramètre correspond à la barre horizontale,
+     * le second à la barre verticale. */
+
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+
+    /* Création d'une boîte de dialogue */
+
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG(window)->vbox), scrolled_window, 
+                        TRUE, TRUE, 0);
+    gtk_widget_show (scrolled_window);
+    
+    /* Création d'une table de 10x10 cases. */
+
+    table = gtk_table_new (10, 10, FALSE);
+    
+    /* Configure l'espace des lignes et des colonnes de 10 pixels */
+
+    gtk_table_set_row_spacings (GTK_TABLE (table), 10);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 10);
+    
+    /* Place la table fans la fenêtre à défilement */
+
+    gtk_container_add (GTK_CONTAINER (scrolled_window), table);
+    gtk_widget_show (table);
+    
+    /* Crée une grille de boutons commutateurs dans la table */
+
+    for (i = 0; i &lt; 10; i++)
+            for (j = 0; j &lt; 10; j++) {
+                sprintf (buffer, "bouton (%d,%d)\n", i, j);
+                button = gtk_toggle_button_new_with_label (buffer);
+                gtk_table_attach_defaults (GTK_TABLE (table), button,
+                                           i, i+1, j, j+1);
+                gtk_widget_show (button);
+            }
+    
+    /* Ajoute un bouton « Fermer » en bas de la boîte de dialogue */
+
+    button = gtk_button_new_with_label ("Fermer");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (window));
+    
+    /* On met ce bouton en « bouton par défaut ». */
+    
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->action_area), button, TRUE, TRUE, 0);
+    
+    /* Récupère le bouton par défaut. Le fait de presser la touche « Entrée »
+     * activera le bouton. */
+
+    gtk_widget_grab_default (button);
+    gtk_widget_show (button);
+    
+    gtk_widget_show (window);
+    
+    gtk_main();
+    
+    return(0);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Essayez de changer la taille de la fenêtre et faites attention aux
+réactions des barres de défilement. On peut aussi utiliser la fonction
+<EM>gtk_widget_set_usize()</EM> pour configurer la taille par défaut de la
+fenêtre et des autres widgets.
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-9.html">Page suivante</A>
+<A HREF="gtk_tut_fr-7.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc8">Table des matières</A>
+</BODY>
+</HTML>

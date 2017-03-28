@@ -1,0 +1,1 @@
+../../alsa-kernel/include/pcm_params.h

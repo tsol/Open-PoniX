@@ -1,0 +1,124 @@
+#!/bin/sh
+
+# This little script is aimed at easing the Linux kernel compilation and
+# installation. No guarantee is given on its suitability to your own system
+# though.
+
+function check_error() {
+	ret=$?
+	if (( $ret != 0 )) ; then
+		echo "Error while building the kernel..."
+		exit $ret
+	fi
+}
+
+TITLE="Linux kernel compilation"
+MAKE="/tmp/make.$$"
+TEMP="/tmp/kernel-compilation.log"
+
+echo >$TEMP
+/bin/ln -s /usr/bin/make $MAKE
+check_error
+
+(
+/bin/sleep 1
+
+cd /usr/src/linux
+check_error
+
+Xdialog --title "$TITLE" --yesno "make mrproper first ?" 0 0
+if (( $? == 0 )) ; then
+	echo "--------------------------------------------------------------------------"
+	echo "Making mrproper..."
+	echo "--------------------------------------------------------------------------"
+	$MAKE mrproper 2>&1
+	check_error
+fi
+
+if [ -f /usr/src/linux/.config ] ; then
+	Xdialog --title "$TITLE" --yesno "Configure the kernel ?" 0 0
+	if (( $? == 0 )) ; then
+		echo "--------------------------------------------------------------------------"
+		echo "Making xconfig..."
+		echo "--------------------------------------------------------------------------"
+		$MAKE xconfig 2>&1
+		check_error
+	fi
+else
+	echo "--------------------------------------------------------------------------"
+	echo "Making xconfig..."
+	echo "--------------------------------------------------------------------------"
+	$MAKE xconfig 2>&1
+	check_error
+fi
+echo "--------------------------------------------------------------------------"
+echo "Making depends..."
+echo "--------------------------------------------------------------------------"
+$MAKE dep 2>&1
+check_error
+echo "--------------------------------------------------------------------------"
+echo "Cleaning up..."
+echo "--------------------------------------------------------------------------"
+$MAKE clean 2>&1
+check_error
+echo "--------------------------------------------------------------------------"
+echo "Making kernel..."
+echo "--------------------------------------------------------------------------"
+$MAKE bzImage 2>&1
+check_error
+echo "--------------------------------------------------------------------------"
+echo "Making modules..."
+echo "--------------------------------------------------------------------------"
+$MAKE modules 2>&1
+check_error
+echo "--------------------------------------------------------------------------"
+echo "Installing modules..."
+echo "--------------------------------------------------------------------------"
+$MAKE modules_install 2>&1
+check_error
+
+VERSION=`/bin/grep UTS_RELEASE /usr/src/linux/include/linux/version.h | /bin/awk --source '{ print $3 }'`
+echo -n "VERSION=" >/tmp/version.$$
+echo $VERSION >>/tmp/version.$$
+. /tmp/version.$$
+/bin/rm -f /tmp/version.$$
+echo "--------------------------------------------------------------------------"
+echo "Installing kernel v$VERSION... "
+echo "--------------------------------------------------------------------------"
+/bin/cp -f /usr/src/linux/.config /boot/config-$VERSION 2>&1
+/bin/cp -f /usr/src/linux/System.map /boot/System.map-$VERSION 2>&1
+/bin/cp -f /usr/src/linux/arch/i386/boot/bzImage /boot/vmlinuz-$VERSION 2>&1
+if [ -f /boot/module-info-`uname -r` ] && ! [ -f /boot/module-info-$VERSION ] ; then
+	/bin/cp -f /boot/module-info-`uname -r` /boot/module-info-$VERSION 2>&1
+fi
+Xdialog --title "$TITLE" --yesno "Make the new kernel the current one ?" 0 0
+if (( $? == 0 )) ; then
+	echo "--------------------------------------------------------------------------"
+	echo "Making v$VERSION the current kernel... "
+	echo "--------------------------------------------------------------------------"
+	/bin/ln -sf /boot/System.map-$VERSION /boot/System.map 2>&1
+	/bin/ln -sf /boot/vmlinuz-$VERSION /boot/vmlinuz 2>&1
+	if [ -f /boot/module-info-$VERSION ] ; then
+		/bin/ln -sf /boot/module-info-$VERSION /boot/module-info 2>&1
+	fi
+	if [ -f /boot/map ] && [ -f /sbin/lilo ] && [ -f /etc/lilo.conf ] ; then
+		Xdialog --title "$TITLE" --yesno "Install the new kernel with lilo ?" 0 0
+		if (( $? == 0 )) ; then
+			echo "--------------------------------------------------------------------------"
+			echo "Running lilo... "
+			echo "--------------------------------------------------------------------------"
+			/sbin/lilo 2>&1
+		fi
+	fi
+fi
+echo ""
+echo "done !"
+) | /bin/cat >$TEMP &
+
+PID=$!
+
+Xdialog --title "$TITLE" --no-button --smooth --tailbox $TEMP 40 80
+/usr/bin/killall $MAKE 2>/dev/null
+kill $PID 2>/dev/null
+/bin/rm -f $MAKE
+echo >$TEMP

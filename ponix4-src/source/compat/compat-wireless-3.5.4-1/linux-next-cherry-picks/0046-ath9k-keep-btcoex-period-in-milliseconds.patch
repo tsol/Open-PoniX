@@ -1,0 +1,54 @@
+From dfd0587a7d99d42cc2d608324991169494d2dbba Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 11 Jun 2012 12:19:37 +0530
+Subject: [PATCH 46/57] ath9k: keep btcoex period in milliseconds
+
+btcoex periord is converted into micro seconds during initialization
+and converted back to milli seconds while starting timer. As MCI code
+handles btcoex period in msec, lets keep the btcoex timer in msec and
+convert them into other form whenever needed.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/gpio.c |    8 ++++----
+ drivers/net/wireless/ath/ath9k/mci.c  |    3 +--
+ 2 files changed, 5 insertions(+), 6 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/gpio.c
++++ b/drivers/net/wireless/ath/ath9k/gpio.c
+@@ -232,7 +232,7 @@ static void ath_btcoex_period_timer(unsi
+ 	}
+ 
+ 	ath9k_ps_restore(sc);
+-	timer_period = btcoex->btcoex_period / 1000;
++	timer_period = btcoex->btcoex_period;
+ 	mod_timer(&btcoex->period_timer, jiffies + msecs_to_jiffies(timer_period));
+ }
+ 
+@@ -267,10 +267,10 @@ static int ath_init_btcoex_timer(struct
+ {
+ 	struct ath_btcoex *btcoex = &sc->btcoex;
+ 
+-	btcoex->btcoex_period = ATH_BTCOEX_DEF_BT_PERIOD * 1000;
+-	btcoex->btcoex_no_stomp = (100 - ATH_BTCOEX_DEF_DUTY_CYCLE) *
++	btcoex->btcoex_period = ATH_BTCOEX_DEF_BT_PERIOD;
++	btcoex->btcoex_no_stomp = (100 - ATH_BTCOEX_DEF_DUTY_CYCLE) * 1000 *
+ 		btcoex->btcoex_period / 100;
+-	btcoex->btscan_no_stomp = (100 - ATH_BTCOEX_BTSCAN_DUTY_CYCLE) *
++	btcoex->btscan_no_stomp = (100 - ATH_BTCOEX_BTSCAN_DUTY_CYCLE) * 1000 *
+ 				   btcoex->btcoex_period / 100;
+ 
+ 	setup_timer(&btcoex->period_timer, ath_btcoex_period_timer,
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -182,8 +182,7 @@ skip_tuning:
+ 	if (btcoex->duty_cycle > ATH_MCI_MAX_DUTY_CYCLE)
+ 		btcoex->duty_cycle = ATH_MCI_MAX_DUTY_CYCLE;
+ 
+-	btcoex->btcoex_period *= 1000;
+-	btcoex->btcoex_no_stomp =  btcoex->btcoex_period *
++	btcoex->btcoex_no_stomp =  btcoex->btcoex_period * 1000 *
+ 		(100 - btcoex->duty_cycle) / 100;
+ 
+ 	ath9k_hw_btcoex_enable(sc->sc_ah);

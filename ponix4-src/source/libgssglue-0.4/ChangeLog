@@ -1,0 +1,121 @@
+2012-05-08: kwc
+	Release 0.4
+	Changes since libgssglue-0.3:
+	- Fix for CVE-2011-2709
+	  Patch from Marcus Meissner
+	  Note: Although https://bugzilla.novell.com/show_bug.cgi?id=694598
+	  mentions mount.nfs, libgssglue is not used by mount.nfs.
+2011-06-22: kwc
+	Release 0.3
+	Changes since libgssglue-0.2:
+	- Add new typedefs defined in RFC 5587 and used
+	  in newer versions of MIT Kerberos.  Fixes a
+	  commpile error in nfs-utils which uses gssapi.h
+	  from this package and other gss headers from the
+	  Kerberos distribution.
+
+2011-03-16: kwc
+	Release 0.2
+	Changes since libgssglue-0.1:
+	- Modify the gss_acquire_cred() code to accept, and
+	  properly handle, an input name of GSS_C_NO_NAME.
+	  Other misc. changes to support this change.
+	- Remove some generated files from git.  Change
+	  autogen.sh to clean up files that might become
+	  outdated and incompatible.
+
+2007-09-04: kwc
+	Release 0.1 (of libgssglue)
+	* ****************************************
+	  ***** RENAME library to libgssglue *****
+	  ****************************************
+	* Rename library from libgssapi to libgssglue to
+	  resolve conflicts with Heimdal and MIT libraries
+	  named libgssapi.
+	* Patch from Luke Howard <lukeh@novell.com> to allow
+	  application to continue to "function" even if no
+	  mechanisms are correctly configured.
+
+2007-04-20: kwc
+	Release 0.11
+	Changes since libgssapi-0.10:
+	- Add glue routine for gss_krb5_ccache_name.  Needed
+	  to work with Heimdal.  (Need Heimdal 0.8.1 or later
+	  which has versioned symbols, which prevents glue
+	  functions from calling the wrong function.)
+2006-06-22: kwc
+	Release 0.10
+	Changes since libgssapi-0.9:
+	- Add symbol versioning script and use it when linking
+	  the library.  This allows us to use the gss_* symbols
+	  from MIT gssapi_krb5 libraries without namespace
+	  collision problems.  This is required for use with
+	  MIT release 1.5 which no longer exports the krb5_gss_*
+	  symbols.  (In addition, this should also allow us to
+	  work with Heimdal. Currently untested.)
+	- Remove code that tries to get symbols with names krb5_gss_*.
+	- Open dynamic libraries with RTLD_LOCAL
+
+2006-04-08: kwc
+	Release 0.9
+	Changes since libgssapi-0.8:
+	- Correct declaration and implementation of
+	  gss_export_lucid_sec_context(). This results in an
+	  interface change.  The soname is updated to reflect this.
+
+2006-04-01: kwc
+	Release 0.8
+	Changes since librpcsecgss-0.7:
+	- Memory leak: free union_name in gss_acquire_cred if
+	  it was allocated there.
+	- Don't exit() the application if initialization fails,
+	  just fail the operation.
+	- Add glue routines for gss_canonicalize_name and
+	  gss_export_name
+	- Make "first-class" routines for gss_get_mic,
+	  gss_verify_mic, gss_wrap, and gss_unwrap
+	- Clean up some clutter of unused #ifde'd code
+	- Patch from Timo Aaltonen <tjaalton@cc.hut.fi> for
+	  Debian packaging.
+	- Change union_name definition such that external_name
+	  is a gss_buffer_desc rather than gss_buffer_t.
+	  Eliminates unnecessary malloc'ing and freeing.
+
+2005-12-16: kwc
+	Release 0.7
+	Changes since librpcsecgss-0.6:
+	- A patch from Olaf Kirch <okir@suse.de> to
+	  gss_inquire_cred() to remove a potential
+	  problem of an uninitialized variable and to return
+	  an error if generic_gss_copy_oid() fails.
+	- Revert a bad change made to gss_free_lucid_sec_context().
+	- Clean up some compiler warnings
+
+2005-12-07: kwc
+	Release 0.6
+	Changes since librpcsecgss-0.5:
+	- Generate gssapi.h using system information
+	- Install gssapi.h in addition to the library
+	  (Currently installed in
+	  ${prefix}include/gssglue/gssapi/gssapi.h)
+	- Add pkg-config support so that other packages can
+	  find and use the header and library.  The pkgconfig
+	  information is installed by default in
+	  /usr/local/lib/pkgconfig which is not searched by
+	  dedault by pkg-config.
+	- Consolidate initialization code so the same code can
+	  be used for MIT or Heimdal Kerberos w/o requiring
+	  configure-time information of which is installed
+
+2005-05-02: kwc
+	- More configuration cleanup
+	- Remove hard-coded values from gssapi.h and use
+	  autoconf to get the right values for the machine
+	- Building from a CVS checkout now requires that you
+	  run autoheader to generarte config.h.in 
+
+2005-03-02: kwc
+	- Fix configuration issue.
+	- Remove gss_release_oid() from glue layer.
+
+2004-10-20: started

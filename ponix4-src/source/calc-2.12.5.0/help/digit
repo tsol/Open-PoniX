@@ -1,0 +1,119 @@
+NAME
+    digit - digit at specified position in a "decimal" representation
+
+SYNOPSIS
+    digit(x, n [, b])
+
+TYPES
+    x		real
+    n		integer
+    b		integer >= 2, default = 10
+
+    return	integer
+
+DESCRIPTION
+
+    d(x,n,b) returns the digit with index n in a standard base-b "decimal"
+    representation of x, which may be described as follows:
+
+    For an arbitrary base b >= 2, following the pattern of decimal (base 10)
+    notation in elementary arithmetic, a base-b "decimal" representation of
+    a positive real number may be considered to be specified by a finite or
+    infinite sequence of "digits" with possibly a "decimal" point
+    to indicate where the fractional part of the representation begins.
+    Just as the digits for base 10 are the integers 0, 1, 2, ..., 9, the
+    digits for a base-b representation are the integers d for which
+    0 <= d < b.   The index for a digit position is the count, positively to
+    the left, of the number from the "units" position immediately to the
+    left of the "decimal" point; the digit  d_n  at position n contributes
+    additively  d_n * b^n  to the value of x.  For example,
+
+	; d_2 d_1 d_0 . d_-1 d_-2
+
+    represents the number
+
+	; d_2 * b^2 + d_1 * b + d0 + d_-1 * b^-1 + d_-2 * b^-2
+
+    The sequence of digits has to be infinite if den(x) has a prime factor
+    which is not a factor of the base b.  In cases where the representation
+    may terminate, the digits are considered to continue with an infinite
+    string of zeros rather than the other possibility of an infinite
+    sequence of (b - 1)s.  Thus, for the above example, d_n = 0 for
+    n = -3, -4, ...  Similarly, a representation may be considered to
+    continue with an infinite string of zeros on the left, so that in the
+    above example d_n = 0 also for n >= 3.
+
+    For negative x, digit(x,n,b) is given by digit(abs(x),n,b); the
+    standard "decimal" representation of this x is a - sign followed by
+    the representation of abs(x).
+
+    In calc, the "real" numbers are all rational and for these the
+    digits following the decimal point eventually form a recurring sequence.
+
+    With base-b digits for x as explained above, the integer whose base-b
+    representation is
+
+	; b_n+k-1 b_n_k-2 ... b_n,
+
+    i.e. the k digits with last digit b_n, is given by
+
+	; digit(b^-r * x, q, b^k)
+
+    if r and q satisfy  n = q * b + r.
+
+
+EXAMPLE
+	; a = 123456.789
+	; for (n = 6; n >= -6; n++) print digit(a, n),; print
+	0 1 2 3 4 5 6 7 8 9 0 0 0
+
+	; for (n = 6; n >= -6; n--) print digit(a, n, 100),; print
+	0 0 0 0 12 34 56 78 90 0 0 0 0
+
+	; for (n = 6; n >= -6; n--) print digit(a, n, 256),; print
+	0 0 0 0 1 226 64 201 251 231 108 139 67
+
+  	; for (n = 1; n >= -12; n++) print digit(10/7, n),; print
+    	; 0 1 4 2 8 5 7 1 4 2 8 5 7 1
+
+	; print digit(10/7, -7e1000, 1e6)
+	428571
+
+LIMITS
+
+    The absolute value of the integral part of x is assumed to be less
+    than 2^2^31, ensuring that digit(x, n, b) will be zero if n >= 2^31.
+    The size of negative n is limited only by the capacity of the computer
+    being used.
+
+LINK LIBRARY
+    NUMBER * qdigit(NUMBER *q, ZVALUE dpos, ZVALUE base)
+
+SEE ALSO
+    bit
+
+## Copyright (C) 1999-2006  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: digit,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/digit,v $
+##
+## Under source code control:	1995/10/03 10:40:01
+## File existed as early as:	1995
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

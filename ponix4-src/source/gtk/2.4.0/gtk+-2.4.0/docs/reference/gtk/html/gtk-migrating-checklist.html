@@ -1,0 +1,129 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Migration Checklist</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="migrating.html" title="Part IV. Migrating from Previous Versions of GTK+"><link rel="previous" href="migrating.html" title="Part IV. Migrating from Previous Versions of GTK+"><link rel="next" href="checklist-gdkeventexpose-region.html" title="Use GdkEventExpose.region"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="migrating.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="migrating.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="checklist-gdkeventexpose-region.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="gtk-migrating-checklist"></a>Migration Checklist</h2></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><a href="gtk-migrating-checklist.html#checklist-popup-menu">Implement GtkWidget::popup_menu</a></dt><dt><a href="checklist-gdkeventexpose-region.html">Use GdkEventExpose.region</a></dt><dt><a href="checklist-modifiers.html">Test for modifier keys correctly</a></dt></dl></div><p>
+    This chapter includes a checklist of things you need to do to
+    ensure that your programs are good citizens in the GTK+ world.  By
+    paying attention to the points in the checklist, you ensure that
+    many automatic features of GTK+ will work correctly in your
+    program.
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="checklist-popup-menu"></a>Implement GtkWidget::popup_menu</h2></div></div><div></div></div><p><b>Why. </b>
+	By handling this signal, you let widgets have
+	context-sensitive menus that can be invoked with the standard
+	key bindings.
+      </p><p>
+      The <a href="GtkWidget.html#GtkWidget-popup-menu">GtkWidget::popup_menu</a>
+      signal instructs the widget for which it is emitted to create a
+      context-sensitive popup menu.  By default, the key binding mechanism is set to
+      emit this signal when the
+      <b class="keycap">Shift</b>-<b class="keycap">F10</b>
+      or <b class="keycap">Menu</b> keys are pressed while a widget has the
+      focus.  If a widget in your application shows a popup menu when
+      you press a mouse button, you can make it work as well through
+      the normal key binding mechanism in the following fahion:
+    </p><div class="orderedlist"><ol type="1"><li><p>
+	  Write a function to create and show a popup menu.  This
+	  function needs to know the button number and the event's
+	  time to pass them to gtk_menu_popup().  You can implement
+	  such a function like this:
+	</p><a name="do_popup_menu"></a><pre class="programlisting">
+static void
+do_popup_menu (GtkWidget *my_widget, GdkEventButton *event)
+{
+  GtkWidget *menu;
+  int button, event_time;
+
+  menu = gtk_menu_new ();
+  g_signal_connect (menu, "deactivate", 
+                    G_CALLBACK (gtk_widget_destroy), NULL);
+
+  /* ... add menu items ... */
+
+  if (event)
+    {
+      button = event-&gt;button;
+      event_time = event-&gt;time;
+    }
+  else
+    {
+      button = 0;
+      event_time = gtk_get_current_event_time ();
+    }
+
+  gtk_menu_popup (GTK_MENU (popup), NULL, NULL, NULL, NULL, 
+                  button, event_time);
+}
+	</pre></li><li><p>
+	  In your button_press handler, call this function when you
+	  need to pop up a menu:
+	</p><pre class="programlisting">
+static gboolean
+my_widget_button_press_event_handler (GtkWidget *widget, GdkEventButton *event)
+{
+  /* Ignore double-clicks and triple-clicks */
+  if (event-&gt;button == 3 &amp;&amp; event-&gt;type == GDK_BUTTON_PRESS)
+    {
+      do_popup_menu (widget, event);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+	</pre></li><li><p>
+	  Implement a handler for the popup_menu signal:
+	</p><pre class="programlisting">
+static gboolean
+my_widget_popup_menu_handler (GtkWidget *widget)
+{
+  do_popup_menu (widget, NULL);
+  return TRUE;
+}
+	</pre></li></ol></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+	If you do not pass a positioning function to gtk_menu_popup(),
+	it will show the menu at the mouse position by default.  This
+	is what you usually want when the menu is shown as a result of
+	pressing a mouse button.  However, if you press the
+	<b class="keycap">Shift</b>-<b class="keycap">F10</b>
+	or <b class="keycap">Menu</b> keys while the widget is focused, the
+	mouse cursor may not be near the widget at all.  In the <a href="gtk-migrating-checklist.html#do_popup_menu">example above</a>, you may want to
+	provide your own <a href="GtkMenu.html#GtkMenuPositionFunc">menu-positioning function</a>
+	in the case where the <i class="parameter"><tt>event</tt></i> is
+	<tt class="constant">NULL</tt>.  This function should compute the
+	desired position for a menu when it is invoked through the
+	keyboard.  For example, <a href="GtkEntry.html" title="GtkEntry"><span class="refentrytitle">GtkEntry</span>(3)</a> aligns the
+	top edge of its popup menu with the bottom edge of the entry.
+      </p></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+	For the standard key bindings to work, your widget must be
+	able to take the keyboard focus.  In general, widgets should
+	be fully usable through the keyboard and not just the mouse.
+	The very first step of this is to ensure that your widget
+	turns on the <tt class="constant">GTK_CAN_FOCUS</tt>
+	FLAG.
+      </p></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="migrating.html"><b>&lt;&lt; Part IV. Migrating from Previous Versions of GTK+</b></a></td><td align="right"><a accesskey="n" href="checklist-gdkeventexpose-region.html"><b>Use GdkEventExpose.region &gt;&gt;</b></a></td></tr></table></body></html>

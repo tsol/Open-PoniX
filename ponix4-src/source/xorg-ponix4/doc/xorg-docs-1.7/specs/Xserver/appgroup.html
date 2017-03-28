@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Description of the Application Group Extension</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /><meta name="description" content="The following document explains the server side of the Application Group Extension." /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="article" title="Description of the Application Group Extension"><div class="titlepage"><div><div><h2 class="title"><a id="appgroup"></a>Description of the Application Group Extension</h2></div><div><h3 class="subtitle"><em>Implementation for the X11 Sample Server</em></h3></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Kaleb </span> <span class="surname">KEITHLEY</span></h3><div class="affiliation"><span class="orgname">FUJITSU Limited.<br /></span></div></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="releaseinfo">Version 1.0</p></div><div><p class="copyright">Copyright © 1996 X Consortium</p></div><div><div class="legalnotice" title="Legal Notice"><a id="id3001075"></a><p>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+</p><p>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+</p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of the X Consortium shall
+not be used in advertising or otherwise to promote the sale, use or
+other dealings in this Software without prior written authorization
+from the X Consortium.
+</p><p>X Window System is a trademark of The Open Group.</p></div></div><div><div class="legalnotice" title="Legal Notice"><a id="id3026798"></a><p>WindowsNT is a trademark of Microsoft, Inc.</p><p>Macintosh and Apple are trademarks of Apple Computer, Inc.</p></div></div><div><div class="abstract" title="Abstract"><p>
+The following document explains the server side of the Application
+Group Extension.
+</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#AppGroup_Server_Public_Functions">AppGroup Server Public Functions</a></span></dt><dt><span class="sect1"><a href="#AppGroup_Server_Private_APIs">AppGroup Server Private APIs</a></span></dt><dt><span class="sect1"><a href="#Known_Problems_in_this_release">Known Problems in this release.</a></span></dt></dl></div><p>
+To understand this document and the accompanying source code, you
+should know the C language, should be familiar with X server
+internals, and should also have a general knowledge of the X
+Window System.
+</p><div class="sect1" title="AppGroup Server Public Functions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="AppGroup_Server_Public_Functions"></a>AppGroup Server Public Functions</h2></div></div></div><p>
+The AppGroup extension adds seven new functions that are called
+from elsewhere in the server. They are: XagExtensionInit,
+XagDefaultColormap, XagRootVisual, XagLeader, XagIsControlledRoot,
+XagConnectionInfo, XagCallClientStateChange.
+</p><p>
+XagExtensionInit is the extension initialization function called
+from InitExtension in mi/miinitext.c. Note that an new resource
+type, RT_APPGROUP, is created, specifying the destructor function
+XagAppGroupFree.
+</p><p>
+XagDefaultColormap returns the colormap ID that was specified in
+the creation of the AppGroup. Any time CopyFromParent is specified
+for a top-level window's colormap, i.e. in a CreateWindow or
+ChangeWindowAttributes request, this function is called to see
+if there is an AppGroup specific colormap to use. If there is
+one, its ID is returned, otherwise None is returned.
+</p><p>
+XagRootVisual returns the visual ID that was specified in the
+creation of the Appgroup. Like XagDefaultColormap, when CopyFromParent
+is specified for a top-level window's visual in a CreateWindow
+request, this function is called to see if there is an AppGroup
+specific visual to use. If there is one, its ID is returned,
+otherwise 0 (zero) is returned.
+</p><p>
+XagLeader returns the ClientPtr of the client that is the AppGroup
+Leader. Normally when an application maps or configures a top-level
+window a MapRequest or ConfigureRequest event is delivered to the
+client, e.g. a window manager, that has selected SubstructureRedirect
+on the root window. However, when the application is part of an
+AppGroup, the MapRequest and ConfigureRequest events are delivered
+to the AppGroup Leader instead.
+</p><p>
+XagIsControlledRoot returns a boolean: True if the window is a
+top-level window of a client in an AppGroup, False otherwise.
+In a combined server, i.e. one that provides both UI and printing,
+the application may create and map windows on the "printing"
+screens; thus it becomes necessary to discriminate between the
+AppGroup's root window and other root windows. If an AppGroup
+member creates and maps a [top-level] window then the window's
+parent [the root window] is tested to determine whether to send
+MapRequest or ConfigureRequest events to the AppGroup Leader to
+to some other client.
+</p><p>
+In the trivial case XagIsControlledRoot returns True if the parent
+window has no parent itself, i.e. it is a root window. In the case
+where the application is embedded, indicated by the singleScreen
+attribute being True, the parent's drawable ID is compared to the
+AppGroup's root window ID, and if it is the same, True is returned.
+If neither case is true, then False is returned.
+</p><p>
+XagConnectionInfo returns an abreviated version of the connection
+setup information. When an embedded AppGroup is created the server
+returns only the information about the [UI] screen that the
+application is embedded within in the connection setup in order to
+prevent the application from creating windows on other screens;
+thus attempting to guarantee that any window that should be embedded
+can be reparented into the AppGroup Leader's window hierarchy.
+</p><p>
+XagCallClientStateChange is called to invoke the extension's client
+state change callback additional times as necessary -- currently
+only once, after the auth data becomes available between
+ClientStateInitial and ClientStateConnected. Client state change
+callbacks were introduced in the Record extension, which specifies
+when the callbacks are invoked. Unfortunately the points at which
+they are called are not necessarily the best as far as the AppGroup
+Extension is concerned. Adding an additional state and calling all
+the callbacks works too, however this seemed unnecessary overkill.
+</p></div><div class="sect1" title="AppGroup Server Private APIs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="AppGroup_Server_Private_APIs"></a>AppGroup Server Private APIs</h2></div></div></div><p>
+The AppGroup extension adds the following functions which are
+private to the extension: ProcXagDispatch and SProcXagDispatch,
+ProcXagQueryVersion and SProcXagQueryVersion, ProcXagCreate and
+SProcXagCreate, ProcXagDestroy and SProcXagDestroy,
+ProcGetAttr and SProcGetAttr, ProcXagQuery and SProcXagQuery,
+ProcXagCreateAssoc and SProcXagCreateAssoc, ProcXagDestroyAssoc
+and SProcXagDestroyAssoc, XagResetProc, and XagAppGroupFree.
+</p><p>
+The ProcXagDispatch, SProcXagDispatch, and XagResetProc functions
+should be familiar to anyone familiar with X server internals and
+I won't elaborate on them here. Similarly the wrapper functions:
+SProcXagQueryVersion, SProcXagCreate, SProcXagDestroy, SProcXagGetAttr,
+SProcXagQuery, SProcXagCreateAssoc, and SProcXagDestroyAssoc, as
+wrappers which handle swapping integer data into the host's byte
+order will not be explained in any detail.
+</p><p>
+ProcXagQueryVersion returns the major and minor versions of the
+AppGroup extension supported by the server.
+</p><p>
+ProcXagCreate creates an AppGroup. A new record in a linked list
+of AppGroups is allocated and initialized. The attributes from the
+request are validated and copied to the AppGroup record. If necessary
+an abbreviated version of the connection setup information is compiled
+and also stored in the AppGroup record. The first time an AppGroup
+is created a client-state-change callback is registered and a
+reference count is incremented.
+</p><p>
+ProcXagDestroy destroys an AppGroup an AppGroup by calling
+FreeResource specifying the AppGroup ID. This will result in
+the destructor function XagAppGroupFree being called. The
+reference count is decremented and when it reaches zero the
+client-state-change callback is deleted.
+</p><p>
+ProcXagGetAttr returns the AppGroup Attributes to the requesting
+client.
+</p><p>
+ProcXagQuery returns the AppGroup ID of an arbitrary resource to
+the requesting client.
+</p><p>
+ProcXagCreateAssoc creates an association between an X window ID
+and system-specific data. In native X this functionality is
+unnecessary but for various personal computers, e.g. Macintosh,
+OS/2, and MS-Windows it is necessary to associate an X window ID
+with the system's native window identifier so that when the
+AppGroup Leader issues a ReparentWindow request the personal
+computer X server can lookup the system-specific window ID and
+make the necessary function call(s) with it.
+</p><p>
+ProcXagDestroyAssoc destroys the association created with
+ProcXagCreateAssoc.
+</p><p>
+XagResetProc removes the client-state-change callback, sets the
+reference count to zero, and frees all the AppGroup records in
+the linked list by calling XagAppGroupFree.
+</p><p>
+XagAppGroupFree calls CloseDownClient for each client in an
+AppGroup if the AppGroup has a leader, unlinks the AppGroup
+record from the linked list, frees allocated memory referenced
+by the record, and finally frees the record itself.
+</p></div><div class="sect1" title="Known Problems in this release."><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Known_Problems_in_this_release"></a>Known Problems in this release.</h2></div></div></div><p>
+In a combined UI/Print server the connection setup returned to an
+embedded application will not have information about the print
+screens.
+</p><p>
+The LBX proxy caches connection setup information and will return
+incorrect connection setup information to an embedded client.
+</p></div></div></body></html>

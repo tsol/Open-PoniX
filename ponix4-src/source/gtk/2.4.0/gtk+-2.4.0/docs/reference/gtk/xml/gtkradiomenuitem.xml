@@ -1,0 +1,322 @@
+<refentry id="GtkRadioMenuItem">
+<refmeta>
+<refentrytitle>GtkRadioMenuItem</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkRadioMenuItem</refname><refpurpose>A choice from multiple check menu items.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkRadioMenuItem-struct">GtkRadioMenuItem</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-radio-menu-item-new">gtk_radio_menu_item_new</link>         (<link linkend="GSList">GSList</link> *group);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-radio-menu-item-new-with-label">gtk_radio_menu_item_new_with_label</link>
+                                            (<link linkend="GSList">GSList</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-radio-menu-item-new-with-mnemonic">gtk_radio_menu_item_new_with_mnemonic</link>
+                                            (<link linkend="GSList">GSList</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-radio-menu-item-new-from-widget">gtk_radio_menu_item_new_from_widget</link>
+                                            (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *group);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-radio-menu-item-new-with-label-from-widget">gtk_radio_menu_item_new_with_label_from_widget</link>
+                                            (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-radio-menu-item-new-with-mnemonic-from-widget">gtk_radio_menu_item_new_with_mnemonic_from_widget</link>
+                                            (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);
+#define     <link linkend="gtk-radio-menu-item-group">gtk_radio_menu_item_group</link>
+<link linkend="void">void</link>        <link linkend="gtk-radio-menu-item-set-group">gtk_radio_menu_item_set_group</link>   (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *radio_menu_item,
+                                             <link linkend="GSList">GSList</link> *group);
+<link linkend="GSList">GSList</link>*     <link linkend="gtk-radio-menu-item-get-group">gtk_radio_menu_item_get_group</link>   (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *radio_menu_item);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkContainer">GtkContainer</link>
+                     +----<link linkend="GtkBin">GtkBin</link>
+                           +----<link linkend="GtkItem">GtkItem</link>
+                                 +----<link linkend="GtkMenuItem">GtkMenuItem</link>
+                                       +----<link linkend="GtkCheckMenuItem">GtkCheckMenuItem</link>
+                                             +----GtkRadioMenuItem
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkRadioMenuItem implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkRadioMenuItem-group-changed">group-changed</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *radiomenuitem,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+A radio menu item is a check menu item that belongs to a group. At each
+instant exactly one of the radio menu items from a group is selected.
+</para>
+<para>
+The group list does not need to be freed, as each <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> will 
+remove itself and its list item when it is destroyed.
+</para>
+<para>
+The correct way to create a group of radio menu items is approximatively
+this:
+</para>
+<example>
+<title>How to create a group of radio menu items.</title>
+<programlisting>
+GSList *group = NULL;
+GtkWidget *item;
+gint i;
+
+for (i = 0; i &lt; 5; i++)
+{
+  item = gtk_radio_menu_item_new_with_label (group, "This is an example");
+  group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
+  if (i == 1)
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
+}
+</programlisting>
+</example>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkRadioMenuItem-struct"/>struct GtkRadioMenuItem</title>
+<indexterm><primary>GtkRadioMenuItem</primary></indexterm><programlisting>struct GtkRadioMenuItem;</programlisting>
+<para>
+The structure contains only private data that must be accessed through
+the interface functions.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-new"/>gtk_radio_menu_item_new ()</title>
+<indexterm><primary>gtk_radio_menu_item_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_radio_menu_item_new         (<link linkend="GSList">GSList</link> *group);</programlisting>
+<para>
+Creates a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara>the group to which the radio menu item is to be attached
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-new-with-label"/>gtk_radio_menu_item_new_with_label ()</title>
+<indexterm><primary>gtk_radio_menu_item_new_with_label</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_radio_menu_item_new_with_label
+                                            (<link linkend="GSList">GSList</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);</programlisting>
+<para>
+Creates a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> whose child is a simple <link linkend="GtkLabel"><type>GtkLabel</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara>the group to which the radio menu item is to be attached
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>label</parameter>&nbsp;:</term>
+<listitem><simpara>the text for the label
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-new-with-mnemonic"/>gtk_radio_menu_item_new_with_mnemonic ()</title>
+<indexterm><primary>gtk_radio_menu_item_new_with_mnemonic</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_radio_menu_item_new_with_mnemonic
+                                            (<link linkend="GSList">GSList</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);</programlisting>
+<para>
+Creates a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> containing a label. The label
+will be created using <link linkend="gtk-label-new-with-mnemonic"><function>gtk_label_new_with_mnemonic()</function></link>, so underscores
+in <parameter>label</parameter> indicate the mnemonic for the menu item.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> group the radio menu item is inside
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>label</parameter>&nbsp;:</term>
+<listitem><simpara> the text of the button, with an underscore in front of the
+        mnemonic character
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-new-from-widget"/>gtk_radio_menu_item_new_from_widget ()</title>
+<indexterm><primary>gtk_radio_menu_item_new_from_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_radio_menu_item_new_from_widget
+                                            (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *group);</programlisting>
+<para>
+Creates a new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> adding it to the same group as <parameter>group</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> An existing <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-new-with-label-from-widget"/>gtk_radio_menu_item_new_with_label_from_widget ()</title>
+<indexterm><primary>gtk_radio_menu_item_new_with_label_from_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_radio_menu_item_new_with_label_from_widget
+                                            (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);</programlisting>
+<para>
+Creates a new GtkRadioMenuItem whose child is a simple GtkLabel.
+The new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> is added to the same group as <parameter>group</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> an existing <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>label</parameter>&nbsp;:</term>
+<listitem><simpara> the text for the label
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-new-with-mnemonic-from-widget"/>gtk_radio_menu_item_new_with_mnemonic_from_widget ()</title>
+<indexterm><primary>gtk_radio_menu_item_new_with_mnemonic_from_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_radio_menu_item_new_with_mnemonic_from_widget
+                                            (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *group,
+                                             const <link linkend="gchar">gchar</link> *label);</programlisting>
+<para>
+Creates a new GtkRadioMenuItem containing a label. The label will be
+created using <link linkend="gtk-label-new-with-mnemonic"><function>gtk_label_new_with_mnemonic()</function></link>, so underscores in label
+indicate the mnemonic for the menu item.
+</para>
+<para>
+The new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link> is added to the same group as <parameter>group</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara> An existing <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>label</parameter>&nbsp;:</term>
+<listitem><simpara> the text of the button, with an underscore in front of the
+        mnemonic character
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The new <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-group"/>gtk_radio_menu_item_group</title>
+<indexterm><primary>gtk_radio_menu_item_group</primary></indexterm><programlisting>#define gtk_radio_menu_item_group gtk_radio_menu_item_get_group
+</programlisting>
+<warning><para><literal>gtk_radio_menu_item_group</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated compatibility macro. Use <link linkend="gtk-radio-menu-item-get-group"><function>gtk_radio_menu_item_get_group()</function></link> instead.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-set-group"/>gtk_radio_menu_item_set_group ()</title>
+<indexterm><primary>gtk_radio_menu_item_set_group</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_radio_menu_item_set_group   (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *radio_menu_item,
+                                             <link linkend="GSList">GSList</link> *group);</programlisting>
+<para>
+Sets the group of a radio menu item, or changes it.
+</para><variablelist role="params">
+<varlistentry><term><parameter>radio_menu_item</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>group</parameter>&nbsp;:</term>
+<listitem><simpara>the new group.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-radio-menu-item-get-group"/>gtk_radio_menu_item_get_group ()</title>
+<indexterm><primary>gtk_radio_menu_item_get_group</primary></indexterm><programlisting><link linkend="GSList">GSList</link>*     gtk_radio_menu_item_get_group   (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *radio_menu_item);</programlisting>
+<para>
+Returns the group to which the radio menu item belongs, as a <link linkend="GList"><type>GList</type></link> of
+<link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>. The list belongs to GTK+ and should not be freed.
+</para><variablelist role="params">
+<varlistentry><term><parameter>radio_menu_item</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkRadioMenuItem"><type>GtkRadioMenuItem</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the group of <parameter>radio_menu_item</parameter>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkRadioMenuItem-group-changed"/>The &quot;group-changed&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkRadioMenuItem">GtkRadioMenuItem</link> *radiomenuitem,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>radiomenuitem</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+<varlistentry>
+<term><link linkend="GtkMenuItem"><type>GtkMenuItem</type></link></term>
+<listitem><para>because a radio menu item is a menu item.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GtkCheckMenuItem"><type>GtkCheckMenuItem</type></link></term>
+<listitem><para>to know how to handle the check.</para></listitem>
+</varlistentry>
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

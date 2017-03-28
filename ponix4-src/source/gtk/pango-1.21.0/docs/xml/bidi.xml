@@ -1,0 +1,363 @@
+<refentry id="pango-Bidirectional-Text">
+<refmeta>
+<refentrytitle role="top_of_page" id="pango-Bidirectional-Text.top_of_page">Bidirectional Text</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Bidirectional Text</refname>
+<refpurpose>Types and functions to help with handling bidirectional text</refpurpose>
+<!--[<xref linkend="desc" endterm="desc.title"/>]-->
+</refnamediv>
+
+<refsynopsisdiv id="pango-Bidirectional-Text.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+enum                <link linkend="PangoDirection">PangoDirection</link>;
+<link linkend="PangoDirection">PangoDirection</link>      <link linkend="pango-unichar-direction">pango_unichar_direction</link>             (<link linkend="gunichar">gunichar</link> ch);
+<link linkend="PangoDirection">PangoDirection</link>      <link linkend="pango-find-base-dir">pango_find_base_dir</link>                 (const <link linkend="gchar">gchar</link> *text,
+                                                         <link linkend="gint">gint</link> length);
+<link linkend="gboolean">gboolean</link>            <link linkend="pango-get-mirror-char">pango_get_mirror_char</link>               (<link linkend="gunichar">gunichar</link> ch,
+                                                         <link linkend="gunichar">gunichar</link> *mirrored_ch);
+enum                <link linkend="PangoBidiType">PangoBidiType</link>;
+<link linkend="PangoBidiType">PangoBidiType</link>       <link linkend="pango-bidi-type-for-unichar">pango_bidi_type_for_unichar</link>         (<link linkend="gunichar">gunichar</link> ch);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 id="pango-Bidirectional-Text.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+Pango supports bidirectional text (like Arabic and Hebrew) automatically.
+Some applications however, need some help to correctly handle bidirectional
+text.
+</para>
+<para>
+The <link linkend="PangoDirection"><type>PangoDirection</type></link> type can be used with <link linkend="pango-context-set-base-dir"><function>pango_context_set_base_dir()</function></link> to
+instruct Pango about direction of text, though in most cases Pango detects
+that correctly and automatically.  The rest of the facilities in this section
+are used internally by Pango already, and are provided to help applications
+that need more direct control over bidirectional setting of text.
+</para>
+</refsect1>
+
+<refsect1 id="pango-Bidirectional-Text.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="PangoDirection" role="enum">
+<title>enum PangoDirection</title>
+<indexterm zone="PangoDirection"><primary>PangoDirection</primary></indexterm><programlisting>typedef enum {
+  PANGO_DIRECTION_LTR,
+  PANGO_DIRECTION_RTL,
+  PANGO_DIRECTION_TTB_LTR,
+  PANGO_DIRECTION_TTB_RTL,
+  PANGO_DIRECTION_WEAK_LTR,
+  PANGO_DIRECTION_WEAK_RTL,
+  PANGO_DIRECTION_NEUTRAL
+} PangoDirection;
+</programlisting>
+<para>
+The <link linkend="PangoDirection"><type>PangoDirection</type></link> type represents a direction in the
+Unicode bidirectional algorithm; not every value in this
+enumeration makes sense for every usage of <link linkend="PangoDirection"><type>PangoDirection</type></link>;
+for example, the return value of <link linkend="pango-unichar-direction"><function>pango_unichar_direction()</function></link>
+and <link linkend="pango-find-base-dir"><function>pango_find_base_dir()</function></link> cannot be <link linkend="PANGO-DIRECTION-WEAK-LTR:CAPS"><literal>PANGO_DIRECTION_WEAK_LTR</literal></link>
+or <link linkend="PANGO-DIRECTION-WEAK-RTL:CAPS"><literal>PANGO_DIRECTION_WEAK_RTL</literal></link>, since every character is either
+neutral or has a strong direction; on the other hand
+<link linkend="PANGO-DIRECTION-NEUTRAL:CAPS"><literal>PANGO_DIRECTION_NEUTRAL</literal></link> doesn't make sense to pass
+to <link linkend="pango-itemize-with-base-dir"><function>pango_itemize_with_base_dir()</function></link>.
+</para>
+<para>
+The <link linkend="PANGO-DIRECTION-TTB-LTR:CAPS"><literal>PANGO_DIRECTION_TTB_LTR</literal></link>, <link linkend="PANGO-DIRECTION-TTB-RTL:CAPS"><literal>PANGO_DIRECTION_TTB_RTL</literal></link>
+values come from an earlier interpretation of this
+enumeration as the writing direction of a block of
+text and are no longer used; See <link linkend="PangoGravity"><type>PangoGravity</type></link> for how
+vertical text is handled in Pango.</para>
+<para>
+</para><variablelist role="enum">
+<varlistentry id="PANGO-DIRECTION-LTR:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_LTR</literal></term>
+<listitem><simpara> A strong left-to-right direction
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-DIRECTION-RTL:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_RTL</literal></term>
+<listitem><simpara> A strong right-to-left direction
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-DIRECTION-TTB-LTR:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_TTB_LTR</literal></term>
+<listitem><simpara> Deprecated value; treated the
+  same as <link linkend="PANGO-DIRECTION-RTL:CAPS"><literal>PANGO_DIRECTION_RTL</literal></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-DIRECTION-TTB-RTL:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_TTB_RTL</literal></term>
+<listitem><simpara> Deprecated value; treated the
+  same as <link linkend="PANGO-DIRECTION-LTR:CAPS"><literal>PANGO_DIRECTION_LTR</literal></link>
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-DIRECTION-WEAK-LTR:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_WEAK_LTR</literal></term>
+<listitem><simpara> A weak left-to-right direction
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-DIRECTION-WEAK-RTL:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_WEAK_RTL</literal></term>
+<listitem><simpara> A weak right-to-left direction
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-DIRECTION-NEUTRAL:CAPS" role="constant">
+<term><literal>PANGO_DIRECTION_NEUTRAL</literal></term>
+<listitem><simpara> No direction specified
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2 id="pango-unichar-direction" role="function">
+<title>pango_unichar_direction ()</title>
+<indexterm zone="pango-unichar-direction"><primary>pango_unichar_direction</primary></indexterm><programlisting><link linkend="PangoDirection">PangoDirection</link>      pango_unichar_direction             (<link linkend="gunichar">gunichar</link> ch);</programlisting>
+<para>
+Determines the inherent direction of a character; either
+<link linkend="PANGO-DIRECTION-LTR:CAPS"><literal>PANGO_DIRECTION_LTR</literal></link>, <link linkend="PANGO-DIRECTION-RTL:CAPS"><literal>PANGO_DIRECTION_RTL</literal></link>, or
+<link linkend="PANGO-DIRECTION-NEUTRAL:CAPS"><literal>PANGO_DIRECTION_NEUTRAL</literal></link>.
+</para>
+<para>
+This function is useful to categorize characters into left-to-right
+letters, right-to-left letters, and everything else.  If full
+Unicode bidirectional type of a character is needed,
+<link linkend="pango-bidi-type-for-gunichar"><function>pango_bidi_type_for_gunichar()</function></link> can be used instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ch</parameter>&nbsp;:</term>
+<listitem><simpara> a Unicode character
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the direction of the character.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="pango-find-base-dir" role="function" condition="since:1.4">
+<title>pango_find_base_dir ()</title>
+<indexterm zone="pango-find-base-dir" role="1.4"><primary>pango_find_base_dir</primary></indexterm><programlisting><link linkend="PangoDirection">PangoDirection</link>      pango_find_base_dir                 (const <link linkend="gchar">gchar</link> *text,
+                                                         <link linkend="gint">gint</link> length);</programlisting>
+<para>
+Searches a string the first character that has a strong
+direction, according to the Unicode bidirectional algorithm.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>   the text to process
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> length of <parameter>text</parameter> in bytes (may be -1 if <parameter>text</parameter> is nul-terminated)
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> The direction corresponding to the first strong character.
+If no such character is found, then <link linkend="PANGO-DIRECTION-NEUTRAL:CAPS"><literal>PANGO_DIRECTION_NEUTRAL</literal></link> is returned.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  1.4
+</para></refsect2>
+<refsect2 id="pango-get-mirror-char" role="function" condition="deprecated:">
+<title>pango_get_mirror_char ()</title>
+<indexterm zone="pango-get-mirror-char" role="deprecated"><primary>pango_get_mirror_char</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>            pango_get_mirror_char               (<link linkend="gunichar">gunichar</link> ch,
+                                                         <link linkend="gunichar">gunichar</link> *mirrored_ch);</programlisting>
+<warning><para><literal>pango_get_mirror_char</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+If <parameter>ch</parameter> has the Unicode mirrored property and there is another Unicode
+character that typically has a glyph that is the mirror image of <parameter>ch</parameter>'s
+glyph, puts that character in the address pointed to by <parameter>mirrored_ch</parameter>.
+</para>
+<para>
+Use <link linkend="g-unichar-get-mirror-char"><function>g_unichar_get_mirror_char()</function></link> instead; the docs for that function
+provide full details.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ch</parameter>&nbsp;:</term>
+<listitem><simpara> a Unicode character
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mirrored_ch</parameter>&nbsp;:</term>
+<listitem><simpara> location to store the mirrored character
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> <link linkend="TRUE:CAPS"><literal>TRUE</literal></link> if <parameter>ch</parameter> has a mirrored character and <parameter>mirrored_ch</parameter> is
+filled in, <link linkend="FALSE:CAPS"><literal>FALSE</literal></link> otherwise
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="PangoBidiType" role="enum" condition="since:1.22">
+<title>enum PangoBidiType</title>
+<indexterm zone="PangoBidiType" role="1.22"><primary>PangoBidiType</primary></indexterm><programlisting>typedef enum {
+  /* Strong types */
+  PANGO_BIDI_TYPE_L,
+  PANGO_BIDI_TYPE_LRE,
+  PANGO_BIDI_TYPE_LRO,
+  PANGO_BIDI_TYPE_R,
+  PANGO_BIDI_TYPE_AL,
+  PANGO_BIDI_TYPE_RLE,
+  PANGO_BIDI_TYPE_RLO,
+
+  /* Weak types */
+  PANGO_BIDI_TYPE_PDF,
+  PANGO_BIDI_TYPE_EN,
+  PANGO_BIDI_TYPE_ES,
+  PANGO_BIDI_TYPE_ET,
+  PANGO_BIDI_TYPE_AN,
+  PANGO_BIDI_TYPE_CS,
+  PANGO_BIDI_TYPE_NSM,
+  PANGO_BIDI_TYPE_BN,
+
+  /* Neutral types */
+  PANGO_BIDI_TYPE_B,
+  PANGO_BIDI_TYPE_S,
+  PANGO_BIDI_TYPE_WS,
+  PANGO_BIDI_TYPE_ON
+} PangoBidiType;
+</programlisting>
+<para>
+The <link linkend="PangoBidiType"><type>PangoBidiType</type></link> type represents the bidirectional character
+type of a Unicode character as specified by the
+<ulink url="http://www.unicode.org/reports/tr9/">Unicode bidirectional algorithm</ulink>.</para>
+<para>
+
+</para><variablelist role="enum">
+<varlistentry id="PANGO-BIDI-TYPE-L:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_L</literal></term>
+<listitem><simpara> Left-to-Right
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-LRE:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_LRE</literal></term>
+<listitem><simpara> Left-to-Right Embedding
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-LRO:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_LRO</literal></term>
+<listitem><simpara> Left-to-Right Override
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-R:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_R</literal></term>
+<listitem><simpara> Right-to-Left
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-AL:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_AL</literal></term>
+<listitem><simpara> Right-to-Left Arabic
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-RLE:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_RLE</literal></term>
+<listitem><simpara> Right-to-Left Embedding
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-RLO:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_RLO</literal></term>
+<listitem><simpara> Right-to-Left Override
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-PDF:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_PDF</literal></term>
+<listitem><simpara> Pop Directional Format
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-EN:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_EN</literal></term>
+<listitem><simpara> European Number
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-ES:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_ES</literal></term>
+<listitem><simpara> European Number Separator
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-ET:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_ET</literal></term>
+<listitem><simpara> European Number Terminator
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-AN:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_AN</literal></term>
+<listitem><simpara> Arabic Number
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-CS:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_CS</literal></term>
+<listitem><simpara> Common Number Separator
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-NSM:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_NSM</literal></term>
+<listitem><simpara> Nonspacing Mark
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-BN:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_BN</literal></term>
+<listitem><simpara> Boundary Neutral
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-B:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_B</literal></term>
+<listitem><simpara> Paragraph Separator
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-S:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_S</literal></term>
+<listitem><simpara> Segment Separator
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-WS:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_WS</literal></term>
+<listitem><simpara> Whitespace
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="PANGO-BIDI-TYPE-ON:CAPS" role="constant">
+<term><literal>PANGO_BIDI_TYPE_ON</literal></term>
+<listitem><simpara> Other Neutrals
+</simpara></listitem>
+</varlistentry>
+</variablelist><para role="since">Since  1.22
+</para></refsect2>
+<refsect2 id="pango-bidi-type-for-unichar" role="function" condition="since:1.22">
+<title>pango_bidi_type_for_unichar ()</title>
+<indexterm zone="pango-bidi-type-for-unichar" role="1.22"><primary>pango_bidi_type_for_unichar</primary></indexterm><programlisting><link linkend="PangoBidiType">PangoBidiType</link>       pango_bidi_type_for_unichar         (<link linkend="gunichar">gunichar</link> ch);</programlisting>
+<para>
+Determines the normative bidirectional character type of a
+character, as specified in the Unicode Character Database.
+</para>
+<para>
+A simplified version of this function is available as
+<link linkend="pango-unichar-get-direction"><function>pango_unichar_get_direction()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ch</parameter>&nbsp;:</term>
+<listitem><simpara> a Unicode character
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&nbsp;:</term><listitem><simpara> the bidirectional character type, as used in the
+Unicode bidirectional algorithm.
+
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since  1.22
+</para></refsect2>
+
+</refsect1>
+
+
+
+<refsect1 id="pango-Bidirectional-Text.see-also">
+<title>See Also</title>
+<para>
+<link linkend="pango-context-get-base-dir"><function>pango_context_get_base_dir()</function></link>,
+<link linkend="pango-context-set-base-dir"><function>pango_context_set_base_dir()</function></link>,
+<link linkend="pango-itemize-with-base-dir"><function>pango_itemize_with_base_dir()</function></link>
+</para>
+</refsect1>
+
+</refentry>

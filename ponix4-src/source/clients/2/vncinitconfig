@@ -1,0 +1,658 @@
+#!/bin/sh
+
+# Copyright (C) 2002-2013 RealVNC Ltd.  All rights reserved.
+
+usage()
+{
+    echo "VNC(R) Initial Configuration Tool 5.0.6 (r113416)"
+    echo "Copyright (C) 2002-2013 RealVNC Ltd."
+    echo "See http://www.realvnc.com for information on VNC."
+    echo
+    echo "Usage: vncinitconfig ACTION..."
+    echo
+    echo "Actions:"
+    echo "  -install-defaults  Perform all steps below supported for this"
+    echo "                     platform, including enabling printing"
+    echo "  -pam               Configure vncserver PAM entries"
+    echo "  -xstartup          Create default /etc/vnc/xstartup"
+    echo "  -config            Create default configuration in /etc/vnc"
+    echo "  -keygen            Create key for encrypted VNC sessions"
+    echo "  -licensing         Create license directory"
+    echo "  -service-daemon    Install init script for service-mode daemon"
+    echo "  -virtual-daemon    Install init script for virtual-mode daemon"
+    echo "  -enable-print      Enable printing for all users"
+    echo "  -disable-print     Disable printing for all users"
+}
+
+
+# Initialise the X Server configuration file location. NB/ We omit paths based
+# on environment variables that don't exist and also per-user config files.
+init_xserver_config_path()
+{
+    if [ -z "$HOSTNAME" ]; then
+        hn=`uname -n`
+    else
+        hn=$HOSTNAME
+    fi
+
+    paths=/etc/X11/xorg.conf
+    if [ -n "$XF86CONFIG" ]; then
+        paths="$paths $XF86CONFIG /etc/X11/$XF86CONFIG /usr/X11R6/etc/X11/$XF86CONFIG"
+    fi
+    paths="$paths /etc/X11/XF86Config-4 /etc/X11/XF86Config /etc/XF86Config /usr/X11R6/etc/X11/XF86Config.$hn /usr/X11R6/etc/X11/XF86Config-4 /usr/X11R6/etc/X11/XF86Config $paths /usr/X11R6/lib/X11/XF86Config.$hn /usr/X11R6/lib/X11/XF86Config-4 /usr/X11R6/lib/X11/XF86Config"
+    
+    for xserver_config_path in $paths; do
+        [ -r "$xserver_config_path" ] && return
+    done
+    xserver_config_path=
+}
+
+
+# Get an attribute either using xset, or from the X Server config file located
+# using the above function. The variable $attr_value is set to the value of the
+# attribute. The variable $attr_location indicates where the value comes from.
+get_attr_from_xserver_config()
+{
+    xset_pattern="$1"       # Look for this in "xset q" output
+    config_pattern="$2"     # Look for this in $xserver_config_path
+    attr_location=
+    attr_value=
+
+    # First try to get the information via "xset q"; this will work if
+    # we're running under a properly-configured X Server. Solaris awk
+    # doesn't handle variables introduced with -v, so we have to let the
+    # shell handle variable expansion, which a little uglier.
+    if [ -n "$xset_pattern" ]; then
+        attr_value=`
+            xset q 2>/dev/null |
+            $awk "BEGIN { found = 0 }
+                  /^$xset_pattern\$/ { found = 1; next }
+                  found == 1  { sub(\"^ *\",\"\"); print; exit }"`
+        if [ -n "$attr_value" ]; then
+            attr_location="xset"
+            return
+        fi
+    fi
+
+    # If that fails, try to get the information from the X Server config file.
+    # NB/ The triple backslashes are required because the ` invokes a subshell
+    # that reduces \\\$1 to \$1, which is then reduced to $1 before passing it
+    # to awk.
+    if [ -n "$xserver_config_path" -a -n "$config_pattern" ]; then
+        attr_value=`
+            $awk "BEGIN { first=1 }
+                  \\\$1==\"$config_pattern\" {
+                      gsub(/^\"|\"\$/, \"\", \\\$2);
+                      printf \"%s%s\", (first==1) ? \"\" : \",\", \\\$2;
+                      first = 0
+                }" $xserver_config_path`
+        if [ -n "$attr_value" ]; then
+            attr_location="$xserver_config_path"
+            return
+        fi
+    fi
+}
+
+strip_user_specfic_paths()
+{
+    # Filter user-specific paths
+    sed -e 's%\(^\|,\)'$HOME'[^,]*%%g' | sed -e 's%^,%%'
+}
+
+
+# Copy $1 to $1.tmp
+backup()
+{
+    [ -f $1 ] && cp $1 $1.tmp
+}
+
+
+# If $1.tmp exists, compare it to $1. If they differ, print a message and copy
+# $i.tmp to $1.old, otherwise remove $1.tmp
+verify()
+{
+    if [ -f $1.tmp ]; then
+        if diff $1 $1.tmp >/dev/null 2>&1; then
+            rm $1.tmp
+        else
+            mv $1.tmp $1.old
+            echo "Original config file \"$1.old\" preserved"
+        fi
+    fi
+}
+
+
+# Write the functions arguments without a trailing newline
+echo_n()
+{
+    echo $echo_n_opt "$@" $echo_c
+}
+
+# Set options to be applied at installation time.
+# The exact set of options is platform-dependent.
+set_install_options()
+{
+    init_install=1
+
+    # Basic options for most platforms
+    init_pam=1
+    init_xstartup=1
+    init_config=1
+    init_keygen=1
+    init_licensing=1
+    init_service_daemon=1;
+    init_virtual_daemon=1;
+    enable_print=1
+
+    # Tweaks for specific platforms
+    SYSNAME=`uname -s`
+    case "$SYSNAME" in
+        AIX)
+            # Automatic PAM configuration not supported on AIX
+            init_pam=0
+            ;;
+    esac
+}
+
+
+init_pam=0
+init_xstartup=0
+init_config=0
+init_keygen=0
+init_licensing=0
+init_service_daemon=0;
+init_virtual_daemon=0;
+
+enable_print=0
+disable_print=0
+
+# Generic flag for steps that only happen at install time,
+# and are not intended to be run separately by a user.
+init_install=0
+
+etc=/etc
+awk=awk
+
+cups_backend_dir=/usr/lib/cups/backend
+cups64_backend_dir=/usr/lib64/cups/backend
+
+# Sanitise the environment in case we're running under su or sudo
+# without the - or -i options, respectively.
+HOME=~root
+
+
+# Parse command-line parameters
+for i in $@; do
+    case $i in
+        "--install-defaults" | "-install-defaults")
+            set_install_options
+            ;;
+        "--pam" | "-pam")
+            init_pam=1
+            ;;
+        "--xstartup" | "-xstartup")
+            init_xstartup=1
+            ;;
+        "--config" | "-config")
+            init_config=1
+            ;;
+        "--keygen" | "-keygen")
+            init_keygen=1
+            ;;
+        "--licensing" | "-licensing")
+            init_licensing=1
+            ;;
+        "--service-daemon" | "-service-daemon")
+            init_service_daemon=1;
+            ;;
+        "--virtual-daemon" | "-virtual-daemon")
+            init_virtual_daemon=1;
+            ;;
+        "--enable-print" | "-enable-print")
+            enable_print=1
+            ;;
+        "--disable-print" | "-disable-print")
+            disable_print=1
+            ;;
+        "--help" | "-help")
+            usage
+            exit
+            ;;
+    esac
+done
+
+if [ "$init_pam" = "0" -a "$init_config" = "0" -a "$init_xstartup" = "0" \
+     -a "$init_keygen" = "0" -a "$init_licensing" = "0" \
+     -a "$init_service_daemon" = "0" -a "$init_virtual_daemon" = "0" \
+     -a "$enable_print" = "0" -a "$disable_print" = "0" ]; then
+    usage
+    exit 1
+fi
+
+# Try to find out how to echo without a newline on this platform
+if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null; then
+  if (echo -n testing; echo 1,2,3) | sed s/-n/xn/ | grep xn >/dev/null; then
+    echo_n_opt= echo_c='
+'
+  else
+    echo_n_opt=-n echo_c=
+  fi
+else
+  echo_n_opt= echo_c='\c'
+fi
+
+# Set up defaults and platform-specific overrides. On Solaris and HP-UX, xset
+# is not on the path, so we explicitly add the location it's likely to be in.
+pamconfig="auth required pam_unix.so
+account required pam_unix.so"
+username=\$USER
+# Stacked PAM rules for some systems that do have the pam_unix.so module
+# i.e. Solaris 10
+use_cups=0
+
+SYSNAME=`uname -s`
+case "$SYSNAME" in
+    Linux)
+        use_cups=1
+        ;;
+    SunOS)
+        if [ -f /usr/lib/security/pam_unix.so.1 ]; then
+            pamconfig="auth required pam_unix.so.1"
+        elif [ -f /usr/lib/security/pam_unix_auth.so.1 ]; then
+            if [ -f /usr/lib/security/pam_authtok_get.so.1 ]; then
+                pamconfig="auth required pam_authtok_get.so.1
+auth required pam_unix_auth.so.1"
+            else
+                echo "Can't find required PAM modules"
+                exit 1
+            fi
+	    if [ -f /usr/lib/security/pam_unix_acct.so.1 ]; then
+		pamconfig="$pamconfig
+account required pam_unix_acct.so.1"
+	    elif [ -f /usr/lib/security/pam_unix_account.so.1 ]; then
+		pamconfig="$pamconfig
+account required pam_unix_account.so.1"
+	    fi
+        else
+            echo "Can't find required PAM modules"
+            exit 1
+        fi
+        username=\$LOGNAME
+        PATH=$PATH:/usr/openwin/bin
+        awk=nawk
+        ;;
+    HP-UX)
+        pamconfig="auth required libpam_unix.1"
+        username=\$LOGNAME
+        PATH=$PATH:/usr/bin/X11
+        ;;
+    AIX)
+        if [ "$init_pam" = "1" ]; then
+            echo "Automatic PAM configuration not supported on this platform"
+	      init_pam=0
+        fi
+	      ;;
+    *)
+        echo "Unknown platform"
+        exit 1
+        ;;
+esac
+
+
+
+# Configuration steps to be performed only at install time
+if [ "$init_install" = "1" ]; then
+    # Needed for 64-bit version of RHEL4, since CUPS is configured
+    # to use printer backends in /usr/lib64... instead of /usr/lib...
+    if [ "$use_cups" = "1" ]; then
+        if [ -d "$cups64_backend_dir" ]; then
+            # On some systems, lib and lib64 are the same location, so
+            # avoid creating the symlink if the file already exists in lib64.
+            if [ ! -e "$cups64_backend_dir/vnc" ]; then
+                ln -s "$cups_backend_dir/vnc" "$cups64_backend_dir/vnc"
+            fi
+        fi
+    fi
+fi
+
+pamcomment="# Default VNC Server PAM configuration."
+# Initialise the PAM configuration
+if [ "$init_pam" = "1" ]; then
+    inited=0
+    pamwarning="# This file is automatically generated. DO NOT EDIT.
+# To make changes, create a file named vncserver.custom in this
+# directory and create or edit /etc/vnc/config.d/common.custom to
+# add 'PamApplicationName=vncserver.custom'"
+    # New-style /etc/pam.d configuration. If a configuration for vncserver
+    # already exists, then preserve it as .old if it differs.
+    if [ -d $etc/pam.d ]; then
+        cfg=$etc/pam.d/vncserver
+        echo "Updating $cfg"
+        backup $cfg
+        cat > $cfg <<EOF
+$pamcomment
+$pamwarning
+$pamconfig
+EOF
+        chmod 644 $cfg
+        verify $cfg
+        inited=1
+    fi
+    # Old-style /etc/pam.conf configuration. Discard existing configuration.
+    if [ -f $etc/pam.conf ]; then
+        echo "Updating $etc/pam.conf"
+        tmpfile=/tmp/vnc.pam
+        pamwarning="# These rules are automatically generated. DO NOT EDIT.
+# To make changes, create rules for an application named vncserver.custom
+# and create or edit /etc/vnc/config.d/common.custom to add
+# 'PamApplicationName=vncserver.custom'"
+        if grep "^vncserver " $etc/pam.conf >/dev/null 2>&1; then
+            true
+        else
+          cat >> $etc/pam.conf <<EOF
+$pamcomment
+$pamwarning
+EOF
+          # Prepend 'vncserver ' to each line
+	  echo "$pamconfig" | sed -e's/^/vncserver /' >> $etc/pam.conf
+        fi
+        inited=1
+    fi
+    [ "$inited" = "1" ] || \
+        (echo "Can't find PAM configuration files"; exit 1)
+fi
+
+
+
+
+# Initialise /etc/vnc/xstartup
+if [ "$init_xstartup" = "1" ]; then
+    mkdir -p $etc/vnc
+    cfg=$etc/vnc/xstartup
+    backup $cfg
+    cat  > $cfg <<EOF
+#!/bin/sh
+
+# Default VNC Server (Virtual-Mode) start-up script.
+#
+# This file is automatically generated. DO NOT EDIT.
+# To override settings in this file, create or edit /etc/vnc/xstartup.custom
+# and make it executable. This will then be executed instead of this file.
+
+[ -x /etc/vnc/xstartup.custom ] && exec /etc/vnc/xstartup.custom
+
+[ -r \$HOME/.Xresources ] && xrdb \$HOME/.Xresources
+xsetroot -solid grey
+
+if [ -f /usr/bin/gnome-session ]; then
+  # Some gnome session types won't work with Xvnc, try to pick a sensible 
+  # default.
+  for SESSION in "ubuntu-2d" "2d-gnome"; do
+    if [ -f /usr/share/gnome-session/sessions/\$SESSION.session ]; then
+      DESKTOP_SESSION=\$SESSION; export DESKTOP_SESSION
+      GDMSESSION=\$SESSION; export GDMSESSION
+      STARTUP="/usr/bin/gnome-session --session=\$SESSION"; export STARTUP
+    fi
+  done
+fi
+
+if   [ -x /etc/X11/Xsession ]; then /etc/X11/Xsession
+elif [ -x /etc/X11/xdm/Xsession ]; then /etc/X11/xdm/Xsession
+elif [ -x /etc/X11/xinit/Xsession ]; then /etc/X11/xinit/Xsession
+elif [ -x /etc/gdm/Xsession ]; then /etc/gdm/Xsession gnome-session
+elif [ -x /etc/kde/kdm/Xsession ]; then /etc/kde/kdm/Xsession
+elif [ -x /usr/dt/bin/Xsession ]; then
+  XSTATION=1 DTXSERVERLOCATION=local /usr/dt/bin/Xsession
+elif [ -x /usr/dt/bin/dtsession ]; then /usr/dt/bin/dtsession
+else
+  if which twm > /dev/null 2>&1; then
+    xterm -geometry 80x24+10+10 -ls -title "\$VNCDESKTOP Desktop" &
+    twm
+  else
+    xterm -geometry 80x24+10+10 -ls -title "\$VNCDESKTOP Desktop"
+  fi
+fi
+
+vncserver-virtual -kill \$DISPLAY
+EOF
+    verify $cfg
+    chmod a+x $cfg
+fi
+
+# Initialise /etc/vnc/config, /etc/vnc/vncelevate.cfg and server symlinks
+if [ "$init_config" = "1" ]; then
+    init_xserver_config_path
+    mkdir -p $etc/vnc
+    cfg=$etc/vnc/config
+    backup $cfg
+    cat > $cfg <<EOF
+# Default X Server command-line parameters for VNC Server.
+#
+# This file is automatically generated. DO NOT EDIT.
+# To override settings in this file, create or edit /etc/vnc/config.custom.
+
+# Continue even if standard ports fail
+-pn
+EOF
+    # Try to work out the font path
+    echo_n "Looking for font path... "
+    get_attr_from_xserver_config "Font Path:" FontPath
+    if [ -n "$attr_value" ]; then
+        attr_value=`echo $attr_value | strip_user_specfic_paths`
+        attr_value=`echo $attr_value | sed -e 's%,/usr/share/vnc/fonts$%%'`
+        echo "$attr_value (from $attr_location)."
+        cat >> $cfg <<EOF
+
+# Default font path (from $attr_location)
+-fp "$attr_value"
+EOF
+    else
+        echo "not found."
+    fi
+    verify $cfg
+
+    # Create /etc/vnc/config.d/common with comment
+    mkdir -p $etc/vnc/config.d
+    backup $etc/vnc/config.d/common
+    cat > $etc/vnc/config.d/common <<EOF
+# Default settings for all VNC programs.
+#
+# This file is automatically generated. DO NOT EDIT.
+# To override settings in this file, create or edit
+# /etc/vnc/config.d/common.custom
+
+EOF
+    verify $etc/vnc/config.d/common
+
+
+# Create vncelevate.cfg
+    vncelevatecfg=$etc/vnc/vncelevatecfg
+    backup $vncelevatecfg
+    cat > $vncelevatecfg <<EOF
+    
+# Default elevation commands for VNC Server.
+#
+# This file is automatically generated. DO NOT EDIT.
+# To override settings in this file, create or edit /etc/vnc/vncelevatecfg.custom.
+
+# When the process launches we rely on the fact we don't return from elevation
+# command until the authentication finishes 
+
+# please uncomment the next line and add your custom command
+#CUSTOM_COMMAND=
+
+SU_LAUNCHCMD=xterm -T "\$DESCRIPTION" -e su - root -c "\$COMMAND"
+SU_LAUNCHCMD=gnome-terminal --title "\$DESCRIPTION" --disable-factory -x su - root -c "\$COMMAND"
+SU_LAUNCHCMD=gksu -u root -t "\$DESCRIPTION" "\$COMMAND"
+# The old konsole commands did not use --nofork option. Please remove it if needed.
+SU_LAUNCHCMD=konsole --title "\$DESCRIPTION" --nofork -e su - root -c "\$COMMAND"
+#SU_LAUNCHCMD=kdesu -u root -c "\$COMMAND"
+
+SUDO_LAUNCHCMD=gksudo -D "\$DESCRIPTION" -- \$COMMAND
+SUDO_LAUNCHCMD=kdesudo --comment "\$DESCRIPTION" -- \$COMMAND
+SUDO_LAUNCHCMD=xterm -T "\$DESCRIPTION" -e sudo -- \$COMMAND
+SUDO_LAUNCHCMD=gnome-terminal --title "\$DESCRIPTION" --disable-factory -x sudo -- \$COMMAND
+# The old konsole commands did not use --nofork option. Please remove it if needed.
+SUDO_LAUNCHCMD=konsole --title "\$DESCRIPTION" --nofork -e sudo -- \$COMMAND
+EOF
+    verify $vncelevatecfg
+
+    lib=/usr/local/lib/vnc
+    [ "`uname -s`" = "Linux" ] && lib=/usr/lib/vnc
+    for f in \
+        get_primary_ip4 \
+        vncelevate \
+    ; do
+        rm -f /etc/vnc/$f
+        ln -s $lib/$f /etc/vnc
+    done
+
+    # Link vncserver -> vncserver-virtual
+    bin=/usr/local/bin
+    [ "`uname -s`" = "Linux" ] && bin=/usr/bin
+    rm -f $bin/vncserver
+    ln -s vncserver-virtual $bin/vncserver
+fi
+
+# Initialise RSA keys for encrypted service-mode sessions.
+if [ "$init_keygen" = "1" ]; then
+    bin=/usr/local/bin
+    [ "`uname -s`" = "Linux" ] && bin=/usr/bin
+    $bin/vncserver-x11 -generatekeys
+fi
+
+if [ "$init_licensing" = "1" ]; then
+    bin=/usr/local/bin
+    [ "`uname -s`" = "Linux" ] && bin=/usr/bin
+    $bin/vnclicense -check >/dev/null # delete old sockets
+    if [ -d /var/run/.Xvnc4EE ]; then
+        (rmdir /var/run/.Xvnc4EE || chmod 1755 /var/run/.Xvnc4EE) 2>/dev/null
+    fi
+    if [ -d /tmp/.Xvnc4EE ]; then
+        (rmdir /tmp/.Xvnc4EE || chmod 1755 /tmp/.Xvnc4EE) 2>/dev/null
+    fi
+    mkdir -m 01777 -p /tmp/.vncserver-license
+fi
+
+
+install_init_script()
+{
+    start_pri=20
+    stop_pri=80
+    init_base=/etc
+    path=/bin:/usr/bin
+    case "$SYSNAME" in 
+        HP-UX)
+            # HP-UX uses /sbin/init.d, and has 3-digit priority codes
+            init_base=/sbin
+            start_pri=${start_pri}0
+            stop_pri=${stop_pri}0
+            path=$path:/usr/local/bin:/usr/bin/X11:/usr/contrib/bin/X11
+            ;;
+        SunOS)
+            path=$path:/usr/local/bin:/usr/openwin/bin:/usr/bin/X11:/usr/X11/bin
+            ;;
+        AIX)
+            path=$path:/usr/local/bin:/usr/bin/X11
+            init_base=/etc/rc.d
+            ;;
+    esac
+    extraopts=""
+    if [ $1 = "vncserver-x11-serviced" ]; then
+      extraopts="
+# This is required on some systems for X authentication to work
+XAUTHLOCALHOSTNAME=localhost
+export XAUTHLOCALHOSTNAME"
+    fi
+    init_d=${init_base}/init.d
+    init_script=${init_d}/$1
+    if [ -d $init_d ]; then
+        backup $init_script
+        cat > $init_script <<EOF
+#!/bin/sh
+
+# chkconfig: 2345 $start_pri $stop_pri
+# description: $2
+# pidfile: /var/run/$3.pid
+
+### BEGIN INIT INFO
+# Provides:          $1
+# Required-Start:    \$remote_fs \$syslog \$network
+# Required-Stop:     \$remote_fs \$syslog \$network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: $2
+# Description:       $2
+### END INIT INFO
+
+PIDFILE=/var/run/$3.pid
+PATH=$path
+export PATH
+$extraopts
+
+case \$1 in
+'start')
+    $3
+    ;;
+'stop')
+    kill -TERM \`cat \$PIDFILE\`
+    ;;
+'restart')
+    \$0 stop || true
+    \$0 start
+    ;;
+*)
+    echo "Usage: \$0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+EOF
+        verify $init_script
+        chmod 0755 $init_script
+        echo "Installed init script for $2"
+        echo "Start and stop the service with:"
+        echo "  $init_script (start|stop)"
+        echo
+    fi
+}
+
+# Init service-mode daemon
+if [ "$init_service_daemon" = "1" ]; then
+    install_init_script "vncserver-x11-serviced" "VNC X11 Service-mode daemon" "vncserver-x11-serviced"
+fi
+
+# Init virtual-mode daemon
+if [ "$init_virtual_daemon" = "1" ]; then
+    install_init_script "vncserver-virtuald" "VNC Virtual-mode daemon" "vncserver-virtuald"
+fi
+
+
+# Enable/Disable Remote Printing
+solaris_cups_dir=/opt/sfw/cups/lib/cups
+disable_print_fn()
+{
+    chmod 0600 "$cups_backend_dir/vnc"
+    if [ "$SYSNAME" = "SunOS" ]; then
+        rm -f "$solaris_cups_dir/backend/vnc"
+    fi
+}
+enable_print_fn()
+{
+    chmod 0700 "$cups_backend_dir/vnc"
+    if [ "$SYSNAME" = "SunOS" ]; then
+        if [ -d "$solaris_cups_dir" ]; then
+            ln -s "$cups_backend_dir/vnc" "$solaris_cups_dir/backend/vnc"
+        else
+            echo "CUPS installation not found at $solaris_cups_dir."
+            echo "Please install CUPS from the Solaris Companion CD, then run"
+            echo "  vncinitconfig -enable-print"
+        fi
+    fi
+}
+
+if [ "$disable_print" = "1" ]; then
+    disable_print_fn
+elif [ "$enable_print" = "1" ]; then
+    enable_print_fn
+fi

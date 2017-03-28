@@ -1,0 +1,145 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Migrating from GtkOptionMenu and GtkCombo to GtkComboBox and GtkComboBoxEntry</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="migrating.html" title="Part IV. Migrating from Previous Versions of GTK+"><link rel="previous" href="migrating-gnomeuiinfo.html" title="Migrating from GnomeUIInfo"><link rel="next" href="migrating-GtkCombo.html" title="Migrating from GtkCombo to GtkComboBoxEntry"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="migrating-gnomeuiinfo.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="migrating.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="migrating-GtkCombo.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="gtk-migrating-GtkComboBox"></a>Migrating from GtkOptionMenu and GtkCombo to GtkComboBox and GtkComboBoxEntry</h2></div><div><div class="author"><h3 class="author"><span class="firstname">Matthias</span> <span class="surname">Clasen</span></h3><div class="affiliation"><div class="address"><p><br>
+	  <tt class="email">&lt;<a href="mailto:maclas@gmx.de">maclas@gmx.de</a>&gt;</tt><br>
+	</p></div></div></div></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><a href="gtk-migrating-GtkComboBox.html#migrating-GtkOptionMenu">Migrating from GtkOptionMenu to GtkComboBox</a></dt><dt><a href="migrating-GtkCombo.html">Migrating from GtkCombo to GtkComboBoxEntry</a></dt><dt><a href="new-features-GtkComboBox.html">New features</a></dt></dl></div><p>
+    Prior to 2.4, GTK+ offered two widgets for the task of selecting one
+    item from a list of options. 
+    <a href="GtkOptionMenu.html" title="GtkOptionMenu">GtkOptionMenu</a> presents the list of 
+    options as a menu while <a href="GtkCombo.html" title="GtkCombo">GtkCombo</a> presents 
+    them in a Windows-style list popup. The only difference between the two 
+    is that a <a href="GtkCombo.html" title="GtkCombo">GtkCombo</a> allows to manually
+    edit the selected value, while the 
+    <a href="GtkOptionMenu.html" title="GtkOptionMenu">GtkOptionMenu</a> does not.
+  </p><p>
+    In GTK+ 2.4, a unified API for list selection was introduced, with 
+    <a href="GtkComboBox.html" title="GtkComboBox">GtkComboBox</a> for the non-editable case 
+    and <a href="GtkComboBoxEntry.html" title="GtkComboBoxEntry">GtkComboBoxEntry</a> for the 
+    editable case. 
+    The selection of the display style &#8212; menu or list &#8212;
+    is no longer done at the API level, but has been made themeable via
+    the style property 
+    GtkComboBox::appearance.
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="migrating-GtkOptionMenu"></a>Migrating from GtkOptionMenu to GtkComboBox</h2></div></div><div></div></div><p>
+      Here is an example of a simple, but typical use of 
+      <a href="GtkOptionMenu.html" title="GtkOptionMenu">GtkOptionMenu</a>:
+      </p><div class="informalexample"><pre class="programlisting">
+GtkWidget *option_menu, *menu, *menu_item;
+
+option_menu = gtk_option_menu_new ();      
+menu = gtk_menu_new ();
+
+menu_item = gtk_menu_item_new_with_label ("First Item");
+gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+gtk_widget_show (menu_item);
+menu_item = gtk_menu_item_new_with_label ("Second Item");
+gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+gtk_widget_show (menu_item);
+menu_item = gtk_menu_item_new_with_label ("Third Item");
+gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+gtk_widget_show (menu_item);
+
+gtk_option_menu_set_menu (GTK_OPTION_MENU (option_menu), menu);
+      </pre></div><p>
+      In order to react to the user's selection, connect to the "changed"
+      signal on the option menu and use <a href="GtkOptionMenu.html#gtk-option-menu-get-history"><tt class="function">gtk_option_menu_get_history()</tt></a>
+      to retrieve the index of the selected item.
+    </p><p>
+      And here is how it would be done with a 
+      <a href="GtkComboBox.html" title="GtkComboBox">GtkComboBox</a>:
+      </p><div class="informalexample"><pre class="programlisting">
+GtkWidget *combo_box;
+
+combo_box = gtk_combo_box_new_text ();
+
+gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), "First Item");
+gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), "Second Item");
+gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), "Third Item");
+      </pre></div><p>
+      In order to react to the user's selection, connect to the "changed"
+      signal on the combo box and use <a href="GtkComboBox.html#gtk-combo-box-get-active"><tt class="function">gtk_combo_box_get_active()</tt></a>
+      to retrieve the index of the selected item.
+    </p><p>
+      A slightly more complex example involving images:
+      </p><div class="informalexample"><pre class="programlisting">
+GtkWidget *option_menu, *menu, *menu_item;
+
+option_menu = gtk_option_menu_new ();      
+menu = gtk_menu_new ();
+
+menu_item = gtk_image_menu_item_new_with_label ("First Item");
+gtk_image_menu_item_set_image (gtk_image_new_from_pixbuf (pixbuf1));
+gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+gtk_widget_show (menu_item);
+menu_item = gtk_image_menu_item_new_with_label ("Second Item");
+gtk_image_menu_item_set_image (gtk_image_new_from_pixbuf (pixbuf2));
+gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+gtk_widget_show (menu_item);
+menu_item = gtk_image_menu_item_new_with_label ("Third Item");
+gtk_image_menu_item_set_image (gtk_image_new_from_pixbuf (pixbuf3));
+gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+gtk_widget_show (menu_item);
+
+gtk_option_menu_set_menu (GTK_OPTION_MENU (option_menu), menu);
+      </pre></div><p>
+    </p><p>
+      can be done using a <a href="GtkComboBox.html" title="GtkComboBox">GtkComboBox</a>
+      as follows:
+      </p><div class="informalexample"><pre class="programlisting">
+GtkListStore *store;
+GtkTreeIter iter;
+GtkCellRenderer *renderer;
+GtkWidget *combo_box;
+
+store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+
+gtk_list_store_append (store, &amp;iter);
+gtk_list_store_set (store, &amp;iter, 0, pixbuf1, 1, "First Item", -1);
+gtk_list_store_append (store, &amp;iter);
+gtk_list_store_set (store, &amp;iter, 0, pixbuf2, 1, "Second Item", -1);
+gtk_list_store_append (store, &amp;iter);
+gtk_list_store_set (store, &amp;iter, 0, pixbuf3, 1, "Third Item", -1);
+
+combo_box = gtk_combo_box_new_with_model (GTK_TREE_MODEL (store));
+
+renderer = gtk_cell_renderer_pixbuf_new ();
+gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo_box), renderer, FALSE);
+gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (combo_box), renderer,
+                                "pixbuf", 0,
+                                NULL);
+
+renderer = gtk_cell_renderer_text_new ();
+gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo_box), renderer, TRUE);
+gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (combo_box), renderer,
+                                "text", 1,
+                                NULL);
+      </pre></div><p>
+    </p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="migrating-gnomeuiinfo.html"><b>&lt;&lt; Migrating from GnomeUIInfo</b></a></td><td align="right"><a accesskey="n" href="migrating-GtkCombo.html"><b>Migrating from GtkCombo to GtkComboBoxEntry &gt;&gt;</b></a></td></tr></table></body></html>

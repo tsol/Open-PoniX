@@ -1,0 +1,110 @@
+# Copyright (C) 2009 Free Software Foundation, Inc.
+#
+# Copying and distribution of this file, with or without modification,
+# in any medium, are permitted without royalty provided the copyright
+# notice and this notice are preserved.
+
+# Patch must not overwrite backup files it has created itself.
+
+. $srcdir/test-lib.sh
+
+require_cat
+require_diff
+use_local_patch
+use_tmpdir
+
+# ==============================================================
+
+echo one > f
+
+cat > f.diff <<EOF
+--- f.orig
++++ f
+@@ -2 +2 @@
+-one
++two
+--- f.orig
++++ f
+@@ -2 +2 @@
+-two
++three
+--- f.orig
++++ f
+@@ -2 +2 @@
+-three
++four
+EOF
+
+check 'patch -p0 < f.diff' <<EOF
+patching file f
+Hunk #1 succeeded at 1 (offset -1 lines).
+patching file f
+Hunk #1 succeeded at 1 (offset -1 lines).
+patching file f
+Hunk #1 succeeded at 1 (offset -1 lines).
+EOF
+
+check 'cat f.orig' <<EOF
+one
+EOF
+
+# ==============================================================
+
+# Hardlinks between source files
+
+echo one > f
+ln f g
+
+cat > fg.diff <<EOF
+--- f.orig
++++ f
+@@ -2 +2 @@
+-one
++two
+--- g.orig
++++ g
+@@ -2 +2 @@
+-one
++two
+EOF
+
+check 'patch -p0 < fg.diff' <<EOF
+patching file f
+Hunk #1 succeeded at 1 (offset -1 lines).
+patching file g
+Hunk #1 succeeded at 1 (offset -1 lines).
+EOF
+
+check 'cat f.orig' <<EOF
+one
+EOF
+
+check 'cat g.orig' <<EOF
+one
+EOF
+
+# ==============================================================
+
+# This test case failed with a permission denied error with a
+# previous version of the remember-backup-files patch.
+
+cat > f.diff <<EOF
+--- f.orig
++++ f
+@@ -1 +1 @@
+-one
++two
+--- f.orig
++++ f
+@@ -1 +1 @@
+-two
++three
+EOF
+
+echo one > f
+chmod a=r f
+
+check 'patch -p0 < f.diff' <<EOF
+patching file f
+patching file f
+EOF

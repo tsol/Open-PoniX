@@ -1,0 +1,1 @@
+../../alsa-kernel/include/wm8996.h

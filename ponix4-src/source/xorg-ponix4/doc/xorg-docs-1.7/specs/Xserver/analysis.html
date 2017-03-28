@@ -1,0 +1,1422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Analysis of the X Protocol for Security Concerns</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /><meta name="description" content="This paper attempts to list all instances of certain types of security problems in the X Protocol. Issues with authorization are not addressed. We assume that a malicious client has already succeeded in connecting, and try to assess what harm it can then do. We propose modifications to the semantics of the X Protocol to reduce these risks." /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="book" title="Analysis of the X Protocol for Security Concerns"><div class="titlepage"><div><div><h1 class="title"><a id="analysis"></a>Analysis of the X Protocol for Security Concerns</h1></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">David</span> <span class="othername">P.</span> <span class="surname">Wiggins</span></h3><div class="affiliation"><span class="orgname">X Consortium<br /></span></div></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="releaseinfo">Draft Version 2</p></div><div><p class="copyright">Copyright © 1996 X Consortium</p></div><div><div class="legalnotice" title="Legal Notice"><a id="id2632980"></a><p>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+</p><p>
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+</p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of the X Consortium shall
+not be used in advertising or otherwise to promote the sale, use or
+other dealings in this Software without prior written authorization
+from the X Consortium.
+</p><p>X Window System is a trademark of The Open Group.</p></div></div><div><p class="pubdate">May 10, 1996</p></div><div><div class="abstract" title="Abstract"><p>
+This paper attempts to list all instances of certain types of security
+problems in the X Protocol. Issues with authorization are not addressed.
+We assume that a malicious client has already succeeded in connecting,
+and try to assess what harm it can then do. We propose modifications to
+the semantics of the X Protocol to reduce these risks.
+</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="chapter"><a href="#Definition_of_Threats">1. Definition of Threats</a></span></dt><dt><span class="chapter"><a href="#General_security_concerns_and_remedies">2. General security concerns and remedies</a></span></dt><dd><dl><dt><span class="sect1"><a href="#Access_to_Server_Resources">Access to Server Resources</a></span></dt><dt><span class="sect1"><a href="#Denial_of_Service">Denial of Service</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Memory_Exhaustion">Memory Exhaustion</a></span></dt><dt><span class="sect2"><a href="#CPU_Monopolization">CPU Monopolization</a></span></dt></dl></dd></dl></dd><dt><span class="chapter"><a href="#Security_concerns_with_specific_window_attributes">3. Security concerns with specific window attributes</a></span></dt><dd><dl><dt><span class="sect1"><a href="#Background_pixmap">Background-pixmap</a></span></dt><dt><span class="sect1"><a href="#ParentRelative_and_CopyFromParent">ParentRelative and CopyFromParent</a></span></dt><dt><span class="sect1"><a href="#Override_redirect">Override-redirect</a></span></dt></dl></dd><dt><span class="chapter"><a href="#Security_concerns_with_specific_requests">4. Security concerns with specific requests</a></span></dt><dd><dl><dt><span class="sect1"><a href="#CreateWindow">CreateWindow</a></span></dt><dt><span class="sect1"><a href="#ChangeWindowAttributes">ChangeWindowAttributes</a></span></dt><dt><span class="sect1"><a href="#GetWindowAttributes">GetWindowAttributes</a></span></dt><dt><span class="sect1"><a href="#DestroyWindow_DestroySubwindows">DestroyWindow, DestroySubwindows</a></span></dt><dt><span class="sect1"><a href="#ChangeSaveSet">ChangeSaveSet</a></span></dt><dt><span class="sect1"><a href="#MapWindow">MapWindow</a></span></dt><dt><span class="sect1"><a href="#Window_Operations">Window Operations</a></span></dt><dt><span class="sect1"><a href="#GetGeometry">GetGeometry</a></span></dt><dt><span class="sect1"><a href="#QueryTree">QueryTree</a></span></dt><dt><span class="sect1"><a href="#InternAtom">InternAtom</a></span></dt><dt><span class="sect1"><a href="#GetAtomName">GetAtomName</a></span></dt><dt><span class="sect1"><a href="#ChangeProperty">ChangeProperty</a></span></dt><dt><span class="sect1"><a href="#DeleteProperty">DeleteProperty</a></span></dt><dt><span class="sect1"><a href="#GetProperty">GetProperty</a></span></dt><dt><span class="sect1"><a href="#RotateProperties">RotateProperties</a></span></dt><dt><span class="sect1"><a href="#ListProperties">ListProperties</a></span></dt><dt><span class="sect1"><a href="#SetSelectionOwner">SetSelectionOwner</a></span></dt><dt><span class="sect1"><a href="#GetSelectionOwner">GetSelectionOwner</a></span></dt><dt><span class="sect1"><a href="#ConvertSelection">ConvertSelection</a></span></dt><dt><span class="sect1"><a href="#SendEvent">SendEvent</a></span></dt><dt><span class="sect1"><a href="#Keyboard_and_Pointer_Grabs">Keyboard and Pointer Grabs</a></span></dt><dt><span class="sect1"><a href="#ChangeActivePointerGrab">ChangeActivePointerGrab</a></span></dt><dt><span class="sect1"><a href="#GrabServer">GrabServer</a></span></dt><dt><span class="sect1"><a href="#QueryPointer">QueryPointer</a></span></dt><dt><span class="sect1"><a href="#GetMotionEvents">GetMotionEvents</a></span></dt><dt><span class="sect1"><a href="#TranslateCoordinates">TranslateCoordinates</a></span></dt><dt><span class="sect1"><a href="#WarpPointer">WarpPointer</a></span></dt><dt><span class="sect1"><a href="#SetInputFocus">SetInputFocus</a></span></dt><dt><span class="sect1"><a href="#GetInputFocus">GetInputFocus</a></span></dt><dt><span class="sect1"><a href="#QueryKeymap">QueryKeymap</a></span></dt><dt><span class="sect1"><a href="#Font_Requests">Font Requests</a></span></dt><dt><span class="sect1"><a href="#CloseFont">CloseFont</a></span></dt><dt><span class="sect1"><a href="#SetFontPath">SetFontPath</a></span></dt><dt><span class="sect1"><a href="#GetFontPath">GetFontPath</a></span></dt><dt><span class="sect1"><a href="#CreatePixmap">CreatePixmap</a></span></dt><dt><span class="sect1"><a href="#FreePixmap">FreePixmap</a></span></dt><dt><span class="sect1"><a href="#CreateGC">CreateGC</a></span></dt><dt><span class="sect1"><a href="#CopyGC">CopyGC</a></span></dt><dt><span class="sect1"><a href="#ChangeGC_SetDashes_SetClipRectangles">ChangeGC, SetDashes, SetClipRectangles</a></span></dt><dt><span class="sect1"><a href="#FreeGC">FreeGC</a></span></dt><dt><span class="sect1"><a href="#Drawing_Requests">Drawing Requests</a></span></dt><dt><span class="sect1"><a href="#GetImage">GetImage</a></span></dt><dt><span class="sect1"><a href="#CreateColormap">CreateColormap</a></span></dt><dt><span class="sect1"><a href="#FreeColormap">FreeColormap</a></span></dt><dt><span class="sect1"><a href="#CopyColormapAndFree">CopyColormapAndFree</a></span></dt><dt><span class="sect1"><a href="#InstallColormap_UninstallColormap">InstallColormap, UninstallColormap</a></span></dt><dt><span class="sect1"><a href="#ListInstalledColormaps">ListInstalledColormaps</a></span></dt><dt><span class="sect1"><a href="#Color_Allocation_Requests">Color Allocation Requests</a></span></dt><dt><span class="sect1"><a href="#FreeColors">FreeColors</a></span></dt><dt><span class="sect1"><a href="#StoreColors_StoreNamedColor">StoreColors, StoreNamedColor</a></span></dt><dt><span class="sect1"><a href="#QueryColors_LookupColor">QueryColors, LookupColor</a></span></dt><dt><span class="sect1"><a href="#CreateCursor_CreateGlyphCursor">CreateCursor, CreateGlyphCursor</a></span></dt><dt><span class="sect1"><a href="#FreeCursor">FreeCursor</a></span></dt><dt><span class="sect1"><a href="#RecolorCursor">RecolorCursor</a></span></dt><dt><span class="sect1"><a href="#QueryBestSize">QueryBestSize</a></span></dt><dt><span class="sect1"><a href="#ListExtensions_QueryExtension">ListExtensions, QueryExtension</a></span></dt><dt><span class="sect1"><a href="#Keyboard_configuration_requests">Keyboard configuration requests</a></span></dt><dt><span class="sect1"><a href="#Keyboard_query_requests">Keyboard query requests</a></span></dt><dt><span class="sect1"><a href="#ChangePointerControl_SetPointerMapping">ChangePointerControl, SetPointerMapping</a></span></dt><dt><span class="sect1"><a href="#GetPointerControl_GetPointerMapping">GetPointerControl, GetPointerMapping</a></span></dt><dt><span class="sect1"><a href="#SetScreenSaver">SetScreenSaver</a></span></dt><dt><span class="sect1"><a href="#GetScreenSaver">GetScreenSaver</a></span></dt><dt><span class="sect1"><a href="#ForceScreenSaver">ForceScreenSaver</a></span></dt><dt><span class="sect1"><a href="#ChangeHost">ChangeHost</a></span></dt><dt><span class="sect1"><a href="#ListHosts">ListHosts</a></span></dt><dt><span class="sect1"><a href="#SetAccessControl">SetAccessControl</a></span></dt><dt><span class="sect1"><a href="#SetCloseDownMode">SetCloseDownMode</a></span></dt><dt><span class="sect1"><a href="#KillClient">KillClient</a></span></dt><dt><span class="sect1"><a href="#Clean_Requests">Clean Requests</a></span></dt></dl></dd><dt><span class="chapter"><a href="#Events">5. Events</a></span></dt><dd><dl><dt><span class="sect1"><a href="#KeymapNotify">KeymapNotify</a></span></dt><dt><span class="sect1"><a href="#Expose">Expose</a></span></dt><dt><span class="sect1"><a href="#GraphicsExposure">GraphicsExposure</a></span></dt><dt><span class="sect1"><a href="#VisibilityNotify">VisibilityNotify</a></span></dt><dt><span class="sect1"><a href="#ReparentNotify">ReparentNotify</a></span></dt><dt><span class="sect1"><a href="#ConfigureNotify">ConfigureNotify</a></span></dt><dt><span class="sect1"><a href="#ConfigureRequest">ConfigureRequest</a></span></dt><dt><span class="sect1"><a href="#SelectionClear">SelectionClear</a></span></dt><dt><span class="sect1"><a href="#SelectionRequest">SelectionRequest</a></span></dt><dt><span class="sect1"><a href="#MappingNotify">MappingNotify</a></span></dt></dl></dd><dt><span class="chapter"><a href="#Errors">6. Errors</a></span></dt><dt><span class="chapter"><a href="#Future_Work">7. Future Work</a></span></dt><dt><span class="chapter"><a href="#References">8. References</a></span></dt></dl></div><div class="chapter" title="Chapter 1. Definition of Threats"><div class="titlepage"><div><div><h2 class="title"><a id="Definition_of_Threats"></a>Chapter 1. Definition of Threats</h2></div></div></div><p>
+We analyze the X protocol for the following threats.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top" /><tbody><tr><td><p><span class="term">Theft</span></p></td><td><p>
+occurs when a client gains access to information owned by another client
+without  explicit  permission  from  that  other  client.  For  this  analysis,
+we take a broad view of ownership: any information that exists in the
+server due to the actions of a client is considered owned by that client.
+Furthermore, the client that has input focus owns keyboard events, and the
+client that owns the window that the pointer is in owns mouse events. This
+view may reveal certain instances of "theft" that we don't care to stop,
+but we think it is better to identify all potential candidates up front and
+cull the list later than to do a partial analysis now and plan on reanalyzing
+for remaining holes later.
+      </p></td></tr><tr><td><p><span class="term">Denial of service</span></p></td><td><p>
+occurs when a client causes another client or the user to lose the ability
+to perform some operation.
+      </p></td></tr><tr><td><p><span class="term">Spoofing</span></p></td><td><p>
+occurs when a client attempts to mimic another client with the hope that
+the user will interact with it as if it really were the mimicked client. A
+wide variety of requests may be used in a spoofing attack; we will only
+point out a few likely candidates.
+      </p></td></tr><tr><td><p><span class="term">Destruction</span></p></td><td><p>
+occurs when a client causes another client to lose information in a way
+that the client or user is likely to notice. (This does not count expected
+forms of destruction, e.g., exposures.)
+      </p></td></tr><tr><td><p><span class="term">Alteration</span></p></td><td><p>
+occurs when a client causes another client to lose information in a way
+that the client or user is unlikely to notice. e.g., changing one pixel in a
+drawable.
+      </p></td></tr></tbody></table></div><p>
+The line between alteration and destruction is subjective. Security
+literature does often distinguish between them, though not always
+explicitly. Alteration is often considered more insidious because
+its effects may not be realized until long after it has occurred. In
+the intervening time, each time the altered data is used, it can cause
+more damage.
+</p></div><div class="chapter" title="Chapter 2. General security concerns and remedies"><div class="titlepage"><div><div><h2 class="title"><a id="General_security_concerns_and_remedies"></a>Chapter 2. General security concerns and remedies</h2></div></div></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#Access_to_Server_Resources">Access to Server Resources</a></span></dt><dt><span class="sect1"><a href="#Denial_of_Service">Denial of Service</a></span></dt><dd><dl><dt><span class="sect2"><a href="#Memory_Exhaustion">Memory Exhaustion</a></span></dt><dt><span class="sect2"><a href="#CPU_Monopolization">CPU Monopolization</a></span></dt></dl></dd></dl></div><p>
+The following sections discuss security problems intrinsic to the X
+Protocol. A statement of each problem is usually followed by potential
+remedies. A few words here about possible remedies will help frame the
+specific ones described below.
+</p><p>
+If a client attempts a threatening operation, the server may take one of
+the following actions, listed roughly in order of severity:
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
+Execute the request normally. This is the right choice when we decide that a
+particlar threat is not serious enough to worry about.
+    </p></li><li class="listitem"><p>
+Execute the request in some modified form, e.g., substitute different
+values for some of the request fields, or edit the reply.
+    </p></li><li class="listitem"><p>
+Arrange to ask the user what to do, given some subset of the other choices
+in this list. This must be used sparingly because of the performance impact.
+    </p></li><li class="listitem"><p>
+Treat the request as a no-op. If the client will probably not notice, or
+if it seems likely that the intent was benign, this is a good choice.
+    </p></li><li class="listitem"><p>
+Send a protocol error to the client. If the client will be confused enough
+by the other options that it will probably crash or become useless anyway,
+or if it seems likely that the intent was malicious, this is a good choice.
+    </p><p>
+Kill the client. This might be the right action if there is no doubt
+that the client is hostile.
+    </p></li></ol></div><p>
+In most cases we present the one option that seems most appropriate to
+counter the threat, taking into account the seriousness of the threat, the
+implementation difficulty, and the impact on applications. Our initial bias
+is to err on the side of stronger security, with the accompanying tighter
+restrictions. As we uncover important operations and applications that the new
+restrictions interfere with, we can apply selective loosening to allow
+the desired functionality.
+</p><p>
+In some cases we will suggest returning an Access error where the X protocol
+does not explicitly allow one. These new Access errors arise when a client
+can only perform a (non-empty) subset of the defined operations on a
+resource. The disallowed operations cause Access errors. The resiource at
+issue is usually a root window.
+</p><div class="sect1" title="Access to Server Resources"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Access_to_Server_Resources"></a>Access to Server Resources</h2></div></div></div><p>
+The X protocol allows clients to manipulate resources (objects) belonging to
+other clients or to the server. Any request that specifies a resource ID is
+vulnerable to some of the above threats. Such requests also provide a way for a
+client to guess resource IDs of other clients. A client can make educated
+guesses for possible resource IDs, and if the request succeeds, it knows it has
+determined a valid resource ID. We call this "resource ID guessing" in the list
+below.
+</p><p>
+One likely defense against these problems is to have the server send an
+appropriate protocol error to deny the existence of any resource specified
+by a client that doesn't belong to that client. A variation on this policy
+lets cooperating groups of clients access each other's resources, but not
+those of other groups. The Broadway project will initially use a less general
+form of this idea by having two groups, trusted and untrusted. Trusted
+clients can do everything that X clients can do today. They will be protected
+from untrusted clients in ways described below. Untrusted clients will
+not be protected from each other. Though this will be the initial design,
+we need to make sure there is a growth path to multiple (more than two)
+groups.
+</p><p>
+Most of the time, applications never access server resources that aren't
+their own, so the impact of disallowing such accesses should be minimal.
+There are a few notable exceptions, most of which will be discussed under
+the relevant protocol requests. They are: ICCCM selection transfer, Motif
+drag and drop, and server-global resources like the root window and default
+colormap. Another major exception is the window manager, which routinely
+manipulates windows of other applications. The solution for window managers
+is to always run them as trusted applications.
+</p><p>
+The implementation difficulty of limiting access to resources should not
+be large. All resource accesses eventually funnel down to one of two
+functions in &lt;dix/resource.c&gt;:
+<code class="function">LookupIDByType</code> and
+<code class="function">LookupIDByClass</code>. A few lines of checking at
+the top of these functions will form the heart of this defense. There is a
+small problem because these functions are not told which client is doing the
+lookup, but that can be solved either by adding a client parameter (probably
+as a new function to preserve compatibility), or by using the server global
+requestingClient.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: are we really going to be able to get away with hiding trusted
+resources, or will things like Motif drag and drop force us to expose
+them? (Either way, the operations that untrusted clients can do to
+trusted resources will have to be limited.) Is there something in Xt
+or the ICCCM that breaks if you hide resources?
+</p></div></div><div class="sect1" title="Denial of Service"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Denial_of_Service"></a>Denial of Service</h2></div></div></div><div class="sect2" title="Memory Exhaustion"><div class="titlepage"><div><div><h3 class="title"><a id="Memory_Exhaustion"></a>Memory Exhaustion</h3></div></div></div><p>
+Any request that causes the server to consume resources (particularly
+memory) can be used in a denial of service attack. A client can use such
+requests repeatedly until the server runs out of memory. When that
+happens, the server will either crash or be forced to send Alloc errors.
+The most obvious candidates are resource creation requests,
+e.g., CreatePixmap, but in reality a large percentage of requests cause
+memory allocation, if only temporarily, depending on the server
+implementation. For this reason, the list of requests subject to this
+form of denial of service will be necessarily incomplete.
+</p><p>
+To address this form of denial of service, the server could set
+per-client quotas on memory consumption. When the limit is surpassed,
+the server could return Alloc errors. The application impact is minimal
+as long as the application stays within quota. The implementation difficulty
+is another story.
+</p><p>
+Conceptually, it seems easy: simply have a way to set the limit, and on
+every memory (de)allocation operation, update the client's current usage,
+and return an error if the client is over the limit. The first problem
+is something we've already touched on: the allocator functions aren't told
+which client the allocation belongs to. Unlike resource lookups, allocations
+are done in too many places to consider a new interface that passes the
+client, so using the global requestingClient is practically mandatory.
+</p><p>
+The problems run deeper. The logical thing for the allocator to do if the
+client is over its limit is to return NULL, indicating allocation failure.
+Unfortunately, there are many places in the server that will react badly
+if this happens. Most of these places, but not all, are "protected" by
+setting the global variable Must_have_memory to True around the delicate
+code. We could help the problem by skipping the limit check if
+Must_have_memory is True. The best solution would be to bullet-proof the
+server against allocation failures, but that is beyond the scope of Broadway.
+Another consideration is that the additional checking may have a measurable
+performance impact, since the server does frequent allocations.
+</p><p>
+A third problem is that there is no portable way to determine the size of
+a chunk of allocated memory given just a pointer to the chunk, and that's
+all you have inside <code class="function">Xrealloc</code> and
+<code class="function">Xfree</code>. The server could compensate by recording the
+sizes itself somewhere, but that would be wasteful of memory, since the
+malloc implementation also must be recording block sizes. On top of that, the
+redundant bookkeeping would hurt performance. One solution is to use a custom
+malloc that has the needed support, but that too seems beyond the scope of
+Broadway.
+</p><p>
+Considering all of this, we think it is advisable to defer solving the memory
+exhaustion problem to a future release. Keep this in mind when you see quotas
+mentioned as a defense in the list below.
+</p></div><div class="sect2" title="CPU Monopolization"><div class="titlepage"><div><div><h3 class="title"><a id="CPU_Monopolization"></a>CPU Monopolization</h3></div></div></div><p>
+Another general way that a client can cause denial of service is to flood
+the server with requests. The server will spend a large percentage of its
+time servicing those requests, possibly starving other clients and certainly
+hurting performance. Every request can be used for flooding, so we will
+not bother to list flooding on every request. A variation on this attack is
+to flood the server with new connection attempts.
+</p><p>
+To reduce the effectiveness of flooding, the server could use a different
+scheduling algorithm that throttles clients that are monopolizing the
+server, or it could simply favor trusted clients over untrusted ones.
+Applications cannot depend on a particular scheduling algorithm anyway,
+so changing it should not affect them. The Synchronization extension
+specifies a way to set client priorities, and a simple priority scheduler
+already exists in the server to support it, so this should be simple to add.
+</p></div></div></div><div class="chapter" title="Chapter 3. Security concerns with specific window attributes"><div class="titlepage"><div><div><h2 class="title"><a id="Security_concerns_with_specific_window_attributes"></a>Chapter 3. Security concerns with specific window attributes</h2></div></div></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#Background_pixmap">Background-pixmap</a></span></dt><dt><span class="sect1"><a href="#ParentRelative_and_CopyFromParent">ParentRelative and CopyFromParent</a></span></dt><dt><span class="sect1"><a href="#Override_redirect">Override-redirect</a></span></dt></dl></div><div class="sect1" title="Background-pixmap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Background_pixmap"></a>Background-pixmap</h2></div></div></div><p>
+Clients can use windows with the background-pixmap attribute set to None
+(hereafter "background none windows") to obtain images of other windows. A
+background none window never paints its own background, so whatever happened
+to be on the screen when the window was mapped can be read from the
+background none window with GetImage. This may well contain data from other
+windows. The CreateWindow and ChangeWindowAttributes requests can set the
+background-pixmap attribute set to None, and many window operations can cause
+data from other windows to be left in a background none window, including
+<code class="function">ReparentWindow</code>,
+<code class="function">MapWindow</code>,
+<code class="function">MapSubwindows</code>,
+<code class="function">ConfigureWindow</code>, and
+<code class="function">CirculateWindow</code>.
+</p><p>
+Background none windows can also be used to cause apparent alteration.
+A client can create a window with background none and draw to it. The drawing
+will appear to the user to be in the windows below the background none window.
+</p><p>
+To remedy these problems, the server could substitute a well-defined
+background when a client specifies None. Ideally the substituted background
+would look different enough from other windows that the user wouldn't be
+confused. A tile depicting some appropriate international symbol might be
+reasonable. We believe that there are few applications that actually rely on
+background none semantics, and those that do will be easy for the user to
+identify because of the distinctive tile. Implementation should not be a
+problem either. Luckily, the window background cannot be retrieved through
+the X protocol, so we won't have to maintain any illusions about its value.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: Some vendors have extensions to let you query the window background. Do
+we need to accomodate that?
+</p></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: Will this lead to unacceptable application breakage? Could the server be
+smarter, only painting with the well-defined background when the window actually
+contains bits from trusted windows?
+</p></div></div><div class="sect1" title="ParentRelative and CopyFromParent"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ParentRelative_and_CopyFromParent"></a>ParentRelative and CopyFromParent</h2></div></div></div><p>
+Several window attributes can take on special values that cause them to
+reference (ParentRelative) or copy (CopyFromParent) the same attribute from
+the window's parent. This fits our definition of theft. The window
+attributes are class, background-pixmap, border-pixmap, and colormap. All
+of these can be set with <code class="function">CreateWindow</code>; all but class
+can be set with <code class="function">ChangeWindowAttributes</code>.
+</p><p>
+These forms of theft aren't particularly serious, so sending an error
+doesn't seem appropriate. Substitution of different attribute values seems
+to be the only reasonable option, and even that is likely to cause trouble
+for clients. Untrusted clients are already going to be prevented from
+creating windows that are children of trusted clients (see CreateWindow
+below). We recommend that nothing more be done to counter this threat.
+</p></div><div class="sect1" title="Override-redirect"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Override_redirect"></a>Override-redirect</h2></div></div></div><p>
+Windows with the override-redirect bit set to True are generally ignored by
+the window manager. A client can map an override-redirect window that covers
+most or all of the screen, causing denial of service since other applications
+won't be visible.
+</p><p>
+To prevent this, the server could prevent more than a certain percentage
+(configurable) the of screen area from being covered by override-redirect
+windows of untrusted clients.
+</p><p>
+Override-redirect windows also make some spoofing attacks easier since the
+client can more carefully control the presentation of the window to mimic
+another client.  Defenses against spoofing will be given under
+<a class="xref" href="#MapWindow" title="MapWindow">MapWindow</a>
+.
+</p></div></div><div class="chapter" title="Chapter 4. Security concerns with specific requests"><div class="titlepage"><div><div><h2 class="title"><a id="Security_concerns_with_specific_requests"></a>Chapter 4. Security concerns with specific requests</h2></div></div></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#CreateWindow">CreateWindow</a></span></dt><dt><span class="sect1"><a href="#ChangeWindowAttributes">ChangeWindowAttributes</a></span></dt><dt><span class="sect1"><a href="#GetWindowAttributes">GetWindowAttributes</a></span></dt><dt><span class="sect1"><a href="#DestroyWindow_DestroySubwindows">DestroyWindow, DestroySubwindows</a></span></dt><dt><span class="sect1"><a href="#ChangeSaveSet">ChangeSaveSet</a></span></dt><dt><span class="sect1"><a href="#MapWindow">MapWindow</a></span></dt><dt><span class="sect1"><a href="#Window_Operations">Window Operations</a></span></dt><dt><span class="sect1"><a href="#GetGeometry">GetGeometry</a></span></dt><dt><span class="sect1"><a href="#QueryTree">QueryTree</a></span></dt><dt><span class="sect1"><a href="#InternAtom">InternAtom</a></span></dt><dt><span class="sect1"><a href="#GetAtomName">GetAtomName</a></span></dt><dt><span class="sect1"><a href="#ChangeProperty">ChangeProperty</a></span></dt><dt><span class="sect1"><a href="#DeleteProperty">DeleteProperty</a></span></dt><dt><span class="sect1"><a href="#GetProperty">GetProperty</a></span></dt><dt><span class="sect1"><a href="#RotateProperties">RotateProperties</a></span></dt><dt><span class="sect1"><a href="#ListProperties">ListProperties</a></span></dt><dt><span class="sect1"><a href="#SetSelectionOwner">SetSelectionOwner</a></span></dt><dt><span class="sect1"><a href="#GetSelectionOwner">GetSelectionOwner</a></span></dt><dt><span class="sect1"><a href="#ConvertSelection">ConvertSelection</a></span></dt><dt><span class="sect1"><a href="#SendEvent">SendEvent</a></span></dt><dt><span class="sect1"><a href="#Keyboard_and_Pointer_Grabs">Keyboard and Pointer Grabs</a></span></dt><dt><span class="sect1"><a href="#ChangeActivePointerGrab">ChangeActivePointerGrab</a></span></dt><dt><span class="sect1"><a href="#GrabServer">GrabServer</a></span></dt><dt><span class="sect1"><a href="#QueryPointer">QueryPointer</a></span></dt><dt><span class="sect1"><a href="#GetMotionEvents">GetMotionEvents</a></span></dt><dt><span class="sect1"><a href="#TranslateCoordinates">TranslateCoordinates</a></span></dt><dt><span class="sect1"><a href="#WarpPointer">WarpPointer</a></span></dt><dt><span class="sect1"><a href="#SetInputFocus">SetInputFocus</a></span></dt><dt><span class="sect1"><a href="#GetInputFocus">GetInputFocus</a></span></dt><dt><span class="sect1"><a href="#QueryKeymap">QueryKeymap</a></span></dt><dt><span class="sect1"><a href="#Font_Requests">Font Requests</a></span></dt><dt><span class="sect1"><a href="#CloseFont">CloseFont</a></span></dt><dt><span class="sect1"><a href="#SetFontPath">SetFontPath</a></span></dt><dt><span class="sect1"><a href="#GetFontPath">GetFontPath</a></span></dt><dt><span class="sect1"><a href="#CreatePixmap">CreatePixmap</a></span></dt><dt><span class="sect1"><a href="#FreePixmap">FreePixmap</a></span></dt><dt><span class="sect1"><a href="#CreateGC">CreateGC</a></span></dt><dt><span class="sect1"><a href="#CopyGC">CopyGC</a></span></dt><dt><span class="sect1"><a href="#ChangeGC_SetDashes_SetClipRectangles">ChangeGC, SetDashes, SetClipRectangles</a></span></dt><dt><span class="sect1"><a href="#FreeGC">FreeGC</a></span></dt><dt><span class="sect1"><a href="#Drawing_Requests">Drawing Requests</a></span></dt><dt><span class="sect1"><a href="#GetImage">GetImage</a></span></dt><dt><span class="sect1"><a href="#CreateColormap">CreateColormap</a></span></dt><dt><span class="sect1"><a href="#FreeColormap">FreeColormap</a></span></dt><dt><span class="sect1"><a href="#CopyColormapAndFree">CopyColormapAndFree</a></span></dt><dt><span class="sect1"><a href="#InstallColormap_UninstallColormap">InstallColormap, UninstallColormap</a></span></dt><dt><span class="sect1"><a href="#ListInstalledColormaps">ListInstalledColormaps</a></span></dt><dt><span class="sect1"><a href="#Color_Allocation_Requests">Color Allocation Requests</a></span></dt><dt><span class="sect1"><a href="#FreeColors">FreeColors</a></span></dt><dt><span class="sect1"><a href="#StoreColors_StoreNamedColor">StoreColors, StoreNamedColor</a></span></dt><dt><span class="sect1"><a href="#QueryColors_LookupColor">QueryColors, LookupColor</a></span></dt><dt><span class="sect1"><a href="#CreateCursor_CreateGlyphCursor">CreateCursor, CreateGlyphCursor</a></span></dt><dt><span class="sect1"><a href="#FreeCursor">FreeCursor</a></span></dt><dt><span class="sect1"><a href="#RecolorCursor">RecolorCursor</a></span></dt><dt><span class="sect1"><a href="#QueryBestSize">QueryBestSize</a></span></dt><dt><span class="sect1"><a href="#ListExtensions_QueryExtension">ListExtensions, QueryExtension</a></span></dt><dt><span class="sect1"><a href="#Keyboard_configuration_requests">Keyboard configuration requests</a></span></dt><dt><span class="sect1"><a href="#Keyboard_query_requests">Keyboard query requests</a></span></dt><dt><span class="sect1"><a href="#ChangePointerControl_SetPointerMapping">ChangePointerControl, SetPointerMapping</a></span></dt><dt><span class="sect1"><a href="#GetPointerControl_GetPointerMapping">GetPointerControl, GetPointerMapping</a></span></dt><dt><span class="sect1"><a href="#SetScreenSaver">SetScreenSaver</a></span></dt><dt><span class="sect1"><a href="#GetScreenSaver">GetScreenSaver</a></span></dt><dt><span class="sect1"><a href="#ForceScreenSaver">ForceScreenSaver</a></span></dt><dt><span class="sect1"><a href="#ChangeHost">ChangeHost</a></span></dt><dt><span class="sect1"><a href="#ListHosts">ListHosts</a></span></dt><dt><span class="sect1"><a href="#SetAccessControl">SetAccessControl</a></span></dt><dt><span class="sect1"><a href="#SetCloseDownMode">SetCloseDownMode</a></span></dt><dt><span class="sect1"><a href="#KillClient">KillClient</a></span></dt><dt><span class="sect1"><a href="#Clean_Requests">Clean Requests</a></span></dt></dl></div><p>
+To reduce the space needed to discuss 120 requests, most of the following
+sections use a stylized format. A threat is given, followed by an
+imperative statement. The implied subject is an untrusted client, and the
+object is usually a trusted client.  Following that, another statement
+starting with "Defense:" recommends a countermeasure for the preceding
+threat(s).
+</p><p>
+Resources owned by the server, such as the root window and the default
+colormap, are considered to be owned by a trusted client.
+</p><div class="sect1" title="CreateWindow"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CreateWindow"></a>CreateWindow</h2></div></div></div><p>
+Alteration: create a window as a child of another client's window, altering
+its list of children.
+</p><p>
+Defense: send Window error. Specifying the root window as the parent will
+have to be allowed, though.
+</p><p>
+Theft: create an InputOnly window or a window with background none on top
+of other clients' windows, select for keyboard/mouse input on that window,
+and steal the input. The input can be resent using SendEvent or an input
+synthesis extension so that the snooped application continues to function,
+though this won't work convincingly with the background none case because the
+drawing will be clipped.
+</p><p>
+Defense: send an error if a top-level InputOnly window is created
+(or reparented to the root). Countermeasures for background none and
+SendEvent are discussed elsewhere.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: The Motif drag and drop protocol creates and maps such a window (at
+-100, -100, size 10x10) to "cache frequently needed data on window properties
+to reduce roundtrip server requests." Proposed solution: we could only send an
+error if the window is visible, which would require checking in, MapWindow,
+ConfigureWindow, and ReparentWindow.
+</p></div><p>
+Theft: resource ID guessing (parent, background-pixmap, border-pixmap, colormap,
+and cursor).
+</p><p>
+Defense: send Window, Pixmap, Colormap, or Cursor error.
+</p><p>
+Denial of service: create windows until the server runs out of memory.
+</p><p>
+Defense: quotas.
+</p><p>
+Also
+<a class="xref" href="#Security_concerns_with_specific_window_attributes" title="Chapter 3. Security concerns with specific window attributes"><em>Security concerns with specific window attributes</em></a>
+</p></div><div class="sect1" title="ChangeWindowAttributes"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangeWindowAttributes"></a>ChangeWindowAttributes</h2></div></div></div><p>
+Alteration: change the attributes of another client's window.
+</p><p>
+Theft: select for events on another client's window.
+</p><p>
+Defense for both of the above: send Window error.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: The Motif drop protocol states that "the initiator should select for
+DestroyNotify on the destination window such that it is aware of a potential
+receiver crash." This will be a problem if the initiator is an untrusted
+window and the destination is trusted. Can the server, perhaps with the help
+of the security manager, recognize that a drop is in progress and allow the
+DestroyNotify event selection in this limited case?
+</p></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: The Motif pre-register drag protocol probably requires the initiator
+to select for Enter/LeaveNotify on all top-level windows. Same problem as
+the previous issue.
+</p></div><p>
+Theft: resource ID guessing (background-pixmap, border-pixmap, colormap, and
+cursor).
+</p><p>
+Defense: send Pixmap, Colormap, or Cursor error.
+</p><p>
+Also
+<a class="xref" href="#Security_concerns_with_specific_window_attributes" title="Chapter 3. Security concerns with specific window attributes"><em>Security concerns with specific window attributes</em></a>
+</p></div><div class="sect1" title="GetWindowAttributes"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetWindowAttributes"></a>GetWindowAttributes</h2></div></div></div><p>
+Theft: get the attributes of another client's window.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p></div><div class="sect1" title="DestroyWindow, DestroySubwindows"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="DestroyWindow_DestroySubwindows"></a>DestroyWindow, DestroySubwindows</h2></div></div></div><p>
+Destruction: destroy another client's window.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p></div><div class="sect1" title="ChangeSaveSet"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangeSaveSet"></a>ChangeSaveSet</h2></div></div></div><p>
+Alteration: cause another client's windows to be reparented to the root when
+this client disconnects (only if the other client's windows are subwindows of
+this client's windows).
+</p><p>
+Defense: process the request normally. The trusted client gives away some of
+its protection by creating a subwindow of an untrusted window.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="MapWindow"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="MapWindow"></a>MapWindow</h2></div></div></div><p>
+Spoofing: map a window that is designed to resemble a window of another client.
+Additional requests will probably be needed to complete the illusion.
+</p><p>
+Defense:
+</p><p>
+We consider spoofing to be a significant danger only if the user is convinced
+to interact with the spoof window. The defense centers on providing enough
+information to enable the user to know where keyboard, mouse, and extension
+device input is going. To accomplish this, the server will cooperate with the
+security manager, an external process. The server will provide the following
+facilities to the security manager:
+</p><p>
+1. A way to create a single window that is unobscurable by any window of any
+other client, trusted or untrusted. It needs to be unobscurable so that it is
+spoof-proof.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: is a weaker form of unobscurability better? Should the window be
+obscurable by trusted windows, for example?
+</p></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: does unobscurable mean that it is a child of the root that is always
+on top in the stacking order?
+</p></div><p>
+2. A way to determine if a given window ID belongs to an untrusted client.
+</p><p>
+The security manager will need to select for the existing events
+FocusIn, FocusOut, EnterNotify, LeaveNotify, DeviceFocusIn, and
+DeviceFocusOut on all windows to track what window(s) the user's input is
+going to. Using the above server facilities, it can reliably display the
+trusted/untrusted status of all clients currently receiving input.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: is it too much to ask the security manager to select for all these
+events on every window? Do we need to provide new events that you select
+for *on the device* that tell where the device is focused?
+</p></div><p>
+None of this should have any application impact.
+</p><p>
+The unobscurable window may be tricky to implement. There is already some
+machinery in the server to make an unobscurable window for the screen saver,
+which may help but may also get in the way now that we have to deal with two
+unobscurable windows.
+</p></div><div class="sect1" title="Window Operations"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Window_Operations"></a>Window Operations</h2></div></div></div><p>
+Specifically, ReparentWindow, MapWindow, MapSubwindows, UnmapWindow,
+UnmapSubwindows, ConfigureWindow, and CirculateWindow.
+</p><p>
+Alteration: manipulate another client's window.
+</p><p>
+Theft: resource ID guessing (window, sibling).
+</p><p>
+Defense for both of the above: send a Window error unless it is a root
+window, in which case we should send an Access error.
+</p></div><div class="sect1" title="GetGeometry"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetGeometry"></a>GetGeometry</h2></div></div></div><p>
+Theft: get the geometry of another client's drawable.
+</p><p>
+Theft: resource ID guessing (drawable).
+</p><p>
+Defense for both of the above: send Drawable error. However, root windows
+will be allowed.
+</p></div><div class="sect1" title="QueryTree"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="QueryTree"></a>QueryTree</h2></div></div></div><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Window error.
+</p><p>
+Theft: discover window IDs that belong to other clients.
+</p><p>
+Defense: For the child windows, censor the reply by removing window IDs that
+belong to trusted clients. Allow the root window to be returned. For the parent
+window, if it belongs to a trusted client, return the closest ancestor window
+that belongs to an untrusted client, or if such a window does not exist,
+return the root window for the parent window.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: will some applications be confused if we filter out the window manager
+frame window(s), or other windows between the queried window and the root
+window?
+</p></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: the Motif drag protocol (both preregister and dynamic) needs to be able
+to locate other top-level windows for potential drop sites. See also
+<a class="xref" href="#Access_to_Server_Resources" title="Access to Server Resources">Access to Server Resources</a>
+.
+</p></div></div><div class="sect1" title="InternAtom"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="InternAtom"></a>InternAtom</h2></div></div></div><p>
+Theft: discover atom values of atoms interned by other clients. This lets you
+determine if a specific set of atoms has been interned, which may lead to other
+inferences.
+</p><p>
+Defense: This is a minor form of theft. Blocking it will interfere with many
+types of inter-client communication. We propose to do nothing about this
+threat.
+</p><p>
+Denial of service: intern atoms until the server runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="GetAtomName"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetAtomName"></a>GetAtomName</h2></div></div></div><p>
+Theft: discover atom names of atoms interned by other clients. This lets you
+determine if a specific set of atoms has been interned, which may lead to other
+inferences.
+</p><p>
+Defense: This is a minor form of theft. We propose to do nothing about this
+threat.
+</p></div><div class="sect1" title="ChangeProperty"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangeProperty"></a>ChangeProperty</h2></div></div></div><p>
+Alteration: change a property on another client's window or one that was
+stored by another client.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: Selection transfer requires the selection owner to change a property
+on the requestor's window. Does the security manager get us out of this?
+Does the server notice the property name and window passed in
+ConvertSelection and temporarily allow that window property to be written?
+</p></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: should certain root window properties be writable?
+</p></div><p>
+Denial of service: store additional property data until the server
+runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="DeleteProperty"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="DeleteProperty"></a>DeleteProperty</h2></div></div></div><p>
+Destruction: delete a property stored by another client.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p></div><div class="sect1" title="GetProperty"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetProperty"></a>GetProperty</h2></div></div></div><p>
+Theft: get a property stored by another client.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: should certain root window properties be readable? Proposed answer: yes,
+some configurable list. Do those properties need to be polyinstantiated?
+</p></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: Motif drag and drop needs to be able to read the following properties:
+WM_STATE to identify top-level windows, _MOTIF_DRAG_WINDOW on
+the root window, _MOTIF_DRAG_TARGETS on the window given in the
+_MOTIF_DRAG_WINDOW property, and _MOTIF_DRAG_RECEIVER_INFO on
+windows with drop sites. Additionally, some properties are needed that do not
+have fixed names.
+</p></div></div><div class="sect1" title="RotateProperties"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="RotateProperties"></a>RotateProperties</h2></div></div></div><p>
+Alteration: rotate properties stored by another client.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p></div><div class="sect1" title="ListProperties"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ListProperties"></a>ListProperties</h2></div></div></div><p>
+Theft: list properties stored by another client.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense for both of the above: send Window error.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: should certain root window properties be listable?
+</p></div></div><div class="sect1" title="SetSelectionOwner"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SetSelectionOwner"></a>SetSelectionOwner</h2></div></div></div><p>
+Theft: Steal ownership of a selection.
+</p><p>
+Denial of service: do this repeatedly so that no other client can own the
+selection.
+</p><p>
+Defense for both of the above: have a configurable list of selections that
+untrusted clients can own. For other selections, treat this request as a no-op.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: how does the security manager get involved here? Is it the one that
+has the configurable list of selections instead of the server?
+</p></div><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="GetSelectionOwner"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetSelectionOwner"></a>GetSelectionOwner</h2></div></div></div><p>
+Theft: discover the ID of another client's window via the owner field of the
+reply.
+</p><p>
+Defense: if the selection is on the configurable list mentioned above,
+return the root window ID, else return None.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: how does the security manager get involved here?
+</p></div></div><div class="sect1" title="ConvertSelection"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ConvertSelection"></a>ConvertSelection</h2></div></div></div><p>
+Theft: this initiates a selection transfer (see the ICCCM) which sends
+the selection contents from the selection owner, which may be another
+client, to the requesting client.
+</p><p>
+Defense: since in many cases ConvertSelection is done in direct response
+to user interaction, it is probably best not to force it to fail, either
+silently or with an error.  The server should rely on the security manager
+to assist in handling the selection transfer.
+</p><p>
+Theft: resource ID guessing (requestor).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="SendEvent"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SendEvent"></a>SendEvent</h2></div></div></div><p>
+A client can use SendEvent to cause events of any type to be sent to windows
+of other clients. Similarly, a client could SendEvent to one of its own
+windows with propogate set to True and arrange for the event to be propogated
+up to a window it does not own. Clients can detect events generated by
+SendEvent, but we cannot assume that they will.
+</p><p>
+Defense: ignore this request unless the event being sent is a ClientMessage
+event, which should be sent normally so that selection transfer, Motif drag
+and drop, and certain input methods have a chance at working.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: does allowing all ClientMessages open up too big a hole?
+</p></div><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="Keyboard and Pointer Grabs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Keyboard_and_Pointer_Grabs"></a>Keyboard and Pointer Grabs</h2></div></div></div><p>
+Specifically, GrabKeyboard, GrabPointer, GrabKey, and GrabButton.
+</p><p>
+Denial of service/Theft: take over the keyboard and pointer. This could
+be viewed as denial of service since it prevents other clients from getting
+keyboard or mouse input, or it could be viewed as theft since the user
+input may not have been intended for the grabbing client.
+</p><p>
+Defense: provide a way to break grabs via some keystroke combination, and
+have a status area that shows which client is getting input. (See
+<a class="xref" href="#MapWindow" title="MapWindow">MapWindow</a>
+).
+</p><p>
+Theft: resource ID guessing (grab-window, confine-to, cursor).
+</p><p>
+Defense: send Window or Cursor error.
+</p></div><div class="sect1" title="ChangeActivePointerGrab"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangeActivePointerGrab"></a>ChangeActivePointerGrab</h2></div></div></div><p>
+Theft: resource ID guessing (cursor).
+</p><p>
+Defense: send Cursor error.
+</p></div><div class="sect1" title="GrabServer"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GrabServer"></a>GrabServer</h2></div></div></div><p>
+Denial of service: a client can grab the server and not let go, locking
+out all other clients.
+</p><p>
+Defense: provide a way to break grabs via some keystroke combination.
+</p></div><div class="sect1" title="QueryPointer"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="QueryPointer"></a>QueryPointer</h2></div></div></div><p>
+Theft: A client can steal pointer motion and position, button input,
+modifier key state, and possibly a window of another client with this request.
+</p><p>
+Defense: if the querying client doesn't have the pointer grabbed, and
+the pointer is not in one of its windows, the information can be zeroed.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="GetMotionEvents"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetMotionEvents"></a>GetMotionEvents</h2></div></div></div><p>
+Theft: steal pointer motion input that went to other clients.
+</p><p>
+Defense: ideally, the server would return only pointer input that was not
+delivered to any trusted client. The implementation effort to do that
+probably outweighs the marginal benefits. Instead, we will always return
+an empty list of motion events to untrusted clients.
+</p><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="TranslateCoordinates"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="TranslateCoordinates"></a>TranslateCoordinates</h2></div></div></div><p>
+Theft: discover information about other clients' windows: position,
+screen, and possibly the ID of one of their subwindows.
+</p><p>
+Defense: send an error if src-window or dst-window do not belong to
+the requesting client.
+</p><p>
+Theft: resource ID guessing (src-window, dst-window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="WarpPointer"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="WarpPointer"></a>WarpPointer</h2></div></div></div><p>
+A client can cause pointer motion to occur in another client's window.
+</p><p>
+Denial of service: repeated pointer warping prevents the user from using
+the mouse normally.
+</p><p>
+Defense for both of the above: if the querying client doesn't have the pointer
+grabbed, and the pointer is not in one of its windows, treat the request as a
+no-op.
+</p><p>
+Theft: resource ID guessing (src-window, dst-window).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="SetInputFocus"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SetInputFocus"></a>SetInputFocus</h2></div></div></div><p>
+Theft: a client can use this request to make one of its own windows have
+the input focus (keyboard focus). The user may be unaware that keystrokes
+are now going to a different window.
+</p><p>
+Denial of service: repeatedly setting input focus prevents normal use of the
+keyboard.
+</p><p>
+Defense for both of the above: only allow untrusted clients to
+SetInputFocus if input focus is currently held by another untrusted client.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: this will break clients using the Globally Active Input model
+described in section 4.1.7 of the ICCCM.
+</p></div><p>
+Theft: resource ID guessing (focus).
+</p><p>
+Defense: send Window error.
+</p></div><div class="sect1" title="GetInputFocus"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetInputFocus"></a>GetInputFocus</h2></div></div></div><p>
+Theft: the reply may contain the ID of another client's window.
+</p><p>
+Defense: return a focus window of None if a trusted client currently has
+the input focus.
+</p></div><div class="sect1" title="QueryKeymap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="QueryKeymap"></a>QueryKeymap</h2></div></div></div><p>
+Theft: poll the keyboard with this to see which keys are being pressed.
+</p><p>
+Defense: zero the returned bit vector if a trusted client currently has
+the input focus.
+</p></div><div class="sect1" title="Font Requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Font_Requests"></a>Font Requests</h2></div></div></div><p>
+Specifically, OpenFont, QueryFont, ListFonts, ListFontsWithInfo, and
+QueryTextExtents.
+</p><p>
+Theft: discover font name, glyph, and metric information about fonts that were
+provided by another client (by setting the font path). Whether it is theft
+to retrieve information about fonts from the server's initial font path
+depends on whether or not you believe those fonts, by their existence in the
+initial font path, are intended to be globally accessible by all clients.
+</p><p>
+Defense:
+</p><p>
+Maintain two separate font paths, one for trusted clients and one for untrusted
+clients. They are both initialized to the default font path at server reset.
+Subsequently, changes to one do not affect the other. Since untrusted clients
+will not see font path elements added by trusted clients, they will not be
+able to access any fonts provided by those font path elements.
+</p><p>
+Theft: resource ID guessing (font) (QueryFont and QueryTextExtents only).
+</p><p>
+Defense: send Font error.
+</p><p>
+Denial of service: open fonts until the server runs out of memory (OpenFont
+only).
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="CloseFont"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CloseFont"></a>CloseFont</h2></div></div></div><p>
+Destruction: close another client's font.
+</p><p>
+Defense: send Font error.
+</p></div><div class="sect1" title="SetFontPath"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SetFontPath"></a>SetFontPath</h2></div></div></div><p>
+Denial of service: change the font path so that other clients cannot
+find their fonts.
+</p><p>
+Alteration: change the font path so that other clients get different
+fonts than they expected.
+</p><p>
+Defense for both of the above: separate font paths for trusted and
+untrusted clients, as described in the Font Requests section.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: the printing project considered per-client font paths and concluded
+that it was very difficult to do. We should look at this aspect of the print
+server design to see if we can reuse the same scheme. We should also try to
+reconstruct what was so difficult about this; it doesn't seem that hard on the
+surface.
+</p></div></div><div class="sect1" title="GetFontPath"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetFontPath"></a>GetFontPath</h2></div></div></div><p>
+Theft: retrieve font path elements that were set by other clients.
+</p><p>
+Use knowledge from font path elements to mount other attacks, e.g.,
+attack a font server found in the font path.
+</p><p>
+Defense for both of the above: separate font paths for trusted and
+untrusted clients, as described in the Font Requests section.
+</p></div><div class="sect1" title="CreatePixmap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CreatePixmap"></a>CreatePixmap</h2></div></div></div><p>
+Theft: resource ID guessing (drawable).
+</p><p>
+Defense: send Drawable error.
+</p><p>
+Denial of service: create pixmaps until the server runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="FreePixmap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="FreePixmap"></a>FreePixmap</h2></div></div></div><p>
+Destruction: destroy another client's pixmap.
+</p><p>
+Defense: send Pixmap error.
+</p></div><div class="sect1" title="CreateGC"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CreateGC"></a>CreateGC</h2></div></div></div><p>
+Theft: resource ID guessing (drawable, tile, stipple, font, clip-mask).
+</p><p>
+Defense: send Drawable, Pixmap, or Font error.
+</p><p>
+Denial of service: create GCs until the server runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="CopyGC"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CopyGC"></a>CopyGC</h2></div></div></div><p>
+Theft: copy GC values of another client's GC.
+</p><p>
+Alteration: copy GC values to another client's GC.
+</p><p>
+Defense for both of the above: send GC error.
+</p></div><div class="sect1" title="ChangeGC, SetDashes, SetClipRectangles"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangeGC_SetDashes_SetClipRectangles"></a>ChangeGC, SetDashes, SetClipRectangles</h2></div></div></div><p>
+Alteration: change values of another client's GC.
+</p><p>
+Theft: resource ID guessing (gc, tile, stipple, font, clip-mask)
+(last four for ChangeGC only).
+</p><p>
+Defense for both of the above: send GC error.
+</p></div><div class="sect1" title="FreeGC"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="FreeGC"></a>FreeGC</h2></div></div></div><p>
+Destruction: destroy another client's GC.
+</p><p>
+Defense: send GC error.
+
+</p></div><div class="sect1" title="Drawing Requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Drawing_Requests"></a>Drawing Requests</h2></div></div></div><p>
+Specifically, ClearArea, CopyArea, CopyPlane, PolyPoint, PolyLine, PolySegment,
+PolyRectangle, PolyArc, FillPoly, PolyFillRectangle, PolyFillArc, PutImage,
+PolyText8, PolyText16, ImageText8, and ImageText16.
+</p><p>
+Alteration: draw to another client's drawable.
+</p><p>
+Theft: resource ID guessing: ClearArea - window; CopyArea, CopyPlane -
+src-drawable, dst-drawable, gc; all others - drawable, gc.
+</p><p>
+Defense for both of the above: send appropriate error.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: The Motif preregister drag protocol requires clients to draw
+into windows of other clients for drag-over/under effects.
+</p></div><p>
+Spoofing: draw to a window to make it resemble a window of another client.
+</p><p>
+Defense: see
+<a class="xref" href="#MapWindow" title="MapWindow">MapWindow</a>
+.
+</p></div><div class="sect1" title="GetImage"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetImage"></a>GetImage</h2></div></div></div><p>
+Theft: get the image of another client's drawable.
+</p><p>
+Theft: resource ID guessing (drawable).
+</p><p>
+Defense: send Drawable error.
+</p><p>
+Theft: get the image of your own window, which may contain pieces of other
+overlapping windows.
+</p><p>
+Defense: censor returned images by blotting out areas that contain data
+from trusted windows.
+</p></div><div class="sect1" title="CreateColormap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CreateColormap"></a>CreateColormap</h2></div></div></div><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Colormap error.
+
+</p><p>
+Denial of service: create colormaps with this request until the server
+runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="FreeColormap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="FreeColormap"></a>FreeColormap</h2></div></div></div><p>
+Destruction: destroy another client's colormap.
+</p><p>
+Defense: send Colormap error.
+</p></div><div class="sect1" title="CopyColormapAndFree"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CopyColormapAndFree"></a>CopyColormapAndFree</h2></div></div></div><p>
+Theft: resource ID guessing (src-map).
+</p><p>
+Defense: send Colormap error. However, default colormaps will be allowed.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: must untrusted applications be allowed to use standard colormaps?
+(Same issue for ListInstalledColormaps, Color Allocation Requests,
+FreeColors, StoreColors, StoreNamedColor, QueryColors, and LookupColor.)
+</p></div><p>
+Denial of service: create colormaps with this request until the server
+runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="InstallColormap, UninstallColormap"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="InstallColormap_UninstallColormap"></a>InstallColormap, UninstallColormap</h2></div></div></div><p>
+Theft: resource ID guessing.
+</p><p>
+Defense: send Colormap error.
+</p><p>
+Denial of service: (un)install any colormap, potentially preventing
+windows from displaying correct colors.
+</p><p>
+Defense: treat this request as a no-op. Section 4.1.8 of the ICCCM states
+that (un)installing colormaps is the responsibility of the window manager
+alone.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: the ICCCM also allows clients to do colormap installs if the client
+has the pointer grabbed. Do we need to allow that too?
+</p></div></div><div class="sect1" title="ListInstalledColormaps"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ListInstalledColormaps"></a>ListInstalledColormaps</h2></div></div></div><p>
+Theft: resource ID guessing (window).
+</p><p>
+Defense: send Colormap error.
+</p><p>
+Theft: discover the resource ID of another client's colormap from the reply.
+</p><p>
+Defense: remove the returned colormap IDs; only let through default
+colormaps and colormaps of untrusted clients.
+</p></div><div class="sect1" title="Color Allocation Requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Color_Allocation_Requests"></a>Color Allocation Requests</h2></div></div></div><p>
+Specifically, AllocColor, AllocNamedColor, AllocColorCells, and
+AllocColorPlanes.
+</p><p>
+Alteration/Denial of service: allocate colors in another client's
+colormap. It is denial of service if the owning client's color allocations
+fail because there are no cells available. Otherwise it is just alteration.
+</p><p>
+Theft: resource ID guessing (cmap).
+</p><p>
+Defense for both of the above: send Colormap error. However, default
+colormaps will be allowed.
+</p></div><div class="sect1" title="FreeColors"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="FreeColors"></a>FreeColors</h2></div></div></div><p>
+Theft: resource ID guessing (cmap).
+</p><p>
+Defense: send Colormap error. However, default colormaps will be allowed.
+</p></div><div class="sect1" title="StoreColors, StoreNamedColor"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="StoreColors_StoreNamedColor"></a>StoreColors, StoreNamedColor</h2></div></div></div><p>
+Alteration: change the colors in another client's colormap.
+</p><p>
+Theft: resource ID guessing (cmap).
+</p><p>
+Defense for both of the above: send Colormap error. However, default
+colormaps will be allowed.
+</p></div><div class="sect1" title="QueryColors, LookupColor"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="QueryColors_LookupColor"></a>QueryColors, LookupColor</h2></div></div></div><p>
+Theft: retrieve information about the colors in another client's colormap.
+</p><p>
+Theft: resource ID guessing (cmap).
+</p><p>
+Defense for both of the above: send Colormap error. However, default
+colormaps will be allowed.
+</p></div><div class="sect1" title="CreateCursor, CreateGlyphCursor"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="CreateCursor_CreateGlyphCursor"></a>CreateCursor, CreateGlyphCursor</h2></div></div></div><p>
+Theft: resource ID guessing (source, mask or source-font, mask-font).
+</p><p>
+Defense: send Pixmap or Font error. However, the default font will be allowed.
+</p><p>
+Denial of service: create cursors until the server runs out of memory.
+</p><p>
+Defense: quotas.
+</p></div><div class="sect1" title="FreeCursor"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="FreeCursor"></a>FreeCursor</h2></div></div></div><p>
+Destruction: free another client's cursor.
+</p><p>
+Defense: send Cursor error.
+</p></div><div class="sect1" title="RecolorCursor"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="RecolorCursor"></a>RecolorCursor</h2></div></div></div><p>
+Alteration: recolor another client's cursor.
+</p><p>
+Theft: resource ID guessing (cursor).
+</p><p>
+Defense for both of the above: send Cursor error.
+</p></div><div class="sect1" title="QueryBestSize"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="QueryBestSize"></a>QueryBestSize</h2></div></div></div><p>
+Theft: resource ID guessing (drawable).
+</p><p>
+Defense: send Drawable error.
+</p></div><div class="sect1" title="ListExtensions, QueryExtension"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ListExtensions_QueryExtension"></a>ListExtensions, QueryExtension</h2></div></div></div><p>
+Determine the extensions supported by the server, and use the list to choose
+extension-specific attacks to attempt.
+</p><p>
+Defense: extensions will have a way to tell the server whether it is safe
+for untrusted clients to use them. These requests will only return information
+about extensions that claim to be safe.
+</p></div><div class="sect1" title="Keyboard configuration requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Keyboard_configuration_requests"></a>Keyboard configuration requests</h2></div></div></div><p>
+Specifically, ChangeKeyboardControl, ChangeKeyboardMapping, and
+SetModifierMapping.
+</p><p>
+Alteration: change the keyboard parameters that were established by another
+client.
+</p><p>
+Denial of service: with ChangeKeyboardControl, disable auto-repeat, key
+click, or the bell. With ChangeKeyboardMapping or SetModifierMapping,
+change the key mappings so that the keyboard is difficult or impossible to
+use.
+</p><p>
+Defense for both of the above: treat these requests as a no-op.
+</p></div><div class="sect1" title="Keyboard query requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Keyboard_query_requests"></a>Keyboard query requests</h2></div></div></div><p>
+Specifically, GetKeyboardControl, GetKeyboardMapping, and GetModifierMapping.
+</p><p>
+Theft: get keyboard information that was established by another client.
+</p><p>
+Defense: This is a minor form of theft. We propose to do nothing about this
+threat.
+</p></div><div class="sect1" title="ChangePointerControl, SetPointerMapping"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangePointerControl_SetPointerMapping"></a>ChangePointerControl, SetPointerMapping</h2></div></div></div><p>
+Alteration: change the pointer parameters that were established by another
+client.
+</p><p>
+Denial of service: set the pointer parameters so that the pointer is
+difficult or impossible to use.
+</p><p>
+Defense for both of the above: treat these requests as a no-op.
+</p></div><div class="sect1" title="GetPointerControl, GetPointerMapping"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetPointerControl_GetPointerMapping"></a>GetPointerControl, GetPointerMapping</h2></div></div></div><p>
+Theft: get pointer parameters that were established by another client.
+</p><p>
+Defense: This is a minor form of theft. We propose to do nothing about this
+threat.
+</p></div><div class="sect1" title="SetScreenSaver"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SetScreenSaver"></a>SetScreenSaver</h2></div></div></div><p>
+Alteration: change the screen saver parameters that were established by
+another client.
+</p><p>
+Denial of service: set the screen saver parameters so that the screen saver
+is always on or always off.
+</p><p>
+Defense for both of the above: treat these requests as a no-op.
+</p></div><div class="sect1" title="GetScreenSaver"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GetScreenSaver"></a>GetScreenSaver</h2></div></div></div><p>
+Theft: get screen saver parameters that were established by another client.
+</p><p>
+Defense: This is a minor form of theft. We propose to do nothing about this
+threat.
+</p></div><div class="sect1" title="ForceScreenSaver"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ForceScreenSaver"></a>ForceScreenSaver</h2></div></div></div><p>
+Denial of service: repeatedly activate the screen saver so that the user
+cannot see the screen as it would look when the screen saver is off.
+</p><p>
+Denial of service: repeatedly reset the screen saver, preventing it from
+activating.
+</p><p>
+Defense for both of the above: treat these requests as a no-op.
+</p></div><div class="sect1" title="ChangeHost"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ChangeHost"></a>ChangeHost</h2></div></div></div><p>
+Most servers already have some restrictions on which clients can use this
+request, so whether the following list applies is implementation dependent.
+</p><p>
+Denial of service: remove a host from the list, preventing clients from
+connecting from that host.
+</p><p>
+Add a host to the list. Clients from that host may then launch other
+attacks of any type.
+</p><p>
+Defense for both of the above: return Access error.
+</p></div><div class="sect1" title="ListHosts"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ListHosts"></a>ListHosts</h2></div></div></div><p>
+Theft: steal host identities and possibly even user identities that are
+allowed to connect.
+</p><p>
+Launch attacks of any type against the stolen host/user identities.
+</p><p>
+Defense for both of the above: return only untrusted hosts.
+</p></div><div class="sect1" title="SetAccessControl"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SetAccessControl"></a>SetAccessControl</h2></div></div></div><p>
+Most servers already have some restrictions on which clients can use this
+request, so whether the following list applies is implementation dependent.
+</p><p>
+Alteration: change the access control value established by some other client.
+</p><p>
+Disable access control, allowing clients to connect who would normally not be
+able to connect. Those clients may then launch other attacks of any type.
+</p><p>
+Defense for both of the above: return Access error.
+</p></div><div class="sect1" title="SetCloseDownMode"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SetCloseDownMode"></a>SetCloseDownMode</h2></div></div></div><p>
+Denial of service: set the close-down mode to RetainPermanent or
+RetainTemporary, then disconnect. The server cannot reuse the
+resource-id-base of the disconnected client, or the memory used by the
+retained resources, unless another client issues an appropriate KillClient
+to cancel the retainment. The server has a limited number of
+resource-id-bases, and when they are exhausted, it will be unable to accept
+new client connections.
+</p><p>
+Defense: treat this request as a no-op.
+</p></div><div class="sect1" title="KillClient"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="KillClient"></a>KillClient</h2></div></div></div><p>
+Destruction/Denial of service: kill another currently connected client.
+</p><p>
+Destruction: kill a client that has terminated with close-down mode of
+RetainTemporary or RetainPermanent, destroying all its retained resources.
+</p><p>
+Destruction: specify AllTemporary as the resource, destroying all resources
+of clients that have terminated with close-down mode RetainTemporary.
+</p><p>
+Defense for all of the above: return Value error.
+</p></div><div class="sect1" title="Clean Requests"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Clean_Requests"></a>Clean Requests</h2></div></div></div><p>
+Other than denial of service caused by flooding, these requests have no known
+security concerns: AllowEvents, UngrabPointer, UngrabButton, UngrabKeyboard,
+UngrabKey, UngrabServer, NoOperation, and Bell.
+</p></div></div><div class="chapter" title="Chapter 5. Events"><div class="titlepage"><div><div><h2 class="title"><a id="Events"></a>Chapter 5. Events</h2></div></div></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="sect1"><a href="#KeymapNotify">KeymapNotify</a></span></dt><dt><span class="sect1"><a href="#Expose">Expose</a></span></dt><dt><span class="sect1"><a href="#GraphicsExposure">GraphicsExposure</a></span></dt><dt><span class="sect1"><a href="#VisibilityNotify">VisibilityNotify</a></span></dt><dt><span class="sect1"><a href="#ReparentNotify">ReparentNotify</a></span></dt><dt><span class="sect1"><a href="#ConfigureNotify">ConfigureNotify</a></span></dt><dt><span class="sect1"><a href="#ConfigureRequest">ConfigureRequest</a></span></dt><dt><span class="sect1"><a href="#SelectionClear">SelectionClear</a></span></dt><dt><span class="sect1"><a href="#SelectionRequest">SelectionRequest</a></span></dt><dt><span class="sect1"><a href="#MappingNotify">MappingNotify</a></span></dt></dl></div><p>
+The only threat posed by events is theft. Selecting for events on another
+client's resources is always theft. We restrict further analysis by
+assuming that the client only selects for events on its own resources,
+then asking whether the events provide information about other clients.
+</p><div class="sect1" title="KeymapNotify"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="KeymapNotify"></a>KeymapNotify</h2></div></div></div><p>
+Theft: the state of the keyboard can be seen when the client does not have
+the input focus. This is possible because a KeymapNotify is sent to a
+window after every EnterNotify even if the window does not have input focus.
+</p><p>
+Defense: zero the returned bit vector if a trusted client currently has the
+input focus.
+</p></div><div class="sect1" title="Expose"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Expose"></a>Expose</h2></div></div></div><p>
+Theft: discover where other clients' windows overlap your own. For
+instance, map a full-screen window, lower it, then raise it. The resulting
+exposes tell you where other windows are.
+</p><p>
+Defense: about the only thing you could do here is force backing store to be
+used on untrusted windows, but that would probably use too much server
+memory. We propose to do nothing about this threat.
+</p></div><div class="sect1" title="GraphicsExposure"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="GraphicsExposure"></a>GraphicsExposure</h2></div></div></div><p>
+Theft: discover where other clients' windows overlap your own. For instance,
+use CopyArea to copy the entire window's area exactly on top of itself. The
+resulting GraphicsExposures tell you where the window was obscured.
+</p><p>
+Defense: see Expose above. We propose to do nothing about this threat.
+</p></div><div class="sect1" title="VisibilityNotify"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="VisibilityNotify"></a>VisibilityNotify</h2></div></div></div><p>
+Theft: this event provides crude positional information about other
+clients, though the receiver cannot tell which other clients.
+</p><p>
+Defense: The information content of this event is very low. We propose to
+do nothing about this threat.
+</p></div><div class="sect1" title="ReparentNotify"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ReparentNotify"></a>ReparentNotify</h2></div></div></div><p>
+Theft: the parent window may belong to some other client (probably the
+window manager).
+</p><p>
+Defense: If the parent window belongs to a trusted client, return the
+closest ancestor window that belongs to an untrusted client, or if such a
+window does not exist, return the root window for the parent window.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: what is the application impact?
+</p></div></div><div class="sect1" title="ConfigureNotify"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ConfigureNotify"></a>ConfigureNotify</h2></div></div></div><p>
+Theft: the above-sibling window may belong to some other client.
+</p><p>
+Defense: return None for the above-sibling window if it belongs to a trusted
+client.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>
+ISSUE: what is the application impact?
+</p></div></div><div class="sect1" title="ConfigureRequest"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="ConfigureRequest"></a>ConfigureRequest</h2></div></div></div><p>
+Theft: the sibling window may belong to some other client.
+</p><p>
+Defense: return None for the sibling window if it belongs to a trusted client.
+</p><p>
+ISSUE: what is the application impact?
+</p></div><div class="sect1" title="SelectionClear"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SelectionClear"></a>SelectionClear</h2></div></div></div><p>
+Theft: the owner window may belong to some other client.
+</p><p>
+Defense: return None for the owner window if it belongs to a trusted client.
+</p></div><div class="sect1" title="SelectionRequest"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="SelectionRequest"></a>SelectionRequest</h2></div></div></div><p>
+Theft: the requestor window may belong to some other client.
+</p><p>
+Defense: Blocking this event or censoring the window would prevent selection
+transfers from untrusted clients to trusted clients from working. We propose
+to do nothing in the server about this threat. The security manager may
+reduce the exposure of trusted window IDs by becoming the owner of all
+selections.
+</p></div><div class="sect1" title="MappingNotify"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="MappingNotify"></a>MappingNotify</h2></div></div></div><p>
+Theft: discover keyboard, pointer, or modifier mapping information set
+by another client.
+</p><p>
+Defense: Any tampering with this event will cause clients to have an
+inconsistent view of the keyboard or pointer button configuration, which is
+likely to confuse the user. We propose to do nothing about this threat.
+</p></div></div><div class="chapter" title="Chapter 6. Errors"><div class="titlepage"><div><div><h2 class="title"><a id="Errors"></a>Chapter 6. Errors</h2></div></div></div><p>
+There appear to be no threats related to procotol errors.
+</p></div><div class="chapter" title="Chapter 7. Future Work"><div class="titlepage"><div><div><h2 class="title"><a id="Future_Work"></a>Chapter 7. Future Work</h2></div></div></div><p>
+The next steps are resolve the items marked ISSUE and to decide if the
+defenses proposed are reasonable. Discussion on the security@x.org mailing list,
+prototyping, and/or starting the implementation should help answer these
+questions.
+</p></div><div class="chapter" title="Chapter 8. References"><div class="titlepage"><div><div><h2 class="title"><a id="References"></a>Chapter 8. References</h2></div></div></div><p>
+Bellcore, "Framework Generic Requirements for X Window System Security,"
+Technical Advisory FA-STS-001324, Issue 1, August 1992.
+</p><p>
+Dardailler, Daniel, "Motif Drag And Drop Protocol," unpublished design
+notes.
+</p><p>
+Kahn, Brian L., "Safe Use of X WINDOW SYSTEM protocol Across a Firewall",
+unpublished draft, The MITRE Corporation, 1995.
+</p><p>
+Rosenthal, David S. H., "LINX - a Less INsecure X server," Sun Microsystems,
+29th April 1989.
+</p><p>
+Rosenthal, David and Marks, Stuart W., "Inter-Client Communication Conventions
+Manual Version 2.0," ftp://ftp.x.org/pub/R6.1/xc/doc/hardcopy/ICCCM/icccm.PS.Z
+
+</p><p>
+Scheifler, Robert W., "X Window System Protocol,"
+ftp://ftp.x.org/pub/R6.1/xc/doc/hardcopy/XProtocol/proto.PS.Z
+</p><p>
+Treese, G. Winfield and Wolman, Alec, "X Through the Firewall, and Other
+Application Relays," Digital Equipment Corporation Cambridge Research Lab,
+Technical Report Series, CRL 93/10, May 3, 1993.
+</p></div></div></body></html>

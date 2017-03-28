@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Panoramica sui Widget</TITLE>
+ <LINK HREF="gtk_tut_it-6.html" REL=next>
+ <LINK HREF="gtk_tut_it-4.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc5" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-6.html">Avanti</A>
+<A HREF="gtk_tut_it-4.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc5">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s5">5. Panoramica sui Widget</A></H2>
+
+<P>La procedura generale di creazione di un widget in GTK prevede i seguenti passi:
+<OL>
+<LI> gtk_*_new - una delle varie funzioni che servono per greare un nuovo widget.
+In questa sezione le vedremo tutte in dettaglio.
+</LI>
+<LI> Connettere tutti i segnali che si vogliono usare alle funzione gestione appfropriate.
+</LI>
+<LI> Assegnare gli attributi all'oggetto.
+</LI>
+<LI> Impacchettare l'oggetto in un contenitore usando la chiamate appropriata, 
+per esempio gtk_container_add() o gtk_box_pack_start().
+</LI>
+<LI> Mostrare l'oggetto con gtk_widget_show().</LI>
+</OL>
+<P>gtk_widget_show() fa s&igrave; che GTK sappia che abbiamo terminato di assegnare gli
+attributi dell'oggetto grafico, e che &egrave; pronto per essere visualizzato.
+Si pu&ograve; anche usare la funzione gtk_widget_hide per farlo sparire di nuovo.
+L'ordine in cui mostrate gli oggetti grafici non &egrave; importante, ma io suggerisco
+di mostrare per ultima la finestra, in modo che questa spunti fuori gi&agrave; completa,
+invece di vedere i singoli oggetti che arrivano sullo schermo a mano a mano che si
+formano. I figli di un oggetto grafico (anche una finestra &egrave; un oggetto grafico) non
+vengono infatti mostrati finch&eacute; la finestra stessa non viene mostrata usando la
+funzione gtk_widget_show().
+<P>
+<H2><A NAME="ss5.1">5.1 Casting</A>
+</H2>
+
+<P>Noterete andando avanti che GTK usa un sistema di casting di tipo. Questa operazione
+viene sempre effettuata usando delle macro che allo stesso tempo controllano la
+possibilit&agrave; di effettuare il cast sull'elemento dato e lo effettuano realmente.
+Alcune macro che avrete modo di incontrare sono:
+<P>
+<UL>
+<LI> GTK_WIDGET(widget)</LI>
+<LI> GTK_OBJECT(object)</LI>
+<LI> GTK_SIGNAL_FUNC(function)</LI>
+<LI> GTK_CONTAINER(container)</LI>
+<LI> GTK_WINDOW(window)</LI>
+<LI> GTK_BOX(box)</LI>
+</UL>
+<P>Tutte queste funzioni  sono usate per fare il cast di argomenti di funzione. Le vedrete
+negli esempi, e capirete se &egrave; il caso di usarle semplicemente guardando alle
+dichiarazioni delle funzioni.
+<P>Come potrete vedere pi&ugrave; sotto nella gerarchia delle classi, tutti i GtkWidgets
+sono derivati dalla classe base GtkObject. Ci&ograve; significa che potete usare un
+widget in ogni posto in cui una funzione richiede un oggetto - semplicemente
+usate la macro GTK_OBJECT().
+<P>Per esempio:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_connect(GTK_OBJECT(button), "clicked",
+                   GTK_SIGNAL_FUNC(callback_function), callback_data);
+</PRE>
+</CODE></BLOCKQUOTE>
+ 
+<P>Questo fa il cast del bottone in un oggetto e fornisce alla chiamata di ritorno
+un cast al puntatore a funzione.
+<P>Molti oggetti grafici sono anche contenitori. Se guardate alla gerarchia delle
+classi pi&ugrave; sotto, vedrete che molti oggetti grafici sono derivati dalla classe
+GtkContainer. Ognuna di queste classi pu&ograve; essere usata, con la macro GTK_CONTAINER,
+come argomento per funzioni che richiedono un contenitore.
+<P>Sfortunatamente, in questo tutorial non si parler&agrave; in modo estensivo di queste macro,
+ma raccomando di dare un'occhiata ai file header di GTK. Pu&ograve; essere una cosa molto
+educativa. Infatti, non &egrave; difficile imparare come funziona un oggetto solo guardando
+le dichiarazioni delle funzioni.
+<P>
+<H2><A NAME="ss5.2">5.2 Gerarchia degli Oggetti Grafici</A>
+</H2>
+
+<P>Ecco, per vostro riferimento, la gerarchia delle classi usata per implementare gli
+oggetti grafici.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GtkObject
+   +GtkData
+   | +GtkAdjustment
+   | `GtkTooltips
+   `GtkWidget
+     +GtkContainer
+     | +GtkBin
+     | | +GtkAlignment
+     | | +GtkEventBox
+     | | +GtkFrame
+     | | | `GtkAspectFrame
+     | | +GtkHandleBox
+     | | +GtkItem
+     | | | +GtkListItem
+     | | | +GtkMenuItem
+     | | | | `GtkCheckMenuItem
+     | | | |   `GtkRadioMenuItem
+     | | | `GtkTreeItem
+     | | +GtkViewport
+     | | `GtkWindow
+     | |   +GtkColorSelectionDialog
+     | |   +GtkDialog
+     | |   | `GtkInputDialog
+     | |   `GtkFileSelection
+     | +GtkBox
+     | | +GtkButtonBox
+     | | | +GtkHButtonBox
+     | | | `GtkVButtonBox
+     | | +GtkHBox
+     | | | +GtkCombo
+     | | | `GtkStatusbar
+     | | `GtkVBox
+     | |   +GtkColorSelection
+     | |   `GtkGammaCurve
+     | +GtkButton
+     | | +GtkOptionMenu
+     | | `GtkToggleButton
+     | |   `GtkCheckButton
+     | |     `GtkRadioButton
+     | +GtkCList
+     | +GtkFixed
+     | +GtkList
+     | +GtkMenuShell
+     | | +GtkMenuBar
+     | | `GtkMenu
+     | +GtkNotebook
+     | +GtkPaned
+     | | +GtkHPaned
+     | | `GtkVPaned
+     | +GtkScrolledWindow
+     | +GtkTable
+     | +GtkToolbar
+     | `GtkTree
+     +GtkDrawingArea
+     | `GtkCurve
+     +GtkEditable
+     | +GtkEntry
+     | | `GtkSpinButton
+     | `GtkText
+     +GtkMisc
+     | +GtkArrow
+     | +GtkImage
+     | +GtkLabel
+     | | `GtkTipsQuery
+     | `GtkPixmap
+     +GtkPreview
+     +GtkProgressBar
+     +GtkRange
+     | +GtkScale
+     | | +GtkHScale
+     | | `GtkVScale
+     | `GtkScrollbar
+     |   +GtkHScrollbar
+     |   `GtkVScrollbar
+     +GtkRuler
+     | +GtkHRuler
+     | `GtkVRuler
+     `GtkSeparator
+       +GtkHSeparator
+       `GtkVSeparator
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss5.3">5.3 Oggetti senza Finestre</A>
+</H2>
+
+<P>Gli oggetti seguenti non hanno una finestra associata. Se volete catturare 
+degli eventi, dovrete usare l'oggetto GtkEventBox. Vedete anche la sezione su
+<A HREF="gtk_tut_it-13.html#sec_The_EventBox_Widget">Il Widget EventBox</A><P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAlignment
+GtkArrow
+GtkBin
+GtkBox
+GtkImage
+GtkItem
+GtkLabel
+GtkPixmap
+GtkScrolledWindow
+GtkSeparator
+GtkTable
+GtkAspectFrame
+GtkFrame
+GtkVBox
+GtkHBox
+GtkVSeparator
+GtkHSeparator
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Proseguiremo la nostra esplorazione di GTK esaminando uno alla volta tutti
+gli oggetti, creando qualche semplice funzione per mostrarli. Un'altra
+buona sorgente &egrave; il programma testgtk.c che viene fornito con GTK. Potete
+trovarlo in gtk/testgtk.c.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-6.html">Avanti</A>
+<A HREF="gtk_tut_it-4.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc5">Indice</A>
+</BODY>
+</HTML>

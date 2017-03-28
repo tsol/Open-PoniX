@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Range Widgets</TITLE>
+ <LINK HREF="gtk_tut-9.html" REL=next>
+ <LINK HREF="gtk_tut-7.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc8" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-9.html">Next</A>
+<A HREF="gtk_tut-7.html">Previous</A>
+<A HREF="gtk_tut.html#toc8">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="sec_Range_Widgets"></A> <A NAME="s8">8. Range Widgets</A></H2>
+
+<P>The category of range widgets includes the ubiquitous scrollbar widget
+and the less common "scale" widget. Though these two types of widgets
+are generally used for different purposes, they are quite similar in
+function and implementation. All range widgets share a set of common
+graphic elements, each of which has its own X window and receives
+events. They all contain a "trough" and a "slider" (what is sometimes
+called a "thumbwheel" in other GUI environments). Dragging the slider
+with the pointer moves it back and forth within the trough, while
+clicking in the trough advances the slider towards the location of the
+click, either completely, or by a designated amount, depending on
+which mouse button is used.
+<P>As mentioned in 
+<A HREF="gtk_tut-7.html#sec_Adjustment">Adjustments</A> above,
+all range widgets are associated with an adjustment object, from which
+they calculate the length of the slider and its position within the
+trough. When the user manipulates the slider, the range widget will
+change the value of the adjustment.
+<P>
+<H2><A NAME="ss8.1">8.1 Scrollbar Widgets</A>
+</H2>
+
+<P>These are your standard, run-of-the-mill scrollbars. These should be
+used only for scrolling some other widget, such as a list, a text box,
+or a viewport (and it's generally easier to use the scrolled window
+widget in most cases).  For other purposes, you should use scale
+widgets, as they are friendlier and more featureful.
+<P>There are separate types for horizontal and vertical scrollbars.
+There really isn't much to say about these. You create them with the
+following functions, defined in <CODE>&lt;gtk/gtkhscrollbar.h&gt;</CODE>
+and <CODE>&lt;gtk/gtkvscrollbar.h&gt;</CODE>:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_hscrollbar_new( GtkAdjustment *adjustment );
+
+GtkWidget *gtk_vscrollbar_new( GtkAdjustment *adjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>and that's about it (if you don't believe me, look in the header
+files!).  The <CODE>adjustment</CODE> argument can either be a pointer to an
+existing Adjustment, or NULL, in which case one will be created for
+you. Specifying NULL might actually be useful in this case, if you
+wish to pass the newly-created adjustment to the constructor function
+of some other widget which will configure it for you, such as a text
+widget.
+<H2><A NAME="ss8.2">8.2 Scale Widgets</A>
+</H2>
+
+<P>Scale widgets are used to allow the user to visually select and
+manipulate a value within a specific range. You might want to use a
+scale widget, for example, to adjust the magnification level on a
+zoomed preview of a picture, or to control the brightness of a color,
+or to specify the number of minutes of inactivity before a screensaver
+takes over the screen.
+<P>
+<H3>Creating a Scale Widget</H3>
+
+<P>As with scrollbars, there are separate widget types for horizontal and
+vertical scale widgets. (Most programmers seem to favour horizontal
+scale widgets.) Since they work essentially the same way, there's no
+need to treat them separately here. The following functions, defined
+in <CODE>&lt;gtk/gtkvscale.h&gt;</CODE> and
+<CODE>&lt;gtk/gtkhscale.h&gt;</CODE>, create vertical and horizontal scale
+widgets, respectively:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_vscale_new( GtkAdjustment *adjustment );
+
+GtkWidget *gtk_hscale_new( GtkAdjustment *adjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>adjustment</CODE> argument can either be an adjustment which has
+already been created with <CODE>gtk_adjustment_new()</CODE>, or <CODE>NULL</CODE>, in
+which case, an anonymous Adjustment is created with all of its
+values set to <CODE>0.0</CODE> (which isn't very useful in this case). In
+order to avoid confusing yourself, you probably want to create your
+adjustment with a <CODE>page_size</CODE> of <CODE>0.0</CODE> so that its <CODE>upper</CODE>
+value actually corresponds to the highest value the user can select.
+(If you're <EM>already</EM> thoroughly confused, read the section on 
+<A HREF="gtk_tut-7.html#sec_Adjustment">Adjustments</A> again for an explanation of
+what exactly adjustments do and how to create and manipulate them.)
+<P>
+<H3>Functions and Signals (well, functions, at least)</H3>
+
+<P>Scale widgets can display their current value as a number beside the
+trough. The default behaviour is to show the value, but you can change
+this with this function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scale_set_draw_value( GtkScale *scale,
+                               gint      draw_value );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you might have guessed, <CODE>draw_value</CODE> is either <CODE>TRUE</CODE> or
+<CODE>FALSE</CODE>, with predictable consequences for either one.
+<P>The value displayed by a scale widget is rounded to one decimal point
+by default, as is the <CODE>value</CODE> field in its GtkAdjustment. You can
+change this with:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scale_set_digits( GtkScale *scale,
+                            gint     digits );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>where <CODE>digits</CODE> is the number of decimal places you want. You can
+set <CODE>digits</CODE> to anything you like, but no more than 13 decimal
+places will actually be drawn on screen.
+<P>Finally, the value can be drawn in different positions
+relative to the trough:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scale_set_value_pos( GtkScale        *scale,
+                              GtkPositionType  pos );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The argument <CODE>pos</CODE> is of type <CODE>GtkPositionType</CODE>, which is
+defined in <CODE>&lt;gtk/gtkenums.h&gt;</CODE>, and can take one of the
+following values:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_POS_LEFT
+  GTK_POS_RIGHT
+  GTK_POS_TOP
+  GTK_POS_BOTTOM
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If you position the value on the "side" of the trough (e.g., on the
+top or bottom of a horizontal scale widget), then it will follow the
+slider up and down the trough.
+<P>All the preceding functions are defined in
+<CODE>&lt;gtk/gtkscale.h&gt;</CODE>. The header files for all GTK widgets
+are automatically included when you include
+<CODE>&lt;gtk/gtk.h&gt;</CODE>. But you should look over the header files
+of all widgets that interest you,
+<P>
+<H2><A NAME="sec_Range_Functions"></A> <A NAME="ss8.3">8.3 Common Range Functions </A>
+</H2>
+
+<P>The Range widget class is fairly complicated internally, but, like
+all the "base class" widgets, most of its complexity is only
+interesting if you want to hack on it. Also, almost all of the
+functions and signals it defines are only really used in writing
+derived widgets. There are, however, a few useful functions that are
+defined in <CODE>&lt;gtk/gtkrange.h&gt;</CODE> and will work on all range
+widgets.
+<P>
+<H3>Setting the Update Policy</H3>
+
+<P>The "update policy" of a range widget defines at what points during
+user interaction it will change the <CODE>value</CODE> field of its
+Adjustment and emit the "value_changed" signal on this
+Adjustment. The update policies, defined in
+<CODE>&lt;gtk/gtkenums.h&gt;</CODE> as type <CODE>enum GtkUpdateType</CODE>,
+are:
+<P>
+<UL>
+<LI>GTK_UPDATE_POLICY_CONTINUOUS - This is the default. The
+"value_changed" signal is emitted continuously, i.e., whenever the
+slider is moved by even the tiniest amount.</LI>
+<LI>GTK_UPDATE_POLICY_DISCONTINUOUS - The "value_changed" signal is
+only emitted once the slider has stopped moving and the user has
+released the mouse button.</LI>
+<LI>GTK_UPDATE_POLICY_DELAYED - The "value_changed" signal is emitted
+when the user releases the mouse button, or if the slider stops moving
+for a short period of time.</LI>
+</UL>
+<P>The update policy of a range widget can be set by casting it using the
+<CODE>GTK_RANGE (Widget)</CODE> macro and passing it to this function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_range_set_update_policy( GtkRange      *range,
+                                  GtkUpdateType  policy) ;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Getting and Setting Adjustments</H3>
+
+<P>Getting and setting the adjustment for a range widget "on the fly" is
+done, predictably, with:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAdjustment* gtk_range_get_adjustment( GtkRange *range );
+
+void gtk_range_set_adjustment( GtkRange      *range,
+                               GtkAdjustment *adjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>gtk_range_get_adjustment()</CODE> returns a pointer to the adjustment to
+which <CODE>range</CODE> is connected.
+<P><CODE>gtk_range_set_adjustment()</CODE> does absolutely nothing if you pass it
+the adjustment that <CODE>range</CODE> is already using, regardless of whether
+you changed any of its fields or not. If you pass it a new
+Adjustment, it will unreference the old one if it exists (possibly
+destroying it), connect the appropriate signals to the new one, and
+call the private function <CODE>gtk_range_adjustment_changed()</CODE>, which
+will (or at least, is supposed to...) recalculate the size and/or
+position of the slider and redraw if necessary. As mentioned in the
+section on adjustments, if you wish to reuse the same Adjustment,
+when you modify its values directly, you should emit the "changed"
+signal on it, like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_emit_by_name (GTK_OBJECT (adjustment), "changed");
+</PRE>
+</CODE></BLOCKQUOTE>
+<H2><A NAME="ss8.4">8.4 Key and Mouse bindings</A>
+</H2>
+
+<P>All of the GTK range widgets react to mouse clicks in more or less
+the same way. Clicking button-1 in the trough will cause its
+adjustment's <CODE>page_increment</CODE> to be added or subtracted from its
+<CODE>value</CODE>, and the slider to be moved accordingly. Clicking mouse
+button-2 in the trough will jump the slider to the point at which the
+button was clicked. Clicking any button on a scrollbar's arrows will
+cause its adjustment's value to change <CODE>step_increment</CODE> at a time.
+<P>It may take a little while to get used to, but by default, scrollbars
+as well as scale widgets can take the keyboard focus in GTK. If you
+think your users will find this too confusing, you can always disable
+this by unsetting the <CODE>GTK_CAN_FOCUS</CODE> flag on the scrollbar, like
+this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GTK_WIDGET_UNSET_FLAGS (scrollbar, GTK_CAN_FOCUS);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The key bindings (which are, of course, only active when the widget
+has focus) are slightly different between horizontal and vertical
+range widgets, for obvious reasons. They are also not quite the same
+for scale widgets as they are for scrollbars, for somewhat less
+obvious reasons (possibly to avoid confusion between the keys for
+horizontal and vertical scrollbars in scrolled windows, where both
+operate on the same area).
+<P>
+<H3>Vertical Range Widgets</H3>
+
+<P>All vertical range widgets can be operated with the up and down arrow
+keys, as well as with the <CODE>Page Up</CODE> and <CODE>Page Down</CODE> keys. The
+arrows move the slider up and down by <CODE>step_increment</CODE>, while
+<CODE>Page Up</CODE> and <CODE>Page Down</CODE> move it by <CODE>page_increment</CODE>.
+<P>The user can also move the slider all the way to one end or the other
+of the trough using the keyboard. With the VScale widget, this is
+done with the <CODE>Home</CODE> and <CODE>End</CODE> keys, whereas with the
+VScrollbar widget, this is done by typing <CODE>Control-Page Up</CODE>
+and <CODE>Control-Page Down</CODE>.
+<P>
+<H3>Horizontal Range Widgets</H3>
+
+<P>The left and right arrow keys work as you might expect in these
+widgets, moving the slider back and forth by <CODE>step_increment</CODE>. The
+<CODE>Home</CODE> and <CODE>End</CODE> keys move the slider to the ends of the trough.
+For the HScale widget, moving the slider by <CODE>page_increment</CODE> is
+accomplished with <CODE>Control-Left</CODE> and <CODE>Control-Right</CODE>,
+while for HScrollbar, it's done with <CODE>Control-Home</CODE> and
+<CODE>Control-End</CODE>.
+<H2><A NAME="sec_Range_Example"></A> <A NAME="ss8.5">8.5 Example</A>
+</H2>
+
+<P>This example is a somewhat modified version of the "range controls"
+test from <CODE>testgtk.c</CODE>. It basically puts up a window with three
+range widgets all connected to the same adjustment, and a couple of
+controls for adjusting some of the parameters mentioned above and in
+the section on adjustments, so you can see how they affect the way
+these widgets work for the user.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start rangewidgets rangewidgets.c */
+
+#include &lt;gtk/gtk.h>
+
+GtkWidget *hscale, *vscale;
+
+void cb_pos_menu_select( GtkWidget       *item,
+                         GtkPositionType  pos )
+{
+    /* Set the value position on both scale widgets */
+    gtk_scale_set_value_pos (GTK_SCALE (hscale), pos);
+    gtk_scale_set_value_pos (GTK_SCALE (vscale), pos);
+}
+
+void cb_update_menu_select( GtkWidget     *item,
+                            GtkUpdateType  policy )
+{
+    /* Set the update policy for both scale widgets */
+    gtk_range_set_update_policy (GTK_RANGE (hscale), policy);
+    gtk_range_set_update_policy (GTK_RANGE (vscale), policy);
+}
+
+void cb_digits_scale( GtkAdjustment *adj )
+{
+    /* Set the number of decimal places to which adj->value is rounded */
+    gtk_scale_set_digits (GTK_SCALE (hscale), (gint) adj->value);
+    gtk_scale_set_digits (GTK_SCALE (vscale), (gint) adj->value);
+}
+
+void cb_page_size( GtkAdjustment *get,
+                   GtkAdjustment *set )
+{
+    /* Set the page size and page increment size of the sample
+     * adjustment to the value specified by the "Page Size" scale */
+    set->page_size = get->value;
+    set->page_increment = get->value;
+    /* Now emit the "changed" signal to reconfigure all the widgets that
+     * are attached to this adjustment */
+    gtk_signal_emit_by_name (GTK_OBJECT (set), "changed");
+}
+
+void cb_draw_value( GtkToggleButton *button )
+{
+    /* Turn the value display on the scale widgets off or on depending
+     *  on the state of the checkbutton */
+    gtk_scale_set_draw_value (GTK_SCALE (hscale), button->active);
+    gtk_scale_set_draw_value (GTK_SCALE (vscale), button->active);  
+}
+
+/* Convenience functions */
+
+GtkWidget *make_menu_item( gchar         *name,
+                           GtkSignalFunc  callback,
+                           gpointer       data )
+{
+    GtkWidget *item;
+  
+    item = gtk_menu_item_new_with_label (name);
+    gtk_signal_connect (GTK_OBJECT (item), "activate",
+                        callback, data);
+    gtk_widget_show (item);
+
+    return(item);
+}
+
+void scale_set_default_values( GtkScale *scale )
+{
+    gtk_range_set_update_policy (GTK_RANGE (scale),
+                                 GTK_UPDATE_CONTINUOUS);
+    gtk_scale_set_digits (scale, 1);
+    gtk_scale_set_value_pos (scale, GTK_POS_TOP);
+    gtk_scale_set_draw_value (scale, TRUE);
+}
+
+/* makes the sample window */
+
+void create_range_controls( void )
+{
+    GtkWidget *window;
+    GtkWidget *box1, *box2, *box3;
+    GtkWidget *button;
+    GtkWidget *scrollbar;
+    GtkWidget *separator;
+    GtkWidget *opt, *menu, *item;
+    GtkWidget *label;
+    GtkWidget *scale;
+    GtkObject *adj1, *adj2;
+
+    /* Standard window-creating stuff */
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC(gtk_main_quit),
+                        NULL);
+    gtk_window_set_title (GTK_WINDOW (window), "range controls");
+
+    box1 = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (window), box1);
+    gtk_widget_show (box1);
+
+    box2 = gtk_hbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    /* value, lower, upper, step_increment, page_increment, page_size */
+    /* Note that the page_size value only makes a difference for
+     * scrollbar widgets, and the highest value you'll get is actually
+     * (upper - page_size). */
+    adj1 = gtk_adjustment_new (0.0, 0.0, 101.0, 0.1, 1.0, 1.0);
+  
+    vscale = gtk_vscale_new (GTK_ADJUSTMENT (adj1));
+    scale_set_default_values (GTK_SCALE (vscale));
+    gtk_box_pack_start (GTK_BOX (box2), vscale, TRUE, TRUE, 0);
+    gtk_widget_show (vscale);
+
+    box3 = gtk_vbox_new (FALSE, 10);
+    gtk_box_pack_start (GTK_BOX (box2), box3, TRUE, TRUE, 0);
+    gtk_widget_show (box3);
+
+    /* Reuse the same adjustment */
+    hscale = gtk_hscale_new (GTK_ADJUSTMENT (adj1));
+    gtk_widget_set_usize (GTK_WIDGET (hscale), 200, 30);
+    scale_set_default_values (GTK_SCALE (hscale));
+    gtk_box_pack_start (GTK_BOX (box3), hscale, TRUE, TRUE, 0);
+    gtk_widget_show (hscale);
+
+    /* Reuse the same adjustment again */
+    scrollbar = gtk_hscrollbar_new (GTK_ADJUSTMENT (adj1));
+    /* Notice how this causes the scales to always be updated
+     * continuously when the scrollbar is moved */
+    gtk_range_set_update_policy (GTK_RANGE (scrollbar), 
+                                 GTK_UPDATE_CONTINUOUS);
+    gtk_box_pack_start (GTK_BOX (box3), scrollbar, TRUE, TRUE, 0);
+    gtk_widget_show (scrollbar);
+
+    box2 = gtk_hbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    /* A checkbutton to control whether the value is displayed or not */
+    button = gtk_check_button_new_with_label("Display value on scale widgets");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+    gtk_signal_connect (GTK_OBJECT (button), "toggled",
+                        GTK_SIGNAL_FUNC(cb_draw_value), NULL);
+    gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+    gtk_widget_show (button);
+  
+    box2 = gtk_hbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+
+    /* An option menu to change the position of the value */
+    label = gtk_label_new ("Scale Value Position:");
+    gtk_box_pack_start (GTK_BOX (box2), label, FALSE, FALSE, 0);
+    gtk_widget_show (label);
+  
+    opt = gtk_option_menu_new();
+    menu = gtk_menu_new();
+
+    item = make_menu_item ("Top",
+                           GTK_SIGNAL_FUNC(cb_pos_menu_select),
+                           GINT_TO_POINTER (GTK_POS_TOP));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    item = make_menu_item ("Bottom", GTK_SIGNAL_FUNC (cb_pos_menu_select), 
+                           GINT_TO_POINTER (GTK_POS_BOTTOM));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    item = make_menu_item ("Left", GTK_SIGNAL_FUNC (cb_pos_menu_select),
+                           GINT_TO_POINTER (GTK_POS_LEFT));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    item = make_menu_item ("Right", GTK_SIGNAL_FUNC (cb_pos_menu_select),
+                            GINT_TO_POINTER (GTK_POS_RIGHT));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    gtk_option_menu_set_menu (GTK_OPTION_MENU (opt), menu);
+    gtk_box_pack_start (GTK_BOX (box2), opt, TRUE, TRUE, 0);
+    gtk_widget_show (opt);
+
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    box2 = gtk_hbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+
+    /* Yet another option menu, this time for the update policy of the
+     * scale widgets */
+    label = gtk_label_new ("Scale Update Policy:");
+    gtk_box_pack_start (GTK_BOX (box2), label, FALSE, FALSE, 0);
+    gtk_widget_show (label);
+  
+    opt = gtk_option_menu_new();
+    menu = gtk_menu_new();
+  
+    item = make_menu_item ("Continuous",
+                           GTK_SIGNAL_FUNC (cb_update_menu_select),
+                           GINT_TO_POINTER (GTK_UPDATE_CONTINUOUS));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    item = make_menu_item ("Discontinuous",
+                            GTK_SIGNAL_FUNC (cb_update_menu_select),
+                            GINT_TO_POINTER (GTK_UPDATE_DISCONTINUOUS));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    item = make_menu_item ("Delayed",
+                           GTK_SIGNAL_FUNC (cb_update_menu_select),
+                           GINT_TO_POINTER (GTK_UPDATE_DELAYED));
+    gtk_menu_append (GTK_MENU (menu), item);
+  
+    gtk_option_menu_set_menu (GTK_OPTION_MENU (opt), menu);
+    gtk_box_pack_start (GTK_BOX (box2), opt, TRUE, TRUE, 0);
+    gtk_widget_show (opt);
+  
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    box2 = gtk_hbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+  
+    /* An HScale widget for adjusting the number of digits on the
+     * sample scales. */
+    label = gtk_label_new ("Scale Digits:");
+    gtk_box_pack_start (GTK_BOX (box2), label, FALSE, FALSE, 0);
+    gtk_widget_show (label);
+
+    adj2 = gtk_adjustment_new (1.0, 0.0, 5.0, 1.0, 1.0, 0.0);
+    gtk_signal_connect (GTK_OBJECT (adj2), "value_changed",
+                        GTK_SIGNAL_FUNC (cb_digits_scale), NULL);
+    scale = gtk_hscale_new (GTK_ADJUSTMENT (adj2));
+    gtk_scale_set_digits (GTK_SCALE (scale), 0);
+    gtk_box_pack_start (GTK_BOX (box2), scale, TRUE, TRUE, 0);
+    gtk_widget_show (scale);
+
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+  
+    box2 = gtk_hbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+  
+    /* And, one last HScale widget for adjusting the page size of the
+     * scrollbar. */
+    label = gtk_label_new ("Scrollbar Page Size:");
+    gtk_box_pack_start (GTK_BOX (box2), label, FALSE, FALSE, 0);
+    gtk_widget_show (label);
+
+    adj2 = gtk_adjustment_new (1.0, 1.0, 101.0, 1.0, 1.0, 0.0);
+    gtk_signal_connect (GTK_OBJECT (adj2), "value_changed",
+                        GTK_SIGNAL_FUNC (cb_page_size), adj1);
+    scale = gtk_hscale_new (GTK_ADJUSTMENT (adj2));
+    gtk_scale_set_digits (GTK_SCALE (scale), 0);
+    gtk_box_pack_start (GTK_BOX (box2), scale, TRUE, TRUE, 0);
+    gtk_widget_show (scale);
+
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    separator = gtk_hseparator_new ();
+    gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 0);
+    gtk_widget_show (separator);
+
+    box2 = gtk_vbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+    gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    button = gtk_button_new_with_label ("Quit");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC(gtk_main_quit),
+                               NULL);
+    gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_widget_grab_default (button);
+    gtk_widget_show (button);
+
+    gtk_widget_show (window);
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+    gtk_init(&amp;argc, &amp;argv);
+
+    create_range_controls();
+
+    gtk_main();
+
+    return(0);
+}
+
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You will notice that the program does not call <CODE>gtk_signal_connect</CODE>
+for the "delete_event", but only for the "destroy" signal. This will
+still perform the desired function, because an unhandled
+"delete_event" will result in a "destroy" signal being given to the
+window.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-9.html">Next</A>
+<A HREF="gtk_tut-7.html">Previous</A>
+<A HREF="gtk_tut.html#toc8">Contents</A>
+</BODY>
+</HTML>

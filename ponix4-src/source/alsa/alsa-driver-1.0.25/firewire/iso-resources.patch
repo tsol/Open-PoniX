@@ -1,0 +1,83 @@
+--- ../alsa-kernel/firewire/iso-resources.c	2011-06-02 19:52:48.422892370 +0200
++++ iso-resources.c	2011-06-03 16:39:40.959834893 +0200
+@@ -1,3 +1,8 @@
++#define __NO_VERSION__
++#include "adriver.h"
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 39)
++#include "iso-resources-old.h"
++#endif
+ /*
+  * isochronous resources helper functions
+  *
+@@ -11,6 +16,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/mutex.h>
+ #include <linux/sched.h>
++#include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include "iso-resources.h"
+ 
+@@ -24,6 +30,11 @@
+  */
+ int fw_iso_resources_init(struct fw_iso_resources *r, struct fw_unit *unit)
+ {
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 39)
++	r->buffer = kmalloc(2 * 4, GFP_KERNEL);
++	if (!r->buffer)
++		return -ENOMEM;
++#endif
+ 	r->channels_mask = ~0uLL;
+ 	r->unit = fw_unit_get(unit);
+ 	mutex_init(&r->mutex);
+@@ -40,6 +51,9 @@
+ void fw_iso_resources_destroy(struct fw_iso_resources *r)
+ {
+ 	WARN_ON(r->allocated);
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 39)
++	kfree(r->buffer);
++#endif
+ 	mutex_destroy(&r->mutex);
+ 	fw_unit_put(r->unit);
+ }
+@@ -126,8 +140,13 @@
+ 	mutex_lock(&r->mutex);
+ 
+ 	bandwidth = r->bandwidth + r->bandwidth_overhead;
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39)
+ 	fw_iso_resource_manage(card, r->generation, r->channels_mask,
+ 			       &channel, &bandwidth, true);
++#else
++	fw_iso_resource_manage(card, r->generation, r->channels_mask,
++			       &channel, &bandwidth, true, r->buffer);
++#endif
+ 	if (channel == -EAGAIN) {
+ 		mutex_unlock(&r->mutex);
+ 		goto retry_after_bus_reset;
+@@ -180,8 +199,13 @@
+ 
+ 	bandwidth = r->bandwidth + r->bandwidth_overhead;
+ 
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39)
+ 	fw_iso_resource_manage(card, r->generation, 1uLL << r->channel,
+ 			       &channel, &bandwidth, true);
++#else
++	fw_iso_resource_manage(card, r->generation, 1uLL << r->channel,
++			       &channel, &bandwidth, true, r->buffer);
++#endif
+ 	/*
+ 	 * When another bus reset happens, pretend that the allocation
+ 	 * succeeded; we will try again for the new generation later.
+@@ -217,8 +241,13 @@
+ 
+ 	if (r->allocated) {
+ 		bandwidth = r->bandwidth + r->bandwidth_overhead;
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39)
+ 		fw_iso_resource_manage(card, r->generation, 1uLL << r->channel,
+ 				       &channel, &bandwidth, false);
++#else
++		fw_iso_resource_manage(card, r->generation, 1uLL << r->channel,
++				       &channel, &bandwidth, false, r->buffer);
++#endif
+ 		if (channel < 0)
+ 			dev_err(&r->unit->device,
+ 				"isochronous resource deallocation failed\n");

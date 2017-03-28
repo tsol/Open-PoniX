@@ -1,0 +1,878 @@
+<refentry id="GtkObject">
+<refmeta>
+<refentrytitle>GtkObject</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkObject</refname><refpurpose>The base class of the GTK+ type hierarchy.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkObject-struct">GtkObject</link>;
+#define     <link linkend="GTK-OBJECT-TYPE-CAPS">GTK_OBJECT_TYPE</link>                 (object)
+#define     <link linkend="GTK-OBJECT-TYPE-NAME-CAPS">GTK_OBJECT_TYPE_NAME</link>            (object)
+enum        <link linkend="GtkObjectFlags">GtkObjectFlags</link>;
+#define     <link linkend="GTK-OBJECT-FLAGS-CAPS">GTK_OBJECT_FLAGS</link>                (obj)
+#define     <link linkend="GTK-OBJECT-FLOATING-CAPS">GTK_OBJECT_FLOATING</link>             (obj)
+enum        <link linkend="GtkArgFlags">GtkArgFlags</link>;
+<link linkend="GtkObject">GtkObject</link>*  <link linkend="gtk-object-new">gtk_object_new</link>                  (<link linkend="GtkType">GtkType</link> type,
+                                             const <link linkend="gchar">gchar</link> *first_property_name,
+                                             ...);
+<link linkend="void">void</link>        <link linkend="gtk-object-sink">gtk_object_sink</link>                 (<link linkend="GtkObject">GtkObject</link> *object);
+<link linkend="GtkObject">GtkObject</link>*  <link linkend="gtk-object-ref">gtk_object_ref</link>                  (<link linkend="GtkObject">GtkObject</link> *object);
+<link linkend="void">void</link>        <link linkend="gtk-object-unref">gtk_object_unref</link>                (<link linkend="GtkObject">GtkObject</link> *object);
+<link linkend="void">void</link>        <link linkend="gtk-object-weakref">gtk_object_weakref</link>              (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> notify,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-object-weakunref">gtk_object_weakunref</link>            (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> notify,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-object-destroy">gtk_object_destroy</link>              (<link linkend="GtkObject">GtkObject</link> *object);
+<link linkend="void">void</link>        <link linkend="gtk-object-get">gtk_object_get</link>                  (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *first_property_name,
+                                             ...);
+<link linkend="void">void</link>        <link linkend="gtk-object-set">gtk_object_set</link>                  (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *first_property_name,
+                                             ...);
+<link linkend="void">void</link>        <link linkend="gtk-object-set-data">gtk_object_set_data</link>             (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-object-set-data-full">gtk_object_set_data_full</link>        (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-object-remove-data">gtk_object_remove_data</link>          (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-object-get-data">gtk_object_get_data</link>             (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key);
+<link linkend="void">void</link>        <link linkend="gtk-object-remove-no-notify">gtk_object_remove_no_notify</link>     (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key);
+<link linkend="void">void</link>        <link linkend="gtk-object-set-user-data">gtk_object_set_user_data</link>        (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-object-get-user-data">gtk_object_get_user_data</link>        (<link linkend="GtkObject">GtkObject</link> *object);
+<link linkend="void">void</link>        <link linkend="gtk-object-add-arg-type">gtk_object_add_arg_type</link>         (const <link linkend="gchar">gchar</link> *arg_name,
+                                             <link linkend="GtkType">GtkType</link> arg_type,
+                                             <link linkend="guint">guint</link> arg_flags,
+                                             <link linkend="guint">guint</link> arg_id);
+<link linkend="void">void</link>        <link linkend="gtk-object-set-data-by-id">gtk_object_set_data_by_id</link>       (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-object-set-data-by-id-full">gtk_object_set_data_by_id_full</link>  (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-object-get-data-by-id">gtk_object_get_data_by_id</link>       (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id);
+<link linkend="void">void</link>        <link linkend="gtk-object-remove-data-by-id">gtk_object_remove_data_by_id</link>    (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id);
+<link linkend="void">void</link>        <link linkend="gtk-object-remove-no-notify-by-id">gtk_object_remove_no_notify_by_id</link>
+                                            (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> key_id);
+#define     <link linkend="gtk-object-data-try-key">gtk_object_data_try_key</link>
+#define     <link linkend="gtk-object-data-force-id">gtk_object_data_force_id</link>
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GtkObject
+         +----<link linkend="GtkWidget">GtkWidget</link>
+         +----<link linkend="GtkAdjustment">GtkAdjustment</link>
+         +----<link linkend="GtkCellRenderer">GtkCellRenderer</link>
+         +----<link linkend="GtkFileFilter">GtkFileFilter</link>
+         +----<link linkend="GtkItemFactory">GtkItemFactory</link>
+         +----<link linkend="GtkTooltips">GtkTooltips</link>
+         +----<link linkend="GtkTreeViewColumn">GtkTreeViewColumn</link>
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkObject--user-data">user-data</link>&quot;            <link linkend="gpointer">gpointer</link>             : Read / Write
+</synopsis>
+</refsect1>
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkObject-destroy">destroy</link>&quot;   <link linkend="void">void</link>        user_function      (<link linkend="GtkObject">GtkObject</link> *object,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<refsect2>
+<title>Description</title>
+<para>
+<link linkend="GtkObject"><type>GtkObject</type></link> is the base class for all widgets, and for a few 
+non-widget objects such as <link linkend="GtkAdjustment"><type>GtkAdjustment</type></link>. <link linkend="GtkObject"><type>GtkObject</type></link> predates 
+<link linkend="GObject"><type>GObject</type></link>; non-widgets that derive from <link linkend="GtkObject"><type>GtkObject</type></link> rather than 
+<link linkend="GObject"><type>GObject</type></link> do so for backward compatibility reasons.
+</para>
+<para>
+The most interesting difference between <link linkend="GtkObject"><type>GtkObject</type></link> and <link linkend="GObject"><type>GObject</type></link> is the
+"floating" reference count. A <link linkend="GObject"><type>GObject</type></link> is created with a reference count of 1,
+owned by the creator of the <link linkend="GObject"><type>GObject</type></link>. (The owner of a reference is the code
+section that has the right to call <link linkend="g-object-unref"><function>g_object_unref()</function></link> in order to remove that
+reference.)  A <link linkend="GtkObject"><type>GtkObject</type></link> is created with a reference count of 1 also, but it
+isn't owned by anyone; calling <link linkend="g-object-unref"><function>g_object_unref()</function></link> on the newly-created <link linkend="GtkObject"><type>GtkObject</type></link>
+is incorrect. Instead, the initial reference count of a <link linkend="GtkObject"><type>GtkObject</type></link> is "floating". 
+The floating reference can be removed by anyone at any time, by calling
+<link linkend="gtk-object-sink"><function>gtk_object_sink()</function></link>. <link linkend="gtk-object-sink"><function>gtk_object_sink()</function></link> does nothing if an object is already 
+sunk (has no floating reference).
+</para>
+<para>
+When you add a widget to its parent container, the parent container
+will do this:
+<informalexample><programlisting>
+  g_object_ref (G_OBJECT (child_widget));
+  gtk_object_sink (GTK_OBJECT (child_widget));
+</programlisting></informalexample>
+This means that the container now owns a reference to the child widget (since 
+it called <link linkend="g-object-ref"><function>g_object_ref()</function></link>), and the child widget has no floating reference.
+</para>
+<para>
+The purpose of the floating reference is to keep the child widget alive 
+until you add it to a parent container:
+<informalexample><programlisting>
+   button = gtk_button_new (<!-- -->);
+   /* button has one floating reference to keep it alive */
+   gtk_container_add (GTK_CONTAINER (container), button);
+   /* button has one non-floating reference owned by the container */
+</programlisting></informalexample>
+</para>
+<para>
+<link linkend="GtkWindow"><type>GtkWindow</type></link> is a special case, because GTK+ itself will ref/sink it on creation. 
+That is, after calling <link linkend="gtk-window-new"><function>gtk_window_new()</function></link>, the <link linkend="GtkWindow"><type>GtkWindow</type></link> will have one 
+reference which is owned by GTK+, and no floating references.
+</para>
+
+<para>
+One more factor comes into play: the "destroy" signal, emitted by the
+<link linkend="gtk-object-destroy"><function>gtk_object_destroy()</function></link> method. The "destroy" signal asks all code owning a
+reference to an object to release said reference. So, for example, if you call
+<link linkend="gtk-object-destroy"><function>gtk_object_destroy()</function></link> on a <link linkend="GtkWindow"><type>GtkWindow</type></link>, GTK+ will release the reference count that
+it owns; if you call <link linkend="gtk-object-destroy"><function>gtk_object_destroy()</function></link> on a <link linkend="GtkButton"><type>GtkButton</type></link>, then the button will
+be removed from its parent container and the parent container will release its
+reference to the button.  Because these references are released, calling
+<link linkend="gtk-object-destroy"><function>gtk_object_destroy()</function></link> should result in freeing all memory associated with an
+object, unless some buggy code fails to release its references in response to
+the "destroy" signal. Freeing memory (referred to as
+<firstterm>finalization</firstterm> only happens if the reference count reaches
+zero.
+</para>
+
+<para>
+Some simple rules for handling <link linkend="GtkObject"><type>GtkObject</type></link>:
+<itemizedlist>
+<listitem><para>
+Never call <link linkend="g-object-unref"><function>g_object_unref()</function></link> unless you have previously called <link linkend="g-object-ref"><function>g_object_ref()</function></link>, 
+even if you created the <link linkend="GtkObject"><type>GtkObject</type></link>. (Note: this is <emphasis>not</emphasis>
+true for <link linkend="GObject"><type>GObject</type></link>; for <link linkend="GObject"><type>GObject</type></link>, the creator of the object owns a reference.)
+</para></listitem>
+<listitem><para>
+Call <link linkend="gtk-object-destroy"><function>gtk_object_destroy()</function></link> to get rid of most objects in most cases. 
+In particular, widgets are almost always destroyed in this way.
+</para></listitem>
+<listitem><para> Because of the floating reference count, you don't need to
+worry about reference counting for widgets and toplevel windows, unless you
+explicitly call <link linkend="g-object-ref"><function>g_object_ref()</function></link> yourself.</para></listitem>
+</itemizedlist>
+</para>
+
+</refsect2>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkObject-struct"/>struct GtkObject</title>
+<indexterm><primary>GtkObject</primary></indexterm><programlisting>struct GtkObject;</programlisting>
+<para>
+The object itself.  You should never use these members directly -
+ use the accessing macros instead.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-OBJECT-TYPE-CAPS"/>GTK_OBJECT_TYPE()</title>
+<indexterm><primary>GTK_OBJECT_TYPE</primary></indexterm><programlisting>#define GTK_OBJECT_TYPE(object)		  (G_TYPE_FROM_INSTANCE (object))
+</programlisting>
+<para>
+Gets the type of an object.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkObject"><type>GtkObject</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-OBJECT-TYPE-NAME-CAPS"/>GTK_OBJECT_TYPE_NAME()</title>
+<indexterm><primary>GTK_OBJECT_TYPE_NAME</primary></indexterm><programlisting>#define GTK_OBJECT_TYPE_NAME(object)	  (g_type_name (GTK_OBJECT_TYPE (object)))
+</programlisting>
+<para>
+Gets the name of an objects type.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkObject"><type>GtkObject</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkObjectFlags"/>enum GtkObjectFlags</title>
+<indexterm><primary>GtkObjectFlags</primary></indexterm><programlisting>typedef enum
+{
+  GTK_IN_DESTRUCTION	= 1 &lt;&lt; 0, /* Used internally during dispose */
+  GTK_FLOATING		= 1 &lt;&lt; 1,
+  GTK_RESERVED_1	= 1 &lt;&lt; 2,
+  GTK_RESERVED_2	= 1 &lt;&lt; 3
+} GtkObjectFlags;
+</programlisting>
+<para>
+Tells about the state of the object.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GTK_IN_DESTRUCTION</literal></term>
+<listitem><simpara>the object is currently being destroyed. This is used 
+  internally by GTK+ to prevent reinvokations during destruction.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_FLOATING</literal></term>
+<listitem><simpara>the object is orphaned.  Objects that take strong hold of an 
+  object may <link linkend="gtk-object-sink"><function>gtk_object_sink()</function></link> it, after obtaining their own references, if 
+  they believe they are nearly primary ownership of the object.
+GTK_CONNECTED: signals are connected to this object.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_RESERVED_1</literal></term>
+<listitem><simpara>reserved for future use
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_RESERVED_2</literal></term>
+<listitem><simpara>reserved for future use
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-OBJECT-FLAGS-CAPS"/>GTK_OBJECT_FLAGS()</title>
+<indexterm><primary>GTK_OBJECT_FLAGS</primary></indexterm><programlisting>#define GTK_OBJECT_FLAGS(obj)		  (GTK_OBJECT (obj)-&gt;flags)
+</programlisting>
+<para>
+Gets the <link linkend="GtkObjectFlags"><type>GtkObjectFlags</type></link> for an object without directly
+accessing its members.
+</para><variablelist role="params">
+<varlistentry><term><parameter>obj</parameter>&nbsp;:</term>
+<listitem><simpara>the object whose flags are returned.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-OBJECT-FLOATING-CAPS"/>GTK_OBJECT_FLOATING()</title>
+<indexterm><primary>GTK_OBJECT_FLOATING</primary></indexterm><programlisting>#define GTK_OBJECT_FLOATING(obj)	  ((GTK_OBJECT_FLAGS (obj) &amp; GTK_FLOATING) != 0)
+</programlisting>
+<para>
+Evaluates to <literal>TRUE</literal> if the object still has its floating reference count.
+See the overview documentation for <link linkend="GtkObject"><type>GtkObject</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>obj</parameter>&nbsp;:</term>
+<listitem><simpara>the object to examine.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkArgFlags"/>enum GtkArgFlags</title>
+<indexterm><primary>GtkArgFlags</primary></indexterm><programlisting>typedef enum
+{
+  GTK_ARG_READABLE	 = G_PARAM_READABLE,
+  GTK_ARG_WRITABLE	 = G_PARAM_WRITABLE,
+  GTK_ARG_CONSTRUCT	 = G_PARAM_CONSTRUCT,
+  GTK_ARG_CONSTRUCT_ONLY = G_PARAM_CONSTRUCT_ONLY,
+  GTK_ARG_CHILD_ARG	 = 1 &lt;&lt; 4
+} GtkArgFlags;
+</programlisting>
+<warning><para><literal>GtkArgFlags</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Possible flags indicating how an argument should be treated.
+Deprecated in favor of <link linkend="GParamSpec"><type>GParamSpec</type></link> features.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GTK_ARG_READABLE</literal></term>
+<listitem><simpara>the argument is readable. (i.e. can be queried)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_ARG_WRITABLE</literal></term>
+<listitem><simpara>the argument is writable. (i.e. settable)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_ARG_CONSTRUCT</literal></term>
+<listitem><simpara>the argument needs construction.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_ARG_CONSTRUCT_ONLY</literal></term>
+<listitem><simpara>the argument needs construction (and will
+be set once during object creation), but is otherwise cannot be
+set.  Hence this flag is not allowed with <link linkend="GTK-ARG-WRITABLE-CAPS"><type>GTK_ARG_WRITABLE</type></link>,
+and is redundant with <link linkend="GTK-ARG-CONSTRUCT-CAPS"><type>GTK_ARG_CONSTRUCT</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GTK_ARG_CHILD_ARG</literal></term>
+<listitem><simpara>an argument type that applies to (and may be different for)
+each child.  Used by <link linkend="GtkContainer"><type>GtkContainer</type></link>.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-new"/>gtk_object_new ()</title>
+<indexterm><primary>gtk_object_new</primary></indexterm><programlisting><link linkend="GtkObject">GtkObject</link>*  gtk_object_new                  (<link linkend="GtkType">GtkType</link> type,
+                                             const <link linkend="gchar">gchar</link> *first_property_name,
+                                             ...);</programlisting>
+<warning><para><literal>gtk_object_new</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-new"><function>g_object_new()</function></link> instead.</para></warning>
+<para>
+Constructs an object given its arguments, enumerated in the call to the
+function.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the type identifying this object.  Returned by <link linkend="gtk-type-unique"><function>gtk_type_unique()</function></link>
+(although for a properly-written object it should be accessible through
+a <link linkend="GTK-TYPE-FOO-CAPS"><type>GTK_TYPE_FOO</type></link> macro.)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>first_property_name</parameter>&nbsp;:</term>
+<listitem><simpara>name of the first property to set when constructing
+   the object.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara>the first argument's value, followed by any number of
+name/argument-value pairs, terminated with <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the new <link linkend="GtkObject"><type>GtkObject</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-sink"/>gtk_object_sink ()</title>
+<indexterm><primary>gtk_object_sink</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_sink                 (<link linkend="GtkObject">GtkObject</link> *object);</programlisting>
+<para>
+Removes the floating reference from a <link linkend="GtkObject"><type>GtkObject</type></link>, if it exists; 
+otherwise does nothing. See the <link linkend="GtkObject"><type>GtkObject</type></link> overview documentation at 
+the top of the page.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object to sink.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-ref"/>gtk_object_ref ()</title>
+<indexterm><primary>gtk_object_ref</primary></indexterm><programlisting><link linkend="GtkObject">GtkObject</link>*  gtk_object_ref                  (<link linkend="GtkObject">GtkObject</link> *object);</programlisting>
+<warning><para><literal>gtk_object_ref</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-ref"><function>g_object_ref()</function></link> instead.</para></warning>
+<para>
+Increases the reference count of the object.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object to reference.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><parameter>object</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-unref"/>gtk_object_unref ()</title>
+<indexterm><primary>gtk_object_unref</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_unref                (<link linkend="GtkObject">GtkObject</link> *object);</programlisting>
+<warning><para><literal>gtk_object_unref</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-unref"><function>g_object_unref()</function></link> instead.</para></warning>
+<para>
+Decreases the reference count of an object.  When its reference count drops 
+to 0, the object is finalized (i.e. its memory is freed).  
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object to dereference.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-weakref"/>gtk_object_weakref ()</title>
+<indexterm><primary>gtk_object_weakref</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_weakref              (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> notify,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_object_weakref</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-weak-ref"><function>g_object_weak_ref()</function></link> instead.</para></warning>
+<para>
+Adds a weak reference callback to an object. Weak references are used for notification when an object is
+finalized. They are called "weak references" because they allow you to safely
+hold a pointer to an object without calling <link linkend="g-object-ref"><function>g_object_ref()</function></link> (<link linkend="g-object-ref"><function>g_object_ref()</function></link> adds
+a strong reference, that is, forces the object to stay alive).
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object to weakly reference.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>notify</parameter>&nbsp;:</term>
+<listitem><simpara>callback to invoke before the object is freed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>extra data to pass to <link linkend="notify"><type>notify</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-weakunref"/>gtk_object_weakunref ()</title>
+<indexterm><primary>gtk_object_weakunref</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_weakunref            (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> notify,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_object_weakunref</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-weak-unref"><function>g_object_weak_unref()</function></link> instead.</para></warning>
+<para>
+Removes a weak reference callback to an object.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object stop weakly referencing.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>notify</parameter>&nbsp;:</term>
+<listitem><simpara>callback to search for.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>data to search for.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-destroy"/>gtk_object_destroy ()</title>
+<indexterm><primary>gtk_object_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_destroy              (<link linkend="GtkObject">GtkObject</link> *object);</programlisting>
+<para>
+Emits the "destroy" signal notifying all reference holders that they should
+release the <link linkend="GtkObject"><type>GtkObject</type></link>. See the overview documentation at the top of the 
+page for more details.
+</para>
+<para>
+The memory for the object itself won't be deleted until
+its reference count actually drops to 0; <link linkend="gtk-object-destroy"><function>gtk_object_destroy()</function></link> merely asks 
+reference holders to release their references, it does not free the object.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object to destroy.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-get"/>gtk_object_get ()</title>
+<indexterm><primary>gtk_object_get</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_get                  (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *first_property_name,
+                                             ...);</programlisting>
+<warning><para><literal>gtk_object_get</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-get"><function>g_object_get()</function></link> instead.</para></warning>
+<para>
+Gets properties of an object. 
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkObject"><type>GtkObject</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>first_property_name</parameter>&nbsp;:</term>
+<listitem><simpara>name of first property to get the value for.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara><literal>NULL</literal>-terminated list of name-return location pairs.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-set"/>gtk_object_set ()</title>
+<indexterm><primary>gtk_object_set</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_set                  (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *first_property_name,
+                                             ...);</programlisting>
+<warning><para><literal>gtk_object_set</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set"><function>g_object_set()</function></link> instead.</para></warning>
+<para>
+Sets properties on an object. 
+</para>
+<para>
+<informalexample>
+<programlisting>
+void set_box_properties (GtkBox* box)
+{
+  gtk_object_set (GTK_OBJECT (box), "homogeneous", TRUE,
+                                    "spacing", 8,
+				    NULL);
+}
+</programlisting>
+</informalexample>
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkObject"><type>GtkObject</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>first_property_name</parameter>&nbsp;:</term>
+<listitem><simpara>name of the first property to set
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara>the value of the first argument, followed optionally
+by more name/value pairs, followed by <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-set-data"/>gtk_object_set_data ()</title>
+<indexterm><primary>gtk_object_set_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_set_data             (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_object_set_data</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-data"><function>g_object_set_data()</function></link> instead.</para></warning>
+<para>
+Each object carries around a table of associations from
+strings to pointers.  This function lets you set an association.
+</para>
+<para>
+If the object already had an association with that name,
+the old association will be destroyed.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara>name of the key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>data to associate with that key.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-set-data-full"/>gtk_object_set_data_full ()</title>
+<indexterm><primary>gtk_object_set_data_full</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_set_data_full        (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<warning><para><literal>gtk_object_set_data_full</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-data-full"><function>g_object_set_data_full()</function></link> instead.</para></warning>
+<para>
+Like <link linkend="gtk-object-set-data"><function>gtk_object_set_data()</function></link> except it adds notification
+for when the association is destroyed, either by
+<link linkend="gtk-object-remove-data"><function>gtk_object_remove_data()</function></link> or when the object is destroyed.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara>name of the key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>data to associate with that key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>function to call when the association is destroyed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-remove-data"/>gtk_object_remove_data ()</title>
+<indexterm><primary>gtk_object_remove_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_remove_data          (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key);</programlisting>
+<warning><para><literal>gtk_object_remove_data</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-data"><function>g_object_set_data()</function></link> to set the object data to <literal>NULL</literal> instead.</para></warning>
+<para>
+Removes a specified datum from the object's data associations (the object_data).
+Subsequent calls to <link linkend="gtk-object-get-data"><function>gtk_object_get_data()</function></link> will return <literal>NULL</literal>.
+</para>
+<para>
+If you specified a destroy handler with <link linkend="gtk-object-set-data-full"><function>gtk_object_set_data_full()</function></link>,
+it will be invoked.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object maintaining the association.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara>name of the key for that association.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-get-data"/>gtk_object_get_data ()</title>
+<indexterm><primary>gtk_object_get_data</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_object_get_data             (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key);</programlisting>
+<warning><para><literal>gtk_object_get_data</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-get-data"><function>g_object_get_data()</function></link> instead.</para></warning>
+<para>
+Get a named field from the object's table of associations (the object_data).
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object maintaining the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara>name of the key for that association.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the data if found, or <literal>NULL</literal> if no such data exists.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-remove-no-notify"/>gtk_object_remove_no_notify ()</title>
+<indexterm><primary>gtk_object_remove_no_notify</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_remove_no_notify     (<link linkend="GtkObject">GtkObject</link> *object,
+                                             const <link linkend="gchar">gchar</link> *key);</programlisting>
+<warning><para><literal>gtk_object_remove_no_notify</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-steal-data"><function>g_object_steal_data()</function></link> instead.</para></warning>
+<para>
+Remove a specified datum from the object's data associations (the object_data),
+without invoking the association's destroy handler.
+</para>
+<para>
+Just like <link linkend="gtk-object-remove-data"><function>gtk_object_remove_data()</function></link> except that any destroy handler
+will be ignored.
+Therefore this only affects data set using <link linkend="gtk-object-set-data-full"><function>gtk_object_set_data_full()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object maintaining the association.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key</parameter>&nbsp;:</term>
+<listitem><simpara>name of the key for that association.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-set-user-data"/>gtk_object_set_user_data ()</title>
+<indexterm><primary>gtk_object_set_user_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_set_user_data        (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_object_set_user_data</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-data"><function>g_object_set_data()</function></link> instead.</para></warning>
+<para>
+For convenience, every object offers a generic user data
+pointer.  This function sets it.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object whose user data should be set.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>the new value for the user data.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-get-user-data"/>gtk_object_get_user_data ()</title>
+<indexterm><primary>gtk_object_get_user_data</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_object_get_user_data        (<link linkend="GtkObject">GtkObject</link> *object);</programlisting>
+<warning><para><literal>gtk_object_get_user_data</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-get-data"><function>g_object_get_data()</function></link> instead.</para></warning>
+<para>
+Get the object's user data pointer.
+</para>
+<para>
+This is intended to be a pointer for your convenience in
+writing applications.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the user data field for object.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-add-arg-type"/>gtk_object_add_arg_type ()</title>
+<indexterm><primary>gtk_object_add_arg_type</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_add_arg_type         (const <link linkend="gchar">gchar</link> *arg_name,
+                                             <link linkend="GtkType">GtkType</link> arg_type,
+                                             <link linkend="guint">guint</link> arg_flags,
+                                             <link linkend="guint">guint</link> arg_id);</programlisting>
+<warning><para><literal>gtk_object_add_arg_type</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated in favor of the <link linkend="GObject"><type>GObject</type></link> property system including <link linkend="GParamSpec"><type>GParamSpec</type></link>.
+Add a new type of argument to an object class.
+Usually this is called when registering a new type of object.
+</para><variablelist role="params">
+<varlistentry><term><parameter>arg_name</parameter>&nbsp;:</term>
+<listitem><simpara>fully qualify object name, for example GtkObject::user_data.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg_type</parameter>&nbsp;:</term>
+<listitem><simpara>type of the argument.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg_flags</parameter>&nbsp;:</term>
+<listitem><simpara>bitwise-OR of the <link linkend="GtkArgFlags"><type>GtkArgFlags</type></link> enum.  (Whether the argument is
+settable or gettable, whether it is set when the object is constructed.)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg_id</parameter>&nbsp;:</term>
+<listitem><simpara>an internal number, passed in from here to the "set_arg" and
+"get_arg" handlers of the object.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-set-data-by-id"/>gtk_object_set_data_by_id ()</title>
+<indexterm><primary>gtk_object_set_data_by_id</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_set_data_by_id       (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_object_set_data_by_id</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-qdata"><function>g_object_set_qdata()</function></link> instead.</para></warning>
+<para>
+Just like <link linkend="gtk-object-set-data"><function>gtk_object_set_data()</function></link> except that it takes
+a <link linkend="GQuark"><type>GQuark</type></link> instead of a string, so it is slightly faster.
+</para>
+<para>
+Use <link linkend="gtk-object-data-try-key"><function>gtk_object_data_try_key()</function></link> and <link linkend="gtk-object-data-force-id"><function>gtk_object_data_force_id()</function></link>
+to get an id from a string.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data_id</parameter>&nbsp;:</term>
+<listitem><simpara>quark of the key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>data to associate with that key.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-set-data-by-id-full"/>gtk_object_set_data_by_id_full ()</title>
+<indexterm><primary>gtk_object_set_data_by_id_full</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_set_data_by_id_full  (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<warning><para><literal>gtk_object_set_data_by_id_full</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-qdata-full"><function>g_object_set_qdata_full()</function></link> instead.</para></warning>
+<para>
+Just like <link linkend="gtk-object-set-data-full"><function>gtk_object_set_data_full()</function></link> except that it takes
+a <link linkend="GQuark"><type>GQuark</type></link> instead of a string, so it is slightly faster.
+</para>
+<para>
+Use <link linkend="gtk-object-data-try-key"><function>gtk_object_data_try_key()</function></link> and <link linkend="gtk-object-data-force-id"><function>gtk_object_data_force_id()</function></link>
+to get an id from a string.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data_id</parameter>&nbsp;:</term>
+<listitem><simpara>quark of the key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>data to associate with that key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>function to call when the association is destroyed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-get-data-by-id"/>gtk_object_get_data_by_id ()</title>
+<indexterm><primary>gtk_object_get_data_by_id</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_object_get_data_by_id       (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id);</programlisting>
+<warning><para><literal>gtk_object_get_data_by_id</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-get-qdata"><function>g_object_get_qdata()</function></link> instead.</para></warning>
+<para>
+Just like <link linkend="gtk-object-get-data"><function>gtk_object_get_data()</function></link> except that it takes
+a <link linkend="GQuark"><type>GQuark</type></link> instead of a string, so it is slightly faster.
+</para>
+<para>
+Use <link linkend="gtk-object-data-try-key"><function>gtk_object_data_try_key()</function></link> and <link linkend="gtk-object-data-force-id"><function>gtk_object_data_force_id()</function></link>
+to get an id from a string.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data_id</parameter>&nbsp;:</term>
+<listitem><simpara>quark of the key.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the data if found, or <literal>NULL</literal> if no such data exists.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-remove-data-by-id"/>gtk_object_remove_data_by_id ()</title>
+<indexterm><primary>gtk_object_remove_data_by_id</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_remove_data_by_id    (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> data_id);</programlisting>
+<warning><para><literal>gtk_object_remove_data_by_id</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-set-qdata"><function>g_object_set_qdata()</function></link> with data of <literal>NULL</literal> instead.</para></warning>
+<para>
+Just like <link linkend="gtk-object-remove-data"><function>gtk_object_remove_data()</function></link> except that it takes
+a <link linkend="GQuark"><type>GQuark</type></link> instead of a string, so it is slightly faster.
+</para>
+<para>
+Remove a specified datum from the object's data associations.
+Subsequent calls to <link linkend="gtk-object-get-data"><function>gtk_object_get_data()</function></link> will return <literal>NULL</literal>.
+</para>
+<para>
+Use <link linkend="gtk-object-data-try-key"><function>gtk_object_data_try_key()</function></link> and <link linkend="gtk-object-data-force-id"><function>gtk_object_data_force_id()</function></link>
+to get an id from a string.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data_id</parameter>&nbsp;:</term>
+<listitem><simpara>quark of the key.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-remove-no-notify-by-id"/>gtk_object_remove_no_notify_by_id ()</title>
+<indexterm><primary>gtk_object_remove_no_notify_by_id</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_object_remove_no_notify_by_id
+                                            (<link linkend="GtkObject">GtkObject</link> *object,
+                                             <link linkend="GQuark">GQuark</link> key_id);</programlisting>
+<warning><para><literal>gtk_object_remove_no_notify_by_id</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-object-steal-qdata"><function>g_object_steal_qdata()</function></link> instead.</para></warning>
+<para>
+Just like <link linkend="gtk-object-remove-no-notify"><function>gtk_object_remove_no_notify()</function></link> except that it takes
+a <link linkend="GQuark"><type>GQuark</type></link> instead of a string, so it is slightly faster.
+</para>
+<para>
+Use <link linkend="gtk-object-data-try-key"><function>gtk_object_data_try_key()</function></link> and <link linkend="gtk-object-data-force-id"><function>gtk_object_data_force_id()</function></link>
+to get an id from a string.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>object containing the associations.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>key_id</parameter>&nbsp;:</term>
+<listitem><simpara>quark of the key.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-data-try-key"/>gtk_object_data_try_key</title>
+<indexterm><primary>gtk_object_data_try_key</primary></indexterm><programlisting>#define	gtk_object_data_try_key	    g_quark_try_string
+</programlisting>
+<warning><para><literal>gtk_object_data_try_key</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Useless deprecated macro. Ignore it.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-object-data-force-id"/>gtk_object_data_force_id</title>
+<indexterm><primary>gtk_object_data_force_id</primary></indexterm><programlisting>#define	gtk_object_data_force_id    g_quark_from_string
+</programlisting>
+<warning><para><literal>gtk_object_data_force_id</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Useless deprecated macro. Ignore it. 
+</para></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkObject--user-data"/>&quot;<literal>user-data</literal>&quot; (<link linkend="gpointer">gpointer</link> : Read / Write)</term>
+<listitem>
+<para>Anonymous User Data Pointer.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkObject-destroy"/>The &quot;destroy&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkObject">GtkObject</link> *object,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Signals that all holders of a reference to the <link linkend="GtkObject"><type>GtkObject</type></link> should release
+the reference that they hold. May result in finalization of the object
+if all references are released.
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="GObject"><type>GObject</type></link>
+</para>
+</refsect1>
+
+</refentry>

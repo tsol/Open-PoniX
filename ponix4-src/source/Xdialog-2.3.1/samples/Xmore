@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# A "more" replacement using Xdialog...
+
+size="0x0"
+
+#No Xdialog option as default
+opt=""
+
+# Default input file is stdin
+input="-"
+backtitle=""
+
+# Parse the command line, ignoring any option starting either with "-"
+# or "+", but retaining the first (possible) filename...
+for i ; do
+	case $1 in
+		-geometry)
+			shift 1
+			size="$1"
+			;;
+		--no-close|--under-mouse|--auto-placement|--no-buttons)
+			opt="$opt $1"
+			;;
+		-*|+*)
+			;;
+		*)
+			if [ "$1" != "" ] ; then
+				input="$1"
+				backtitle="$1"
+			fi
+			;;
+	esac
+	shift 1
+done
+
+# Check for input stream existence and complain if no input stream is available.
+if [ "$input" != "-" ] && ! [ -f "$input" ] ; then
+	echo 1>&2 "Usage: ... | Xmore [options]"
+	echo 1>&2 "   or: Xmore [options] filename"
+	echo 1>&2 "       the following Xdialog options being recognized:"
+	echo 1>&2 "         --no-close (should NOT be used in conjunction with --no-buttons)"
+	echo 1>&2 "         --no-buttons (should NOT be used in conjunction with --no-close)"
+	echo 1>&2 "         --under-mouse"
+	echo 1>&2 "         --auto-placement"
+	echo 1>&2 "       as well as the X option:"
+	echo 1>&2 "         -geometry XSIZExYSIZE+XORG+YORG"
+	echo 1>&2 "       any other option is ignored."
+	exit 1
+fi
+
+# Finally, use a Xdialog textbox so to display the file/input stream.
+Xdialog --title Xmore --wmclass Xmore --backtitle "$backtitle" $opt \
+	--no-cancel --print "" --fixed-font --textbox "$input" "$size"

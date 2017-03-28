@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Widgets sélections de fichiers</TITLE>
+ <LINK HREF="gtk_tut_fr-11.html" REL=next>
+ <LINK HREF="gtk_tut_fr-9.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc10" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-11.html">Page suivante</A>
+<A HREF="gtk_tut_fr-9.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc10">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s10">10. Widgets sélections de fichiers</A></H2>
+
+<P>Le widget sélection de fichier est un moyen simple et rapide pour
+afficher un fichier dans une boîte de dialogue. Il est complet, avec
+des boutons Ok, Annuler et Aide. C'est un bon moyen de raccourcir les
+temps de programmation.
+<P>Pour créer une boîte de sélection de fichier, on utilise&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_file_selection_new (gchar *title);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Pour configurer le nom de fichier, par exemple pour aller dans un
+répertoire précis ou donner un nom de fichier par défaut, on utilise
+la fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_file_selection_set_filename (GtkFileSelection *filesel, gchar *filename);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Pour récupérer le texte que l'utilisateur a entré, ou sur lequel il a
+cliqué, on utilisera la fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar* gtk_file_selection_get_filename (GtkFileSelection *filesel);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Des pointeurs permettent d'accéder aux widgets contenus dans la widget
+de sélection de fichiers. Ce sont&nbsp;:
+<P>
+<UL>
+<LI>dir_list</LI>
+<LI>file_list</LI>
+<LI>selection_entry</LI>
+<LI>selection_text</LI>
+<LI>main_vbox</LI>
+<LI>ok_button</LI>
+<LI>cancel_button</LI>
+<LI>help_button</LI>
+</UL>
+<P>Le plus souvent, on utilise les pointeurs <EM>ok_button, cancel_button</EM>, et
+<EM>help_button</EM> pour préciser leurs utilisations.
+<P>Voici un exemple emprunté à <EM>testgtk.c</EM> et modifié pour fonctionner
+tout seul. Comme vous le verrez, il n'y a pas grand chose à faire pour
+créer un wigdget de sélection de fichier. Cependant, dans cet exemple,
+si le bouton Aide apparaît à l'écran, il ne fait rien car aucun signal
+ne lui est attaché.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+
+/* Récupère le nom de fichier sélectionné et l'affiche sur la console. */
+
+void file_ok_sel (GtkWidget *w, GtkFileSelection *fs)
+{
+    g_print ("%s\n", gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
+}
+
+void destroy (GtkWidget *widget, gpointer *data)
+{
+    gtk_main_quit ();
+}
+
+int main (int argc, char *argv[])
+{
+    GtkWidget *filew;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    /* Création d'un widget de sélection de fichier. */
+
+    filew = gtk_file_selection_new ("File selection");
+    
+    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
+                        (GtkSignalFunc) destroy, &amp;filew);
+
+    /* Connexion de ok_button à la fonction file_ok_sel() */
+
+    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
+                        "clicked", (GtkSignalFunc) file_ok_sel, filew );
+    
+    /* Connexion de cancel_button pour détruire le widget */
+
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION (filew)->cancel_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    
+    /* Configuration du nom de fichier, comme s'il s'agissait d'un dialogue de
+     * sauvegarde et que nous donnions un nom de fichier par défaut. */
+
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew), 
+                                     "penguin.png");
+    
+    gtk_widget_show(filew);
+    gtk_main ();
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-11.html">Page suivante</A>
+<A HREF="gtk_tut_fr-9.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc10">Table des matières</A>
+</BODY>
+</HTML>

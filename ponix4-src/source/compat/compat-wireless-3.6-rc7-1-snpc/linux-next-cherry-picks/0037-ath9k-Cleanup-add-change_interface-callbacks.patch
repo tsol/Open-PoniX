@@ -1,0 +1,144 @@
+From 327967cba4492c36ef498a786016295102521c55 Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Tue, 4 Sep 2012 19:33:36 +0530
+Subject: [PATCH] ath9k: Cleanup add/change_interface callbacks
+
+*Remove all the checks that will be handled by cfg80211
+based on the interface combination advertised. For instance,
+driver supports at the maximum 8 beaconing interface, while
+we advertise maximum 8 beaconing interface in the interface
+combination support.
+
+*cfg80211 will take care of not allowing
+us to add an interface that is not supported by the
+driver, further if the change_interface changes the
+old interface to a beaconing interface while we had
+reached the max limit of 8 beaconing interface, again
+cfg80211 takes care of this stuff!
+So remove all these checks.
+
+*Beautify placing PS wrappers in the appropriate
+position.
+
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/main.c | 57 ++++++-----------------------------
+ 1 file changed, 10 insertions(+), 47 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -983,47 +983,21 @@ static int ath9k_add_interface(struct ie
+ 	struct ath_softc *sc = hw->priv;
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	struct ath_common *common = ath9k_hw_common(ah);
+-	int ret = 0;
+ 
+-	ath9k_ps_wakeup(sc);
+ 	mutex_lock(&sc->mutex);
+ 
+-	switch (vif->type) {
+-	case NL80211_IFTYPE_STATION:
+-	case NL80211_IFTYPE_WDS:
+-	case NL80211_IFTYPE_ADHOC:
+-	case NL80211_IFTYPE_AP:
+-	case NL80211_IFTYPE_MESH_POINT:
+-		break;
+-	default:
+-		ath_err(common, "Interface type %d not yet supported\n",
+-			vif->type);
+-		ret = -EOPNOTSUPP;
+-		goto out;
+-	}
+-
+-	if (ath9k_uses_beacons(vif->type)) {
+-		if (sc->nbcnvifs >= ATH_BCBUF) {
+-			ath_err(common, "Not enough beacon buffers when adding"
+-				" new interface of type: %i\n",
+-				vif->type);
+-			ret = -ENOBUFS;
+-			goto out;
+-		}
+-	}
+-
+ 	ath_dbg(common, CONFIG, "Attach a VIF of type: %d\n", vif->type);
+-
+ 	sc->nvifs++;
+ 
++	ath9k_ps_wakeup(sc);
+ 	ath9k_calculate_summary_state(hw, vif);
++	ath9k_ps_restore(sc);
++
+ 	if (ath9k_uses_beacons(vif->type))
+ 		ath9k_beacon_assign_slot(sc, vif);
+ 
+-out:
+ 	mutex_unlock(&sc->mutex);
+-	ath9k_ps_restore(sc);
+-	return ret;
++	return 0;
+ }
+ 
+ static int ath9k_change_interface(struct ieee80211_hw *hw,
+@@ -1033,21 +1007,9 @@ static int ath9k_change_interface(struct
+ {
+ 	struct ath_softc *sc = hw->priv;
+ 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
+-	int ret = 0;
+ 
+ 	ath_dbg(common, CONFIG, "Change Interface\n");
+-
+ 	mutex_lock(&sc->mutex);
+-	ath9k_ps_wakeup(sc);
+-
+-	if (ath9k_uses_beacons(new_type) &&
+-	    !ath9k_uses_beacons(vif->type)) {
+-		if (sc->nbcnvifs >= ATH_BCBUF) {
+-			ath_err(common, "No beacon slot available\n");
+-			ret = -ENOBUFS;
+-			goto out;
+-		}
+-	}
+ 
+ 	if (ath9k_uses_beacons(vif->type))
+ 		ath9k_beacon_remove_slot(sc, vif);
+@@ -1055,14 +1017,15 @@ static int ath9k_change_interface(struct
+ 	vif->type = new_type;
+ 	vif->p2p = p2p;
+ 
++	ath9k_ps_wakeup(sc);
+ 	ath9k_calculate_summary_state(hw, vif);
++	ath9k_ps_restore(sc);
++
+ 	if (ath9k_uses_beacons(vif->type))
+ 		ath9k_beacon_assign_slot(sc, vif);
+ 
+-out:
+-	ath9k_ps_restore(sc);
+ 	mutex_unlock(&sc->mutex);
+-	return ret;
++	return 0;
+ }
+ 
+ static void ath9k_remove_interface(struct ieee80211_hw *hw,
+@@ -1073,7 +1036,6 @@ static void ath9k_remove_interface(struc
+ 
+ 	ath_dbg(common, CONFIG, "Detach Interface\n");
+ 
+-	ath9k_ps_wakeup(sc);
+ 	mutex_lock(&sc->mutex);
+ 
+ 	sc->nvifs--;
+@@ -1081,10 +1043,11 @@ static void ath9k_remove_interface(struc
+ 	if (ath9k_uses_beacons(vif->type))
+ 		ath9k_beacon_remove_slot(sc, vif);
+ 
++	ath9k_ps_wakeup(sc);
+ 	ath9k_calculate_summary_state(hw, NULL);
++	ath9k_ps_restore(sc);
+ 
+ 	mutex_unlock(&sc->mutex);
+-	ath9k_ps_restore(sc);
+ }
+ 
+ static void ath9k_enable_ps(struct ath_softc *sc)

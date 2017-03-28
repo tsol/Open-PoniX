@@ -1,0 +1,601 @@
+<refentry id="GtkTreeSelection">
+<refmeta>
+<refentrytitle>GtkTreeSelection</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkTreeSelection</refname><refpurpose>The selection object for <link linkend="GtkTreeView"><type>GtkTreeView</type></link></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkTreeSelection-struct">GtkTreeSelection</link>;
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkTreeSelectionFunc">*GtkTreeSelectionFunc</link>)         (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="gboolean">gboolean</link> path_currently_selected,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        (<link linkend="GtkTreeSelectionForeachFunc">*GtkTreeSelectionForeachFunc</link>)  (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-set-mode">gtk_tree_selection_set_mode</link>     (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkSelectionMode">GtkSelectionMode</link> type);
+<link linkend="GtkSelectionMode">GtkSelectionMode</link> <link linkend="gtk-tree-selection-get-mode">gtk_tree_selection_get_mode</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-set-select-function">gtk_tree_selection_set_select_function</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeSelectionFunc">GtkTreeSelectionFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-tree-selection-get-user-data">gtk_tree_selection_get_user_data</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);
+<link linkend="GtkTreeView">GtkTreeView</link>* <link linkend="gtk-tree-selection-get-tree-view">gtk_tree_selection_get_tree_view</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-selection-get-selected">gtk_tree_selection_get_selected</link> (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> **model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-selected-foreach">gtk_tree_selection_selected_foreach</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeSelectionForeachFunc">GtkTreeSelectionForeachFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="GList">GList</link>*      <link linkend="gtk-tree-selection-get-selected-rows">gtk_tree_selection_get_selected_rows</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> **model);
+<link linkend="gint">gint</link>        <link linkend="gtk-tree-selection-count-selected-rows">gtk_tree_selection_count_selected_rows</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-select-path">gtk_tree_selection_select_path</link>  (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-unselect-path">gtk_tree_selection_unselect_path</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-selection-path-is-selected">gtk_tree_selection_path_is_selected</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-select-iter">gtk_tree_selection_select_iter</link>  (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-unselect-iter">gtk_tree_selection_unselect_iter</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-tree-selection-iter-is-selected">gtk_tree_selection_iter_is_selected</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-select-all">gtk_tree_selection_select_all</link>   (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-unselect-all">gtk_tree_selection_unselect_all</link> (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-select-range">gtk_tree_selection_select_range</link> (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *start_path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *end_path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-selection-unselect-range">gtk_tree_selection_unselect_range</link>
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *start_path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *end_path);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GtkTreeSelection
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkTreeSelection-changed">changed</link>&quot;   <link linkend="void">void</link>        user_function      (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *treeselection,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link> object is a helper object to manage the selection
+for a <link linkend="GtkTreeView"><type>GtkTreeView</type></link> widget.  The <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link> object is
+automatically created when a new <link linkend="GtkTreeView"><type>GtkTreeView</type></link> widget is created, and
+cannot exist independentally of this widget.  The primary reason the
+<link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link> objects exists is for cleanliness of code and API.
+That is, there is no conceptual reason all these functions could not be
+methods on the <link linkend="GtkTreeView"><type>GtkTreeView</type></link> widget instead of a separate function.
+</para>
+
+<para>
+The <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link> object is gotten from a <link linkend="GtkTreeView"><type>GtkTreeView</type></link> by calling
+<link linkend="gtk-tree-view-get-selection"><function>gtk_tree_view_get_selection()</function></link>.  It can be manipulated to check the
+selection status of the tree, as well as select and deselect individual
+rows.  Selection is done completely view side.  As a result, multiple
+views of the same model can have completely different selections.
+Additionally, you cannot change the selection of a row on the model that
+is not currently displayed by the view without expanding its parents
+first.
+</para>
+
+<para>
+One of the important things to remember when monitoring the selection of
+a view is that the "changed" signal is mostly a hint.  That is, it may
+only emit one signal when a range of rows is selected.  Additionally, it
+may on occasion emit a "changed" signal when nothing has happened
+(mostly as a result of programmers calling select_row on an already
+selected row).
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkTreeSelection-struct"/>struct GtkTreeSelection</title>
+<indexterm><primary>GtkTreeSelection</primary></indexterm><programlisting>struct GtkTreeSelection;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeSelectionFunc"/>GtkTreeSelectionFunc ()</title>
+<indexterm><primary>GtkTreeSelectionFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkTreeSelectionFunc)         (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="gboolean">gboolean</link> path_currently_selected,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+A function used by <link linkend="gtk-tree-selection-set-select-function"><function>gtk_tree_selection_set_select_function()</function></link> to filter
+whether or not a row may be selected.  It is called whenever a row's
+state might change.  A return value of <literal>TRUE</literal> indicates to <parameter>selection</parameter>
+that it is okay to change the selection.
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara>A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara>A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link> being viewed
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara>The <link linkend="GtkTreePath"><type>GtkTreePath</type></link> of the row in question
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path_currently_selected</parameter>&nbsp;:</term>
+<listitem><simpara><literal>TRUE</literal>, if the path is currently selected
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>user data
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal>, if the selection state of the row can be toggled
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeSelectionForeachFunc"/>GtkTreeSelectionForeachFunc ()</title>
+<indexterm><primary>GtkTreeSelectionForeachFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkTreeSelectionForeachFunc)  (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+A function used by <link linkend="gtk-tree-selection-selected-foreach"><function>gtk_tree_selection_selected_foreach()</function></link> to map all
+selected rows.  It will be called on every selected row in the view.
+</para><variablelist role="params">
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara>The <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link> being viewed
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara>The <link linkend="GtkTreePath"><type>GtkTreePath</type></link> of a selected row
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara>A <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to a selected row
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>user data
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-set-mode"/>gtk_tree_selection_set_mode ()</title>
+<indexterm><primary>gtk_tree_selection_set_mode</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_set_mode     (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkSelectionMode">GtkSelectionMode</link> type);</programlisting>
+<para>
+Sets the selection mode of the <parameter>selection</parameter>.  If the previous type was
+<link linkend="GTK-SELECTION-MULTIPLE-CAPS"><type>GTK_SELECTION_MULTIPLE</type></link>, then the anchor is kept selected, if it was
+previously selected.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara> The selection mode
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-get-mode"/>gtk_tree_selection_get_mode ()</title>
+<indexterm><primary>gtk_tree_selection_get_mode</primary></indexterm><programlisting><link linkend="GtkSelectionMode">GtkSelectionMode</link> gtk_tree_selection_get_mode
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);</programlisting>
+<para>
+Gets the selection mode for <parameter>selection</parameter>. See
+<link linkend="gtk-tree-selection-set-mode"><function>gtk_tree_selection_set_mode()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the current selection mode
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-set-select-function"/>gtk_tree_selection_set_select_function ()</title>
+<indexterm><primary>gtk_tree_selection_set_select_function</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_set_select_function
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeSelectionFunc">GtkTreeSelectionFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<para>
+Sets the selection function.  If set, this function is called before any node
+is selected or unselected, giving some control over which nodes are selected.
+The select function should return <literal>TRUE</literal> if the state of the node may be toggled,
+and <literal>FALSE</literal> if the state of the node should be left unchanged.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> The selection function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> The selection function's data.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> The destroy function for user data.  May be NULL.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-get-user-data"/>gtk_tree_selection_get_user_data ()</title>
+<indexterm><primary>gtk_tree_selection_get_user_data</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_tree_selection_get_user_data
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);</programlisting>
+<para>
+Returns the user data for the selection function.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The user data.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-get-tree-view"/>gtk_tree_selection_get_tree_view ()</title>
+<indexterm><primary>gtk_tree_selection_get_tree_view</primary></indexterm><programlisting><link linkend="GtkTreeView">GtkTreeView</link>* gtk_tree_selection_get_tree_view
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);</programlisting>
+<para>
+Returns the tree view associated with <parameter>selection</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A <link linkend="GtkTreeView"><type>GtkTreeView</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-get-selected"/>gtk_tree_selection_get_selected ()</title>
+<indexterm><primary>gtk_tree_selection_get_selected</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_selection_get_selected (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> **model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Sets <parameter>iter</parameter> to the currently selected node if <parameter>selection</parameter> is set to
+<link linkend="GTK-SELECTION-SINGLE-CAPS"><type>GTK_SELECTION_SINGLE</type></link> or <link linkend="GTK-SELECTION-BROWSE-CAPS"><type>GTK_SELECTION_BROWSE</type></link>.  <parameter>iter</parameter> may be NULL if you
+just want to test if <parameter>selection</parameter> has any selected nodes.  <parameter>model</parameter> is filled
+with the current model as a convenience.  This function will not work if you
+use <parameter>selection</parameter> is <link linkend="GTK-SELECTION-MULTIPLE-CAPS"><type>GTK_SELECTION_MULTIPLE</type></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara> A pointer to set to the <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>, or NULL.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>, or NULL.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> TRUE, if there is a selected node.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-selected-foreach"/>gtk_tree_selection_selected_foreach ()</title>
+<indexterm><primary>gtk_tree_selection_selected_foreach</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_selected_foreach
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeSelectionForeachFunc">GtkTreeSelectionForeachFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+Calls a function for each selected node. Note that you cannot modify
+the tree or selection from within this function. As a result,
+<link linkend="gtk-tree-selection-get-selected-rows"><function>gtk_tree_selection_get_selected_rows()</function></link> might be more useful.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> The function to call for each selected node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> user data to pass to the function.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-get-selected-rows"/>gtk_tree_selection_get_selected_rows ()</title>
+<indexterm><primary>gtk_tree_selection_get_selected_rows</primary></indexterm><programlisting><link linkend="GList">GList</link>*      gtk_tree_selection_get_selected_rows
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> **model);</programlisting>
+<para>
+Creates a list of path of all selected rows. Additionally, if you are
+planning on modifying the model after calling this function, you may
+want to convert the returned list into a list of <link linkend="GtkTreeRowReference"><type>GtkTreeRowReference</type></link><!-- -->s.
+To do this, you can use <link linkend="gtk-tree-row-reference-new-proxy"><function>gtk_tree_row_reference_new_proxy()</function></link>.
+</para>
+<para>
+To free the return value, use:
+<informalexample><programlisting>
+g_list_foreach (list, gtk_tree_path_free, NULL);
+g_list_free (list);
+</programlisting></informalexample></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara> A pointer to set to the <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>, or NULL.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A <link linkend="GList"><type>GList</type></link> containing a <link linkend="GtkTreePath"><type>GtkTreePath</type></link> for each selected row.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-count-selected-rows"/>gtk_tree_selection_count_selected_rows ()</title>
+<indexterm><primary>gtk_tree_selection_count_selected_rows</primary></indexterm><programlisting><link linkend="gint">gint</link>        gtk_tree_selection_count_selected_rows
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);</programlisting>
+<para>
+Returns the number of rows that have been selected in <parameter>tree</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> The number of rows selected.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-select-path"/>gtk_tree_selection_select_path ()</title>
+<indexterm><primary>gtk_tree_selection_select_path</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_select_path  (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Select the row at <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to be selected.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-unselect-path"/>gtk_tree_selection_unselect_path ()</title>
+<indexterm><primary>gtk_tree_selection_unselect_path</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_unselect_path
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Unselects the row at <parameter>path</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to be unselected.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-path-is-selected"/>gtk_tree_selection_path_is_selected ()</title>
+<indexterm><primary>gtk_tree_selection_path_is_selected</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_selection_path_is_selected
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *path);</programlisting>
+<para>
+Returns <literal>TRUE</literal> if the row pointed to by <parameter>path</parameter> is currently selected.  If <parameter>path</parameter>
+does not point to a valid location, <literal>FALSE</literal> is returned</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to check selection on.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>path</parameter> is selected.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-select-iter"/>gtk_tree_selection_select_iter ()</title>
+<indexterm><primary>gtk_tree_selection_select_iter</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_select_iter  (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Selects the specified iterator.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to be selected.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-unselect-iter"/>gtk_tree_selection_unselect_iter ()</title>
+<indexterm><primary>gtk_tree_selection_unselect_iter</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_unselect_iter
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Unselects the specified iterator.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> to be unselected.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-iter-is-selected"/>gtk_tree_selection_iter_is_selected ()</title>
+<indexterm><primary>gtk_tree_selection_iter_is_selected</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_tree_selection_iter_is_selected
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter);</programlisting>
+<para>
+Returns <literal>TRUE</literal> if the row at <parameter>iter</parameter> is currently selected.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal>, if <parameter>iter</parameter> is selected
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-select-all"/>gtk_tree_selection_select_all ()</title>
+<indexterm><primary>gtk_tree_selection_select_all</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_select_all   (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);</programlisting>
+<para>
+Selects all the nodes.  <parameter>selection</parameter> is must be set to <link linkend="GTK-SELECTION-MULTIPLE-CAPS"><type>GTK_SELECTION_MULTIPLE</type></link>
+mode.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-unselect-all"/>gtk_tree_selection_unselect_all ()</title>
+<indexterm><primary>gtk_tree_selection_unselect_all</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_unselect_all (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection);</programlisting>
+<para>
+Unselects all the nodes.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-select-range"/>gtk_tree_selection_select_range ()</title>
+<indexterm><primary>gtk_tree_selection_select_range</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_select_range (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *start_path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *end_path);</programlisting>
+<para>
+Selects a range of nodes, determined by <parameter>start_path</parameter> and <parameter>end_path</parameter> inclusive.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start_path</parameter>&nbsp;:</term>
+<listitem><simpara> The initial node of the range.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>end_path</parameter>&nbsp;:</term>
+<listitem><simpara> The final node of the range.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-selection-unselect-range"/>gtk_tree_selection_unselect_range ()</title>
+<indexterm><primary>gtk_tree_selection_unselect_range</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_selection_unselect_range
+                                            (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *selection,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *start_path,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *end_path);</programlisting>
+<para>
+Unselects a range of nodes, determined by <parameter>start_path</parameter> and <parameter>end_path</parameter>
+inclusive.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>selection</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeSelection"><type>GtkTreeSelection</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start_path</parameter>&nbsp;:</term>
+<listitem><simpara> The initial node of the range.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>end_path</parameter>&nbsp;:</term>
+<listitem><simpara> The initial node of the range.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.2
+</para></refsect2>
+
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkTreeSelection-changed"/>The &quot;changed&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTreeSelection">GtkTreeSelection</link> *treeselection,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted whenever the selection has (possibly) changed.  Please note that
+this signal is mostly a hint.  It may only be emitted once when a range
+of rows are selected, and it may occasionally be emitted when nothing
+has happened.
+</para><variablelist role="params">
+<varlistentry><term><parameter>treeselection</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="GtkTreeView"><type>GtkTreeView</type></link>, <link linkend="GtkTreeViewColumn"><type>GtkTreeViewColumn</type></link>, <link linkend="GtkTreeDnd"><type>GtkTreeDnd</type></link>, <link linkend="GtkTreeMode"><type>GtkTreeMode</type></link>, <link linkend="GtkTreeSortable"><type>GtkTreeSortable</type></link>, <link linkend="GtkTreeModelSort"><type>GtkTreeModelSort</type></link>, <link linkend="GtkListStore"><type>GtkListStore</type></link>, <link linkend="GtkTreeStore"><type>GtkTreeStore</type></link>, <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link>, <link linkend="GtkCellEditable"><type>GtkCellEditable</type></link>, <link linkend="GtkCellRendererPixbuf"><type>GtkCellRendererPixbuf</type></link>, <link linkend="GtkCellRendererText"><type>GtkCellRendererText</type></link>, <link linkend="GtkCellRendererToggle"><type>GtkCellRendererToggle</type></link>
+</para>
+</refsect1>
+
+</refentry>

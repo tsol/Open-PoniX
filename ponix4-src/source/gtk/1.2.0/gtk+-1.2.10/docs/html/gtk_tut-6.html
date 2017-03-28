@@ -1,0 +1,427 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: The Button Widget</TITLE>
+ <LINK HREF="gtk_tut-7.html" REL=next>
+ <LINK HREF="gtk_tut-5.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc6" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-7.html">Next</A>
+<A HREF="gtk_tut-5.html">Previous</A>
+<A HREF="gtk_tut.html#toc6">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s6">6. The Button Widget</A></H2>
+
+<H2><A NAME="ss6.1">6.1 Normal Buttons</A>
+</H2>
+
+<P>We've almost seen all there is to see of the button widget. It's
+pretty simple. There are however two ways to create a button. You can
+use the gtk_button_new_with_label() to create a button with a label,
+or use gtk_button_new() to create a blank button. It's then up to you
+to pack a label or pixmap into this new button. To do this, create a
+new box, and then pack your objects into this box using the usual
+gtk_box_pack_start, and then use gtk_container_add to pack the box
+into the button.
+<P>Here's an example of using gtk_button_new to create a button with a
+picture and a label in it. I've broken up the code to create a box
+from the rest so you can use it in your programs. There are further
+examples of using pixmaps later in the tutorial.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start buttons buttons.c */
+
+#include &lt;gtk/gtk.h>
+
+/* Create a new hbox with an image and a label packed into it
+ * and return the box. */
+
+GtkWidget *xpm_label_box( GtkWidget *parent,
+                          gchar     *xpm_filename,
+                          gchar     *label_text )
+{
+    GtkWidget *box1;
+    GtkWidget *label;
+    GtkWidget *pixmapwid;
+    GdkPixmap *pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+
+    /* Create box for xpm and label */
+    box1 = gtk_hbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box1), 2);
+
+    /* Get the style of the button to get the
+     * background color. */
+    style = gtk_widget_get_style(parent);
+
+    /* Now on to the xpm stuff */
+    pixmap = gdk_pixmap_create_from_xpm (parent->window, &amp;mask,
+                                         &amp;style->bg[GTK_STATE_NORMAL],
+                                         xpm_filename);
+    pixmapwid = gtk_pixmap_new (pixmap, mask);
+
+    /* Create a label for the button */
+    label = gtk_label_new (label_text);
+
+    /* Pack the pixmap and label into the box */
+    gtk_box_pack_start (GTK_BOX (box1),
+                        pixmapwid, FALSE, FALSE, 3);
+
+    gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 3);
+
+    gtk_widget_show(pixmapwid);
+    gtk_widget_show(label);
+
+    return(box1);
+}
+
+/* Our usual callback function */
+void callback( GtkWidget *widget,
+               gpointer   data )
+{
+    g_print ("Hello again - %s was pressed\n", (char *) data);
+}
+
+
+int main( int   argc,
+          char *argv[] )
+{
+    /* GtkWidget is the storage type for widgets */
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *box1;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* Create a new window */
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    gtk_window_set_title (GTK_WINDOW (window), "Pixmap'd Buttons!");
+
+    /* It's a good idea to do this for all windows. */
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+    /* Sets the border width of the window. */
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+    gtk_widget_realize(window);
+
+    /* Create a new button */
+    button = gtk_button_new ();
+
+    /* Connect the "clicked" signal of the button to our callback */
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (callback), (gpointer) "cool button");
+
+    /* This calls our box creating function */
+    box1 = xpm_label_box(window, "info.xpm", "cool button");
+
+    /* Pack and show all our widgets */
+    gtk_widget_show(box1);
+
+    gtk_container_add (GTK_CONTAINER (button), box1);
+
+    gtk_widget_show(button);
+
+    gtk_container_add (GTK_CONTAINER (window), button);
+
+    gtk_widget_show (window);
+
+    /* Rest in gtk_main and wait for the fun to begin! */
+    gtk_main ();
+
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The xpm_label_box function could be used to pack xpm's and labels into
+any widget that can be a container.
+<P>Notice in <CODE>xpm_label_box</CODE> how there is a call to
+<CODE>gtk_widget_get_style</CODE>. Every widget has a "style", consisting of
+foreground and background colors for a variety of situations, font
+selection, and other graphics data relevant to a widget. These style
+values are defaulted in each widget, and are required by many GDK
+function calls, such as <CODE>gdk_pixmap_create_from_xpm</CODE>, which here is
+given the "normal" background color. The style data of widgets may
+be customized, using 
+<A HREF="gtk_tut-21.html#sec_gtkrc_files">GTK's rc files</A>.
+<P>Also notice the call to <CODE>gtk_widget_realize</CODE> after setting the
+window's border width. This function uses GDK to create the X
+windows related to the widget. The function is automatically called
+when you invoke <CODE>gtk_widget_show</CODE> for a widget, and so has not been
+shown in earlier examples. But the call to
+<CODE>gdk_pixmap_create_from_xpm</CODE> requires that its <CODE>window</CODE> argument
+refer to a real X window, so it is necessary to realize the widget
+before this GDK call.
+<P>The Button widget has the following signals:
+<P>
+<UL>
+<LI><CODE>pressed</CODE> - emitted when pointer button is pressed within
+Button widget</LI>
+<LI><CODE>released</CODE> - emitted when pointer button is released within
+Button widget</LI>
+<LI><CODE>clicked</CODE> - emitted when pointer button is pressed and then
+released within Button widget</LI>
+<LI><CODE>enter</CODE> - emitted when pointer enters Button widget</LI>
+<LI><CODE>leave</CODE> - emitted when pointer leaves Button widget</LI>
+</UL>
+<P>
+<H2><A NAME="ss6.2">6.2 Toggle Buttons</A>
+</H2>
+
+<P>Toggle buttons are derived from normal buttons and are very similar,
+except they will always be in one of two states, alternated by a
+click. They may be depressed, and when you click again, they will pop
+back up. Click again, and they will pop back down.
+<P>Toggle buttons are the basis for check buttons and radio buttons, as
+such, many of the calls used for toggle buttons are inherited by radio
+and check buttons. I will point these out when we come to them.
+<P>Creating a new toggle button:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_toggle_button_new( void );
+
+GtkWidget *gtk_toggle_button_new_with_label( gchar *label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you can imagine, these work identically to the normal button widget
+calls. The first creates a blank toggle button, and the second, a
+button with a label widget already packed into it.
+<P>To retrieve the state of the toggle widget, including radio and check
+buttons, we use a construct as shown in our example below. This tests
+the state of the toggle, by accessing the <CODE>active</CODE> field of the
+toggle widget's structure, after first using the
+<CODE>GTK_TOGGLE_BUTTON</CODE> macro to cast the widget pointer into a toggle
+widget pointer. The signal of interest to us emitted by toggle
+buttons (the toggle button, check button, and radio button widgets) is
+the "toggled" signal. To check the state of these buttons, set up a
+signal handler to catch the toggled signal, and access the structure
+to determine its state. The callback will look something like:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void toggle_button_callback (GtkWidget *widget, gpointer data)
+{
+    if (GTK_TOGGLE_BUTTON (widget)->active) 
+    {
+        /* If control reaches here, the toggle button is down */
+    
+    } else {
+    
+        /* If control reaches here, the toggle button is up */
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To force the state of a toggle button, and its children, the radio and
+check buttons, use this function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_set_active( GtkToggleButton *toggle_button,
+                                  gint             state );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The above call can be used to set the state of the toggle button, and
+its children the radio and check buttons. Passing in your created
+button as the first argument, and a TRUE or FALSE for the second state
+argument to specify whether it should be down (depressed) or up
+(released). Default is up, or FALSE.
+<P>Note that when you use the gtk_toggle_button_set_active() function, and
+the state is actually changed, it causes the "clicked" signal to be
+emitted from the button.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_toggled (GtkToggleButton *toggle_button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This simply toggles the button, and emits the "toggled" signal.
+<P>
+<H2><A NAME="ss6.3">6.3 Check Buttons</A>
+</H2>
+
+<P>Check buttons inherit many properties and functions from the the
+toggle buttons above, but look a little different. Rather than being
+buttons with text inside them, they are small squares with the text to
+the right of them. These are often used for toggling options on and
+off in applications.
+<P>The two creation functions are similar to those of the normal button.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_check_button_new( void );
+
+GtkWidget *gtk_check_button_new_with_label ( gchar *label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The new_with_label function creates a check button with a label beside
+it.
+<P>Checking the state of the check button is identical to that of the
+toggle button.
+<P>
+<H2><A NAME="sec_Radio_Buttons"></A> <A NAME="ss6.4">6.4 Radio Buttons </A>
+</H2>
+
+<P>Radio buttons are similar to check buttons except they are grouped so
+that only one may be selected/depressed at a time. This is good for
+places in your application where you need to select from a short list
+of options.
+<P>Creating a new radio button is done with one of these calls:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_radio_button_new( GSList *group );
+
+GtkWidget *gtk_radio_button_new_with_label( GSList *group,
+                                            gchar  *label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>You'll notice the extra argument to these calls. They require a group
+to perform their duty properly. The first call to
+gtk_radio_button_new_with_label or gtk_radio_button_new_with_label
+should pass NULL as the first argument. Then create a group using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GSList *gtk_radio_button_group( GtkRadioButton *radio_button );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The important thing to remember is that gtk_radio_button_group must be
+called for each new button added to the group, with the previous
+button passed in as an argument. The result is then passed into the
+next call to gtk_radio_button_new or
+gtk_radio_button_new_with_label. This allows a chain of buttons to be
+established. The example below should make this clear.
+<P>You can shorten this slightly by using the following syntax, which
+removes the need for a variable to hold the list of buttons. This form
+is used in the example to create the third button:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+     button2 = gtk_radio_button_new_with_label(
+                 gtk_radio_button_group (GTK_RADIO_BUTTON (button1)),
+                 "button2");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>It is also a good idea to explicitly set which button should be the
+default depressed button with:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_set_active( GtkToggleButton *toggle_button,
+                                  gint             state );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This is described in the section on toggle buttons, and works in
+exactly the same way.  Once the radio buttons are grouped together,
+only one of the group may be active at a time. If the user clicks on
+one radio button, and then on another, the first radio button will
+first emit a "toggled" signal (to report becoming inactive), and then
+the second will emit its "toggled" signal (to report becoming active).
+<P>The following example creates a radio button group with three buttons.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start radiobuttons radiobuttons.c */
+
+#include &lt;gtk/gtk.h>
+#include &lt;glib.h>
+
+gint close_application( GtkWidget *widget,
+                        GdkEvent  *event,
+                        gpointer   data )
+{
+  gtk_main_quit();
+  return(FALSE);
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+    GtkWidget *window = NULL;
+    GtkWidget *box1;
+    GtkWidget *box2;
+    GtkWidget *button;
+    GtkWidget *separator;
+    GSList *group;
+  
+    gtk_init(&amp;argc,&amp;argv);    
+      
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC(close_application),
+                        NULL);
+
+    gtk_window_set_title (GTK_WINDOW (window), "radio buttons");
+    gtk_container_set_border_width (GTK_CONTAINER (window), 0);
+
+    box1 = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (window), box1);
+    gtk_widget_show (box1);
+
+    box2 = gtk_vbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+    gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    button = gtk_radio_button_new_with_label (NULL, "button1");
+    gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+    gtk_widget_show (button);
+
+    group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+    button = gtk_radio_button_new_with_label(group, "button2");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+    gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+    gtk_widget_show (button);
+
+    button = gtk_radio_button_new_with_label(
+                 gtk_radio_button_group (GTK_RADIO_BUTTON (button)),
+                 "button3");
+    gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+    gtk_widget_show (button);
+
+    separator = gtk_hseparator_new ();
+    gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 0);
+    gtk_widget_show (separator);
+
+    box2 = gtk_vbox_new (FALSE, 10);
+    gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
+    gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, TRUE, 0);
+    gtk_widget_show (box2);
+
+    button = gtk_button_new_with_label ("close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC(close_application),
+                               GTK_OBJECT (window));
+    gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_widget_grab_default (button);
+    gtk_widget_show (button);
+    gtk_widget_show (window);
+     
+    gtk_main();
+
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-7.html">Next</A>
+<A HREF="gtk_tut-5.html">Previous</A>
+<A HREF="gtk_tut.html#toc6">Contents</A>
+</BODY>
+</HTML>

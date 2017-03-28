@@ -1,0 +1,97 @@
+NAME
+    newerror - create or recall a described error-value
+
+SYNOPSIS
+    newerror([str])
+
+TYPES
+    str		string
+
+    return	error-value
+
+DESCRIPTION
+    If str is not "" and has not earlier been used as an argument for
+    this function, newerror(str) creates a new described error-value so
+    that any future use of newerror(str) with the same str will return
+    the same error-value.
+
+    If x = newerror(str), both strerror(x) and strerror(iserro(x)) will
+    return str and iserror(x) will return the error code value of the
+    new error.
+
+    The null cases newerror() and newerror("") are equivalent to
+    newerror("???").
+
+EXAMPLE
+    Note that by default, errmax() is 0 so unless errmax() is
+    increased you will get:
+
+    ; ba = newerror("curds n' whey");
+    Error 20000 caused errcount to exceed errmax
+
+    ; errmax(errcount()+5)
+	    0
+    ; e1 = newerror("triangle side length <= 0")
+    ; iserror(e1)
+	    20000
+    ; error(20000)
+	    Error 20000
+    ; strerror(error(20000))
+	    "triangle side length <= 0"
+    ; strerror(e1);
+	    "triangle side length <= 0"
+    ; strerror(error(iserror(e1)))
+	    "triangle side length <= 0"
+
+    ; define area(a,b,c) {
+    ;;	local s;
+    ;;	if (!(a > 0) || !(b > 0) || !(c > 0)) return e1;
+    ;;	s = (a + b + c)/2;
+    ;;	if (s <= a || s <= b || s <= c) return newerror("Non-triangle sides");
+    ;;	return sqrt(s * (s - a) * (s - b) * (s - c));
+    ;; }
+    "area" defined
+
+    ; A = area(8,2,5);
+    ; if (iserror(A)) print strerror(A) : ":", iserror(A);
+    Non-triangle sides: 20001
+
+    ; A = area(-3,4,5)
+    ; if (iserror(A)) print strerror(A) : ":", iserror(A);
+    triangle side length <= 0: 20000
+
+LIMITS
+    The number of new described error-values is not to exceed 12767.
+
+LINK LIBRARY
+    none
+
+SEE ALSO
+    errmax, errcount, error, strerror, iserror, errno, errorcodes,
+    stoponerror
+
+## Copyright (C) 1999-2006  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: newerror,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/newerror,v $
+##
+## Under source code control:	1996/04/30 03:39:56
+## File existed as early as:	1996
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

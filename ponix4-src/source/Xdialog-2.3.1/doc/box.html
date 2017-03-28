@@ -1,0 +1,256 @@
+<html>
+<head>
+<title>Xdialog documentation - Box options</title>
+</head>
+<body bgcolor="#102050" text="#F0E0A0" link="#00E000" vlink="#FF00B0" alink="#FF0000">
+<body bgcolor="#102050" text="#F0E0A0" link="#00E000" vlink="#FF00B0" alink="#FF0000">
+<table border=0 width="100%"><tr>
+<td align="left"><a href="common.html">previous</a><a name="TOP">&nbsp;</a>&nbsp;<a href="transient.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#BOTTOM">bottom</a></td>
+</tr></table>
+<hr>
+<center>
+<h1>Xdialog documentation - Box options</h1>
+<hr width=30%>
+</center>
+<p>&nbsp;
+<h2>General notes about the box options parameters:</h2>
+<p><ul>
+<li>The first parameter is a text string or a filename (this depends on the box option).
+<p align="justify">The <a name="TEXT"><b>&lt;text&gt;</b></a> parameter may contain &quot;\n&quot; characters sequences so that a long text can be splitted into several lines (see also the <a href="common.html#WRAP">--wrap</a>, <a href="common.html#WRAP">--no-wrap</a>, <a href="common.html#CRWRAP">--cr-wrap</a> and <a href="common.html#CRWRAP">--no-cr-wrap</a> common options about line wraping). Example:
+<pre>Xdialog --msgbox "text splitting\ntest..." 0 0</pre>
+<p align="justify">The <a name="FILE"><b>&lt;file&gt;</b></a> parameter may be replaced, for all but the <a href="#FSELECT">fselect</a> and <a href="#DSELECT">dselect</a> widgets, by &quot;-&quot; so that the input stream is redirected to Xdialog stdin. Example:
+<pre>echo "hello folks" | Xdialog --textbox "-" 0 0</pre>
+<li>Next come the menu <a name="SIZE"><b>&lt;height&gt;</b> and <b>&lt;width&gt;</b></a> in characters (because the proportional fonts got variable characters width, the width taken into account is the average width of 0-9, A-Z and a-z). See also the <a href="transient.html#BEGIN">--begin</a> transient option regarding Xdialog widgets origin.
+<p align="justify">These two numbers may be replaced by a single <b>&lt;XSIZExYSIZE&gt;</b> parameter (like the one passed in the -geometry option of X) which will represent the size of the Xdialog window in pixels (example: 300x200). As of v2.0.0, Xdialog also takes into account the position passed into the -geometry like parameter (e.g. 300x200+100-20). Note though that the actual Xdialog window position may be overidden by the window manager...
+<p align="justify">Moreover, the Xdialog widgets may be auto-sized (by GTK+) by passing a 0 0 (or 0x0) size parameter to Xdialog. A position may also be passed to an auto-sizing Xdialog window (e.g.: 0x0+200+100) but you should avoid passing a negative offset in this case (e.g. 0x0-200+100) because Xdialog can't guess what size GTK+ will give to its window and can't therefore place the right (or bottom) side of its window relatively to the right (or bottom) screen edge.
+<p align="justify">Last but not least, passing a -1 -1 (or -1x-1) size specification to Xdialog will make it maximize its window so to fill the whole screen (the origin also being set to 0 0).
+<p>Examples:
+<pre>
+Xdialog --msgbox "test" 6 20            # height of 6 characters and width of 20 characters
+Xdialog --msgbox "test" 160x96          # width of 160 pixels and height of 96 pixels
+Xdialog --msgbox "test" 160x96+200-100  # 160x96, left side at 200 pixels from the left
+                                        #  screen edge, bottom at 100 pixels from the bottom
+                                        #  of the screen
+Xdialog --msgbox "test" 0 0             # auto-sized widget
+Xdialog --msgbox "test" 0x0             # auto-sized widget
+Xdialog --msgbox "test" 0x0+200+100     # auto-sized widget at origin 200x100 from the top
+                                        #  left corner of the screen.
+
+Xdialog --msgbox "test" -1 -1           # maximized widget
+Xdialog --msgbox "test" -1x-1           # maximized widget
+</pre>
+<li>The other parameters are discussed into each box option description below.
+</ul>
+<hr>
+<h2>Available box options and parameters:</h2>
+<pre><ul>
+<li> <a href="#YESNO">--yesno</a>       &lt;text&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#MSGBOX">--msgbox</a>      &lt;text&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#INFOBOX">--infobox</a>     &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;timeout&gt;]
+<li> <a href="#GAUGE">--gauge</a>       &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;percent&gt;]
+<li> <a href="#PROGRESS">--progress</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;maxdots&gt; [[-]&lt;msglen&gt;]]
+<li> <a href="#INPUTBOX">--inputbox</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;init&gt;]
+<li> <a href="#INPUTBOX">--2inputsbox</a>  &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;init1&gt; &lt;label2&gt; &lt;init2&gt;
+<li> <a href="#INPUTBOX">--3inputsbox</a>  &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;init1&gt; &lt;label2&gt; &lt;init2&gt; &lt;label3&gt; &lt;init3&gt;
+<li> <a href="#COMBOBOX">--combobox</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;item1&gt; ... &lt;itemN&gt;
+<li> <a href="#RANGEBOX">--rangebox</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min value&gt; &lt;max value&gt; [&lt;default value&gt;]
+<li> <a href="#RANGEBOX">--2rangesbox</a>  &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label2&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt;
+<li> <a href="#RANGEBOX">--3rangesbox</a>  &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label2&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt; &lt;label3&gt; &lt;min3&gt; &lt;max3&gt; &lt;def3&gt;
+<li> <a href="#SPINBOX">--spinbox</a>     &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min&gt; &lt;max&gt; &lt;def&gt; &lt;label&gt;
+<li> <a href="#SPINBOX">--2spinsbox</a>   &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label1&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt; &lt;label2&gt;
+<li> <a href="#SPINBOX">--3spinsbox</a>   &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label1&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt; &lt;label2&gt; &lt;min3&gt; &lt;max3&gt; &lt;def3&gt; &lt;label3&gt;
+<li> <a href="#TEXTBOX">--textbox</a>     &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#EDITBOX">--editbox</a>     &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#TAILBOX">--tailbox</a>     &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#LOGBOX">--logbox</a>      &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#MENUBOX">--menubox</a>     &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;menu height&gt; &lt;tag1&gt; &lt;item1&gt; {&lt;help1&gt;}...
+<li> <a href="#CHECKLIST">--checklist</a>   &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; {&lt;help1&gt;}...
+<li> <a href="#RADIOLIST">--radiolist</a>   &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; {&lt;help1&gt;}...
+<li> <a href="#BUILDLIST">--buildlist</a>   &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; {&lt;help1&gt;}...
+<li> <a href="#TREEVIEW">--treeview</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; &lt;item_depth1&gt; {&lt;help1&gt;}...
+<li> <a href="#FSELECT">--fselect</a>     &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#DSELECT">--dselect</a>     &lt;directory&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#COLORSEL">--colorsel</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#FONTSEL">--fontsel</a>     &lt;font name&gt; &lt;height&gt; &lt;width&gt;
+<li> <a href="#CALENDAR">--calendar</a>    &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;day&gt; &lt;month&gt; &lt;year&gt;]
+<li> <a href="#TIMEBOX">--timebox</a>     &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;hours&gt; &lt;minutes&gt; &lt;seconds&gt;]
+</ul>
+</pre>
+<hr>
+<ul>
+<p><li><a name="YESNO"><b>--yesno</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt;
+<li><a name="MSGBOX"><b>--msgbox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt;
+<p align="justify">These widgets just display the &lt;text&gt; and wait for the user to press a button. The buttons in the <b>yesno</b> widget are (surprise, surprise !) <i>Yes</i> and <i>No</i>, while a single <i>OK</i> button is used for the <b>msgbox</b>.
+<p align="justify">The <b>yesno</b> widget accepts the <a href="transient.html#WIZARD">--wizard</a> transient option (that may itself be used together with <a href="transient.html#NOCANCEL">--no-cancel</a>); in this case the <i>Yes</i> and <i>No</i> buttons are replaced by the <i>Previous</i>, <i>Cancel</i> (if <a href="transient.html#NOCANCEL">--no-cancel</a> is not in force) and <i>Next</i> buttons. The <b>yesno</b> widget also accepts the <a href="transient.html#DEFAULTNO">--default-no</a> transient option.
+<p align="justify">Both widgets accept the <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="yesno.png" width=220 height=118>&nbsp;&nbsp;&nbsp;&nbsp;<img src="msgbox.png" width=165 height=118>
+<p><li><a name="INFOBOX"><b>--infobox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;timeout&gt;]
+<p align="justify">The infobox displays a &lt;text&gt; message and accepts an optional &lt;timeout&gt; parameter (the default is 1000). The infobox vanishes after <b>&lt;timeout&gt;/1000</b> seconds or when the <i>OK</i> button is pressed (this button may be suppressed by using the <a href="transient.html#NOBUTTONS">--no-buttons</a> transient option).
+<p><img src="infobox.png" width=249 height=88>
+<p align="justify">If a 0 timeout is passed as parameter, then the infobox widget behaves differently:
+<ul>
+<li>The <i>OK</i> button is replaced by a <i>Cancel</i> button (unless the <a href="transient.html#NOBUTTONS">--no-buttons</a> transient option is in force).
+<li>It accepts messages from stdin (much in the same way as the <a href="#GAUGE">gauge</a> widget). These messages may be &quot;XXXX&quot; (in which case the infobox is closed) or new &lt;text&gt; enclosed by &quot;XXX&quot; markers; newlines can be inserted into the &lt;text&gt; (in the same way as for the <a href="#GAUGE">gauge</a> widget).
+<li>It waits until the <i>Cancel</i> button is pressed, or the &quot;XXXX&quot; message is received, or until the stdin is put at EOF (unless the <a href="transient.html#IGNOREEOF">--ignore-eof</a> transient option is in force).
+</ul>
+<p align="justify">This widget also accepts the <a href="transient.html#ICON">--icon</a> transient option.
+<p align="justify">See also the <a href="compatibility.html#HIGH">(c)dialog compatibility notes</a>.
+<p><li><a name="GAUGE"><b>--gauge</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;percent&gt;]
+<p align="justify">This widgets displays the &lt;text&gt; and a progress bar (the gauge) which starting position is set according to the &lt;percent&gt; parameter (if any, the default being 0%).
+<p align="justify">Once set up, it accepts new percentage values (the gauge being updated accordingly) on stdin as well as new &lt;text&gt; enclosed by two "XXX" markers; a newline can be inserted into the new &lt;text&gt by issuing:
+<pre>echo "\\n"</pre><p align="justify">between each line sent to Xdialog stdin (i.e. Xdialog must actually receive on stdin a string holding the two &quot;\&quot; and &quot;n&quot; characters, and not just a line feed).
+<p align="justify">The <b>gauge</b> widget vanishes once the percent value exceeds 100% or when its stdin is put at EOF (unless the <a href="transient.html#IGNOREEOF">--ignore-eof</a> transient option is in force).
+<p><img src="gauge.png" width=168 height=90>
+<p align="justify">This widget also accepts the <a href="transient.html#ICON">--icon</a> transient option.
+<p align="justify">See also the <a href="compatibility.html#FEATURES">(c)dialog compatibility notes</a>.
+<p><li><a name="PROGRESS"><b>--progress</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;maxdots&gt; [[-]&lt;msglen&gt;]]
+<p align="justify">The <b>progress</b> widget looks exactly as a <a href="#GAUGE">gauge</a> widget but behaves differently. It is designed so that it can interact easily with console utilities issuing progress reports on their output stream, either in the form of &quot;dots&quot; (or hashes, stars, etc...) or of a number (percentage or any counter).
+<p align="justify">The &lt;text&gt; parameter is displayed and may be appended with a message which is read from Xdialog stdin and which number of characters is &lt;msglen&gt;. If you don't care about the leading message sent by the console utility before the actual &quot;dots&quot;/values are sent, then you may pass the number of characters to be ignored as a negative value. Unlike the gauge widget, there is no way to change this text once it is setup and displayed. When &lt;msglen&gt; is omitted (or when &lt;msglen&gt; is 0), none of the leading message characters (if any) are appended to &lt;text&gt; nor ignored (beware that in this case, any leading message characters will be taken into account as &quot;dots&quot;&nbsp;!).
+<p align="justify">The progress bar is initially set to 0 and will accept any number of &quot;dots&quot; or any counter value below &lt;maxdots&gt;. Each time a new &quot;dot&quot; or a new value is received on the Xdialog input stream (stdin), the progress bar is updated accordingly (a percentage is also calculated and shown into the progress bar). If &lt;maxdots&gt; is omitted or passed as 0, then a default max value of 100 is used.
+<p align="justify">The widget is automatically closed whenever the &lt;maxdots&gt; number is exceeded or when Xdialog stdin is put at EOF.
+<p align="justify">Here are two examples of how to use this widget: <a href="samples/allrpms">allrpms</a> and <a href="samples/format1440">format1440</a>.
+<p align="justify">This widget also accepts the <a href="transient.html#ICON">--icon</a> transient option.
+<p><li><a name="INPUTBOX"><b>--inputbox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;init&gt;]
+<li><b>--2inputsbox</b> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;init1&gt; &lt;label2&gt; &lt;init2&gt;
+<li><b>--3inputsbox</b> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;init1&gt; &lt;label2&gt; &lt;init2&gt; &lt;label3&gt; &lt;init3&gt;
+<p align="justify">The <b>--inputbox</b> widget displays a &lt;text&gt; together with an entry field accepting any string. The string typing into the field may be hidden (entered characters are displayed as &quot;*&quot;) thanks to the <a href="transient.html#PASSWORD">--password</a> transient option. The entered string is returned (printed to Xdialog output stream) when the <i>OK</i> button is pressed (nothing is returned if the <i>Cancel</i> button is pressed; this button may itself be removed from the widget by using the <a href="transient.html#NOCANCEL">--no-cancel</a> transient option). An optional &lt;init&gt; string may be passed so to be setup as the default entered string (which will appear into the text entry field when the widget is drawn).
+<p align="justify">The <b>--2inputsbox</b> and the <b>--3inputsbox</b> widgets allow for two or three entry fields into the same box (see the <a href="transient.html#PASSWORD">--password</a> transient option to learn how these fields are affected). A &lt;label&gt; is setup above each field (see the  <a href="common.html#JUSTIFICATION">--center</a>, <a href="common.html#JUSTIFICATION">--left</a>, <a href="common.html#JUSTIFICATION">--right</a> and <a href="common.html#JUSTIFICATION">--fill</a> common options to learn how the labels justification and alignement can be affected); as for the &lt;<a href="#TEXT">text</a>&gt; parameter, the &lt;label&gt;s may hold &quot;\n&quot; sequences IOT force text splitting into several lines. The &lt;init&gt; strings cannot be omitted but may perfectly be NULL (empty) strings.
+<p align="justify">All three widgets also accept the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#NOBUTTONS">--no-buttons</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p align="justify">See also the <a href="compatibility.html#FEATURES">(c)dialog compatibility notes</a>.
+<p><img src="input.png" width=288 height=122 align="middle">&nbsp;&nbsp;&nbsp;&nbsp;<img src="password.png" width=288 height=242 align="middle">
+<p><li><a name="COMBOBOX"><b>--combobox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;item1&gt; ... &lt;itemN&gt;
+<p align="justify">The combobox displays a &lt;text&gt; together with an entry field to which a pull-down list of &lt;items&gt; is attached: the user may choose an item into the pull-down list or edit the entry field (provided the <a href="transient.html#EDITABLE">--editable</a> transient option was specified). Xdialog returns the entry field contents once the <i>OK</i> button is pressed.
+<p align="justify">This widget also accepts the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#NOBUTTONS">--no-buttons</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="combobox.png" width=288 height=122>
+<p><li><a name="RANGEBOX"><b>--rangebox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min value&gt; &lt;max value&gt; [&lt;default value&gt;]
+<li><b>--2rangesbox</b> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label2&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt;
+<li><b>--3rangesbox</b> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;label1&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label2&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt; &lt;label3&gt; &lt;min3&gt; &lt;max3&gt; &lt;def3&gt;
+<p align="justify">The <b>--rangebox</b> widget displays a &lt;text&gt; together with a horizontal slider which scale ranges from &lt;min value&gt; to &lt;max value&gt;. The initial position of the cursor on the slider is set to &lt;default value&gt; (when the &lt;default value&gt; parameter is omitted, the cursor position is set to the &lt;min value&gt;). The value corresponding to the current cursor position is returned (printed to Xdialog output stream) when the <i>OK</i> button is pressed (nothing is returned if the <i>Cancel</i> button is pressed; this button may itself be removed from the widget by using the <a href="transient.html#NOCANCEL">--no-cancel</a> transient option).
+<p align="justify">The <b>--2rangesbox</b> and the <b>--3rangesbox</b> widgets allow for two or three sliders into the same box. A &lt;label&gt; is setup above each slider (see the  <a href="common.html#JUSTIFICATION">--center</a>, <a href="common.html#JUSTIFICATION">--left</a>, <a href="common.html#JUSTIFICATION">--right</a> and <a href="common.html#JUSTIFICATION">--fill</a> common options to learn how the labels justification and alignement can be affected); as for the &lt;<a href="#TEXT">text</a>&gt; parameter, the &lt;label&gt;s may hold &quot;\n&quot; sequences IOT force text splitting into several lines. The &lt;def&gt; values cannot be omitted.
+<p align="justify">All three widgets also accept the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="range.png" width=288 height=141 align="middle">&nbsp;&nbsp;&nbsp;&nbsp;<img src="2ranges.png" width=288 height=240 align="middle">
+<p><li><a name="SPINBOX"><b>--spinbox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min&gt; &lt;max&gt; &lt;def&gt; &lt;label&gt;
+<li><b>--2spinsbox</b> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label1&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt; &lt;label2&gt;
+<li><b>--3spinsbox</b> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;min1&gt; &lt;max1&gt; &lt;def1&gt; &lt;label1&gt; &lt;min2&gt; &lt;max2&gt; &lt;def2&gt; &lt;label2&gt; &lt;min3&gt; &lt;max3&gt; &lt;def3&gt; &lt;label3&gt;
+<p align="justify">These widgets are more suited than <a href="#RANGEBOX">ranges boxes</a> for input of values with units. They display a &lt;text&gt; and one to three spin buttons which value may range from &lt;min&gt; to &lt;max&gt; and defaults to &lt;def&gt;. Each spin box is followed by a &lt;label&gt; (more likely a unit name or a separator); this label is not setup if passed as an empty string.
+<p align="justify">All three widgets accept the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="spinbox.png" width=288 height=196>
+<p><li><a name="TEXTBOX"><b>--textbox</b></a> &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li><a name="EDITBOX"><b>--editbox</b></a> &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<p align="justify">These widgets allow to display a text file contents. If the &lt;file&gt; parameter is replaced with a &quot;-&quot; (minus sign), then the text to be displayed is read from Xdialog stdin. The <b>--editbox</b> allows to edit the text and returns it (i.e. prints it on Xdialog output stream) once the <i>OK</i> button is pressed.
+<p align="justify">Both widgets accept the <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#HELP">--help</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#NOCANCEL">--no-cancel</a>, <a href="transient.html#FIXEDFONT">--fixed-font</a>, <a href="transient.html#PRINT">--print</a>, <a href="transient.html#WIZARD">--wizard</a> and <a href="transient.html#CHECK">--check</a> transient options. The <b>textbox</b> also accepts the <a href="transient.html#NOBUTTONS">--no-buttons</a> transient option.
+<p align="justify">See also the <a href="compatibility.html#HIGH">(c)dialog compatibility notes</a>.
+<p><img src="editbox.png" width=380 height=353>
+<p><li><a name="TAILBOX"><b>--tailbox</b></a> &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<p align="justify">The <b>tailbox</b> widget ressembles to a <a href="#TEXTBOX">textbox</a> but the text is automatically scrolled to the end and is regularly updated (so that any <b>addition</b> to the file is reflected into the tailbox; note that if the file is <b>truncated</b>, <b>deleted</b> or <b>overwritten</b> by another program while the tailbox is displaying it, the update is stopped). As for the <a href="#TEXTBOX">textbox</a>, if the &lt;file&gt; parameter is replaced with a &quot;-&quot; (minus sign), then the text to be displayed is read from Xdialog stdin.
+<p align="justify">This widget accepts the <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#SMOOTH">--smooth</a>, <a href="transient.html#HELP">--help</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#NOBUTTONS">--no-buttons</a>, <a href="transient.html#NOOK">--no-ok</a>, <a href="transient.html#NOCANCEL">--no-cancel</a>, <a href="transient.html#FIXEDFONT">--fixed-font</a>, <a href="transient.html#PRINT">--print</a>, <a href="transient.html#WIZARD">--wizard</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p align="justify">See also the <a href="compatibility.html#PENDING">(c)dialog compatibility notes</a>.
+<p><img src="tailbox.png" width=315 height=286>
+<p><li><a name="LOGBOX"><b>--logbox</b></a> &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<p align="justify">The <b>logbox</b> is much like a <a href="#TAILBOX">tailbox</a> but it may use different colours (both foreground and background) for each line it displays. The messages (i.e. each line) may as well be time/date stamped thanks to the <a href="transient.html#TIMESTAMP">--time-stamp</a> and <a href="transient.html#TIMESTAMP">--date-stamp</a> transient options. Moreover the messages may appear in reverse order (i.e. last message at the top of the list) thanks to the <a href="transient.html#REVERSE">--reverse</a> transient option.
+<p align="justify">On the other hand, the log box cannot use the <a href="transient.html#FIXEDFONT">--fixed-font</a> and <a href="transient.html#PRINT">--print</a> transient options, the text is not wrapped automatically when the box is not large enough for lines to fit in it (but you may use the horizontal scroll bar to view the whole lines), and the text displayed can't be selected with the mouse (for copy and paste purpose).
+<p align="justify">Colour selection is controlled by the insertion of escape sequences into the text held in &lt;file&gt;. Recognized escape sequences are <b>ESC[1;30m</b> to <b>ESC[1;38m</b> (for foreground colour) and <b>ESC[1;40m</b> to <b>ESC[1;48m</b> (for background colour), any combination of foreground and background colours being accepted as well (e.g. <b>ESC[1;31;43m</b>). Note that only the first escape sequence encountered in each line is taken into account, and whatever is its actual position into the line (at the start of the line, embedded in the text, or at the end of the line), the whole line will be given the corresponding attribute(s) (i.e. you can't highlight a single word into a line). By using the <a href="transient.html#KEEPCOLORS">--keep-colors</a> transient option, you can instruct Xdialog to keep the foreground and background colour setting from one message to the others (i.e. until a new escape sequence is received).
+<p align="justify">This widget also accepts the <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#SMOOTH">--smooth</a>, <a href="transient.html#HELP">--help</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#NOBUTTONS">--no-buttons</a>, <a href="transient.html#NOOK">--no-ok</a>, <a href="transient.html#NOCANCEL">--no-cancel</a>, <a href="transient.html#WIZARD">--wizard</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p>
+<table>
+<tr>
+<td align=center width=450><img src="logbox.png" width=410 height=284 align=left></td>
+<td align=center>
+<table border=2 align=center bgcolor="#401020">
+<tr>
+<td align=center>COLOUR</td><td align=center>FOREGROUND<br>CODE</td><td align=center>BACKGROUND<br>CODE</td>
+</tr>
+<tr>
+<td align=center bgcolor="#000000"><font color="#FFFFFF">BLACK</font></td><td align=center>30</td><td align=center>40</td>
+</tr>
+<tr>
+<td align=center bgcolor="#FF0000"><font color="#000000">RED</font></td><td align=center>31</td><td align=center>41</td>
+</tr>
+<tr>
+<td align=center bgcolor="#00FF00"><font color="#000000">GREEN</font></td><td align=center>32</td><td align=center>42</td>
+</tr>
+<tr>
+<td align=center bgcolor="#FFFF00"><font color="#000000">YELLOW</font></td><td align=center>33</td><td align=center>43</td>
+</tr>
+<tr>
+<td align=center bgcolor="#0000FF"><font color="#FFFFFF">BLUE</font></td><td align=center>34</td><td align=center>44</td>
+</tr>
+<tr>
+<td align=center bgcolor="#FF00FF"><font color="#000000">MAGENTA</font></td><td align=center>35</td><td align=center>45</td>
+</tr>
+<tr>
+<td align=center bgcolor="#00FFFF"><font color="#000000">CYAN</font></td><td align=center>36</td><td align=center>46</td>
+</tr>
+<tr>
+<td align=center bgcolor="#FFFFFF"><font color="#000000">WHITE</font></td><td align=center>37</td><td align=center>47</td>
+</tr>
+<tr>
+<td align=center>GTK+ theme settings</td><td align=center>38</td><td align=center>48</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p><li><a name="MENUBOX"><b>--menubox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;menu height&gt; &lt;tag1&gt; &lt;item1&gt; {&lt;help1&gt;}...
+<p align="justify">This widget presents the &lt;text&gt; together with a menu. For each line in the menu, there must be a &lt;tag&gt; and an &lt;item&gt; parameters. The tag is displayed left (provided that the <a href="transient.html#NOTAGS">--no-tags</a> transient option is not in force) and the menu item right.
+<p align="justify">The &lt;help&gt; parameters are only to be used if the <a href="transient.html#ITEMHELP">--item-help</a> transient option is in force; the help text is then displayed into a status bar below the menu each time a new menu item is selected.
+<p align="justify">The &lt;menu height&gt; is the number of lines (in characters) to which the menu sub-window should be set (a height of 0 will let Xdialog auto-size); of course the overall widget &lt;height&gt; must be big enough (or the widget auto-size must be in force), else the &lt;menu height&gt; will not be taken into account.
+<p align="justify">The default selected row in the menu is normally the first row, but this can be changed thanks to the <a href="transient.html#DEFAULTITEM">--default-item</a> transient option.
+<p align="justify">Although there is no &lt;status&gt; parameter for the menubox, it is possible to make a menu item unavailable by setting its &lt;tag&gt; to an empty string (in this case, if the <a href="transient.html#NOTAGS">--no-tags</a> transient option is not in force, the tag will appear as a tilde). The unavailable rows appear in dark grey text on light grey background.
+<p align="justify">When the <i>OK</i> button is pressed, the widget prints, onto the Xdialog output stream, the tag corresponding to the last selected menu entry.
+<p align="justify">This widget also accepts the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p align="justify">See also the <a href="compatibility.html#FEATURES">(c)dialog compatibility notes</a>.
+<p><img src="withtags.png" width=288 height=172>
+<p><li><a name="CHECKLIST"><b>--checklist</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; {&lt;help1&gt;}...
+<li><a name="RADIOLIST"><b>--radiolist</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; {&lt;help1&gt;}...
+<p align="justify">These widgets present the &lt;text&gt; together with a list of &lt;item&gt;s each one being prefixed with their corresponding &lt;tag&gt; (provided that the <a href="transient.html#NOTAGS">--no-tags</a> transient option is not in force).
+<p align="justify">Each &lt;status&gt; parameter (which value may be &quot;on&quot;, &quot;off&quot; or &quot;unavailable&quot;) tells to Xdialog if the corresponding &lt;item&gt; must be selected as default (&quot;on&quot;), unset but available (&quot;off&quot;) or &quot;unavailable&quot; (i.e. visible but not selectable); note that it is also possible to make an item unavailable by setting its &lt;tag&gt; to an empty string. Exactly one item is selected at any time in a <b>radiolist</b>, while the <b>checklist</b> allows for any number of items (0 to all items) to be selected at a time.
+<p align="justify">The &lt;help&gt; parameters are only to be used if the <a href="transient.html#ITEMHELP">--item-help</a> transient option is in force; the help text is then displayed as tooltips when the mouse pointer stays long enough (usually 0.5s) over an item.
+<p align="justify">The &lt;list height&gt; is the number of lines (in characters) to which the list sub-window should be set (a height of 0 will let Xdialog auto-size); of course the overall widget &lt;height&gt; must be big enough (or the widget auto-size must be in force), else the &lt;list height&gt; will not be taken into account.
+<p align="justify">The tag(s) of the selected item(s) are sent onto the Xdialog output stream when the <i>OK</i> button is pressed. For the <b>checklist</b>, each tag is separated from the other with a &quot;/&quot; character; this separator may be changed by using either the <a href="common.html#SEPARATOR">--separator</a> or the <a href="common.html#SEPARATOR">--separate-output</a> common options.
+<p align="justify">These widgets also accept the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="checklist.png" width=235 height=209>&nbsp;&nbsp;&nbsp;&nbsp;<img src="radiolist.png" width=235 height=209>
+<p><li><a name="BUILDLIST"><b>--buildlist</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; {&lt;help1&gt;}...
+<p align="justify">This widget presents the &lt;text&gt; together with two list sub-windows and two buttons (<i>Add</i> and <i>Remove</i>). In the left-most sub-window all unselected and unavailable items are listed (those items either had an &quot;off&quot; or &quot;unavailable&quot; &lt;status&gt; or have been <i>Remove</i>d from the list by the user). The right-most sub-window presents the list of all selected items (those items either had an &quot;on&quot; &lt;status&gt; or have been <i>Add</i>ed to the list by the user). Note that it is also possible to make an item unavailable by setting its &lt;tag&gt; to an empty string.
+<p align="justify">The &lt;help&gt; parameters are only to be used if the <a href="transient.html#ITEMHELP">--item-help</a> transient option is in force; the help text is then displayed as tooltips when the mouse pointer stays long enough (usually 0.5s) over an item.
+<p align="justify">The &lt;list height&gt; is the number of lines (in characters) to which the list sub-window should be set (a height of 0 will let Xdialog auto-size); of course the overall widget &lt;height&gt; must be big enough (or the widget auto-size must be in force), else the &lt;list height&gt; will not be taken into account.
+<p align="justify">IOT <i>Add</i> or <i>Remove</i> items, the user must first highlight them and then press the proper button. The items appear in the order in which they were added/removed and this order is kept when the result is sent to the Xdialog output stream (when the <i>OK</i> button is pressed): the corresponding &lt;tag&gt;s are sent in the exact order in which the associated items appear in the right-most sub-window. Each tag is separated from the other with a &quot;/&quot; character; this separator may be changed by using either the <a href="common.html#SEPARATOR">--separator</a> or the <a href="common.html#SEPARATOR">--separate-output</a> common options.
+<p align="justify">This widget also accepts the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="buildlist.png" width=390 height=216>
+<p><li><a name="TREEVIEW"><b>--treeview</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; &lt;list height&gt; &lt;tag1&gt; &lt;item1&gt; &lt;status1&gt; &lt;item_depth1&gt; {&lt;help1&gt;}...
+<p align="justify">This widget presents the &lt;text&gt; together with a sub-window holding a tree of the &lt;item&gt;s in the order in which they appear into the Xdialog command line and at the associated &lt;item_depth&gt; (which should range from 1 to 24). Note that from one item to the next, the depth must never increase by more than one while it may decrease by more than one. The &lt;list height&gt; is the number of lines (in characters) to which the list sub-window should be set (a height of 0 will let Xdialog auto-size); of course the overall widget &lt;height&gt; must be big enough (or the widget auto-size must be in force), else the &lt;list height&gt; will not be taken into account. When the <i>OK</i> button is pressed, the widget sends the &lt;tag&gt; associated with the last selected item to the Xdialog output stream.
+<p align="justify">Each &lt;status&gt; parameter (which value may be &quot;on&quot;, &quot;off&quot; or &quot;unavailable&quot;) tells to Xdialog if the corresponding &lt;item&gt; must be selected as default (&quot;on&quot;), unset but available (&quot;off&quot;) or &quot;unavailable&quot; (i.e. visible but not selectable); it is also possible to make an item unavailable by setting its &lt;tag&gt; to an empty string. Note that if an item with an &quot;unavailable&quot; &lt;status&gt; is the root of a branch of the tree, then all the items in this branch can't be accessed (whatever is their own &lt;status&gt;). Exactly one item is selected at any time.
+<p align="justify">The &lt;help&gt; parameters are only to be used if the <a href="transient.html#ITEMHELP">--item-help</a> transient option is in force; the help text is then displayed as tooltips when the mouse pointer stays long enough (usually 0.5s) over an item.
+<p align="justify">This widget also accepts the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p align="justify">Note: there is a bug in all GTK+ releases (up to and including v1.2.10) that prevents Xdialog to highlight the default selected item (the &quot;on&quot; &lt;status&gt; of this item is actually taken into account but the item can't be highlighted when the widget is drawn).
+<p><img src="treeview.png" width=263 height=257>
+<p><li><a name="FSELECT"><b>--fselect</b></a> &lt;file&gt; &lt;height&gt; &lt;width&gt;
+<li><a name="DSELECT"><b>--dselect</b></a> &lt;directory&gt; &lt;height&gt; &lt;width&gt;
+<p align="justify">These widgets make use of the GTK+ file selector. They allow to select a filename (for the fselect widget) or a directory name (for the dselect widget). The &lt;file&gt; (for fselect) and &lt;directory&gt; (for dselect) parameters are used as the default selection. Using the <a href="transient.html#NOBUTOONS">--no-buttons</a> transient option prevents the <i>New directory</i>, <i>Delete file</i> and <i>Rename file</i> buttons to be displayed in the file selector. The <a href="transient.html#HELP">--help</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#NOCANCEL">--no-cancel</a> and <a href="transient.html#DEFAULTNO">--default-no</a> transient options are allowed, even if <a href="transient.html#NOBUTTONS">--no-buttons</a> was specified. The <a href="transient.html#CHECK">--check</a> and <a href="transient.html#TIMEOUT">--timeout</a> transient options may also be used. The widgets return the user-selected file/directory name once the <i>OK</i> button is pressed.
+<p><img src="fselect.png" width=417 height=364 align="middle">&nbsp;&nbsp;&nbsp;&nbsp;<img src="dselect.png" width=417 height=364 align="middle">
+<p><li><a name="COLORSEL"><b>--colorsel</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;red&gt; &lt;green&gt; &lt;blue&gt;]
+<p align="justify">This widget makes use of the GTK+ color selector. It displays the &lt;text&gt; and allows the user to choose a colour, returned as a RGB tripplet, each value in the tripplet being between 0 and 255 (example: &quot;50 68 205&quot; which means Red=50, Green=68 and Blue=205). When the &lt;red&gt; &lt;green&gt; &lt;blue&gt; parameters are given, then the color selector cursors are preset to these values.
+<p align="justify">The <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#HELP">--help</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#NOCANCEL">--no-cancel</a>, <a href="transient.html#DEFAULTNO">--default-no</a> and <a href="transient.html#CHECK">--check</a> transient options may also be used.
+<p><img src="colorsel.png" width=476 height=315 align="middle">
+<p><li><a name="FONTSEL"><b>--fontsel</b></a> &lt;font name&gt; &lt;height&gt; &lt;width&gt;
+<p align="justify">This widget makes use of the GTK+ font selector and allows the user to choose a font. A font name is to be passed (even as an empty string if needed) and the corrsponding font is displayed. On successful return, the Xdialog then returns the name of the font selected by the user.
+<p align="justify">The <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#HELP">--help</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#NOCANCEL">--no-cancel</a>, <a href="transient.html#DEFAULTNO">--default-no</a> and <a href="transient.html#CHECK">--check</a> transient options may also be used.
+<p><img src="fontsel.png" width=490 height=413 align="middle">
+<p><li><a name="CALENDAR"><b>--calendar</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;day&gt; &lt;month&gt; &lt;year&gt;]
+<p align="justify">This widget displays the &lt;text&gt; together with a calendar showing the month holding the date defined by the &lt;day&gt; (1 to 31) &lt;month&gt;, (1 to 12) and &lt;year&gt; (1970 and over) parameters (if any of these parameters is 0 or if they are all omitted, then the current date is used). The user may then browse the calendar and choose another date. Once the <i>OK</i> button is pressed, the widget returns the user-selected date (in the form DD/MM/YYYY).
+<p align="justify">This widget also accepts the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="calendar.png" width=288 height=242>
+<p><li><a name="TIMEBOX"><b>--timebox</b></a> &lt;text&gt; &lt;height&gt; &lt;width&gt; [&lt;hours&gt; &lt;minutes&gt; &lt;seconds&gt;]
+<p align="justify"> This widget displays the &lt;text&gt; together with the time given in parameter (or the current time if &lt;hours&gt;, &lt;minutes&gt; and &lt;seconds&gt; are omitted) into three &quot;spin buttons&quot; (hours, minutes and seconds). The user may change the time displayed and the widget returns the user-set time (in the form HH:MM:SS) once the <i>OK</i> button is pressed.
+<p align="justify">This widget also accepts the <a href="transient.html#INTERVAL">--interval</a>, <a href="transient.html#TIMEOUT">--timeout</a>, <a href="transient.html#ICON">--icon</a>, <a href="transient.html#DEFAULTNO">--default-no</a>, <a href="transient.html#WIZARD">--wizard</a>, <a href="transient.html#HELP">--help</a> and <a href="transient.html#CHECK">--check</a> transient options.
+<p><img src="timebox.png" width=288 height=175>
+</ul>
+<hr>
+<table border=0 width="100%"><tr>
+<td align="left"><a href="common.html">previous</a><a name="BOTTOM">&nbsp;</a>&nbsp;<a href="transient.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#TOP">top</a></td>
+</tr></table>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>

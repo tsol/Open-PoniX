@@ -1,0 +1,24 @@
+From ed6ebd8bc852845e34e8160eed43b29236b1892f Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 11 Jun 2012 12:19:34 +0530
+Subject: [PATCH 43/57] ath9k_hw: program OBS register only when MCI is
+ disabled
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/hw.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -1927,7 +1927,8 @@ int ath9k_hw_reset(struct ath_hw *ah, st
+ 
+ 	ath9k_hw_set_dma(ah);
+ 
+-	REG_WRITE(ah, AR_OBS, 8);
++	if (!ath9k_hw_mci_is_enabled(ah))
++		REG_WRITE(ah, AR_OBS, 8);
+ 
+ 	if (ah->config.rx_intr_mitigation) {
+ 		REG_RMW_FIELD(ah, AR_RIMT, AR_RIMT_LAST, 500);

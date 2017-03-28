@@ -1,0 +1,165 @@
+DESCRIPTION
+
+	Binwalk is a tool for searching a given binary image for embedded file types. Specifically,
+	it was designed for identifying files embedded inside of firmware images. Binwalk file signatures
+	are compatible with the magic signatures used by the Unix file utility.
+
+	Binwalk includes a custom magic signature file, 'magic.binwalk'. This file contains improved 
+	signatures for files that are commonly found in firmware images such as compressed/archived files, 
+	Linux kernels, bootloaders, filesystems, etc. 
+
+	Since version 0.3.3 an additional option, -C, is included. Specifying this option displays the 
+	value of each file offset in various data types (long, short, date, etc), as defined in 'magic.bincast'.
+	This is useful for identifying header fields such as date and length values.
+
+	Since version 0.3.8 an additional option, -A, is included. This option scans the specified file(s) for
+	executable code by searching for opcodes associated with the function prologues/epiloges of various
+	architectures. These opcode signatures are defined in 'magic.binarch'.
+
+USAGE
+
+	The only required options to Binwalk are the file(s) that you want to search:
+
+		$ binwalk firmware1.bin firmware2.bin firmware3.bin
+
+	By default binwalk will include short signatures for gzip, lzma and jffs2 file fomats, and exclude 
+	invalid results. These default filters can be disabled with the -d option, which will speed up the 
+	scan time but may cause binwalk to miss gzip, lzma or jffs2 files:
+
+		$ binwalk -d firmware.bin
+
+	If searching for specific files, the scan time can be significantly improved by specifying the -y
+	option. The -y option only searches for signatures that match the specified string(s):
+
+		$ binwalk -y jffs2 firmware.bin
+		$ binwalk -y jffs2 -y cramfs firmware.bin
+
+	By default binwalk will use the signatures from the binwalk.magic file, but you may specify any other
+	libmagic-compatible signature file with the -m option. Note that for full maigc file compatibility,
+	you must specify the -s option to disable 'smart' matching:
+
+		$ binwalk -m /usr/share/misc/magic -s firmware.bin
+
+	By default binwalk will check for valid file signatures anywhere in the target file. This means that
+	scanning a 4MB file is the equivalent of running the Unix file utility 4 million times. To
+	decrease scan time, you may specify the byte alignment via the -b option. If, for example,
+	you specify a byte alignment of 16, then binwalk will assume that everything in the file is
+	16-byte aligned and will only look for signatures every 16 bytes:
+
+		$ binwalk -b 16 firmware.bin
+
+	You may also specify at what offset into the firmware image to start searching, and how many
+	bytes should be searched. The following command searches 1000 bytes of data starting at an offset
+	of 100:
+		
+		$ binwalk -o 100 -l 1000 firmware.bin
+
+	All integer arguments, such as -o, and -l, can be entered as decimal (ex: 16) or hexadecimal
+	(ex: 0x10, \x10, 10H, 10h) values.
+
+	By default, all magic signatures that are only two bytes long are ignored as they have a high
+	rate of false positive matches. To include these magic signatures, specify the -a option:
+
+		$ binwalk -a firmware.bin
+
+	By default, binwalk will apply several default filters in order to improve scan reliability.
+	These filters can be explicitly disabled with the -d option:
+
+		$ binwalk -d firmware.bin
+
+	You can also include individual signatures from the default exclude list with the -i option:
+
+		$ binwalk -i gzip firmware.bin
+	
+	Include and exclude filters may also be specified in order to limit the search results. Multiple
+	include / exclude filters may be specified, and are case insensitive. If an include filter is specified,
+	only descriptions that match that filter will be displayed. If an exclude filter is specified, all
+	results will be displayed except those that match the exclude filter. If both exclude and include
+	filters are specified, exclude filters trump include filters.
+
+	Only search for gzip results:
+
+		$ binwalk -y gzip firmware.bin
+
+	Search for everything except results that contain the string 'system':
+
+		$ binwalk -x system firmware.bin
+
+	Search only for results that are file systems, but that are not JFFS2 file systems:
+
+		$ binwalk -y filesystem -x jffs2 firmware.bin
+
+	To update to the latest magic file definitions, use the -u option:
+
+		# binwalk -u
+
+	Some scans can take some time to complete and may not display many results during this time. 
+	You can press the enter key at any time to force binwalk to display its current scan progress:
+
+		$ binwalk -v firmware.bin
+
+		Scan Time:    Dec 09, 2011 @ 18:00:42
+		Magic File:   /usr/local/etc/binwalk/magic.binwalk
+		Signatures:   76
+		Target File:  firmware.bin
+		MD5 Checksum: 1c802dbacdcfc0b96b900f8680d9d196
+
+		DECIMAL   	HEX       	DESCRIPTION
+		------------------------------------------------------------------------------------------
+		<Enter>
+		Progress:  1595 / 12074736  (0.01%)
+		<Enter>
+		Progress:  8015 / 12074736  (0.07%)
+		<Enter>
+		Progress:  12424 / 12074736  (0.10%)
+
+
+	
+
+INSTALLATION
+
+	To build and install binwalk, run:
+
+		$ ./configure	
+		$ make
+		# make install
+
+DEPENDENCIES
+
+	Binwalk is currently supported on the Linux and Mac OSX platforms. 
+	
+	To build from source, you must have the libmagic, zlib and libcurl libraries. 
+	Debian users can install zlib and libcurl via apt-get:
+
+		$ sudo apt-get install libmagic-dev zlib1g-dev libcurl4-openssl-dev
+	
+	Note that some distributions/platforms may not have libmagic readily available,
+	or may use a version of libmagic that is incompatible with binwalk. In this
+	case, you may download the source code for the Unix file utility at: 
+	
+		ftp://ftp.astron.com/pub/file/
+
+	Building and installing the file utility will also install libmagic.
+	
+FILES
+
+	docs/README		Project README file
+	docs/COPYING		Project license file
+        src/binwalk.c		Main binwalk source code file
+        src/binwalk.h		Main binwalk source header file
+	src/common.c		Common functions used by binwalk
+	src/common.h		Common function declarations and definitions
+	src/dd.c		Code for dumping sections of the target file to disk
+	src/dd.h		DD code functions header file.
+	src/filter.c		Result filtering functions
+	src/filter.h		Filter functions header file
+	src/magic.binarch	Custom magic signature file for opcode scans
+        src/magic.bincast	Custom magic signature file for casting data types
+        src/magic.binwalk	Custom magic signature file for binwalk
+	src/md5.c		MD5 algorithm code by Peter Deutsch
+	src/md5.h		MD5 algorithm header by Peter Deutsch
+	src/mparse.c		Minimal magic file parsing library
+	src/mparse.h		Parsing library header file
+	src/update.c		Magic file update routines
+	src/update.h		Updates header file
+

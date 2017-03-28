@@ -1,0 +1,125 @@
+#!/bin/sh
+
+# This script compiles and installs a small wrapper that will allow to
+# automatically run Xdialog instead of (c)dialog when a script using
+# (c)dialog is ran under the X server. It will also optionally replace
+# gdialog.
+
+# Change this to suit your compiler...
+CC="gcc"
+CCOPT="-Wall -o Xdialog.wrapper Xdialog.wrapper.c"
+
+BOX_TITLE="Xdialog wrapper"
+BACKTITLE="Xdialog wrapper installation"
+
+function errors() {
+	if (( $? != 0 )) ; then
+		Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" --no-close \
+			--icon ./warning.xpm \
+			--yesno "An error occured, do you want\nto see details about it ?" 0 0
+		if (( $? == 0 )) ; then
+			Xdialog --title "$BOX_TITLE" --backtitle "Error message:" --no-cancel \
+				--textbox /tmp/wrapper.$$ 20 64
+		fi
+		rm -f /tmp/wrapper.$$
+		exit 1
+	fi
+}
+
+if [ -x /usr/bin/Xdialog.wrapper ] ; then
+	Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" \
+		--msgbox "Xdialog wrapper already installed." 0 0
+	exit 0
+fi
+
+Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" \
+	--yesno "This script installs a small wrapper\n\
+that will automatically invoke \"Xdialog\"\n\
+instead of \"dialog\" or \"cdialog\", when\n\
+the user is working under X.\n\n\
+Do you want to continue (note that you
+must be root to run this script) ?" 0 0
+
+if (( $? != 0 )) ; then
+	exit 0
+fi
+
+DIALOG=""
+CDIALOG=""
+PATH_LIST=`echo $PATH | sed -e "y/:/ /"`
+for i in $PATH_LIST; do
+	if [ "$DIALOG" == "" ] && [ -d $i ] ; then
+		DIALOG=`find $i -name dialog -print`
+	fi
+	if [ "$CDIALOG" == "" ] && [ -d $i ] ; then
+		CDIALOG=`find $i -name cdialog -print`
+	fi
+done
+
+if ! [ -x Xdialog.wrapper ] ; then
+	if ! [ -f Xdialog.wrapper.c ] ; then
+		Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" --left \
+			--msgbox "Error:\nCan't find \"Xdialog.wrapper.c\"" 0 0
+		rm -f /tmp/wrapper.$$
+		exit 1
+	fi
+	echo "" >/tmp/wrapper.$$
+	( echo "Compiling the wrapper..." ; $CC $CCOPT 2>&1 ; echo "Done." ) | \
+	Xdialog --title "$BOX_TITLE" --backtitle "Compiling Xdialog.wrapper..." \
+		--no-close --no-cancel --tailbox "-" 20 64
+fi
+
+if ! [ -x Xdialog.wrapper ] ; then
+	Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" --left \
+		--msgbox "Error:\nCan't find \"Xdialog.wrapper\"" 0 0
+	rm -f /tmp/wrapper.$$
+	exit 1
+fi
+
+mv Xdialog.wrapper /usr/bin/ 2>/tmp/wrapper.$$
+errors
+chmod 755 /usr/bin/Xdialog.wrapper 2>/tmp/wrapper.$$
+errors
+
+if [ "$DIALOG" != "" ] && [ -f $DIALOG ] ; then
+	mv $DIALOG $DIALOG.wrapped 2>/tmp/wrapper.$$
+	errors
+	ln -s /usr/bin/Xdialog.wrapper /usr/bin/dialog 2>/tmp/wrapper.$$
+	errors
+fi
+
+if [ "$CDIALOG" != "" ] && [ -f $CDIALOG ] ; then
+	mv $CDIALOG $CDIALOG.wrapped 2>/tmp/wrapper.$$
+	errors
+	ln -s /usr/bin/Xdialog.wrapper /usr/bin/cdialog 2>/tmp/wrapper.$$
+	errors
+fi
+
+Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" \
+	--msgbox "Wrapper installed succesfully." 0 0
+
+GDIALOG=""
+XDIALOG=""
+for i in $PATH_LIST; do
+	if [ "$GDIALOG" == "" ] && [ -d $i ] ; then
+		GDIALOG=`find $i -name gdialog -print`
+	fi
+	if [ "$XDIALOG" == "" ] && [ -d $i ] ; then
+		XDIALOG=`find $i -name Xdialog -print`
+	fi
+done
+
+if [ "$XDIALOG" != "" ]  &&  [ "$GDIALOG" != "" ]  &&  ! [ -x $GDIALOG.orig ] ; then
+	Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" \
+		--yesno "I also found \"gdialog\" on your system...\nDo you want \"Xdialog\" to replace it ?" 0 0
+	if (( $? == 0 )) ; then
+		mv $GDIALOG $GDIALOG.orig 2>/tmp/wrapper.$$
+		errors
+		ln -s $XDIALOG $GDIALOG 2>/tmp/wrapper.$$
+		errors
+		Xdialog --title "$BOX_TITLE" --backtitle "$BACKTITLE" \
+		--msgbox "\"gdialog\" replaced succesfully." 0 0
+	fi
+fi
+
+rm -f /tmp/wrapper.$$

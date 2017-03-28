@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Managing Selections</TITLE>
+ <LINK HREF="gtk_tut-20.html" REL=next>
+ <LINK HREF="gtk_tut-18.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc19" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-20.html">Next</A>
+<A HREF="gtk_tut-18.html">Previous</A>
+<A HREF="gtk_tut.html#toc19">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s19">19. Managing Selections</A></H2>
+
+<H2><A NAME="ss19.1">19.1 Overview</A>
+</H2>
+
+<P>One type of interprocess communication supported by X and GTK is
+<EM>selections</EM>. A selection identifies a chunk of data, for
+instance, a portion of text, selected by the user in some fashion, for
+instance, by dragging with the mouse. Only one application on a
+display (the <EM>owner</EM>) can own a particular selection at one
+time, so when a selection is claimed by one application, the previous
+owner must indicate to the user that selection has been
+relinquished. Other applications can request the contents of a
+selection in different forms, called <EM>targets</EM>. There can be
+any number of selections, but most X applications only handle one, the
+<EM>primary selection</EM>.
+<P>In most cases, it isn't necessary for a GTK application to deal with
+selections itself. The standard widgets, such as the Entry widget,
+already have the capability to claim the selection when appropriate
+(e.g., when the user drags over text), and to retrieve the contents of
+the selection owned by another widget or another application (e.g.,
+when the user clicks the second mouse button). However, there may be
+cases in which you want to give other widgets the ability to supply
+the selection, or you wish to retrieve targets not supported by
+default.
+<P>A fundamental concept needed to understand selection handling is that
+of the <EM>atom</EM>. An atom is an integer that uniquely identifies a
+string (on a certain display). Certain atoms are predefined by the X
+server, and in some cases there are constants in <CODE>gtk.h</CODE>
+corresponding to these atoms. For instance the constant
+<CODE>GDK_PRIMARY_SELECTION</CODE> corresponds to the string "PRIMARY".
+In other cases, you should use the functions
+<CODE>gdk_atom_intern()</CODE>, to get the atom corresponding to a string,
+and <CODE>gdk_atom_name()</CODE>, to get the name of an atom. Both
+selections and targets are identified by atoms.
+<P>
+<H2><A NAME="ss19.2">19.2 Retrieving the selection</A>
+</H2>
+
+<P>Retrieving the selection is an asynchronous process. To start the
+process, you call:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_selection_convert( GtkWidget *widget, 
+                            GdkAtom    selection, 
+                            GdkAtom    target,
+                            guint32    time );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This <EM>converts</EM> the selection into the form specified by
+<CODE>target</CODE>. If at all possible, the time field should be the time
+from the event that triggered the selection. This helps make sure that
+events occur in the order that the user requested them. However, if it
+is not available (for instance, if the conversion was triggered by a
+"clicked" signal), then you can use the constant
+<CODE>GDK_CURRENT_TIME</CODE>.
+<P>When the selection owner responds to the request, a
+"selection_received" signal is sent to your application. The handler
+for this signal receives a pointer to a <CODE>GtkSelectionData</CODE>
+structure, which is defined as:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkSelectionData
+{
+  GdkAtom selection;
+  GdkAtom target;
+  GdkAtom type;
+  gint    format;
+  guchar *data;
+  gint    length;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>selection</CODE> and <CODE>target</CODE> are the values you gave in your
+<CODE>gtk_selection_convert()</CODE> call. <CODE>type</CODE> is an atom that
+identifies the type of data returned by the selection owner. Some
+possible values are "STRING", a string of latin-1 characters, "ATOM",
+a series of atoms, "INTEGER", an integer, etc. Most targets can only
+return one type. <CODE>format</CODE> gives the length of the units (for
+instance characters) in bits. Usually, you don't care about this when
+receiving data. <CODE>data</CODE> is a pointer to the returned data, and
+<CODE>length</CODE> gives the length of the returned data, in bytes. If
+<CODE>length</CODE> is negative, then an error occurred and the selection
+could not be retrieved. This might happen if no application owned the
+selection, or if you requested a target that the application didn't
+support. The buffer is actually guaranteed to be one byte longer than
+<CODE>length</CODE>; the extra byte will always be zero, so it isn't
+necessary to make a copy of strings just to null terminate them.
+<P>In the following example, we retrieve the special target "TARGETS",
+which is a list of all targets into which the selection can be
+converted.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start selection gettargets.c */
+
+#include &lt;gtk/gtk.h>
+
+void selection_received( GtkWidget        *widget, 
+                         GtkSelectionData *selection_data, 
+                         gpointer          data );
+
+/* Signal handler invoked when user clicks on the "Get Targets" button */
+void get_targets( GtkWidget *widget,
+                  gpointer data )
+{
+  static GdkAtom targets_atom = GDK_NONE;
+
+  /* Get the atom corresponding to the string "TARGETS" */
+  if (targets_atom == GDK_NONE)
+    targets_atom = gdk_atom_intern ("TARGETS", FALSE);
+
+  /* And request the "TARGETS" target for the primary selection */
+  gtk_selection_convert (widget, GDK_SELECTION_PRIMARY, targets_atom,
+                         GDK_CURRENT_TIME);
+}
+
+/* Signal handler called when the selections owner returns the data */
+void selection_received( GtkWidget        *widget,
+                         GtkSelectionData *selection_data, 
+                         gpointer          data )
+{
+  GdkAtom *atoms;
+  GList *item_list;
+  int i;
+
+  /* **** IMPORTANT **** Check to see if retrieval succeeded  */
+  if (selection_data->length &lt; 0)
+    {
+      g_print ("Selection retrieval failed\n");
+      return;
+    }
+  /* Make sure we got the data in the expected form */
+  if (selection_data->type != GDK_SELECTION_TYPE_ATOM)
+    {
+      g_print ("Selection \"TARGETS\" was not returned as atoms!\n");
+      return;
+    }
+  
+  /* Print out the atoms we received */
+  atoms = (GdkAtom *)selection_data->data;
+
+  item_list = NULL;
+  for (i=0; i&lt;selection_data->length/sizeof(GdkAtom); i++)
+    {
+      char *name;
+      name = gdk_atom_name (atoms[i]);
+      if (name != NULL)
+        g_print ("%s\n",name);
+      else
+        g_print ("(bad atom)\n");
+    }
+
+  return;
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+  GtkWidget *window;
+  GtkWidget *button;
+  
+  gtk_init (&amp;argc, &amp;argv);
+
+  /* Create the toplevel window */
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (window), "Event Box");
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+  /* Create a button the user can click to get targets */
+
+  button = gtk_button_new_with_label ("Get Targets");
+  gtk_container_add (GTK_CONTAINER (window), button);
+
+  gtk_signal_connect (GTK_OBJECT(button), "clicked",
+                      GTK_SIGNAL_FUNC (get_targets), NULL);
+  gtk_signal_connect (GTK_OBJECT(button), "selection_received",
+                      GTK_SIGNAL_FUNC (selection_received), NULL);
+
+  gtk_widget_show (button);
+  gtk_widget_show (window);
+  
+  gtk_main ();
+  
+  return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss19.3">19.3 Supplying the selection </A>
+</H2>
+
+<P>Supplying the selection is a bit more complicated. You must register 
+handlers that will be called when your selection is requested. For
+each selection/target pair you will handle, you make a call to:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_selection_add_target (GtkWidget           *widget, 
+                               GdkAtom              selection,
+                               GdkAtom              target,
+                               guint                info);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>widget</CODE>, <CODE>selection</CODE>, and <CODE>target</CODE> identify the requests
+this handler will manage. When a request for a selection is received,
+the "selection_get" signal will be called. <CODE>info</CODE> can be used as an
+enumerator to identify the specific target within the callback function.
+<P>The callback function has the signature:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void  "selection_get" (GtkWidget          *widget,
+                       GtkSelectionData   *selection_data,
+                       guint               info,
+                       guint               time);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The GtkSelectionData is the same as above, but this time, we're
+responsible for filling in the fields <CODE>type</CODE>, <CODE>format</CODE>,
+<CODE>data</CODE>, and <CODE>length</CODE>. (The <CODE>format</CODE> field is actually
+important here - the X server uses it to figure out whether the data
+needs to be byte-swapped or not. Usually it will be 8 - <EM>i.e.</EM> a
+character - or 32 - <EM>i.e.</EM> a. integer.) This is done by calling the
+function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_selection_data_set( GtkSelectionData *selection_data,
+                             GdkAtom           type,
+                             gint              format,
+                             guchar           *data,
+                             gint              length );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function takes care of properly making a copy of the data so that
+you don't have to worry about keeping it around. (You should not fill
+in the fields of the GtkSelectionData structure by hand.)
+<P>When prompted by the user, you claim ownership of the selection by
+calling:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_selection_owner_set( GtkWidget *widget,
+                              GdkAtom    selection,
+                              guint32    time );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If another application claims ownership of the selection, you will
+receive a "selection_clear_event".
+<P>As an example of supplying the selection, the following program adds
+selection functionality to a toggle button. When the toggle button is
+depressed, the program claims the primary selection. The only target
+supported (aside from certain targets like "TARGETS" supplied by GTK
+itself), is the "STRING" target. When this target is requested, a
+string representation of the time is returned.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start selection setselection.c */
+
+#include &lt;gtk/gtk.h>
+#include &lt;time.h>
+
+/* Callback when the user toggles the selection */
+void selection_toggled( GtkWidget *widget,
+                        gint      *have_selection )
+{
+  if (GTK_TOGGLE_BUTTON(widget)->active)
+    {
+      *have_selection = gtk_selection_owner_set (widget,
+                                                 GDK_SELECTION_PRIMARY,
+                                                 GDK_CURRENT_TIME);
+      /* if claiming the selection failed, we return the button to
+         the out state */
+      if (!*have_selection)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), FALSE);
+    }
+  else
+    {
+      if (*have_selection)
+        {
+          /* Before clearing the selection by setting the owner to NULL,
+             we check if we are the actual owner */
+          if (gdk_selection_owner_get (GDK_SELECTION_PRIMARY) == widget->window)
+            gtk_selection_owner_set (NULL, GDK_SELECTION_PRIMARY,
+                                     GDK_CURRENT_TIME);
+          *have_selection = FALSE;
+        }
+    }
+}
+
+/* Called when another application claims the selection */
+gint selection_clear( GtkWidget         *widget,
+                      GdkEventSelection *event,
+                      gint              *have_selection )
+{
+  *have_selection = FALSE;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), FALSE);
+
+  return TRUE;
+}
+
+/* Supplies the current time as the selection. */
+void selection_handle( GtkWidget        *widget, 
+                       GtkSelectionData *selection_data,
+                       guint             info,
+                       guint             time_stamp,
+                       gpointer          data )
+{
+  gchar *timestr;
+  time_t current_time;
+
+  current_time = time(NULL);
+  timestr = asctime (localtime(&amp;current_time)); 
+  /* When we return a single string, it should not be null terminated.
+     That will be done for us */
+
+  gtk_selection_data_set (selection_data, GDK_SELECTION_TYPE_STRING,
+                          8, timestr, strlen(timestr));
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+  GtkWidget *window;
+  GtkWidget *selection_button;
+
+  static int have_selection = FALSE;
+  
+  gtk_init (&amp;argc, &amp;argv);
+
+  /* Create the toplevel window */
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (window), "Event Box");
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+  /* Create a toggle button to act as the selection */
+
+  selection_button = gtk_toggle_button_new_with_label ("Claim Selection");
+  gtk_container_add (GTK_CONTAINER (window), selection_button);
+  gtk_widget_show (selection_button);
+
+  gtk_signal_connect (GTK_OBJECT(selection_button), "toggled",
+                      GTK_SIGNAL_FUNC (selection_toggled), &amp;have_selection);
+  gtk_signal_connect (GTK_OBJECT(selection_button), "selection_clear_event",
+                      GTK_SIGNAL_FUNC (selection_clear), &amp;have_selection);
+
+  gtk_selection_add_target (selection_button,
+                            GDK_SELECTION_PRIMARY,
+                            GDK_SELECTION_TYPE_STRING,
+                            1);
+  gtk_signal_connect (GTK_OBJECT(selection_button), "selection_get",
+                      GTK_SIGNAL_FUNC (selection_handle), &amp;have_selection);
+
+  gtk_widget_show (selection_button);
+  gtk_widget_show (window);
+  
+  gtk_main ();
+  
+  return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-20.html">Next</A>
+<A HREF="gtk_tut-18.html">Previous</A>
+<A HREF="gtk_tut.html#toc19">Contents</A>
+</BODY>
+</HTML>

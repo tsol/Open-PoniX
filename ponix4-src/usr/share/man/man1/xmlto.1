@@ -1,0 +1,364 @@
+'\" t
+.\"     Title: xmlto
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: September 2009
+.\"    Manual: Reference
+.\"    Source: xmlto 0.0.23
+.\"  Language: English
+.\"
+.TH "XMLTO" "1" "September 2009" "xmlto 0.0.23" "Reference"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+xmlto \- apply an XSL stylesheet to an XML document
+.SH "SYNOPSIS"
+.HP \w'\fBxmlto\fR\ 'u
+\fBxmlto\fR [\fB\-o\fR\ \fIoutput_dir\fR] [\fB\-x\fR\ \fIcustom_xsl\fR] [\fB\-m\fR\ \fIxsl_fragment\fR] [\fB\-v\fR] [\fB\-p\fR\ \fIpostprocessor_opts\fR] [\fB\-\-extensions\fR] [\fB\-\-searchpath\fR\ \fIpath\fR] [\fB\-\-skip\-validation\fR] [\fB\-\-stringparam\fR\ \fIparamname\fR=\fIparamvalue\fR] [\fB\-\-noclean\fR] [\fB\-\-noautosize\fR] [\fB\-\-with\-fop\fR] [\fB\-\-with\-dblatex\fR] {\fIformat\fR} {\fIfile\fR}
+.HP \w'\fBxmlto\fR\ 'u
+\fBxmlto\fR {[\-\-help] | [\-\-version]}
+.SH "DESCRIPTION"
+.PP
+The purpose of
+\fBxmlto\fR
+is to convert an XML
+\fIfile\fR
+to the desired
+\fIformat\fR
+using whatever means necessary\&. This may involve two steps:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+The application of an appropriate XSL stylesheet using an XSL\-T processor\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+Further processing with other tools\&. This step may not be necessary\&.
+.RE
+.PP
+To decide which stylesheet to use and what, if any, needs to be done to post\-process the output,
+\fBxmlto\fR
+makes use of
+format scripts, which are simple shell scripts that
+\fBxmlto\fR
+calls during the conversion\&.
+.PP
+The appropriate format script is selected based on the type of XML file and the desired output format\&.
+\fBxmlto\fR
+comes with some format scripts for converting DocBook XML files to a variety of formats\&. You may specify your own format script by using an absolute filename for
+\fIformat\fR
+on the command line\&.
+.PP
+Firstly, if
+\fBxmlto\fR
+has not been told explicitly which stylesheet to use (with the
+\fB\-x\fR
+option), the format script will be called with
+\fB$1\fR
+set to
+stylesheet\&. The environment variable
+\fBXSLT_PROCESSOR\fR
+contains the base name of the executable that will be used to perform the XSL\-T transformation (for example
+xsltproc)\&. The format script should write the name of the stylesheet to use to standard output and exit successfully, or exit with a non\-zero return code if there is no appropriate stylesheet to use (for example, if the only available stylesheet is known not to work with the XSL\-T processor that will be used)\&. If nothing is written to standard output but the script exits successfully, no XSL\-T transformation will be performed\&.
+.PP
+Secondly, after an XSL\-T processor has been run using the stylesheet, the format script will be called again, this time with
+\fB$1\fR
+set to
+post\-process\&. The format script should perform any necessary steps to translate the XSL\-T processed output into the desired output format, including copying the output to the desired output directory\&. For post\-processing, the format script is run in a temporary directory containing just the processed output (whose name is stored in
+\fBXSLT_PROCESSED\fR
+and whose basename is that of the original XML file with any filename extension replaced with
+\&.proc)\&.
+\fBINPUT_FILE\fR
+is set to the name of the original XML file,
+\fBOUTPUT_DIR\fR
+is set to the name of the directory that the output (and only the output) must end up in, and
+\fBSEARCHPATH\fR
+is set to a colon\-separate list of fallback directories in which to look for input (for images, for example)\&. If this step is unsuccessful the format script should exit with a non\-zero return code\&.
+.SH "OPTIONS"
+.PP
+\fB\-v\fR
+.RS 4
+Be verbose (\fB\-vv\fR
+for very verbose)\&.
+.RE
+.PP
+\fB\-x\fR \fIstylesheet\fR
+.RS 4
+Use
+\fIstylesheet\fR
+instead of asking the format script to choose one\&.
+.RE
+.PP
+\fB\-m\fR \fIfragment\fR
+.RS 4
+Use the provided XSL
+\fIfragment\fR
+to modify the stylesheet\&.
+.RE
+.PP
+\fB\-o\fR \fIdirectory\fR
+.RS 4
+Put output in the specified
+\fIdirectory\fR
+instead of the current working directory\&.
+.RE
+.PP
+\fB\-p\fR \fIpostprocessor_opts\fR
+.RS 4
+Pass
+\fIpostprocessor_opts\fR
+to processing stages after stylesheet application (e\&.g\&.
+lynx
+or
+links
+when going through HTML to text, or
+xmltex
+when going from through TeX to DVI)\&. If
+\fB\-p\fR
+is specified a second time, the options specified will be passed to second\-stage postprocessing; presently this is only applicable when going through
+xmltex
+and
+dvips
+to PostScript\&.
+.RE
+.PP
+\fB\-\-extensions\fR
+.RS 4
+Turn on stylesheet extensions for the tool chain in use (for example, this might turn on
+\fIpassivetex\&.extensions\fR
+and
+\fIuse\&.extensions\fR
+if PassiveTeX is being used)\&. The variables turned on are the ones used by Norman Walsh\*(Aqs DocBook XSL stylesheets\&.
+.RE
+.PP
+\fB\-\-searchpath\fR \fIpath\fR
+.RS 4
+Add the colon\-separated list of directories in
+\fIpath\fR
+as fallback directories for including input\&.
+.RE
+.PP
+\fB\-\-skip\-validation\fR
+.RS 4
+Skip the validation step that is normally performed\&.
+.RE
+.PP
+\fB\-\-stringparam\fR \fIparamname\fR=\fIparamvalue\fR
+.RS 4
+Pass a named parameter
+\fIparamname\fR
+with value
+\fIparamvalue\fR
+to stylesheet from the command line\&.
+.RE
+.PP
+\fB\-\-noclean\fR
+.RS 4
+Temporary files are not deleted(their names are shown and kept in tmp directory)\&. It could help with analyzing problems\&.
+.RE
+.PP
+\fB\-\-noautosize\fR
+.RS 4
+By default, some XSL variables are overriden by autodetection (\fIpage\&.width\fR
+and
+\fIpage\&.height\fR
+for
+paperconf
+(libpaper) use,
+\fIpaper\&.type\fR
+for locale\-based (\fBLC_PAPER\fR) selection)\&. With this option,
+\fBxmlto\fR
+doesn\(cqt use this autodetection and user is able to modify defaults himself (either via default
+param\&.xsl
+modification or by user\-defined XSL fragment)\&.
+.RE
+.PP
+\fB\-\-with\-fop\fR
+.RS 4
+Use
+fop
+for formatting\&. It is an experimental option, expects
+fop
+in specific location(detected at configured time), could be changed manually in
+\fBxmlto\fR
+script by modification of
+\fIFOP_PATH\fR
+.RE
+.PP
+\fB\-\-with\-dblatex\fR
+.RS 4
+Use
+dblatex
+for formatting\&. It is an experimental option, expects
+dblatex
+in specific location(detected at configured time), could be changed manually in
+\fBxmlto\fR
+script by modification of
+\fIDBLATEX_PATH\fR
+.RE
+.PP
+\fB\-\-help\fR
+.RS 4
+Display a short usage message\&. It will describe xmlto\*(Aqs options, and the available output formats\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Display the version number of xmlto\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBXSLT_PROCESSOR\fR
+.RS 4
+Base name of the executable that will be used to perform the XSL\-T transformation (default:
+\fBxsltproc\fR(1))\&.
+.RE
+.PP
+\fBTMPDIR\fR
+.RS 4
+Directory, where to create temporary stylesheets (default:
+/tmp)\&.
+.RE
+.SH "DIAGNOSTICS"
+.PP
+\fB0\fR
+.RS 4
+Everything went fine\&. This is the expected exit code\&.
+.RE
+.PP
+\fB1\fR
+.RS 4
+\fBxmlto\fR
+was called with insufficient arguments\&.
+.RE
+.PP
+\fB2\fR
+.RS 4
+\fBmktemp\fR(1)
+failed to create a file/directory\&. Make sure
+/tmp
+or
+\fBTMPDIR\fR
+is writable\&.
+.RE
+.PP
+\fB3\fR
+.RS 4
+\fBxmlto\fR
+failed to find some binary on configured location\&. Make sure that all required packages are installed and paths in
+xmlto
+script are set properly\&.
+.RE
+.PP
+\fB10+(Validation non\-zero error code)\fR
+.RS 4
+\fBxmlto\fR
+tried to validate a xml document, but validation failed\&. For better diagnostic, validation output and
+xmllint
+exit code is provided\&. Consider either fixing your document or using
+\fB\-\-skip\-validation\fR\&.
+.RE
+.SH "EXAMPLES"
+.PP
+To convert a DocBook XML document to PDF, use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBxmlto pdf mydoc\&.xml\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To convert a DocBook XML document to HTML and store the resulting HTML files in a separate directory use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBxmlto \-o html\-dir html mydoc\&.xml\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To convert a DocBook XML document to a single HTML file use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBxmlto html\-nochunks mydoc\&.xml\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To modify the output using an XSL fragment use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBxmlto \-m ulink\&.xsl pdf mydoc\&.xml\fR
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+To specify which stylesheet to use (overriding the one that the format script would choose) use:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBxmlto \-x mystylesheet\&.xsl pdf mydoc\&.xml\fR
+.fi
+.if n \{\
+.RE
+.\}
+.SH "AUTHORS"
+.PP
+\fBTim Waugh\fR <\&twaugh@redhat.com\&>
+.RS 4
+Original author, maintainer until 0.0.18
+.RE
+.PP
+\fBOndřej Va\(vs\('ik\fR <\&ovasik@redhat.com\&>
+.RS 4
+Maintainer since 0.0.19
+.RE
+.SH "COPYRIGHT"
+.br

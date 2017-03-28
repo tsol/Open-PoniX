@@ -1,0 +1,91 @@
+Plymouth isn't really designed to be built from source and get installed by end users.  For it to work correctly, it needs integration with the distribution.  Because it starts so early, it needs to be packed into the distribution's initial ram disk, and the distribution needs to poke plymouth to tell it how boot is progressing.
+
+Unfortunately, there isn't great documentation for distributors.  In the mean time, this email exchange might be useful:
+
+Hi,
+
+> I recently found a video showing Fedora booting with plymouth and I
+> liked it. So I wanted to use plymouth with my favorite distri (gentoo).
+> I know I'm enduser and the info text on freedesktop.org says plymouth
+> is not meant to be installed by end users but I want to give it a try.
+> I have KMS running and am using my own initramfs anyway (encrypted root
+> disk) so how hard can it be? Can anybody please give me some straight
+> forward hints on how to use plymouth? (The INSTALL file is empty and
+> the README file is boring)
+
+So the basic idea is you need to:
+
+1) build plymouth into the system.  On fedora we use these conffigure flags:
+
+.%configure  --enable-tracing --disable-tests --without-boot-entry \
+         --without-default-plugin                              \
+         --with-logo=%{_datadir}/pixmaps/system-logo-white.png \
+         --with-background-start-color-stop=0x0073B3           \
+         --with-background-end-color-stop=0x00457E             \
+         --with-background-color=0x3391cd                      \
+         --enable-gdm-transition                               \
+         --with-system-root-install                            \
+         --with-rhgb-compat-link
+
+%configure is a macro that expands to:
+
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+
+(and some other stuff)
+
+%{_datadir} is just /usr/share
+
+You probably won't need --with-rhgb-compat-link since that's only
+there for compatibility with Fedora's old infrastructure.
+
+--with-system-root-install makes plymouthd and plymouth install
+themselves into / instead of /usr.  This is important so that the
+plymouth client can work in cases where the root fs is mounted, but
+/usr isn't yet.
+
+Somehow you need to hook into your distros mkinitrd mechanism.   I
+mean you need to copy the plymouth binaries, plugins, and data files
+into the initrd everytime you rebuild your initrd. See
+plymouth-populate-initrd for how we do it on fedora (mkinitrd calls
+plymouth-populate-initrd).  I would like to upstream hooks for other
+distros mkinitrd systems, so the out of the box experience is easier.
+
+Inside the initrd, you need to start plymouthd early.  The earlier the
+better, but not before /sys, /proc/,  and /dev/pts are mounted, and
+not before /dev/tty[01] and /dev/fb0 are created.
+
+At some point during the initrd you need to load the kms driver.
+After it's loaded the graphics mode should get set up and /dev/fb0
+will be functional.  That's when you call plymouth --show-splash to
+show the splash screen.
+
+To decrypt your root, run
+
+lymouth ask-for-password --command="/sbin/cryptsetup luksOpen -T ..."
+
+where the --command is whatever makes sense for you.
+
+Right after you mount the root file system (but before you switch to it), run
+
+plymouth --newroot=/wherevertherootismounted
+
+This tells plymouth it can load some files off the real filesystem
+(like fonts, and stuff we don't want to stick in the initrd).
+
+while boot you need to run plymouth --update=some-milestone-id
+
+periodically to update the progress bar.
+
+When / is mounted read-write you need to run
+
+plymouth --sysinit
+
+Finally, when plymouth is done, you need to run plymouth --quit
+
+I have to run to catch a bus but i think that's the basics.
+
+> I'm even willing to give something back and convert your hints
+> into an easy step by step howto.
+That'd be great!
+
+--Ray

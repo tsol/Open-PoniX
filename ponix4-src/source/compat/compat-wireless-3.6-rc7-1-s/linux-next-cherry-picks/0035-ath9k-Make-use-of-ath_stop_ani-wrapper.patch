@@ -1,0 +1,25 @@
+From 5686cac5bc6c41161cdf879998e16001c92e7bf8 Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Tue, 4 Sep 2012 19:33:34 +0530
+Subject: [PATCH] ath9k: Make use of ath_stop_ani wrapper
+
+Additionally it has a neat debug message informing us
+that we are stopping the ANI algorithm.
+
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -2257,7 +2257,7 @@ static int ath9k_suspend(struct ieee8021
+ 	mutex_lock(&sc->mutex);
+ 
+ 	ath_cancel_work(sc);
+-	del_timer_sync(&common->ani.timer);
++	ath_stop_ani(sc);
+ 	del_timer_sync(&sc->rx_poll_timer);
+ 
+ 	if (test_bit(SC_OP_INVALID, &sc->sc_flags)) {

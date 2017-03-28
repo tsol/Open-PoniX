@@ -1,0 +1,402 @@
+<refentry id="AtkUtil">
+<refmeta>
+<refentrytitle role="top_of_page" id="AtkUtil.top_of_page">AtkUtil</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>ATK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>AtkUtil</refname>
+<refpurpose>A set of ATK utility functions for event and toolkit support.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="AtkUtil.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+                    <link linkend="AtkUtil-struct">AtkUtil</link>;
+enum                <link linkend="AtkCoordType">AtkCoordType</link>;
+<link linkend="guint">guint</link>               <link linkend="atk-add-focus-tracker">atk_add_focus_tracker</link>               (<link linkend="AtkEventListener">AtkEventListener</link> focus_tracker);
+<link linkend="void">void</link>                <link linkend="atk-remove-focus-tracker">atk_remove_focus_tracker</link>            (<link linkend="guint">guint</link> tracker_id);
+<link linkend="void">void</link>                <link linkend="atk-focus-tracker-init">atk_focus_tracker_init</link>              (<link linkend="AtkEventListenerInit">AtkEventListenerInit</link> init);
+<link linkend="void">void</link>                <link linkend="atk-focus-tracker-notify">atk_focus_tracker_notify</link>            (<link linkend="AtkObject">AtkObject</link> *object);
+<link linkend="void">void</link>                (<link linkend="AtkEventListener">*AtkEventListener</link>)                 (<link linkend="AtkObject">AtkObject</link> *obj);
+<link linkend="void">void</link>                (<link linkend="AtkEventListenerInit">*AtkEventListenerInit</link>)             (void);
+<link linkend="guint">guint</link>               <link linkend="atk-add-global-event-listener">atk_add_global_event_listener</link>       (<link linkend="GSignalEmissionHook">GSignalEmissionHook</link> listener,
+                                                         const <link linkend="gchar">gchar</link> *event_type);
+<link linkend="void">void</link>                <link linkend="atk-remove-global-event-listener">atk_remove_global_event_listener</link>    (<link linkend="guint">guint</link> listener_id);
+                    <link linkend="AtkKeyEventStruct">AtkKeyEventStruct</link>;
+enum                <link linkend="AtkKeyEventType">AtkKeyEventType</link>;
+<link linkend="gint">gint</link>                (<link linkend="AtkKeySnoopFunc">*AtkKeySnoopFunc</link>)                  (<link linkend="AtkKeyEventStruct">AtkKeyEventStruct</link> *event,
+                                                         <link linkend="gpointer">gpointer</link> func_data);
+<link linkend="guint">guint</link>               <link linkend="atk-add-key-event-listener">atk_add_key_event_listener</link>          (<link linkend="AtkKeySnoopFunc">AtkKeySnoopFunc</link> listener,
+                                                         <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>                <link linkend="atk-remove-key-event-listener">atk_remove_key_event_listener</link>       (<link linkend="guint">guint</link> listener_id);
+<link linkend="AtkObject">AtkObject</link>*          <link linkend="atk-get-root">atk_get_root</link>                        (void);
+<link linkend="AtkObject">AtkObject</link>*          <link linkend="atk-get-focus-object">atk_get_focus_object</link>                (void);
+const <link linkend="gchar">gchar</link> *       <link linkend="atk-get-toolkit-name">atk_get_toolkit_name</link>                (void);
+const <link linkend="gchar">gchar</link> *       <link linkend="atk-get-toolkit-version">atk_get_toolkit_version</link>             (void);
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1 id="AtkUtil.object-hierarchy" role="object_hierarchy">
+<title role="object_hierarchy.title">Object Hierarchy</title>
+<synopsis>
+  <link linkend="GObject">GObject</link>
+   +----AtkUtil
+</synopsis>
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1 id="AtkUtil.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+A set of ATK utility functions which are used to support event registration of
+various types, and obtaining the 'root' accessible of a process and
+information about the current ATK implementation and toolkit version.
+</para>
+</refsect1>
+
+<refsect1 id="AtkUtil.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="AtkUtil-struct" role="struct">
+<title>AtkUtil</title>
+<indexterm zone="AtkUtil-struct"><primary sortas="AtkUtil">AtkUtil</primary></indexterm><programlisting>typedef struct _AtkUtil AtkUtil;</programlisting>
+<para>
+The AtkUtil struct does not contain any fields.
+</para></refsect2>
+<refsect2 id="AtkCoordType" role="enum">
+<title>enum AtkCoordType</title>
+<indexterm zone="AtkCoordType"><primary sortas="AtkCoordType">AtkCoordType</primary></indexterm><programlisting>typedef enum {
+  ATK_XY_SCREEN,
+  ATK_XY_WINDOW
+}AtkCoordType;
+</programlisting>
+<para>
+Specifies how xy coordinates are to be interpreted. Used by functions such
+as <link linkend="atk-component-get-position"><function>atk_component_get_position()</function></link> and <link linkend="atk-text-get-character-extents"><function>atk_text_get_character_extents()</function></link></para>
+<para>
+</para><variablelist role="enum">
+<varlistentry id="ATK-XY-SCREEN--CAPS" role="constant">
+<term><literal>ATK_XY_SCREEN</literal></term>
+<listitem><simpara> specifies xy coordinates relative to the screen
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="ATK-XY-WINDOW--CAPS" role="constant">
+<term><literal>ATK_XY_WINDOW</literal></term>
+<listitem><simpara> specifies xy coordinates relative to the widget's 
+top-level window
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-add-focus-tracker" role="function">
+<title>atk_add_focus_tracker ()</title>
+<indexterm zone="atk-add-focus-tracker"><primary sortas="atk_add_focus_tracker">atk_add_focus_tracker</primary></indexterm><programlisting><link linkend="guint">guint</link>               atk_add_focus_tracker               (<link linkend="AtkEventListener">AtkEventListener</link> focus_tracker);</programlisting>
+<para>
+Adds the specified function to the list of functions to be called
+when an object receives focus.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>focus_tracker</parameter>&#160;:</term>
+<listitem><simpara> Function to be added to the list of functions to be called
+when an object receives focus.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> added focus tracker id, or 0 on failure.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-remove-focus-tracker" role="function">
+<title>atk_remove_focus_tracker ()</title>
+<indexterm zone="atk-remove-focus-tracker"><primary sortas="atk_remove_focus_tracker">atk_remove_focus_tracker</primary></indexterm><programlisting><link linkend="void">void</link>                atk_remove_focus_tracker            (<link linkend="guint">guint</link> tracker_id);</programlisting>
+<para>
+Removes the specified focus tracker from the list of functions
+to be called when any object receives focus.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>tracker_id</parameter>&#160;:</term>
+<listitem><simpara> the id of the focus tracker to remove
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-focus-tracker-init" role="function">
+<title>atk_focus_tracker_init ()</title>
+<indexterm zone="atk-focus-tracker-init"><primary sortas="atk_focus_tracker_init">atk_focus_tracker_init</primary></indexterm><programlisting><link linkend="void">void</link>                atk_focus_tracker_init              (<link linkend="AtkEventListenerInit">AtkEventListenerInit</link> init);</programlisting>
+<para>
+Specifies the function to be called for focus tracker initialization.
+This function should be called by an implementation of the
+ATK interface if any specific work needs to be done to enable
+focus tracking.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>init</parameter>&#160;:</term>
+<listitem><simpara> Function to be called for focus tracker initialization
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-focus-tracker-notify" role="function">
+<title>atk_focus_tracker_notify ()</title>
+<indexterm zone="atk-focus-tracker-notify"><primary sortas="atk_focus_tracker_notify">atk_focus_tracker_notify</primary></indexterm><programlisting><link linkend="void">void</link>                atk_focus_tracker_notify            (<link linkend="AtkObject">AtkObject</link> *object);</programlisting>
+<para>
+Cause the focus tracker functions which have been specified to be
+executed for the object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>object</parameter>&#160;:</term>
+<listitem><simpara> an <link linkend="AtkObject"><type>AtkObject</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="AtkEventListener" role="function">
+<title>AtkEventListener ()</title>
+<indexterm zone="AtkEventListener"><primary sortas="AtkEventListener">AtkEventListener</primary></indexterm><programlisting><link linkend="void">void</link>                (*AtkEventListener)                 (<link linkend="AtkObject">AtkObject</link> *obj);</programlisting>
+<para>
+A function which is called when an object emits a matching event,
+as used in <link linkend="atk-add-focus-tracker"><type>atk_add_focus_tracker</type></link>.
+Currently the only events for which object-specific handlers are
+supported are events of type "focus:".  Most clients of ATK will prefer to 
+attach signal handlers for the various ATK signals instead.
+</para>
+<para>
+<parameter>see</parameter>: atk_add_focus_tracker.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>obj</parameter>&#160;:</term>
+<listitem><simpara> An <link linkend="AtkObject"><type>AtkObject</type></link> instance for whom the callback will be called when
+the specified event (e.g. 'focus:') takes place.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="AtkEventListenerInit" role="function">
+<title>AtkEventListenerInit ()</title>
+<indexterm zone="AtkEventListenerInit"><primary sortas="AtkEventListenerInit">AtkEventListenerInit</primary></indexterm><programlisting><link linkend="void">void</link>                (*AtkEventListenerInit)             (void);</programlisting>
+<para>
+An <link linkend="AtkEventListenerInit"><type>AtkEventListenerInit</type></link> function is a special function that is
+called in order to initialize the per-object event registration system
+used by <link linkend="AtkEventListener"><type>AtkEventListener</type></link>, if any preparation is required.  
+</para>
+<para>
+<parameter>see</parameter>: atk_focus_tracker_init.</para>
+<para>
+</para></refsect2>
+<refsect2 id="atk-add-global-event-listener" role="function">
+<title>atk_add_global_event_listener ()</title>
+<indexterm zone="atk-add-global-event-listener"><primary sortas="atk_add_global_event_listener">atk_add_global_event_listener</primary></indexterm><programlisting><link linkend="guint">guint</link>               atk_add_global_event_listener       (<link linkend="GSignalEmissionHook">GSignalEmissionHook</link> listener,
+                                                         const <link linkend="gchar">gchar</link> *event_type);</programlisting>
+<para>
+Adds the specified function to the list of functions to be called
+when an event of type event_type occurs.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>listener</parameter>&#160;:</term>
+<listitem><simpara> the listener to notify
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>event_type</parameter>&#160;:</term>
+<listitem><simpara> the type of event for which notification is requested
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> added event listener id, or 0 on failure.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-remove-global-event-listener" role="function">
+<title>atk_remove_global_event_listener ()</title>
+<indexterm zone="atk-remove-global-event-listener"><primary sortas="atk_remove_global_event_listener">atk_remove_global_event_listener</primary></indexterm><programlisting><link linkend="void">void</link>                atk_remove_global_event_listener    (<link linkend="guint">guint</link> listener_id);</programlisting>
+<para>
+Removes the specified event listener</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>listener_id</parameter>&#160;:</term>
+<listitem><simpara> the id of the event listener to remove
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="AtkKeyEventStruct" role="struct">
+<title>AtkKeyEventStruct</title>
+<indexterm zone="AtkKeyEventStruct"><primary sortas="AtkKeyEventStruct">AtkKeyEventStruct</primary></indexterm><programlisting>typedef struct {
+  gint type;
+  guint state;
+  guint keyval;
+  gint length;
+  gchar *string;
+  guint16 keycode;
+  guint32 timestamp;	
+} AtkKeyEventStruct;
+</programlisting>
+<para>
+Encapsulates information about a key event.</para>
+<para>
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="gint">gint</link>&#160;<structfield>type</structfield>;</term>
+<listitem><simpara> An AtkKeyEventType, generally one of ATK_KEY_EVENT_PRESS or ATK_KEY_EVENT_RELEASE
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint">guint</link>&#160;<structfield>state</structfield>;</term>
+<listitem><simpara> A bitmask representing the state of the modifier keys immediately after the event takes place.   
+The meaning of the bits is currently defined to match the bitmask used by GDK in
+GdkEventType.state, see 
+http://developer.gnome.org/doc/API/2.0/gdk/gdk-Event-Structures.html<link linkend="GdkEventKey"><type>GdkEventKey</type></link>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint">guint</link>&#160;<structfield>keyval</structfield>;</term>
+<listitem><simpara> A guint representing a keysym value corresponding to those used by GDK and X11: see
+/usr/X11/include/keysymdef.h.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link>&#160;<structfield>length</structfield>;</term>
+<listitem><simpara> The length of member <link linkend="string"><type>string</type></link>.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gchar">gchar</link>&#160;*<structfield>string</structfield>;</term>
+<listitem><simpara> A string containing one of the following: either a string approximating the text that would 
+result from this keypress, if the key is a control or graphic character, or a symbolic name for this keypress.
+Alphanumeric and printable keys will have the symbolic key name in this string member, for instance "A". "0", 
+"semicolon", "aacute".  Keypad keys have the prefix "KP".
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link>&#160;<structfield>keycode</structfield>;</term>
+<listitem><simpara> The raw hardware code that generated the key event.  This field is raraly useful.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint32">guint32</link>&#160;<structfield>timestamp</structfield>;</term>
+<listitem><simpara> A timestamp in milliseconds indicating when the event occurred.  
+These timestamps are relative to a starting point which should be considered arbitrary, 
+and only used to compare the dispatch times of events to one another.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2 id="AtkKeyEventType" role="enum">
+<title>enum AtkKeyEventType</title>
+<indexterm zone="AtkKeyEventType"><primary sortas="AtkKeyEventType">AtkKeyEventType</primary></indexterm><programlisting>typedef enum
+{
+  ATK_KEY_EVENT_PRESS,
+  ATK_KEY_EVENT_RELEASE,
+  ATK_KEY_EVENT_LAST_DEFINED
+} AtkKeyEventType;
+</programlisting>
+<para>
+Specifies the type of a keyboard evemt.</para>
+<para>
+</para><variablelist role="enum">
+<varlistentry id="ATK-KEY-EVENT-PRESS--CAPS" role="constant">
+<term><literal>ATK_KEY_EVENT_PRESS</literal></term>
+<listitem><simpara> specifies a key press event
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="ATK-KEY-EVENT-RELEASE--CAPS" role="constant">
+<term><literal>ATK_KEY_EVENT_RELEASE</literal></term>
+<listitem><simpara> specifies a key release event
+</simpara></listitem>
+</varlistentry>
+<varlistentry id="ATK-KEY-EVENT-LAST-DEFINED--CAPS" role="constant">
+<term><literal>ATK_KEY_EVENT_LAST_DEFINED</literal></term>
+<listitem><simpara> Not a valid value; specifies end of enumeration
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2 id="AtkKeySnoopFunc" role="function">
+<title>AtkKeySnoopFunc ()</title>
+<indexterm zone="AtkKeySnoopFunc"><primary sortas="AtkKeySnoopFunc">AtkKeySnoopFunc</primary></indexterm><programlisting><link linkend="gint">gint</link>                (*AtkKeySnoopFunc)                  (<link linkend="AtkKeyEventStruct">AtkKeyEventStruct</link> *event,
+                                                         <link linkend="gpointer">gpointer</link> func_data);</programlisting>
+<para>
+An <link linkend="AtkKeySnoopFunc"><type>AtkKeySnoopFunc</type></link> is a type of callback which is called whenever a key event occurs, 
+if registered via atk_add_key_event_listener.  It allows for pre-emptive 
+interception of key events via the return code as described below.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>event</parameter>&#160;:</term>
+<listitem><simpara> an AtkKeyEventStruct containing information about the key event for which
+notification is being given.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func_data</parameter>&#160;:</term>
+<listitem><simpara> a block of data which will be passed to the event listener, on notification.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> TRUE (nonzero) if the event emission should be stopped and the event 
+discarded without being passed to the normal GUI recipient; FALSE (zero) if the 
+event dispatch to the client application should proceed as normal.
+
+<parameter>see</parameter>: atk_add_key_event_listener.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-add-key-event-listener" role="function">
+<title>atk_add_key_event_listener ()</title>
+<indexterm zone="atk-add-key-event-listener"><primary sortas="atk_add_key_event_listener">atk_add_key_event_listener</primary></indexterm><programlisting><link linkend="guint">guint</link>               atk_add_key_event_listener          (<link linkend="AtkKeySnoopFunc">AtkKeySnoopFunc</link> listener,
+                                                         <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+Adds the specified function to the list of functions to be called
+       when a key event occurs.  The <parameter>data</parameter> element will be passed to the
+       <link linkend="AtkKeySnoopFunc"><type>AtkKeySnoopFunc</type></link> (<parameter>listener</parameter>) as the <parameter>func_data</parameter> param, on notification.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>listener</parameter>&#160;:</term>
+<listitem><simpara> the listener to notify
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&#160;:</term>
+<listitem><simpara> a <link linkend="gpointer"><type>gpointer</type></link> that points to a block of data that should be sent to the registered listeners,
+       along with the event notification, when it occurs.  
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> added event listener id, or 0 on failure.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-remove-key-event-listener" role="function">
+<title>atk_remove_key_event_listener ()</title>
+<indexterm zone="atk-remove-key-event-listener"><primary sortas="atk_remove_key_event_listener">atk_remove_key_event_listener</primary></indexterm><programlisting><link linkend="void">void</link>                atk_remove_key_event_listener       (<link linkend="guint">guint</link> listener_id);</programlisting>
+<para>
+Removes the specified event listener</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>listener_id</parameter>&#160;:</term>
+<listitem><simpara> the id of the event listener to remove
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-get-root" role="function">
+<title>atk_get_root ()</title>
+<indexterm zone="atk-get-root"><primary sortas="atk_get_root">atk_get_root</primary></indexterm><programlisting><link linkend="AtkObject">AtkObject</link>*          atk_get_root                        (void);</programlisting>
+<para>
+Gets the root accessible container for the current application.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> the root accessible container for the current application
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-get-focus-object" role="function" condition="since:1.6">
+<title>atk_get_focus_object ()</title>
+<indexterm zone="atk-get-focus-object" role="1.6"><primary sortas="atk_get_focus_object">atk_get_focus_object</primary></indexterm><programlisting><link linkend="AtkObject">AtkObject</link>*          atk_get_focus_object                (void);</programlisting>
+<para>
+Gets the currently focused object.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> the currently focused object for the current application
+</simpara></listitem></varlistentry>
+</variablelist><para role="since">Since 1.6</para></refsect2>
+<refsect2 id="atk-get-toolkit-name" role="function">
+<title>atk_get_toolkit_name ()</title>
+<indexterm zone="atk-get-toolkit-name"><primary sortas="atk_get_toolkit_name">atk_get_toolkit_name</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link> *       atk_get_toolkit_name                (void);</programlisting>
+<para>
+Gets name string for the GUI toolkit implementing ATK for this application.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> name string for the GUI toolkit implementing ATK for this application
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="atk-get-toolkit-version" role="function">
+<title>atk_get_toolkit_version ()</title>
+<indexterm zone="atk-get-toolkit-version"><primary sortas="atk_get_toolkit_version">atk_get_toolkit_version</primary></indexterm><programlisting>const <link linkend="gchar">gchar</link> *       atk_get_toolkit_version             (void);</programlisting>
+<para>
+Gets version string for the GUI toolkit implementing ATK for this application.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> version string for the GUI toolkit implementing ATK for this application
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

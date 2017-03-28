@@ -1,0 +1,1 @@
+cmd_/source/drivers/metrologic/other-metro-usb/metro-usb.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/drivers/metrologic/other-metro-usb/metro-usb.ko /source/drivers/metrologic/other-metro-usb/metro-usb.o /source/drivers/metrologic/other-metro-usb/metro-usb.mod.o

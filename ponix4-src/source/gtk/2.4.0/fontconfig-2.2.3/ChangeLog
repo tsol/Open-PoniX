@@ -1,0 +1,329 @@
+2004-06-30  Keith Packard  <keithp@keithp.com>
+
+	* INSTALL:
+	* README:
+	* configure.in:
+	* fontconfig/fontconfig.h:
+	Update version to 2.2.3
+	Add release comments to INSTALL
+
+2004-06-30  Keith Packard  <keithp@keithp.com>
+
+	Provided by: Lubos Lunak <l.lunak@suse.cz>
+
+	* src/fccfg.c: (FcConfigUptoDate):
+	However FcConfigUptoDate() doesn't seem to work. See the attached
+	patch.  First there's an obvious misplaced parenthesis making it
+	return always false, and second, even this call fails to detect font
+	changes (e.g.  adding a new font to 
+	/usr/X11R6/lib/X11/fonts/truetype). The patch should fix that as
+	well. The problem seems to be triggered by my fonts.conf specifying
+	only /usr/X11R6/lib/X11/fonts , and therefore config->configDirs
+	doesn't include subdirs, unlike config->fontDirs.
+
+2004-04-07  Keith Packard  <keithp@keithp.com>
+
+	* configure.in:
+	Add AM_MAINTAINER_MODE
+
+2004-03-30  Keith Packard  <keithp@keithp.com>
+
+	* configure.in:
+	Oops.  Apply changes to configure.in needed to detect
+	functions and structures used in FcGetPixelSize.
+
+2004-03-30  Keith Packard  <keithp@keithp.com>
+
+	* doc/Makefile.am:
+	Fix --disable-doc mode code to locate built documents in ${srcdir}
+	instead of ${builddir}
+
+2004-03-30  Keith Packard  <keithp@keithp.com>
+
+	* src/fcfreetype.c: (FcGetPixelSize), (FcFreeTypeQuery):
+	Use code from HEAD in computing pixel sizes of fonts
+	so that vageries in FreeType over y_ppem/height issues
+	don't affect what pixel size values are used.
+
+2004-03-30  Keith Packard  <keithp@keithp.com>
+
+	Bug #387 - usr352@wanadoo.es (Pedro Gimeno)
+
+	* src/fcxml.c: (FcStrtod):
+	Missing braces around a block of code.  Correct fix was
+	already in HEAD.
+
+2004-03-28  Tor Lillqvist  <tml@iki.fi>
+
+	Merge from HEAD:
+	
+	* src/fccfg.c (FcConfigCreate): If FcConfigHome() is NULL, use the
+	temp folder. (I guess this branch doesn't crash on a NULL
+	config->cache, but still a good idea to have a cache file, for
+	performance, isn't it?)
+
+	* src/Makefile.am (install-libtool-import-lib): Fix cut&paste error.
+
+	* test/run-test.sh: Remove CRs from the out file before comparing
+	(needed on Windows).
+
+	* fontconfig-zip.in (DEVZIP): Add share/doc directory. Add Fc*.3
+	man pages.
+
+	* src/fontconfig.def.in: Move the LIBRARY and VERSION lines to the
+	end, not to confuse libtool, which expects the EXPORTS line to be
+	the first. Add FcConfigEnableHome.
+
+	* src/fccfg.c: Check also for DLL_EXPORT as indication of being
+	built as a DLL on Win32.
+
+2004-03-10  Keith Packard  <keithp@keithp.com>
+
+	* README:
+	* fontconfig/fontconfig.h:
+	* configure.in:
+	Update to version 2.2.2
+
+	* doc/Makefile.am:
+	* fc-lang/Makefile.am:
+	Make subdir build work
+	
+	* fontconfig/fcfreetype.h:
+	* src/fcfreetype.c:
+	Use new freetype include scheme
+
+2003-11-10  Roozbeh Pournader  <roozbeh@sharif.edu>
+
+	* src/fcxml.c:
+	Fixed a bug "FcStrtod" in handling some cases with two-byte decimal
+	separators.
+
+2003-06-09  Keith Packard <keithp@keithp.com>
+
+	* Tag version 2.2.1
+	* add patch from HEAD to fix optimized path in FcLangSetIndex
+
+2003-04-30  Keith Packard <keithp@keithp.com>
+
+	* Typo in bitstream foundry name
+
+2003-04-24  Keith Packard <keithp@keithp.com>
+
+	* Eliminate italic_angle check for PS fonts
+
+2003-04-23  James Henstridge  <james@daa.com.au>
+
+	* doc/fontconfig-devel.sgml: close the <para> element.
+
+	* doc/fcpattern.fncs: close the <para> element.
+
+	* doc/func.sgml: close the <refsynopsisdiv> element.
+
+2003-04-22  Keith Packard <keithp@keithp.com
+
+	* Update autogen.sh to work with newer automake versions
+	* Handle pattern elements moving during multiple edits
+
+2003-04-17  Colin Walters <walters@debian.org>
+
+	+ Remove some unused variables, and initialize some other ones so
+	gcc doesn't warn us.
+
+2003-04-16  Keith Packard <keithp@keithp.com>
+
+	+ tag version 2.1.94
+
+2003-04-16  Keith Packard <keithp@keithp.com>
+
+	+ add BDF property fetching support for foundry 
+	  (from Juliusz Chroboczek)
+	+ add BDF property fetching support for width
+
+2003-04-11  Juliusz Chroboczek <jch@pps.jussieu.fr>
+
+	+ Implemented foundry generation for Type 1 and TrueType
+
+2003-04-11  Gerard Escalante <g2@magestudios.net>
+
+	+ Retrieve information from Type1 FontInfo dictionaries
+
+2003-04-07  Colin Walters <walters@verbum.org>
+
+	+ src/Makefile.am: Fix dummy makefile target names when
+	MS_LIB_AVAILABLE isn't set.
+
+2003-03-22  Tor Lillqvist  <tml@iki.fi>
+
+	Changes for Windows:
+	  
+	+ On Windows with gcc (a.k.a. mingw) build as a DLL.
+	  
+	+ We don't want to hardcode the fonts.conf file location in the
+	  DLL, so we look up the DLL location at run-time in a DllMain()
+	  function. The fonts.conf location is deduced from that.
+
+	+ The colon can't be used as path separator on Windows,
+	  semicolon is used instead. File path components can be separated
+	  with either slash or backslash. Absolute paths can also begin
+	  with a drive letter.
+
+	+ Add internal function FcStrLastSlash that strrchr's the last
+	  slash, or backslash on Windows.
+	
+	+ There is no link() on Windows. For atomicity checks, mkdir a
+	  lock directory instead.
+	  
+	+ In addition to HOME, also look for USERPROFILE.
+
+	+ Recognize the special font directory token WINDOWSFONTDIR, to
+	  use the system's font directory.
+	  
+	+ Remove the fontconfig-def.cpp that was obsolete. Add
+	  fontconfig.def(.in), without internal functions.
+	  
+	+ Add a fontconfig-zip(.in) script, used to build a binary
+	  distribution.
+
+Fri Mar  7 07:55:00 EST 2003    Mike A. Harris <mharris@redhat.com>
+	+ RPM specfile cleanups for 2.1.92: Removed man1/* and added man5/*
+	  to main package and man3/* to devel package
+
+	+ Added missing defattr(-, root, root) to main RPM package
+ 
+	+ Added HTML and text development documentation to -devel subpackage
+
+Wed Mar  5 05:08:00 EST 2003	Mike A. Harris <mharris@redhat.com>
+	+ Added back the configure macro options --disable-docs, otherwise
+	  fontconfig installs docs into /usr/share/doc/fontconfig (with no
+	  version number) unconditionally, causing RPM to fail the build due
+	  to _unpackaged_files_terminate_build.  We pick up the pregenerated
+	  docs with %doc already.
+
+Wed Mar  5 04:26:20 EST 2003	Mike A. Harris <mharris@redhat.com>
+	+ Removed commented out rpm macro define at top of spec file,
+	  replacing it with a simple explanation, since rpm macros are
+	  expanded by rpm even in comments.
+
+	+ Changed /usr/bin to _bindir in BuildRequires lines
+
+	+ Cleaned up rpm postinstall script, and made fc-cache use _bindir
+
+	+ Reorganized file manifest lists
+
+Sun Mar  2 14:16:17 EST 2003	Owen Taylor <otaylor@redhat.com>
+
+	+ fontconfig.spec.in: Improvements from Red Hat spec file.
+
+	+ {fc-lang,fc-cache,fc-list}/Makefile.am: Add man pages.
+
+	+ docs/*.sgml: SGML fixes.
+
+Sat Mar  1 17:28:53 PST 2003	keithp
+	+ Ok, so the ChangeLog is a bit out of date
+
+	+ Lots of bugs fixed; most are in bugzilla, the
+	  biggest problems were in cache management where
+	  Owen discovered the library would lose badly when
+	  combining fonts-cache and ~/.fonts-cache data
+
+	+ Converted from autoconf to automake.  This after
+	  getting patches accepted into libtool to allow
+	  the '-version-number' argument which lets
+	  packages set version numbers explicitly rather
+	  than the roundabout libtool way
+
+	+ Converted documentation to SGML using the docbook
+	  DTD.  Now .txt and .html documents are installed
+	  in /usr/share/doc/fontconfig and there's no
+	  man page.  Perhaps a man version can be written
+	  at some point.
+
+Sat Aug 31 15:21:22 PDT 2002	keithp
+	+ Xrender and Xft had several bugs related to
+	  rendering manually placed or poly-face text
+
+	+ Added more complete memory tracing in fontconfig
+	  Checked with (patched) mozilla and found no leaks
+
+	+ Updated Latin orthographies by comparing those from
+	  evertype.com with those from eki.ee.  Tried to make
+	  sensible choices, including chars that occured in both
+	  and leaving some optional chars out that occured only
+	  in one.
+
+Mon Aug 26 16:33:04 PDT 2002	keithp
+	+ Owen discovered that FcLangSetHasLang wasn't actually
+	  checking the language set.
+
+Mon Aug 26 13:37:23 PDT 2002	keithp
+	+ Append a version number to cache filenames
+
+Thu Aug 22 11:36:18 PDT 2002	keithp
+
+	+ Add "contains" and "not_contains" operators and elements to
+	  font configuration
+	  
+	+ Changed semantics of eq operator for LangSets to check for
+	  FcLangEqual so that any match will do
+	
+	+ FcFontList was using FcConfigCompareValue (...FcOpEqual) instead
+	  of FcValueEqual to check for identical values when inserting into
+	  the results.  This broke when the above semantic change was made,
+	  now it uses FcValueEqual which is "more correct" in any case.
+
+Thu Aug 22 00:32:29 PDT 2002	keithp
+
+	+ Reimplement FC_LANG as new datatype.  Lists of strings
+	  was consuming over a megabyte of memory for 401 fonts.
+
+	+ Freeze patterns loaded from cache files.  This shares
+	  common value lists and common patterns which saves
+	  considerable memory.
+
+	+ Change the denotation of 'constant' charsets to use special
+	  ref value instead of separate boolean.
+
+	+ Clean up leak tracing stuff, found several unannoted alloc/free
+	  calls
+
+Tue Aug 20 16:17:37 PDT 2002	keithp
+
+	+ Fix memory leak when parsing matrices from XML
+
+Mon Aug 19 11:57:27 PDT 2002	keithp
+
+	+ Fix autoconf files to pass FONTCONFIG_PATH on
+	  compile line so that ${prefix} gets substituted
+	  correctly.
+
+	+ Use getc_unlocked/putc_unlocked on systems that
+	  provide them to avoid damage done to stdio by posix
+
+	+ Eliminate FC_PATTERN and FcTypePattern in favor of
+	  an extended api for FcConfigSubstitute which takes
+	  both the font and the pattern.
+
+	+ Add 'sans serif' alias for 'sans-serif' as some apps
+	  can't handle hyphens in family names
+
+	+ Eliminate pretense of support for libxml2
+
+	+ Comment origins of Han orthographies
+
+Tue Jul 30 18:37:09 PDT 2002	keithp
+
+	+ Add binding property to edit element so that strong
+	  binding values may be inserted by the config file.
+	  The default remains weak.
+
+Sun 28 Jul 04:16:55 PDT 2002	keithp
+
+	+ Tagged release candidate 1 in the CVS tree and
+	  placed fcpackage.rc1.tar.gz for distribution
+
+Thu Aug  1 08:55:08 PDT 2002	keithp
+
+	+ Fixed autoconf builds to always specify install
+	  target files (for BSD).  Also fixed to
+	  define FONTCONFIG_PATH in config.h so that
+	  nonstandard installs will actually work.

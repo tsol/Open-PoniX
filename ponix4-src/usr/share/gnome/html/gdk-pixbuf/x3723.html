@@ -1,0 +1,535 @@
+<HTML
+><HEAD
+><TITLE
+>Converting Applications to gdk-pixbuf</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.54"><LINK
+REL="HOME"
+TITLE="The gdk-pixbuf Library"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Porting applications from Imlib to gdk-pixbuf"
+HREF="a3652.html"><LINK
+REL="PREVIOUS"
+TITLE="Differences between Imlib and gdk-pixbuf"
+HREF="x3671.html"><LINK
+REL="NEXT"
+TITLE="Compiling the gdk-pixbuf library"
+HREF="compiling.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> Library</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="x3671.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="a3652.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="compiling.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN3723"
+>Converting Applications to <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+></A
+></H1
+><P
+>	This sections describes the actual changes you need to make in
+	an <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> program to make it use <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> instead.
+      </P
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN3729"
+>Image loading and creation</A
+></H2
+><P
+>	  The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> library can load image files synchronously
+	  (i.e. with a single function call), create images from RGB
+	  data in memory, and as a convenience, it can also create
+	  images from inline XPM data.
+	</P
+><P
+>	  To load an image file in a single function call, simply use
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_new_from_file()</TT
+>.  Note that
+	  this will make the program block until the whole file has
+	  been read.  This function effectively replaces
+	  <TT
+CLASS="FUNCTION"
+>gdk_imlib_load_image()</TT
+>.
+	</P
+><P
+>	  If you have RGB data in memory, you can use
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_new_from_data()</TT
+> to create a
+	  pixbuf out of it; this is a replacement for
+	  <TT
+CLASS="FUNCTION"
+>gdk_imlib_create_image_from_data()</TT
+>.
+	  <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> does not copy the image data; it is up to you
+	  to define the ownership policy by providing a destroy
+	  notification function that will be called when the image
+	  data needs to be freed.  The function you provide can then
+	  free the data or do something else, as appropriate.
+	</P
+><P
+>	  As a convenience, you can use the
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_new_from_xpm_data()</TT
+> function
+	  to create a pixbuf out of inline XPM data that was compiled
+	  into your C program.  This is a replacement for
+	  <TT
+CLASS="FUNCTION"
+>gdk_imlib_create_image_from_xpm_data()</TT
+>.
+	</P
+><P
+>	  After you have created a pixbuf, you can manipulate it in
+	  any way you please and then finally call
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_unref()</TT
+> when you are done
+	  with it.  This can be thought of as a replacement for
+	  <TT
+CLASS="FUNCTION"
+>gdk_imlib_destroy_image()</TT
+> but with much
+	  cleaner semantics.
+	</P
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN3746"
+>Rendering Images</A
+></H2
+><P
+>	  Applications that use <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> must first call
+	  <TT
+CLASS="FUNCTION"
+>gdk_imlib_render()</TT
+> to render the whole
+	  image data onto a pixmap that <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> creates.  Then they
+	  must copy that pixmap's data into the final destination for
+	  the image.
+	</P
+><P
+>	  In contrast, <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> provides convenience functions to
+	  render arbitrary rectangular regions of an image onto a
+	  drawable that your application provides.  You can use
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_render_to_drawable()</TT
+> or
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_render_to_drawable_alpha()</TT
+>
+	  to do this; having your application provide the destination
+	  drawable and specify an arbitrary region means your
+	  application has complete control over the way images are
+	  rendered.
+	</P
+><P
+>	  As a convenience, <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> also provides the
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_render_pixmap_and_mask()</TT
+>
+	  function; this will create new pixmap and mask drawables for
+	  a whole pixbuf and render the image data onto them.  Only
+	  trivially simple applications should find a use for this
+	  function, since usually you want finer control of how things
+	  are rendered.
+	</P
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN3759"
+>Scaling Images</A
+></H2
+><P
+>	  <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> lets you render scaled image data at the time you
+	  call <TT
+CLASS="FUNCTION"
+>gdk_imlib_render()</TT
+>.  Again, this
+	  unfortunately scales and renders the whole image onto a new
+	  pixmap.
+	</P
+><P
+>	  <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> provides a number of functions that do scaling
+	  of arbitrary regions of a source pixbuf onto a destination
+	  one.  These functions can also perform compositing
+	  operations against the data in the destination pixbuf or
+	  against a solid color or a colored checkerboard.
+	  <A
+NAME="AEN3766"
+HREF="#FTN.AEN3766"
+>[1]</A
+>
+	</P
+><P
+>	  Very simple applications may find it sufficient to use
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_scale_simple()</TT
+> or
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_composite_color_simple()</TT
+>.
+	  These functions scale the whole source image at a time and
+	  create a new pixbuf with the result.
+	</P
+><P
+>	  More sophisticated applications will need to use
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_scale()</TT
+>,
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_composite()</TT
+>, or
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_composite_color()</TT
+> instead.
+	  These functions let you scale and composite an arbitrary
+	  region of the source pixbuf onto a destination pixbuf that
+	  you provide.
+	</P
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN3776"
+>Getting Image Data from a Drawable</A
+></H2
+><P
+>	  <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> lets you create an image by fetching a drawable's
+	  contents from the X server and converting those into RGB
+	  data.  This is done with the
+	  <TT
+CLASS="FUNCTION"
+>gdk_imlib_create_image_from_drawable()</TT
+>
+	  function.
+	</P
+><P
+>	  <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> provides the
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_get_from_drawable()</TT
+> function
+	  instead.  It lets you specify a destination pixbuf instead
+	  of always creating a new one for you.
+	</P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN3766"
+HREF="x3723.html#AEN3766"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>	      You can use a colored checkerboard as the background for
+	      compositing when you want to provide a visual indication
+	      that the image has partially opaque areas.  This is
+	      normally used in image editing and viewing programs.
+	    </P
+><P
+>	      Compositing against a single solid color is actually a
+	      special case of a checkerboard; it simply uses checks of
+	      the same color.
+	    </P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="x3671.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="a3652.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="compiling.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Differences between <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> and <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+></B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Compiling the <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> library</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

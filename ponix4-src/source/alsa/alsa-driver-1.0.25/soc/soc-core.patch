@@ -1,0 +1,69 @@
+--- soc-core.c.orig	2012-01-17 12:18:14.323281804 +0100
++++ soc-core.c	2012-01-17 12:19:50.056275280 +0100
+@@ -1,3 +1,9 @@
++#include "adriver.h"
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 27)
++/* HACK HACK - debugfs_remove_recursive() isn't defined */
++#undef CONFIG_DEBUG_FS
++// #include "trace_events_asoc_compat.h" /* hack */
++#endif
+ /*
+  * soc-core.c  --  ALSA SoC Audio Layer
+  *
+@@ -477,6 +483,11 @@
+ }
+ #endif
+ 
++/* XXX */
++#if !defined(CONFIG_PM_SLEEP) && defined(CONFIG_PM)
++#define CONFIG_PM_SLEEP
++#endif
++
+ #ifdef CONFIG_PM_SLEEP
+ /* powers down audio subsystem for suspend */
+ int snd_soc_suspend(struct device *dev)
+@@ -1660,22 +1671,44 @@
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_poweroff);
+ 
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 30)
+ const struct dev_pm_ops snd_soc_pm_ops = {
+ 	.suspend = snd_soc_suspend,
+ 	.resume = snd_soc_resume,
+ 	.poweroff = snd_soc_poweroff,
+ };
+ EXPORT_SYMBOL_GPL(snd_soc_pm_ops);
++#else
++#ifdef CONFIG_PM
++static int soc_old_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	return snd_soc_suspend(&pdev->dev);
++}
++static int soc_old_resume(struct platform_device *pdev)
++{
++	return snd_soc_resume(&pdev->dev);
++}
++#else
++#define soc_old_suspend		NULL
++#define soc_old_resume		NULL
++#endif
++#endif /* < 2.6.30 */
+ 
+ /* ASoC platform driver */
+ static struct platform_driver soc_driver = {
+ 	.driver		= {
+ 		.name		= "soc-audio",
+ 		.owner		= THIS_MODULE,
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 30)
+ 		.pm		= &snd_soc_pm_ops,
++#endif
+ 	},
+ 	.probe		= soc_probe,
+ 	.remove		= soc_remove,
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 30)
++	.suspend = soc_old_suspend,
++	.resume = soc_old_resume,
++#endif
+ };
+ 
+ /**

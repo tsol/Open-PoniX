@@ -1,0 +1,1 @@
+cmd_/source/drivers/realtek-ethernet/r8168-8.032.00/src/r8168.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/drivers/realtek-ethernet/r8168-8.032.00/src/r8168.ko /source/drivers/realtek-ethernet/r8168-8.032.00/src/r8168.o /source/drivers/realtek-ethernet/r8168-8.032.00/src/r8168.mod.o

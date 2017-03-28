@@ -1,0 +1,52 @@
+.TH vncpasswd 1 "May 2012" "RealVNC Ltd" "VNC Server"
+.SH NAME
+vncpasswd \- change password for VNC\(rg authentication
+.SH SYNOPSIS
+.B vncpasswd
+.RB [ -p
+.IR PASSWORD-TYPE ]
+.RI [ FILE ]
+.SH DESCRIPTION
+.B vncpasswd
+allows you to set the password used to access VNC desktops when using
+"traditional" VNC authentication (UserPasswdVerifier=VncAuth).  It does not
+affect VNC desktops which are using UNIX authentication
+(UserPasswdVerifier=UnixAuth).
+
+It stores an obfuscated version of the password as a parameter in the
+configuration file for the specified server mode.  The
+\fBvncserver-virtual\fP(1) program runs \fBvncpasswd\fP if necessary the first
+time you start a VNC desktop.
+
+The password must be at least six characters long.  When allowing legacy
+viewers to connect (SecurityType includes VncAuth) then only the first eight
+characters are significant.  All characters of the password are significant
+when using RA2 or RA2ne as the SecurityType.
+
+Note that the stored password is \fBnot\fP encrypted securely - anyone who has
+access to this file can trivially find out the plaintext password.
+However, when accessing a VNC desktop a challenge-response mechanism
+or other encryption is used over the wire making it hard for anyone to crack
+the password simply by snooping on the network.
+.SH OPTIONS
+The password is written to the configuration file FILE (by default,
+\fI~/.vnc/config.d/vncserver-x11\fP).  See the section
+"CONFIGURATION FILES" in \fBvncserver-x11\fP(1) and \fBXvnc\fP(1).
+.TP
+.BI "\-p " PASSWORD-TYPE
+The parameter name for the password being set.  VNC Server may support various
+extended password types, including \fBViewOnlyPassword\fP, \fBAdminPassword\fP,
+\fBGuestPassword\fP, and \fBInputOnlyPassword\fP. The default parameter name is
+\fBPassword\fP.  Run \fBvncserver-x11 -h all\fP to see supported parameters.
+.SH SEE ALSO
+.BR vncserver-virtual (1),
+.BR vncviewer (1),
+.BR vncaddrbook (1),
+.BR vnclicense (1),
+.BR Xvnc (1),
+.BR vncserver-x11 (1),
+.BR vncinitconfig (1)
+.br
+http://www.realvnc.com
+.SH AUTHOR
+RealVNC Ltd.

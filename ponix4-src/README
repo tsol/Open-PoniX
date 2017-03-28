@@ -1,0 +1,149 @@
+как собрать среду для сборки:
+
+1)скачать crosstool последней версии
+2)взять конфиг от предыдущей сборки .config и положить его в текущий
+crosstool
+3)запустить ct-ng menuconfig донастроить (взять последние версии
+gcc, binutils, kernel и т.д. выйти сохранив конфиг
+4)запустить ct-ng build
+5)после завершения в папке /toolchain соберется нужный toolchain
+6)добавляем папку /toolchain/bin в $PATH (export
+PATH="$PATH:/toolchain/bin")
+7)создаем папку для нашей сборочной среды /build
+8)переносим sysroot в сборочную среду (cp -rd
+/toolchain/i486-TSOL-linux-gnu/sysroot/* /build) и переносим саму папку
+/toolchain в /build потом заходим в /build/toolchain/i486-TSOL-linux-gnu
+удаляем папку sysroot и делаемм ссылку ln -s /toolchain/i486-TSOL-linux-gnu/sysroot /  
+Удаляем ссылку lib и делаем ссылки ln -s /toolchain/lib /toolchain/i486-TSOL-linux-gnu/lib 
+и ln -s /toolchain/libexec /toolchain/i486-TSOL-linux-gnu/libexec  
+9)создаем в /build/bin start.sh со следующим содержанием:
+
+-----------------------------------------------------------------
+
+#!/bin/sh
+
+alias ll='ls -l'
+
+export LANGUAGE="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+export LC_MESSAGES="en_US.UTF-8"
+export MM_CHARSET="UTF-8"
+
+
+export CC="i486-TSOL-linux-gnu-gcc"
+export CXX="i486-TSOL-linux-gnu-g++"
+export LD="i486-TSOL-linux-gnu-ld"
+
+
+echo -e "\nWelcome to the ponyX Build Enviroment\n"
+
+bash
+
+echo -e "\nYou have exited the ponyX Build Environment\n"
+
+------------------------------------------------------------------
+
+10)создаем в /build файл RUNME со следующим содержанием:
+
+------------------------------------------------------------------
+
+chroot . /bin/start.sh
+
+------------------------------------------------------------------
+
+11)собираем необходимые программы (bash, coreutils, zlib, make, gawk, grep,
+sed, joe) для работоспособности среды сборки с
+помощью созданного toolchain:
+
+./configure --host=i486-TSOL-linux-gnu --prefix=/build/usr
+CC="i486-TSOL-linux-gnu-gcc --sysroot=/build" FORCE_UNSAFE_CONFIGURE=1
+
+make
+
+make install
+
+12)Добавляем пути в PATH, пример файл /root/.bashrc
+
+------------------------------------------------------------------
+
+# ~/.bashrc: executed by bash(1) for non-login interactive shells.
+
+export PATH=\
+/bin:\
+/sbin:\
+/usr/bin:\
+/usr/sbin:\
+/usr/bin/X11:\
+/usr/local/bin:\
+/toolchain/bin:\
+/toolchain/i486-TSOL-linux-gnu/bin/:\
+/root/.local/bin:\
+
+# If running interactively, then:
+if [ "$PS1" ]; then
+
+    if [ "$BASH" ]; then
+        export PS1="[\u@\h \W]\\$ "
+    else
+      if [ "`id -u`" -eq 0 ]; then
+        export PS1='# '
+      else
+        export PS1='$ '
+      fi
+    fi
+
+    export USER=`id -un`
+    export LOGNAME=$USER
+    export HOSTNAME=`/bin/hostname`
+    export HISTSIZE=1000
+    export HISTFILESIZE=1000
+    export PAGER='/bin/more '
+    export EDITOR='/bin/vi'
+    export INPUTRC=/etc/inputrc
+    export DMALLOC_OPTIONS=debug=0x34f47d83,inter=100,log=logfile
+    export
+    LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz
+
+    ### Some aliases
+    alias ps2='ps facux '
+    alias ps1='ps faxo "%U %t %p %a" '
+    alias af='ps af'
+    alias cls='clear'
+    alias ll='/bin/ls --color=tty -laFh'
+    alias ls='/bin/ls --color=tty -F'
+    alias df='df -h'
+    alias indent='indent -bad -bap -bbo -nbc -br -brs -c33 -cd33 -ncdb -ce
+    -ci4 -cli0 -cp33 -cs -d0 -di1 -nfc1 -nfca -hnl -i4 -ip0 -l75 -lp -
+    #alias bc='bc -l'
+    alias minicom='minicom -c on'
+    alias calc='calc -Cd '
+    alias bc='calc -Cd '
+fi;
+. /source/docbook-xsl-1.76.1/.profile.incl
+
+----------------------------------------------------------------------------
+
+13) создаем локаль en_US.UTF-8 для этого копируем из предыдущей среды сборки
+папку /usr/share/i18n, улилты locale и localedef. Создаем папку
+/usr/lib/locale и запускаем утилиту localedef -i en_US -f UTF-8 en_US.UTF-8
+после это локаль будет создана в паке /usr/lib/locale в сжатом виде
+
+14)копируем из предыдущей среды сборки файлы /etc/passwd /etc/hostname и
+т.п.
+
+15)заходим в среду сборки и собираем остальные программы (automake,
+autoconf, perl, findutils, util-linux, tar, gzip, bzip2, gettext, libxml
+и др), если программа не может найти
+компилятор, то надо ей указать его принудительно, например, для bzip2 надо
+подредактировать Makefile заменив параметр CC=gcc на
+СС=i485-TSOL-linux-gnu-gcc, либо указать специальными опциями программы
+нужный компилятор, например, для perl опция будет
+-Dcc=i485-TSOL-linux-gnu-gcc
+
+16)необходимо сделать ссылку ln -s /toolchain/bin/i486-TSOL-linux-gnu-cpp
+cpp
+
+17)Необходимо учесть, что в отличии от всей инфраструктуры Xorg сам сервер
+Xorg собирается в корень (--prefix=/)  

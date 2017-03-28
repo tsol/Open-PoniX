@@ -1,0 +1,365 @@
+# FreeRDP: A Remote Desktop Protocol Implementation
+# FreeRDP cmake build script
+#
+# Copyright 2011 O.S. Systems Software Ltda.
+# Copyright 2011 Otavio Salvador <otavio@ossystems.com.br>
+# Copyright 2011 Marc-Andre Moreau <marcandre.moreau@gmail.com>
+# Copyright 2012 HP Development Company, LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cmake_minimum_required(VERSION 2.8)
+
+project(FreeRDP C)
+
+set(CMAKE_COLOR_MAKEFILE ON)
+
+# Include cmake modules
+include(CheckIncludeFiles)
+include(CheckLibraryExists)
+include(CheckStructHasMember)
+include(CMakeDetermineSystem)
+include(FindPkgConfig)
+include(TestBigEndian)
+
+# Include our extra modules
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
+
+# Check for cmake compatibility (enable/disable features)
+include(CheckCmakeCompat)
+
+include(AutoVersioning)
+include(ConfigOptions)
+include(ComplexLibrary)
+include(FindOptionalPackage)
+include(CheckCCompilerFlag)
+include(GNUInstallDirsWrapper)
+
+# Soname versioning
+set(FREERDP_VERSION_MAJOR "1")
+set(FREERDP_VERSION_MINOR "1")
+set(FREERDP_VERSION_REVISION "0")
+set(FREERDP_VERSION_SUFFIX "dev")
+set(FREERDP_VERSION "${FREERDP_VERSION_MAJOR}.${FREERDP_VERSION_MINOR}")
+if (FREERDP_VERSION_SUFFIX)
+	set(FREERDP_VERSION_FULL "${FREERDP_VERSION}.${FREERDP_VERSION_REVISION}-${FREERDP_VERSION_SUFFIX}")
+else()
+	set(FREERDP_VERSION_FULL "${FREERDP_VERSION}.${FREERDP_VERSION_REVISION}")
+endif()
+include(GetGitRevisionDescription)
+git_describe(GIT_REVISION --match "[0-9]*" --abbrev=4 --tags --always)
+message(STATUS "Git Revision ${GIT_REVISION}")
+
+# Turn on solution folders (2.8.4+)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Default to release build type
+if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE "Release")
+endif()
+
+if(NOT DEFINED BUILD_SHARED_LIBS)
+	if(ANDROID)
+		set(BUILD_SHARED_LIBS OFF)
+	else()
+		set(BUILD_SHARED_LIBS ON)
+	endif()
+endif()
+
+if(NOT DEFINED EXPORT_ALL_SYMBOLS)
+	set(EXPORT_ALL_SYMBOLS FALSE)
+endif()
+
+# Configure MSVC Runtime
+if(MSVC)
+	include(MSVCRuntime)
+	if(NOT DEFINED MSVC_RUNTIME)
+		set(MSVC_RUNTIME "dynamic")
+	endif()
+	if(${MSVC_RUNTIME} STREQUAL "static")
+		message(STATUS "Use the MSVC static runtime option carefully!")
+		message(STATUS "OpenSSL uses /MD by default, and is very picky")
+		message(STATUS "Random freeing errors are a common sign of runtime issues")
+	endif()
+	configure_msvc_runtime()
+endif()
+
+# Compiler-specific flags
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+	CHECK_C_COMPILER_FLAG (-Wno-unused-result Wno-unused-result)
+	if(Wno-unused-result)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-result")
+	endif()
+	CHECK_C_COMPILER_FLAG (-Wno-unused-but-set-variable Wno-unused-but-set-variable)
+	if(Wno-unused-but-set-variable)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable")
+	endif()
+	CHECK_C_COMPILER_FLAG(-Wno-deprecated-declarations Wno-deprecated-declarations)
+	if(Wno-deprecated-declarations)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
+	endif()
+	if(NOT EXPORT_ALL_SYMBOLS)
+		message(STATUS "GCC default symbol visibility: hidden")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+	endif()
+	if(BUILD_TESTING)
+		CHECK_C_COMPILER_FLAG(-Wno-format Wno-format)
+		if(Wno-format)
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format")
+		endif()
+	endif()
+	if(CMAKE_BUILD_TYPE STREQUAL "Release")
+		set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+	endif()
+	if(${CMAKE_VERSION} VERSION_LESS 2.8.8)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+	endif()
+	if(WITH_SSE2)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
+	endif()
+endif()
+
+if(MSVC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Gd")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MT")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /O2")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Ob2")
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_AMD64_")
+	else()
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_X86_")
+	endif()
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_UNICODE")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFREERDP_EXPORTS")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_WIN32_WINNT=0x0501")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWIN32_LEAN_AND_MEAN")
+	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+endif()
+
+# Include files
+check_include_files(fcntl.h HAVE_FCNTL_H)
+check_include_files(unistd.h HAVE_UNISTD_H)
+check_include_files(stdint.h HAVE_STDINT_H)
+check_include_files(inttypes.h HAVE_INTTYPES_H)
+check_include_files(sys/modem.h HAVE_SYS_MODEM_H)
+check_include_files(sys/filio.h HAVE_SYS_FILIO_H)
+check_include_files(sys/strtio.h HAVE_SYS_STRTIO_H)
+
+check_struct_has_member("struct tm" tm_gmtoff time.h HAVE_TM_GMTOFF)
+
+# Mac OS X
+if(APPLE)
+	if(IS_DIRECTORY /opt/local/include)
+		include_directories(/opt/local/include)
+		link_directories(/opt/local/lib)
+	endif()
+	
+	if(WITH_CLANG)
+		set(CMAKE_C_COMPILER "clang")
+	endif()
+	
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmacosx-version-min=10.4")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl-framework,CoreFoundation")	
+endif()
+
+# Android
+if(ANDROID)
+	set(WITH_X11 OFF)
+	set(WITH_CUPS OFF)
+	set(WITH_ALSA OFF)
+	set(WITH_PULSE OFF)
+	set(WITH_FFMPEG OFF)
+	set(WITH_GSTREAMER OFF)
+	set(WITH_PCSC OFF)
+endif()
+
+if(NOT WIN32)
+	find_required_package(ZLIB)
+	find_optional_package(PCSC)
+	find_optional_package(PulseAudio)
+
+	if(NOT ANDROID)
+		find_suggested_package(Cups)
+	endif()
+
+	if(NOT APPLE)
+		find_suggested_package(XRandR)
+		find_suggested_package(Gstreamer)
+		if(NOT ANDROID)
+			find_suggested_package(ALSA)
+		endif()
+	endif()
+
+	if((NOT ANDROID) AND (NOT APPLE))
+		find_suggested_package(FFmpeg)
+	endif()
+endif()
+
+if(WIN32)
+	set(CMAKE_INSTALL_BINDIR ${CMAKE_INSTALL_PREFIX})
+	set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX})
+	set(CMAKE_INSTALL_FULL_LIBDIR ${CMAKE_INSTALL_PREFIX})
+endif()
+
+# Path to put FreeRDP data
+set(FREERDP_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/freerdp")
+set(FREERDP_KEYMAP_PATH "${FREERDP_DATA_PATH}/keymaps")
+
+# Path to put plugins
+
+if(WIN32)
+	set(FREERDP_PLUGIN_PATH "${CMAKE_INSTALL_LIBDIR}")
+else()
+	set(FREERDP_PLUGIN_PATH "${CMAKE_INSTALL_LIBDIR}/freerdp")
+endif()
+
+set(FREERDP_CLIENT_PLUGIN_PATH "${FREERDP_PLUGIN_PATH}/client")
+set(FREERDP_SERVER_PLUGIN_PATH "${FREERDP_PLUGIN_PATH}/server")
+
+# Path to put extensions
+set(FREERDP_EXTENSION_PATH "${CMAKE_INSTALL_FULL_LIBDIR}/freerdp/extensions")
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Configure files
+add_definitions("-DHAVE_CONFIG_H")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+
+# RPATH configuration
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+
+# Unit Tests
+
+INCLUDE(CTest)
+
+if(BUILD_TESTING)
+	enable_testing()
+	if(MSVC)
+		set(TESTING_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+	else()
+		set(TESTING_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Testing")
+	endif()
+endif()
+
+# WinPR
+set(WINPR_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/winpr/include")
+include_directories(${WINPR_INCLUDE_DIR})
+
+add_subdirectory(winpr)
+
+# Generate pkg-config
+if(NOT MSVC)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/freerdp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/freerdp.pc @ONLY)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/freerdp.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+endif()
+
+# Intel Performance Primitives
+#find_optional_package(IPP)
+
+if(WITH_CUNIT)
+	message(FATAL_ERROR "cunit (WITH_CUNIT) is deprecated please use BUILD_TESTING to build ctest tests.
+The cunit directory contains the old tests and is kept until all tests are converted.")
+endif()
+
+# Sub-directories
+
+add_subdirectory(include)
+
+add_subdirectory(libfreerdp)
+
+if(WITH_CHANNELS)
+	add_subdirectory(channels)
+endif()
+
+if(WITH_CLIENT)
+	add_subdirectory(client)
+endif()
+
+if(WITH_SERVER)
+	add_subdirectory(server)
+endif()
+
+if(WITH_THIRD_PARTY)
+	add_subdirectory(third-party)
+endif()
+
+if(NOT MSVC)
+	add_subdirectory(keymaps)
+endif()
+
+# Packaging
+
+set(CPACK_SOURCE_IGNORE_FILES "/\\\\.git/;/\\\\.gitignore;/CMakeCache.txt")
+
+set(CPACK_PACKAGE_EXECUTABLES "xfreerdp")
+
+if(WITH_SERVER)
+	set(CPACK_PACKAGE_EXECUTABLES ${CPACK_PACKAGE_EXECUTABLES} "xfreerdp-server")
+endif()
+
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "FreeRDP: A Remote Desktop Protocol Implementation")
+
+set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_TOPLEVEL_TAG "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+
+string(TOLOWER ${CMAKE_PROJECT_NAME} CMAKE_PROJECT_NAME_lower)
+set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME_lower}-${FREERDP_VERSION_FULL}-${CPACK_SYSTEM_NAME}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME_lower}-${FREERDP_VERSION_FULL}-${CPACK_SYSTEM_NAME}")
+
+set(CPACK_PACKAGE_NAME "FreeRDP")
+set(CPACK_PACKAGE_VENDOR "FreeRDP")
+set(CPACK_PACKAGE_VERSION ${FREERDP_VERSION_FULL})
+set(CPACK_PACKAGE_VERSION_MAJOR ${FREERDP_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${FREERDP_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${FREERDP_VERSION_REVISION})
+
+set(CPACK_SET_DESTDIR "on")
+set(CPACK_PACKAGING_INSTALL_PREFIX "/tmp")
+
+set(CPACK_PACKAGE_CONTACT "Marc-Andre Moreau")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "marcandre.moreau@gmail.com")
+set(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "FreeRDP")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+
+set(CPACK_NSIS_MODIFY_PATH ON)
+set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/resources\\\\FreeRDP_Install.bmp")
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/resources\\\\FreeRDP_Icon_96px.ico")
+set(CPACK_NSIS_MUI_UNICON "${CMAKE_SOURCE_DIR}/resource\\\\FreeRDP_Icon_96px.ico")
+
+if(MSVC)
+	if(MSVC_RUNTIME STREQUAL "dynamic")
+		include(InstallRequiredSystemLibraries)
+	endif()
+endif()
+
+include(CPack)
+
+cpack_add_component(headers DISPLAY_NAME "Headers")
+cpack_add_component(libraries DISPLAY_NAME "Libraries")
+cpack_add_component(clients DISPLAY_NAME "Clients")
+
+set(CPACK_COMPONENTS_ALL clients libraries headers)
+

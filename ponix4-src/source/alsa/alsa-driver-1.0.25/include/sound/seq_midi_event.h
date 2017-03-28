@@ -1,0 +1,1 @@
+../../alsa-kernel/include/seq_midi_event.h

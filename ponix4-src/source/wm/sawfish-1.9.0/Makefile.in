@@ -1,0 +1,118 @@
+# Makefile.in for sawfish
+# Copyright (C) 1998 - 2008 John Harper
+#               2008 - 2010 Sawfish Community
+#
+# This file is part of sawfish.
+#
+# sawmfish is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# sawfish is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sawfish; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+include ./Makedefs
+
+top_builddir=.
+top_srcdir=@top_srcdir@
+srcdir=@srcdir@
+
+SUBDIRS = @SUBDIRS@
+
+all : build.h DOC
+	for dir in $(SUBDIRS); do \
+	  [ -d $$dir ] && ( cd $$dir && $(MAKE) $@ ) || exit 1; \
+	done
+
+# this depends on config.status so it's rebuilt if configure is re-run
+build.h : build-info config.status
+	$(SHELL) $< $(version)$(subversion) '$(sawfishdir)' \
+		'$(lispdir)' '$(sawfishexecdir)' '$(localedir)'
+
+install : all installdirs
+	for dir in $(SUBDIRS); do \
+	  ( cd $$dir && $(MAKE) $@ ) || exit 1; \
+	done
+	for f in ./DOC*; do \
+	  $(INSTALL_DATA) $$f $(DESTDIR)$(sawfishexecdir); \
+	done
+	$(INSTALL_DATA) $(srcdir)/sawfish.desktop \
+		$(DESTDIR)$(datadir)/applications/
+	if test $(GNOME2_SESSION) = "yes"; then \
+		$(INSTALL_DATA) $(srcdir)/sawfish-wm.desktop $(DESTDIR)$(GNOMEDIR)/share/gnome/wm-properties; \
+	fi
+	$(INSTALL_DATA) $(top_srcdir)/sawfish.pc $(DESTDIR)$(libdir)/pkgconfig/
+	if test $(XDM_SESSION) = "yes"; then \
+		$(INSTALL_DATA) $(top_srcdir)/sawfish-session.desktop $(DESTDIR)$(datadir)/xsessions/sawfish.desktop; \
+	fi
+	if test $(KDE4_SESSION) = "yes"; then \
+		$(INSTALL_DATA) $(top_srcdir)/sawfish-ksm.desktop $(DESTDIR)$(KDEDIR)/ksmserver/windowmanagers/sawfish.desktop; \
+	fi
+
+installdirs : mkinstalldirs
+	$(SHELL) $< $(DESTDIR)$(sawfishdir) \
+	  $(DESTDIR)$(bindir) $(DESTDIR)$(sawfishexecdir) \
+	  $(DESTDIR)$(GNOMEDIR)/share/gnome/wm-properties \
+	  $(DESTDIR)$(datadir)/applications/ \
+	  $(DESTDIR)$(libdir)/pkgconfig/ \
+	  $(DESTDIR)$(datadir)/xsessions/ \
+	  $(DESTDIR)$(KDEDIR)/ksmserver/windowmanagers/
+
+uninstall :
+	for dir in $(SUBDIRS); do \
+	  ( cd $$dir && $(MAKE) $@ ) || exit 1; \
+	done
+	rm -rf $(DESTDIR)$(sawfishdir)
+	rm -f $(DESTDIR)$(libdir)/pkgconfig/sawfish.pc
+	if test $(XDM_SESSION) = "yes"; then \
+		rm -f $(DESTDIR)$(datadir)/xsessions/sawfish.desktop; \
+	fi
+	rm -f $(DESTDIR)$(datadir)/applications/sawfish.desktop
+	if test $(GNOME2_SESSION) = "yes"; then \
+		rm -f $(DESTDIR)$(GNOMEDIR)/share/gnome/wm-properties/sawfish-wm.desktop; \
+	fi
+	if test $(KDE4_SESSION) = "yes"; then \
+		rm -f $(DESTDIR)$(KDEDIR)/ksmserver/windowmanagers/sawfish.desktop; \
+	fi
+
+# At this stage, DOC file omits some docstrings. (Only small portion,
+# though.) Byte compilation makes it complete.
+DOC :
+	repdoc DOC `find $(srcdir) \( -name '*.c' -o -name '*.jl' \) -print`
+
+clean :
+	-for dir in $(SUBDIRS); do \
+	  [ -d $$dir ] && ( cd $$dir && $(MAKE) $@ ) || exit 1; \
+	done
+	rm -f *~ DOC* TAGS build.h
+
+distclean :
+	-for dir in $(SUBDIRS); do \
+	  [ -d $$dir ] && ( cd $$dir && $(MAKE) $@ ) || exit 1; \
+	done
+	rm -f config.cache config.h config.log config.status Makedefs Makefile
+	rm -f *~ DOC* TAGS build.h sawfish.pc
+
+debclean : distclean
+	rm -f sawfish*.ebuild sawfish.spec libtool ltmain.sh config.h.in NEWS
+	rm -f configure m4/*
+
+gitclean : distclean
+	rm -f aclocal.m4 configure
+	rm -rf autom4te.cache m4/
+	rm -f libtool ltmain.sh
+	rm -f sawfish.spec sawfish*.ebuild
+	-fakeroot debian/rules clean
+
+TAGS :
+	etags --language=c `find $(srcdir) -name '*.[ch]' -print` \
+	      --language=lisp `find $(srcdir) -name '*.jl' -print`
+
+.PHONY: install uninstall tar clean gitclean distclean TAGS

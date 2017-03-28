@@ -1,0 +1,308 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Changes from 1.0 to 1.2</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GTK+ Reference Manual"><link rel="up" href="migrating.html" title="Part IV. Migrating from Previous Versions of GTK+"><link rel="previous" href="checklist-modifiers.html" title="Test for modifier keys correctly"><link rel="next" href="gtk-changes-2-0.html" title="Changes from 1.2 to 2.0"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="checklist-modifiers.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="migrating.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GTK+ Reference Manual</th><td><a accesskey="n" href="gtk-changes-2-0.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="gtk-changes-1-2"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Changes from 1.0 to 1.2</span></h2><p>Changes from 1.0 to 1.2 &#8212; 
+Incompatible changes made between version 1.0 and version 1.2
+</p></div><div class="refsect1" lang="en"><h2>Incompatible changes from 1.0 to 1.2</h2><div class="itemizedlist"><ul type="disc"><li><p>
+<span class="structname">GtkAcceleratorTable</span> has been replaced with 
+<span class="structname">GtkAccelGroup</span>.
+</p></li><li><p>
+<span class="structname">GtkMenuFactory</span> has been replaced with 
+<span class="structname">GtkItemFactory</span>, although
+a version of <span class="structname">GtkMenuFactory</span> is currently still 
+provided to ease the migration phase.
+</p></li><li><p>
+The <span class="structname">GtkTypeInfo</span> structures used in the 
+<tt class="function">gtk_*_type_init()</tt> functions have
+changed a bit, the old format:
+</p><pre class="programlisting">
+      GtkTypeInfo bin_info =
+      {
+        "GtkBin",
+        sizeof (GtkBin),
+        sizeof (GtkBinClass),
+        (GtkClassInitFunc) gtk_bin_class_init,
+        (GtkObjectInitFunc) gtk_bin_init,
+        (GtkArgSetFunc) NULL,
+        (GtkArgGetFunc) NULL,
+      };
+</pre><p>
+
+  needs to be converted to:
+
+</p><pre class="programlisting">
+      static const GtkTypeInfo bin_info =
+      {
+        "GtkBin",
+        sizeof (GtkBin),
+        sizeof (GtkBinClass),
+        (GtkClassInitFunc) gtk_bin_class_init,
+        (GtkObjectInitFunc) gtk_bin_init,
+        /* reserved_1 */ NULL,
+        /* reserved_2 */ NULL,
+        (GtkClassInitFunc) NULL,
+      };
+</pre><p>
+
+  the <tt class="function">GtkArgSetFunc</tt> and <tt class="function">GtkArgGetFunc</tt>
+  functions are not supported from the type system anymore, and you should make
+  sure that your code only fills in these fields with <tt class="literal">NULL</tt> 
+  and doesn't use the deprecated function typedefs 
+  <tt class="literal">(GtkArgSetFunc)</tt> and <tt class="literal">(GtkArgGetFunc)</tt> 
+  anymore.
+</p></li><li><p>
+A number of GTK+ functions were renamed. For compatibility, 
+  <tt class="filename">gtkcompat.h</tt> #define's the old 1.0.x function names in 
+  terms of the new names. To assure your GTK+ program doesn't rely on outdated
+  function variants, compile your program with 
+  <tt class="option">-DGTK_DISABLE_COMPAT_H</tt> to disable
+  the compatibility aliases.
+
+  Here is the list of the old names and replacements:
+
+</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>Old</th><th>Replacement</th></tr></thead><tbody><tr><td><tt class="function">gtk_accel_label_accelerator_width</tt></td><td><tt class="function">gtk_accel_label_get_accel_width</tt></td></tr><tr><td><tt class="function">gtk_check_menu_item_set_state</tt></td><td><tt class="function">gtk_check_menu_item_set_active</tt></td></tr><tr><td><tt class="function">gtk_container_border_width</tt></td><td><tt class="function">gtk_container_set_border_width</tt></td></tr><tr><td><tt class="function">gtk_label_set</tt></td><td><tt class="function">gtk_label_set_text</tt></td></tr><tr><td><tt class="function">gtk_notebook_current_page</tt></td><td><tt class="function">gtk_notebook_get_current_page</tt></td></tr><tr><td><tt class="function">gtk_packer_configure</tt></td><td><tt class="function">gtk_packer_set_child_packing</tt></td></tr><tr><td><tt class="function">gtk_paned_gutter_size</tt></td><td><tt class="function">gtk_paned_set_gutter_size</tt></td></tr><tr><td><tt class="function">gtk_paned_handle_size</tt></td><td><tt class="function">gtk_paned_set_handle_size</tt></td></tr><tr><td><tt class="function">gtk_scale_value_width</tt></td><td><tt class="function">gtk_scale_get_value_width</tt></td></tr><tr><td><tt class="function">gtk_style_apply_default_pixmap</tt></td><td><tt class="function">gtk_style_apply_default_background</tt></td></tr><tr><td><tt class="function">gtk_toggle_button_set_state</tt></td><td><tt class="function">gtk_toggle_button_set_active</tt></td></tr><tr><td><tt class="function">gtk_window_position</tt></td><td><tt class="function">gtk_window_set_position</tt></td></tr></tbody></table></div><p> 
+Note that <tt class="function">gtk_style_apply_default_background()</tt> has an 
+      additional argument, <tt class="literal">set_bg</tt>. This parameter should be 
+      <tt class="literal">FALSE</tt> if the background is being set for a 
+      <tt class="literal">NO_WINDOW</tt> widget, otherwise <tt class="literal">TRUE</tt>.
+</p></li><li><p>
+During the development phase of the 1.1.x line of GTK+ certain functions
+  were deprecated and later removed. Functions affected are:
+
+</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>Removed</th><th>Replacement</th></tr></thead><tbody><tr><td><tt class="function">gtk_clist_set_border</tt></td><td><tt class="function">gtk_clist_set_shadow_type</tt></td></tr><tr><td><tt class="function">gtk_container_block_resize</tt></td><td><tt class="function">gtk_container_set_resize_mode</tt></td></tr><tr><td><tt class="function">gtk_container_unblock_resize</tt></td><td><tt class="function">gtk_container_set_resize_mode</tt></td></tr><tr><td><tt class="function">gtk_container_need_resize</tt></td><td><tt class="function">gtk_container_check_resize</tt></td></tr><tr><td><tt class="function">gtk_ctree_show_stub</tt></td><td><tt class="function">gtk_ctree_set_show_stub</tt></td></tr><tr><td><tt class="function">gtk_ctree_set_reorderable</tt></td><td><tt class="function">gtk_clist_set_reorderable</tt></td></tr><tr><td><tt class="function">gtk_ctree_set_use_drag_icons</tt></td><td><tt class="function">gtk_clist_set_use_drag_icons</tt></td></tr><tr><td><tt class="function">gtk_entry_adjust_scroll</tt></td><td><tt class="function">-</tt></td></tr><tr><td><tt class="function">gtk_object_class_add_user_signal</tt></td><td><tt class="function">gtk_object_class_user_signal_new</tt></td></tr><tr><td><tt class="function">gtk_preview_put_row</tt></td><td><tt class="function">gtk_preview_put</tt></td></tr><tr><td><tt class="function">gtk_progress_bar_construct</tt></td><td><tt class="function">gtk_progress_set_adjustment</tt></td></tr><tr><td><tt class="function">gtk_scrolled_window_construct</tt></td><td><tt class="function">gtk_scrolled_window_set_{h|v}adjustment</tt></td></tr><tr><td><tt class="function">gtk_spin_button_construct</tt></td><td><tt class="function">gtk_spin_button_configure</tt></td></tr><tr><td><tt class="function">gtk_widget_thaw_accelerators</tt></td><td><tt class="function">gtk_widget_unlock_accelerators</tt></td></tr><tr><td><tt class="function">gtk_widget_freeze_accelerators</tt></td><td><tt class="function">gtk_widget_lock_accelerators</tt></td></tr></tbody></table></div><p>
+
+Note that <tt class="function">gtk_entry_adjust_scroll()</tt> is no longer needed 
+    as <span class="structname">GtkEntry</span> should automatically keep the scroll 
+    adjusted properly.
+</p></li><li><p>
+Additionally, all <tt class="function">gtk_*_interp()</tt> functions were removed.
+  <tt class="function">gtk_*_full()</tt> versions were provided as of GTK+ 1.0 and 
+  should be used instead.
+</p></li><li><p>
+<span class="structname">GtkButton</span> has been changed to derive from 
+<span class="structname">GtkBin</span>.
+  To access a button's child, use <tt class="literal">GTK_BIN (button)-&gt;child</tt>,
+  instead of the old <tt class="literal">GTK_BUTTON (button)-&gt;child</tt>.
+</p></li><li><p>
+The selection API has been slightly modified:
+
+ <tt class="function">gtk_selection_add_handler()</tt> and 
+ <tt class="function">gtk_selection_add_handler_full()</tt> 
+ have been removed. To supply the selection, one now registers
+ the targets one is interested in with:
+
+</p><pre class="programlisting">
+  void gtk_selection_add_target (GtkWidget           *widget, 
+	  	                 GdkAtom              selection,
+			         GdkAtom              target,
+			         guint                info);
+</pre><p>
+
+ or:
+  
+</p><pre class="programlisting">
+  void gtk_selection_add_targets (GtkWidget           *widget, 
+	  			  GdkAtom              selection,
+				  GtkTargetEntry      *targets,
+				  guint                ntargets);
+</pre><p>
+
+ When a request for a selection is received, the new "selection_get"
+ signal will be called:
+
+</p><pre class="programlisting">
+   void  "selection_get"           (GtkWidget          *widget,
+				    GtkSelectionData   *selection_data,
+				    guint               info,
+				    guint               time);
+</pre><p>
+
+ A "time" parameter has also been added to the "selection_received"
+ signal.
+
+</p><pre class="programlisting">
+  void  "selection_received"       (GtkWidget          *widget,
+				    GtkSelectionData   *selection_data,
+				    guint               time);
+</pre><p>
+</p></li><li><p>
+The old drag and drop API has been completely removed and replaced.
+  See the reference documentation for details on the new API.
+</p></li><li><p>
+Support for Themes has been added. In general, this does
+  not affect application code, however, a few new rules should
+  be observed:
+
+  </p><div class="itemizedlist"><ul type="circle"><li><p>To set a shape for a window, you must use 
+     <tt class="function">gtk_widget_shape_combine_mask()</tt> instead of 
+     <tt class="function">gdk_window_shape_combine_mask()</tt>, or the shape will be
+     reset when switching themes.
+  </p></li><li><p>It is no longer permissable to draw directly on an arbitrary
+     widget, or to set an arbitrary widget's background pixmap.
+     If you need to do that, use a <span class="structname">GtkDrawingArea</span> or 
+     (for a toplevel) a <span class="structname">GtkWindow</span> where 
+     <tt class="function">gtk_widget_set_app_paintable()</tt>
+     has been called.
+  </p></li></ul></div><p>
+</p></li><li><p>
+The <span class="structname">GtkScrolledWindow</span> widget no longer creates a 
+  <span class="structname">GtkViewport</span> automatically. Instead, it has been 
+  generalized to accept any "self-scrolling" widget.
+</p><p>
+  The self-scrolling widgets in the GTK+ core are 
+  <span class="structname">GtkViewport</span>,
+  <span class="structname">GtkCList</span>, <span class="structname">GtkCTree</span>, 
+  <span class="structname">GtkText</span>, and <span class="structname">GtkLayout</span>. 
+  All of these widgets can be added to a scrolled window as normal children with
+  <tt class="function">gtk_container_add()</tt> and scrollbars will be set up 
+  automatically.
+</p><p>
+  To add scrollbars to a non self-scrolling widget, (such as a 
+  <span class="structname">GtkList</span>),
+  first add it to a viewport, then add the viewport to a scrolled window.
+  The scrolled window code provides a convenience function to do this:
+
+</p><pre class="programlisting">
+  void gtk_scrolled_window_add_with_viewport (GtkScrolledWindow *scrollwin,
+					      GtkWidget         *child);
+</pre><p>
+
+  This does exactly what it says - it creates a viewport, adds the child
+  widget to it, then adds the viewport to the scrolled window.
+</p><p>
+  The scrollbars have been removed from the <span class="structname">GtkCList</span>
+  and <span class="structname">GtkCTree</span>, because they are now scrolled by simply
+  adding them to a scrolled window. The scrollbar policy is set on the scrolled
+  window with <tt class="function">gtk_scrolled_window_set_policy()</tt> and not on 
+  the child widgets (e.g. <span class="structname">GtkCList</span>'s 
+  <tt class="function">gtk_clist_set_policy()</tt> was removed).
+</p></li><li><p>
+The "main loop" of GTK+ has been moved to GLib. This should not
+  affect existing programs, since compatibility functions have
+  been provided. However, you may want to consider migrating
+  your code to use the GLib main loop directly.
+</p></li><li><p>
+the <tt class="literal">GTK_BASIC</tt> flag was removed, and with it the corresponding
+  macro and function <tt class="function">GTK_WIDGET_BASIC()</tt> and 
+  <tt class="function">gtk_widget_basic()</tt>.
+</p></li><li><p>
+All freeze/thaw methods are now recursive - that is, if you
+  freeze a widget n times, you must also thaw it n times.
+
+  Therefore, if you have code like:
+
+</p><div class="informalexample"><pre class="programlisting">
+  gboolean frozen;
+  frozen = GTK_CLIST_FROZEN (clist);
+  gtk_clist_freeze (clist);
+  [...]
+  if (!frozen)
+    gtk_clist_thaw (clist);
+</pre></div><p>
+
+  it will not work anymore. It must be, simply:
+
+</p><div class="informalexample"><pre class="programlisting">
+  gtk_clist_freeze (clist);
+  [...]
+  gtk_clist_thaw (clist);
+</pre></div><p>
+</p></li><li><p>
+The thread safety in GTK+ 1.2 is slightly different than
+  that which appeared in early versions in the 1.1
+  development track. The main difference is that it relies on 
+  the thread primitives in GLib, and on the thread-safe 
+  GLib main loop.
+</p><p>
+  This means:
+
+</p><div class="itemizedlist"><ul type="circle"><li><p>You must call <tt class="function">g_thread_init()</tt> before 
+       executing any other GTK+ or GDK functions in a threaded GTK+ program.
+     </p></li><li><p>Idles, timeouts, and input functions are executed outside 
+       of the main GTK+ lock. So, if you need to call GTK+ 
+       inside of such a callback, you must surround the callback
+       with a <tt class="function">gdk_threads_enter()</tt>/<tt class="function">gdk_threads_leave()</tt> 
+       pair.
+     </p><p>However, signals are still executed within the main
+       GTK+ lock.
+     </p><p>In particular, this means, if you are writing widgets
+       that might be used in threaded programs, you <span class="emphasis"><em>must</em></span>
+       surround timeouts and idle functions in this matter.
+     </p><p>As always, you must also surround any calls to GTK+
+       not made within a signal handler with a 
+       <tt class="function">gdk_threads_enter()</tt>/<tt class="function">gdk_threads_leave()</tt> 
+       pair.
+     </p></li><li><p>There is no longer a special <tt class="option">--with-threads</tt> 
+       <b class="command">configure</b> option for GTK+. To use threads in a GTK+ 
+       program, you must:
+
+       </p><div class="orderedlist"><ol type="1"><li><p>If you want to use the native thread implementation,
+              make sure GLib found this in configuration, otherwise,
+              call you must provide a thread implementation to
+	      <tt class="function">g_thread_init()</tt>.
+           </p></li><li><p>Link with the libraries returned by
+             <b class="command">gtk-config --libs gthread</b>
+             and use the cflags from
+             <b class="command">gtk-config --cflags gthread</b>.
+             You can get these <tt class="envar">CFLAGS</tt> and <tt class="envar">LIBS</tt> by 
+             passing <tt class="literal">gthread</tt> as the fourth parameter to the 
+             <tt class="literal">AM_PATH_GTK</tt> <span class="application">automake</span>
+             macro.
+           </p></li></ol></div><p>
+     </p></li></ul></div><p>
+</p></li><li><p>
+Prior to GTK+ 1.2, there were two conflicting interpretations
+  of <tt class="literal">widget-&gt;requisition</tt>. It was either taken to be
+  the size that the widget requested, or that size modified by calls to 
+  <tt class="function">gtk_widget_set_usize()</tt>. In GTK+ 1.2,
+  it is always interpreted the first way.
+</p><p>
+  Container widgets are affected in two ways by this:
+
+  </p><div class="orderedlist"><ol type="1"><li><p>Container widgets should not pass 
+        <tt class="literal">widget-&gt;requisition</tt> as the second parameter to 
+        <tt class="function">gtk_widget_size_request()</tt>.
+        Instead they should call it like:
+        </p><pre class="programlisting">
+          GtkRequisition child_requisition;
+          gtk_widget_size_request (widget, &amp;child_requisition);
+        </pre><p>
+      </p></li><li><p>Container widgets should not access 
+        <tt class="literal">child-&gt;requisition</tt> directly. Either they should use 
+        the values returned by <tt class="function">gtk_widget_size_request()</tt>, 
+        or they should call the new function:
+        </p><pre class="programlisting">
+    void gtk_widget_get_child_requisition (GtkWidget      *widget,
+					   GtkRequisition *requisition);
+        </pre><p>
+        which returns the requisition of the given widget, modified
+        by calls to <tt class="function">gtk_widget_set_usize()</tt>.
+      </p></li></ol></div><p>
+</p></li></ul></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="checklist-modifiers.html"><b>&lt;&lt; Test for modifier keys correctly</b></a></td><td align="right"><a accesskey="n" href="gtk-changes-2-0.html"><b>Changes from 1.2 to 2.0 &gt;&gt;</b></a></td></tr></table></body></html>

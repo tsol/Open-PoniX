@@ -1,0 +1,351 @@
+<refentry id="GtkTipsQuery">
+<refmeta>
+<refentrytitle>GtkTipsQuery</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkTipsQuery</refname><refpurpose>displays help about widgets in the user interface.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkTipsQuery-struct">GtkTipsQuery</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-tips-query-new">gtk_tips_query_new</link>              (void);
+<link linkend="void">void</link>        <link linkend="gtk-tips-query-start-query">gtk_tips_query_start_query</link>      (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query);
+<link linkend="void">void</link>        <link linkend="gtk-tips-query-stop-query">gtk_tips_query_stop_query</link>       (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query);
+<link linkend="void">void</link>        <link linkend="gtk-tips-query-set-caller">gtk_tips_query_set_caller</link>       (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query,
+                                             <link linkend="GtkWidget">GtkWidget</link> *caller);
+<link linkend="void">void</link>        <link linkend="gtk-tips-query-set-labels">gtk_tips_query_set_labels</link>       (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query,
+                                             const <link linkend="gchar">gchar</link> *label_inactive,
+                                             const <link linkend="gchar">gchar</link> *label_no_tip);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkMisc">GtkMisc</link>
+                     +----<link linkend="GtkLabel">GtkLabel</link>
+                           +----GtkTipsQuery
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkTipsQuery implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkTipsQuery--caller">caller</link>&quot;               <link linkend="GtkWidget">GtkWidget</link>            : Read / Write
+  &quot;<link linkend="GtkTipsQuery--emit-always">emit-always</link>&quot;          <link linkend="gboolean">gboolean</link>             : Read / Write
+  &quot;<link linkend="GtkTipsQuery--label-inactive">label-inactive</link>&quot;       <link linkend="gchararray">gchararray</link>           : Read / Write
+  &quot;<link linkend="GtkTipsQuery--label-no-tip">label-no-tip</link>&quot;         <link linkend="gchararray">gchararray</link>           : Read / Write
+</synopsis>
+</refsect1>
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkTipsQuery-start-query">start-query</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTipsQuery-stop-query">stop-query</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTipsQuery-widget-entered">widget-entered</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gchar">gchar</link> *tip_text,
+                                            <link linkend="gchar">gchar</link> *tip_private,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkTipsQuery-widget-selected">widget-selected</link>&quot;
+            <link linkend="gboolean">gboolean</link>    user_function      (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gchar">gchar</link> *tip_text,
+                                            <link linkend="gchar">gchar</link> *tip_private,
+                                            <link linkend="GdkEventButton">GdkEventButton</link> *event,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> widget is a subclass of <link linkend="GtkLabel"><type>GtkLabel</type></link> which is used to display
+help about widgets in a user interface.
+</para>
+<para>
+A query is started with a call to <link linkend="gtk-tips-query-start-query"><function>gtk_tips_query_start_query()</function></link>, usually
+when some kind of 'Help' button is pressed. The <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> then grabs all
+events, stopping the user interface from functioning normally.
+Then as the user moves the mouse over the widgets, the <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> displays
+each widget's tooltip text.
+</para>
+<para>
+By connecting to the "widget-entered" or "widget-selected" signals, it is
+possible to customize the <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> to perform other actions when widgets
+are entered or selected. For example, a help browser could be opened with
+documentation on the widget selected.
+</para>
+<para>
+At some point a call to <link linkend="gtk-tips-query-stop-query"><function>gtk_tips_query_stop_query()</function></link> must be made in order to
+stop the query and return the interface to its normal state.
+The <link linkend="gtk-tips-query-set-caller"><function>gtk_tips_query_set_caller()</function></link> function can be used to specify a widget
+which the user can select to stop the query (often the same button used to
+start the query).
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkTipsQuery-struct"/>struct GtkTipsQuery</title>
+<indexterm><primary>GtkTipsQuery</primary></indexterm><programlisting>struct GtkTipsQuery;</programlisting>
+<warning><para><literal>GtkTipsQuery</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The <link linkend="GtkTipsQuery-struct"><type>GtkTipsQuery-struct</type></link> struct contains private data only, and
+should be accessed using the functions below.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tips-query-new"/>gtk_tips_query_new ()</title>
+<indexterm><primary>gtk_tips_query_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_tips_query_new              (void);</programlisting>
+<warning><para><literal>gtk_tips_query_new</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates a new <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tips-query-start-query"/>gtk_tips_query_start_query ()</title>
+<indexterm><primary>gtk_tips_query_start_query</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tips_query_start_query      (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query);</programlisting>
+<warning><para><literal>gtk_tips_query_start_query</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Starts a query.
+The <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> widget will take control of the mouse and as the mouse
+moves it will display the tooltip of the widget beneath the mouse.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tips_query</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tips-query-stop-query"/>gtk_tips_query_stop_query ()</title>
+<indexterm><primary>gtk_tips_query_stop_query</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tips_query_stop_query       (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query);</programlisting>
+<warning><para><literal>gtk_tips_query_stop_query</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Stops a query.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tips_query</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tips-query-set-caller"/>gtk_tips_query_set_caller ()</title>
+<indexterm><primary>gtk_tips_query_set_caller</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tips_query_set_caller       (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query,
+                                             <link linkend="GtkWidget">GtkWidget</link> *caller);</programlisting>
+<warning><para><literal>gtk_tips_query_set_caller</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Sets the widget which initiates the query, usually a button.
+If the <parameter>caller</parameter> is selected while the query is running, the query is
+automatically stopped.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tips_query</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>caller</parameter>&nbsp;:</term>
+<listitem><simpara>the widget which initiates the query.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tips-query-set-labels"/>gtk_tips_query_set_labels ()</title>
+<indexterm><primary>gtk_tips_query_set_labels</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tips_query_set_labels       (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tips_query,
+                                             const <link linkend="gchar">gchar</link> *label_inactive,
+                                             const <link linkend="gchar">gchar</link> *label_no_tip);</programlisting>
+<warning><para><literal>gtk_tips_query_set_labels</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Sets the text to display when the query is not in effect,
+and the text to display when the query is in effect but the widget beneath
+the pointer has no tooltip.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tips_query</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>label_inactive</parameter>&nbsp;:</term>
+<listitem><simpara>the text to display when the query is not running.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>label_no_tip</parameter>&nbsp;:</term>
+<listitem><simpara>the text to display when the query is running but the widget
+beneath the pointer has no tooltip.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkTipsQuery--caller"/>&quot;<literal>caller</literal>&quot; (<link linkend="GtkWidget">GtkWidget</link> : Read / Write)</term>
+<listitem>
+<para>
+The widget that starts the tips query, usually a button.
+If it is selected while the query is in effect the query is automatically
+stopped.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkTipsQuery--emit-always"/>&quot;<literal>emit-always</literal>&quot; (<link linkend="gboolean">gboolean</link> : Read / Write)</term>
+<listitem>
+<para>
+<literal>TRUE</literal> if the widget-entered and widget-selected signals are emitted even when
+the widget has no tooltip set.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkTipsQuery--label-inactive"/>&quot;<literal>label-inactive</literal>&quot; (<link linkend="gchararray">gchararray</link> : Read / Write)</term>
+<listitem>
+<para>
+The text to display in the <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> widget when the query is not in
+effect.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkTipsQuery--label-no-tip"/>&quot;<literal>label-no-tip</literal>&quot; (<link linkend="gchararray">gchararray</link> : Read / Write)</term>
+<listitem>
+<para>
+The text to display in the <link linkend="GtkTipsQuery"><type>GtkTipsQuery</type></link> widget when the query is running
+and the widget that the pointer is over has no tooltip.
+</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkTipsQuery-start-query"/>The &quot;start-query&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when the query is started.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tipsquery</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTipsQuery-stop-query"/>The &quot;stop-query&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when the query is stopped.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tipsquery</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTipsQuery-widget-entered"/>The &quot;widget-entered&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gchar">gchar</link> *tip_text,
+                                            <link linkend="gchar">gchar</link> *tip_private,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a widget is entered by the pointer while the query is in effect.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tipsquery</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the widget that was entered by the pointer.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tip_text</parameter>&nbsp;:</term>
+<listitem><simpara>the widget's tooltip.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tip_private</parameter>&nbsp;:</term>
+<listitem><simpara>the widget's private tooltip (see <link linkend="gtk-tooltips-set-tip"><function>gtk_tooltips_set_tip()</function></link>).
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkTipsQuery-widget-selected"/>The &quot;widget-selected&quot; signal</title>
+<programlisting><link linkend="gboolean">gboolean</link>    user_function                  (<link linkend="GtkTipsQuery">GtkTipsQuery</link> *tipsquery,
+                                            <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                            <link linkend="gchar">gchar</link> *tip_text,
+                                            <link linkend="gchar">gchar</link> *tip_private,
+                                            <link linkend="GdkEventButton">GdkEventButton</link> *event,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a widget is selected during a query.
+</para><variablelist role="params">
+<varlistentry><term><parameter>tipsquery</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the widget that was selected.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tip_text</parameter>&nbsp;:</term>
+<listitem><simpara>the widget's tooltip.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tip_private</parameter>&nbsp;:</term>
+<listitem><simpara>the widget's private tooltip (see <link linkend="gtk-tooltips-set-tip"><function>gtk_tooltips_set_tip()</function></link>).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>event</parameter>&nbsp;:</term>
+<listitem><simpara>the button press or button release event.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal> if the query should be stopped.
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+<varlistentry>
+<term><link linkend="GtkTooltips"><type>GtkTooltips</type></link></term>
+<listitem><para>the object which handles tooltips.</para></listitem>
+</varlistentry>
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

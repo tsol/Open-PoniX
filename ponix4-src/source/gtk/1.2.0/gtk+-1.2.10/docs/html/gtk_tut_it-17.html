@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: La glib</TITLE>
+ <LINK HREF="gtk_tut_it-18.html" REL=next>
+ <LINK HREF="gtk_tut_it-16.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc17" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-18.html">Avanti</A>
+<A HREF="gtk_tut_it-16.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc17">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="sec_glib"></A> <A NAME="s17">17. La glib</A></H2>
+
+<P>La glib fornisce molte funzioni e definizioni utili pronte all'uso quando si
+creano applicazioni GDK e GTK. Qui verranno elencate tutte, con una
+breve spiegazione. Molte sono duplicati delle funzioni standard della libc,
+e quindi per queste non si scender&agrave; nei dettagli. Questa vuole essere una
+lista di riferimento, in modo che si sappia cosa &egrave; possibile usare.
+<P>
+<H2><A NAME="ss17.1">17.1 Definizioni</A>
+</H2>
+
+<P>Le definizioni per gli estremi di molti dei tipi standard sono:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+G_MINFLOAT
+G_MAXFLOAT
+G_MINDOUBLE
+G_MAXDOUBLE
+G_MINSHORT
+G_MAXSHORT
+G_MININT
+G_MAXINT
+G_MINLONG
+G_MAXLONG
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ci sono anche le seguenti definizioni di tipo. Quelle rimaste non specificate
+sono dipendenti dall'architettura. Si ricordi di evitare di fare affidamento
+sulla dimensione di un puntatore se si vuole la portabilit&agrave;! P.e., un puntatore
+su un Alpha &egrave; lungo 8 byte, ma 4 su un Intel. 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+char   gchar;
+short  gshort;
+long   glong;
+int    gint;
+char   gboolean;
+
+unsigned char   guchar;
+unsigned short  gushort;
+unsigned long   gulong;
+unsigned int    guint;
+
+float   gfloat;
+double  gdouble;
+long double gldouble;
+
+void* gpointer;
+
+gint8
+guint8
+gint16
+guint16
+gint32
+guint32
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss17.2">17.2 Liste a doppio collegamento</A>
+</H2>
+
+<P>le seguenti funzioni sono usate per creare, gestire e distruggere liste a
+doppio collegamento. Si assume che il lettore sappia gi&agrave; cosa sono le liste
+collegate (linked list), poich&eacute; descriverle &egrave; fuori dagli scopi di
+questo documento. Naturalmente non &egrave; necessario conoscerle per l'uso
+generale di GTK, per quanto conoscerle sia comunque interessante.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GList* g_list_alloc       (void);
+
+void   g_list_free        (GList     *list);
+
+void   g_list_free_1      (GList     *list);
+
+GList* g_list_append      (GList     *list,
+                           gpointer   data);
+                           
+GList* g_list_prepend     (GList     *list,
+                           gpointer   data);
+                        
+GList* g_list_insert      (GList     *list,
+                           gpointer   data,
+                           gint       position);
+
+GList* g_list_remove      (GList     *list,
+                           gpointer   data);
+                           
+GList* g_list_remove_link (GList     *list,
+                           GList     *link);
+
+GList* g_list_reverse     (GList     *list);
+
+GList* g_list_nth         (GList     *list,
+                           gint       n);
+                           
+GList* g_list_find        (GList     *list,
+                           gpointer   data);
+
+GList* g_list_last        (GList     *list);
+
+GList* g_list_first       (GList     *list);
+
+gint   g_list_length      (GList     *list);
+
+void   g_list_foreach     (GList     *list,
+                           GFunc      func,
+                           gpointer   user_data);
+</PRE>
+</CODE></BLOCKQUOTE>
+                                              
+<P>
+<H2><A NAME="ss17.3">17.3 Liste a collegamento singolo</A>
+</H2>
+
+<P>Molte delle funzioni per le liste a collegamento singolo sono identiche alle
+precedenti. Eccone una lista completa:
+<BLOCKQUOTE><CODE>
+<PRE>
+GSList* g_slist_alloc       (void);
+
+void    g_slist_free        (GSList   *list);
+
+void    g_slist_free_1      (GSList   *list);
+
+GSList* g_slist_append      (GSList   *list,
+                             gpointer  data);
+                
+GSList* g_slist_prepend     (GSList   *list,
+                             gpointer  data);
+                             
+GSList* g_slist_insert      (GSList   *list,
+                             gpointer  data,
+                             gint      position);
+                             
+GSList* g_slist_remove      (GSList   *list,
+                             gpointer  data);
+                             
+GSList* g_slist_remove_link (GSList   *list,
+                             GSList   *link);
+                             
+GSList* g_slist_reverse     (GSList   *list);
+
+GSList* g_slist_nth         (GSList   *list,
+                             gint      n);
+                             
+GSList* g_slist_find        (GSList   *list,
+                             gpointer  data);
+                             
+GSList* g_slist_last        (GSList   *list);
+
+gint    g_slist_length      (GSList   *list);
+
+void    g_slist_foreach     (GSList   *list,
+                             GFunc     func,
+                             gpointer  user_data);
+        
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss17.4">17.4 Gestione della memoria</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gpointer g_malloc      (gulong    size);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa &egrave; una sostituta di malloc(). Non occorre controllare il valore 
+restituito, in quanto lo fa gi&agrave; questa funzione.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gpointer g_malloc0     (gulong    size);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Come la precedente, ma la memoria viene azzerata prima di restituire un
+puntatore ad essa.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gpointer g_realloc     (gpointer  mem,
+                        gulong    size);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Riloca ``size'' byte di memoria che inizia a ``mem''. Ovviamente, la memoria
+dovrebbe essere stata allocata precedentemente.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void     g_free        (gpointer  mem);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Libera la memoria. Facile!
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void     g_mem_profile (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Emette un profilo della memoria usata, ma occorre ricompilare e reinstallare
+la libreria aggiungendo #define MEM_PROFILE all'inizio del file glib/gmem.c.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void     g_mem_check   (gpointer  mem);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Controlla che una locazione di memoria sia valida. Occorre ricompilare e
+reinstallare la libreria aggiungendo #define MEM_CHECK all'inizio del file
+gmem.c.
+<P>
+<H2><A NAME="ss17.5">17.5 Timer</A>
+</H2>
+
+<P>Funzioni legate ai timer...
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GTimer* g_timer_new     (void);
+
+void    g_timer_destroy (GTimer  *timer);
+
+void    g_timer_start   (GTimer  *timer);
+
+void    g_timer_stop    (GTimer  *timer);
+
+void    g_timer_reset   (GTimer  *timer);
+
+gdouble g_timer_elapsed (GTimer  *timer,
+                         gulong  *microseconds);
+</PRE>
+</CODE></BLOCKQUOTE>
+                         
+<P>
+<H2><A NAME="ss17.6">17.6 Gestione delle stringhe</A>
+</H2>
+
+<P>Un'accozzaglia di funzioni per la gestione delle stringhe. Sembrano tutte molto
+interessanti, e probabilmente migliori per molte caratteristiche delle funzioni
+standard del C per le stringhe, ma necessitano di documentazione.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GString* g_string_new       (gchar   *init);
+void     g_string_free      (GString *string,
+                             gint     free_segment);
+                             
+GString* g_string_assign    (GString *lval,
+                             gchar   *rval);
+                             
+GString* g_string_truncate  (GString *string,
+                             gint     len);
+                             
+GString* g_string_append    (GString *string,
+                             gchar   *val);
+                            
+GString* g_string_append_c  (GString *string,
+                             gchar    c);
+        
+GString* g_string_prepend   (GString *string,
+                             gchar   *val);
+                             
+GString* g_string_prepend_c (GString *string,
+                             gchar    c);
+        
+void     g_string_sprintf   (GString *string,
+                             gchar   *fmt,
+                             ...);
+        
+void     g_string_sprintfa  (GString *string,
+                             gchar   *fmt,
+                             ...);
+</PRE>
+</CODE></BLOCKQUOTE>
+                                                          
+<P>
+<H2><A NAME="ss17.7">17.7 Funzioni d'utilit&agrave; e di errore</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar* g_strdup    (const gchar *str);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Funzione sostitutiva della strdup. Copia i contenuti originari delle stringhe 
+in memoria appena allocata, restituendo un puntatore ad essa.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar* g_strerror  (gint errnum);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Si raccomanda di usare questa gunzione per tutti i messaggi di errore. E' molto
+pi&ugrave; graziosa, e pi&ugrave; portabile di perror() o di altre. L'output di solito ha la
+forma:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+nome programma:funzione fallita:file o altre descrizioni:strerror
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Di seguito un esempio di una chiamata di questo tipo usata nel nostro
+programma Hello World:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+g_print("hello_world:open:%s:%s\n", filename, g_strerror(errno));
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_error   (gchar *format, ...);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Visualizza un messaggio di errore. Il formato &egrave; come quello di printf,
+ma prepone ``** ERROR **: '' al messaggio e termina il programma. Da usare solo
+per errori gravi.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_warning (gchar *format, ...);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Come la precedente, ma prepone ``** WARNING **: '' e non termina il programma.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_message (gchar *format, ...);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Visualizza ``message: '' e poi il messaggio.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void g_print   (gchar *format, ...);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Sostituta di printf().
+<P>L'ultima funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar* g_strsignal (gint signum);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Visualizza il nome del messaggio del sistema Unix associato al numero di
+segnale. Utile nelle funzioni generiche di gestione dei segnali.
+<P>Tutte le funzioni elencate sono pi&ugrave; o meno prese da glib.h. Se qualcuno volesse
+documentare qualche funzione, mandi una email all'autore!
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-18.html">Avanti</A>
+<A HREF="gtk_tut_it-16.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc17">Indice</A>
+</BODY>
+</HTML>

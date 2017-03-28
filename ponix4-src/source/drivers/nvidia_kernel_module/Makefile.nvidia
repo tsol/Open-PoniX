@@ -1,0 +1,132 @@
+#
+# This Makefile was automatically generated; do not edit.
+# Generated on 'swio-display-x86-rhel47-07.nvidia.com' on Wed Nov 16 19:27:30 PST 2011.
+#
+
+MODULE_NAME := nvidia
+
+LINUX_MODULE=nv-linux.o
+DEFINES=-D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -DNVRM -DNV_VERSION_STRING=\"290.10\"
+INCLUDES=-I.
+
+OBJECTS=$(patsubst %.c,%.o,nv.c nv-acpi.c nv-chrdev.c nv-cray.c nv-gvi.c nv-i2c.c nv-mlock.c nv-mmap.c nv-p2p.c nv-pat.c nv-procfs.c nv-usermap.c nv-vm.c nv-vtophys.c os-agp.c os-interface.c os-mtrr.c os-registry.c os-smp.c os-usermap.c)
+HEADERS=nv.h nv-linux.h nv-memdbg.h nv-misc.h nv-p2p.h nv-proto.h nv-reg.h os-agp.h os-interface.h cpuopsys.h g_nvreadme.h nvtypes.h rmil.h rmretval.h xapi-sdk.h $(VERSION_HDR) conftest.h patches.h
+
+CFLAGS=-Wall  -Wno-unused-function -Wuninitialized -O   -UDEBUG -U_DEBUG -DNDEBUG -MD $(DEFINES) $(INCLUDES) -Wsign-compare -Wno-cast-qual -Wno-error
+
+CORE_OBJECTS=nv-kernel.o
+
+#
+# Determine location of the Linux kernel source tree. Allow users to override
+# the default (i.e. automatically determined) kernel source location with the
+# SYSSRC directive; this new directive replaces NVIDIA's SYSINCLUDE.
+#
+
+ifdef SYSSRC
+ KERNEL_SOURCES := $(SYSSRC)
+ KERNEL_HEADERS := $(KERNEL_SOURCES)/include
+else
+ ifdef SYSINCLUDE
+ KERNEL_HEADERS := $(SYSINCLUDE)
+ KERNEL_SOURCES := $(KERNEL_HEADERS)/..
+ else
+ KERNEL_UNAME := 3.2.12-poniX-3.0
+ KERNEL_SOURCES := /lib/modules/$(KERNEL_UNAME)/build
+ KERNEL_HEADERS := $(KERNEL_SOURCES)/include
+ endif
+endif
+
+CC ?= cc
+HOST_CC ?= $(CC)
+LD ?= ld
+
+ifndef ARCH
+ ARCH := $(shell uname -m | sed -e 's/i.86/i386/')
+endif
+
+CONFTEST := /bin/sh ./conftest.sh "$(CC)" "$(HOST_CC)" $(ARCH) $(KERNEL_SOURCES) $(KERNEL_SOURCES)
+
+KERNEL_UNAME ?= $(shell $(CONFTEST) get_uname)
+MODULE_ROOT := /lib/modules/$(KERNEL_UNAME)/kernel/drivers
+
+INCLUDES += -I$(KERNEL_HEADERS)
+
+COMPILE_TESTS = \
+	remap_page_range \
+	vmap \
+	change_page_attr \
+	i2c_adapter \
+	smp_call_function \
+	acpi_evaluate_integer \
+	proc_dir_entry \
+	scatterlist \
+	file_operations \
+	pci_get_domain_bus_and_slot
+
+DEFINES+=$(EXTRA_DEFINES)
+
+# allow build parameters to be passed in through the environment
+ifdef BUILD_PARAMS
+ DEFINES+=-D$(BUILD_PARAMS)
+endif
+
+VERSION_HDR=nv_compiler.h
+
+all: install
+
+install: package-install
+
+.PHONY: suser-sanity-check rmmod-sanity-check build-sanity-checks
+
+suser-sanity-check:
+	@if ! $(CONFTEST) suser_sanity_check; then exit; fi
+
+rmmod-sanity-check:
+	@if ! $(CONFTEST) rmmod_sanity_check; then exit; fi
+
+build-sanity-checks:
+	@if ! $(CONFTEST) cc_version_check 	 full_output; then exit; fi
+	@if ! $(CONFTEST) rivafb_sanity_check full_output; then exit; fi
+
+module: build-sanity-checks $(LINUX_MODULE) $(CORE_OBJECTS)
+	@$(LD) -r -o $(MODULE_NAME).o $(LINUX_MODULE) $(CORE_OBJECTS)
+
+package-install: module suser-sanity-check rmmod-sanity-check
+	mkdir -p $(MODULE_ROOT)/video && \
+	install -m 0664 -o root -g root $(MODULE_NAME).o \
+	 $(MODULE_ROOT)/video/$(MODULE_NAME).o && \
+	PATH="$(PATH):/bin:/sbin" depmod -a && \
+		PATH="$(PATH):/bin:/sbin" modprobe $(MODULE_NAME) && \
+	echo "$(MODULE_NAME).o installed successfully."; \
+
+$(VERSION_HDR): 
+	@echo \#define NV_COMPILER \"`$(CC) -v 2>&1 | tail -n 1`\" > $@
+
+$(LINUX_MODULE): $(OBJECTS)
+	@$(LD) -r -o $@ $(OBJECTS)
+
+conftest.h: conftest.sh
+	@if ! $(CONFTEST) compile_tests $(COMPILE_TESTS); then exit; fi
+
+patches.h:
+	@if ! $(CONFTEST) patch_check; then exit; fi
+
+%.o: %.c $(HEADERS)
+	@$(CC) -c $(CFLAGS) $<
+
+# debug tool to preprocess the file and leave .i to make it easier to untangle #defines
+%.i: %.c
+	@$(CC) $(CFLAGS) -E $< > $@
+
+%.s: %.c
+	@$(CC) $(CFLAGS) -S $< > $@
+
+clean:
+	@$(RM) $(OBJECTS) $(LINUX_MODULE) $(VERSION_HDR) *.d $(MODULE_NAME).o
+	@$(RM) patches.h
+	@$(RM) conftest*.c conftest.h
+
+print-module-filename:
+	@echo "$(MODULE_NAME).o"
+
+-include $(OBJECTS:%.o=%.d)

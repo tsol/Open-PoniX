@@ -1,0 +1,1 @@
+../../alsa-kernel/include/cs46xx_dsp_spos.h

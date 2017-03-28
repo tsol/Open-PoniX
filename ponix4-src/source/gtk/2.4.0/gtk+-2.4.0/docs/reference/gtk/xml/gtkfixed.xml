@@ -1,0 +1,303 @@
+<refentry id="GtkFixed">
+<refmeta>
+<refentrytitle>GtkFixed</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkFixed</refname><refpurpose>a container which allows you to position widgets at fixed coordinates</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkFixed-struct">GtkFixed</link>;
+struct      <link linkend="GtkFixedChild">GtkFixedChild</link>;
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-fixed-new">gtk_fixed_new</link>                   (void);
+<link linkend="void">void</link>        <link linkend="gtk-fixed-put">gtk_fixed_put</link>                   (<link linkend="GtkFixed">GtkFixed</link> *fixed,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);
+<link linkend="void">void</link>        <link linkend="gtk-fixed-move">gtk_fixed_move</link>                  (<link linkend="GtkFixed">GtkFixed</link> *fixed,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-fixed-get-has-window">gtk_fixed_get_has_window</link>        (<link linkend="GtkFixed">GtkFixed</link> *fixed);
+<link linkend="void">void</link>        <link linkend="gtk-fixed-set-has-window">gtk_fixed_set_has_window</link>        (<link linkend="GtkFixed">GtkFixed</link> *fixed,
+                                             <link linkend="gboolean">gboolean</link> has_window);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkContainer">GtkContainer</link>
+                     +----GtkFixed
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkFixed implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Child Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkFixed--x">x</link>&quot;                    <link linkend="gint">gint</link>                 : Read / Write
+  &quot;<link linkend="GtkFixed--y">y</link>&quot;                    <link linkend="gint">gint</link>                 : Read / Write
+</synopsis>
+</refsect1>
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkFixed"><type>GtkFixed</type></link> widget is a container which can place child widgets at fixed
+positions and with fixed sizes, given in pixels. <link linkend="GtkFixed"><type>GtkFixed</type></link> performs no
+automatic layout management.
+</para>
+
+<para>
+For most applications, you should not use this container! It keeps
+you from having to learn about the other GTK+ containers, but it
+results in broken applications.
+With <link linkend="GtkFixed"><type>GtkFixed</type></link>, the following things will result in truncated text, 
+overlapping widgets, and other display bugs:
+<itemizedlist>
+<listitem>
+<para>Themes, which may change widget sizes.
+</para>
+</listitem>
+<listitem>
+<para>Fonts other than the one you used to write the app will of
+course change the size of widgets containing text; keep in mind that
+users may use a larger font because of difficulty reading the default,
+or they may be using Windows or the framebuffer port of GTK+, where
+different fonts are available.
+</para>
+</listitem>
+<listitem>
+<para>
+Translation of text into other languages changes its size. Also,
+display of non-English text will use a different font in many cases.
+</para>
+</listitem>
+</itemizedlist>
+</para>
+
+<para>
+In addition, the fixed widget can't properly be mirrored in
+right-to-left languages such as Hebrew and Arabic. i.e. normally GTK+
+will flip the interface to put labels to the right of the thing they
+label, but it can't do that with <link linkend="GtkFixed"><type>GtkFixed</type></link>. So your application will 
+not be usable in right-to-left languages.
+</para>
+
+<para>
+Finally, fixed positioning makes it kind of annoying to add/remove GUI
+elements, since you have to reposition all the other elements. This is
+a long-term maintenance problem for your application.
+</para>
+
+<para>
+If you know none of these things are an issue for your application,
+and prefer the simplicity of <link linkend="GtkFixed"><type>GtkFixed</type></link>, by all means use the
+widget. But you should be aware of the tradeoffs.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkFixed-struct"/>struct GtkFixed</title>
+<indexterm><primary>GtkFixed</primary></indexterm><programlisting>struct GtkFixed;</programlisting>
+<para>
+The <link linkend="GtkFixed-struct"><type>GtkFixed-struct</type></link> struct contains the following fields.
+(These fields should be considered read-only. They should never be set by
+an application.)
+
+<informaltable pgwide="1" frame="none" role="struct">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry><link linkend="GList"><type>GList</type></link> *children;</entry>
+<entry>a list of <link linkend="GtkFixedChild"><type>GtkFixedChild</type></link> elements, containing the child widgets and
+their positions.</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkFixedChild"/>struct GtkFixedChild</title>
+<indexterm><primary>GtkFixedChild</primary></indexterm><programlisting>struct GtkFixedChild {
+
+  GtkWidget *widget;
+  gint x;
+  gint y;
+};
+</programlisting>
+<para>
+The <link linkend="GtkFixedChild-struct"><type>GtkFixedChild-struct</type></link> struct contains the following fields.
+(These fields should be considered read-only. They should never be set by
+an application.)
+
+<informaltable pgwide="1" frame="none" role="struct">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry><link linkend="GtkWidget"><type>GtkWidget</type></link> *widget;</entry>
+<entry>the child <link linkend="GtkWidget"><type>GtkWidget</type></link>.</entry>
+</row>
+
+<row>
+<entry><link linkend="gint"><type>gint</type></link> x;</entry>
+<entry>the horizontal position of the widget within the <link linkend="GtkFixed"><type>GtkFixed</type></link>
+container.</entry>
+</row>
+
+<row>
+<entry><link linkend="gint"><type>gint</type></link> y;</entry>
+<entry>the vertical position of the widget within the <link linkend="GtkFixed"><type>GtkFixed</type></link>
+container.</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-fixed-new"/>gtk_fixed_new ()</title>
+<indexterm><primary>gtk_fixed_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_fixed_new                   (void);</programlisting>
+<para>
+Creates a new <link linkend="GtkFixed"><type>GtkFixed</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GtkFixed"><type>GtkFixed</type></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-fixed-put"/>gtk_fixed_put ()</title>
+<indexterm><primary>gtk_fixed_put</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_fixed_put                   (<link linkend="GtkFixed">GtkFixed</link> *fixed,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);</programlisting>
+<para>
+Adds a widget to a <link linkend="GtkFixed"><type>GtkFixed</type></link> container at the given position.
+</para><variablelist role="params">
+<varlistentry><term><parameter>fixed</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkFixed"><type>GtkFixed</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the widget to add.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara>the horizontal position to place the widget at.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara>the vertical position to place the widget at.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-fixed-move"/>gtk_fixed_move ()</title>
+<indexterm><primary>gtk_fixed_move</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_fixed_move                  (<link linkend="GtkFixed">GtkFixed</link> *fixed,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);</programlisting>
+<para>
+Moves a child of a <link linkend="GtkFixed"><type>GtkFixed</type></link> container to the given position.
+</para><variablelist role="params">
+<varlistentry><term><parameter>fixed</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkFixed"><type>GtkFixed</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>the child widget.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara>the horizontal position to move the widget to.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara>the vertical position to move the widget to.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-fixed-get-has-window"/>gtk_fixed_get_has_window ()</title>
+<indexterm><primary>gtk_fixed_get_has_window</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_fixed_get_has_window        (<link linkend="GtkFixed">GtkFixed</link> *fixed);</programlisting>
+<para>
+Gets whether the <link linkend="GtkFixed"><type>GtkFixed</type></link> has its own <link linkend="GdkWindow"><type>GdkWindow</type></link>.
+See <link linkend="gdk-fixed-set-has-window"><function>gdk_fixed_set_has_window()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>fixed</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>fixed</parameter> has its own window.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-fixed-set-has-window"/>gtk_fixed_set_has_window ()</title>
+<indexterm><primary>gtk_fixed_set_has_window</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_fixed_set_has_window        (<link linkend="GtkFixed">GtkFixed</link> *fixed,
+                                             <link linkend="gboolean">gboolean</link> has_window);</programlisting>
+<para>
+Sets whether a <link linkend="GtkFixed"><type>GtkFixed</type></link> widget is created with a separate
+<link linkend="GdkWindow"><type>GdkWindow</type></link> for widget->window or not. (By default, it will be
+created with no separate <link linkend="GdkWindow"><type>GdkWindow</type></link>). This function must be called
+while the <link linkend="GtkFixed"><type>GtkFixed</type></link> is not realized, for instance, immediately after the
+window is created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>fixed</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkFixed"><type>GtkFixed</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>has_window</parameter>&nbsp;:</term>
+<listitem><simpara> <literal>TRUE</literal> if a separate window should be created
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Child Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkFixed--x"/>&quot;<literal>x</literal>&quot; (<link linkend="gint">gint</link> : Read / Write)</term>
+<listitem>
+<para>X position of child widget.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkFixed--y"/>&quot;<literal>y</literal>&quot; (<link linkend="gint">gint</link> : Read / Write)</term>
+<listitem>
+<para>Y position of child widget.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+
+
+
+</refentry>

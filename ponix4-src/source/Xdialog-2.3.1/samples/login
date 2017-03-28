@@ -1,0 +1,26 @@
+#!/bin/sh
+
+LOGIN1=`Xdialog	--stdout --separator "|" \
+		--title "Login" --backtitle "System login" \
+		--icon ./no-entry.xpm --left --password \
+		--2inputsbox "Restricted access, authorized users only !\nPlease login..." 0 0 \
+			     "Your login name:" "root" \
+			     "Your password:" "" \
+		--no-close --no-cancel --msgbox "Thank you !" 0 0`
+
+ret=$?
+
+case $ret in
+	0)
+		NAME=`echo $LOGIN1 | awk --source 'BEGIN { FS="|" }' --source '{ print $1 }'`
+		PASSWD=`echo $LOGIN1 | awk --source 'BEGIN { FS="|" }' --source '{ print $2 }'`
+		echo "Name    : $NAME"
+		echo "Password: $PASSWD"
+		;;
+	1)
+		echo "Cancel pressed."
+		;;
+	255)
+		echo "Box closed."
+		;;
+esac

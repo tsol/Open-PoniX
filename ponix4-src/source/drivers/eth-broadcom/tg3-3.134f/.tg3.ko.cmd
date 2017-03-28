@@ -1,0 +1,1 @@
+cmd_/source/drivers/eth-broadcom/tg3-3.134f/tg3.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/drivers/eth-broadcom/tg3-3.134f/tg3.ko /source/drivers/eth-broadcom/tg3-3.134f/tg3.o /source/drivers/eth-broadcom/tg3-3.134f/tg3.mod.o

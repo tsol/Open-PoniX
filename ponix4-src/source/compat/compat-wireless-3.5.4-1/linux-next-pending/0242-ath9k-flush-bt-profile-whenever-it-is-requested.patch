@@ -1,0 +1,88 @@
+From 9fead6950c0f9684122b1ae83d653b65e3603eb6 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Wed, 12 Sep 2012 18:59:21 +0530
+Subject: [PATCH 242/245] ath9k: flush bt profile whenever it is requested
+
+Before processing BT profiles or status messages, check whether
+it is requested to flush BT profile. Otherwise it might increase
+number of BT profiles that affects the WLAN performance. Also
+flush the profiles when MCI is recovering from broken rx. After
+flushing BT profiles, query BT topology to refetch them.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |  4 ++++
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h |  4 +++-
+ drivers/net/wireless/ath/ath9k/mci.c        | 12 +++++++++++-
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1242,6 +1242,10 @@ u32 ar9003_mci_state(struct ath_hw *ah,
+ 	case MCI_STATE_NEED_FTP_STOMP:
+ 		value = !(mci->config & ATH_MCI_CONFIG_DISABLE_FTP_STOMP);
+ 		break;
++	case MCI_STATE_NEED_FLUSH_BT_INFO:
++		value = (!mci->unhalt_bt_gpm && mci->need_flush_btinfo) ? 1 : 0;
++		mci->need_flush_btinfo = false;
++		break;
+ 	default:
+ 		break;
+ 	}
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -202,6 +202,7 @@ enum mci_state_type {
+ 	MCI_STATE_RECOVER_RX,
+ 	MCI_STATE_NEED_FTP_STOMP,
+ 	MCI_STATE_DEBUG,
++	MCI_STATE_NEED_FLUSH_BT_INFO,
+ 	MCI_STATE_MAX
+ };
+ 
+@@ -213,7 +214,8 @@ enum mci_gpm_coex_opcode {
+ 	MCI_GPM_COEX_WLAN_CHANNELS,
+ 	MCI_GPM_COEX_BT_PROFILE_INFO,
+ 	MCI_GPM_COEX_BT_STATUS_UPDATE,
+-	MCI_GPM_COEX_BT_UPDATE_FLAGS
++	MCI_GPM_COEX_BT_UPDATE_FLAGS,
++	MCI_GPM_COEX_NOOP,
+ };
+ 
+ #define MCI_GPM_NOMORE  0
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -80,6 +80,7 @@ void ath_mci_flush_profile(struct ath_mc
+ 	struct ath_mci_profile_info *info, *tinfo;
+ 
+ 	mci->aggr_limit = 0;
++	mci->num_mgmt = 0;
+ 
+ 	if (list_empty(&mci->info))
+ 		return;
+@@ -328,6 +329,13 @@ static void ath_mci_msg(struct ath_softc
+ 	u8 major, minor;
+ 	u32 seq_num;
+ 
++	if (ar9003_mci_state(ah, MCI_STATE_NEED_FLUSH_BT_INFO) &&
++	    ar9003_mci_state(ah, MCI_STATE_ENABLE)) {
++		ath_dbg(common, MCI, "(MCI) Need to flush BT profiles\n");
++		ath_mci_flush_profile(&sc->btcoex.mci);
++		ar9003_mci_state(ah, MCI_STATE_SEND_STATUS_QUERY);
++	}
++
+ 	switch (opcode) {
+ 	case MCI_GPM_COEX_VERSION_QUERY:
+ 		ar9003_mci_state(ah, MCI_STATE_SEND_WLAN_COEX_VERSION);
+@@ -568,9 +576,11 @@ void ath_mci_intr(struct ath_softc *sc)
+ 	}
+ 
+ 	if ((mci_int & AR_MCI_INTERRUPT_RX_INVALID_HDR) ||
+-	    (mci_int & AR_MCI_INTERRUPT_CONT_INFO_TIMEOUT))
++	    (mci_int & AR_MCI_INTERRUPT_CONT_INFO_TIMEOUT)) {
+ 		mci_int &= ~(AR_MCI_INTERRUPT_RX_INVALID_HDR |
+ 			     AR_MCI_INTERRUPT_CONT_INFO_TIMEOUT);
++		ath_mci_msg(sc, MCI_GPM_COEX_NOOP, NULL);
++	}
+ }
+ 
+ void ath_mci_enable(struct ath_softc *sc)

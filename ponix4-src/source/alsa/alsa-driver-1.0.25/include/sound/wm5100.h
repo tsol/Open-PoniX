@@ -1,0 +1,1 @@
+../../alsa-kernel/include/wm5100.h

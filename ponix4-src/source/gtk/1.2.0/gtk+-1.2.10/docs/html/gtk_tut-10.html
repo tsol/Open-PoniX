@@ -1,0 +1,1959 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Container Widgets</TITLE>
+ <LINK HREF="gtk_tut-11.html" REL=next>
+ <LINK HREF="gtk_tut-9.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc10" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-11.html">Next</A>
+<A HREF="gtk_tut-9.html">Previous</A>
+<A HREF="gtk_tut.html#toc10">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s10">10. Container Widgets</A> </H2>
+
+<H2><A NAME="sec_EventBox"></A> <A NAME="ss10.1">10.1 The EventBox </A>
+</H2>
+
+<P> 
+Some GTK widgets don't have associated X windows, so they just draw on
+their parents. Because of this, they cannot receive events and if they
+are incorrectly sized, they don't clip so you can get messy
+overwriting, etc. If you require more from these widgets, the EventBox
+is for you.
+<P>At first glance, the EventBox widget might appear to be totally
+useless. It draws nothing on the screen and responds to no
+events. However, it does serve a function - it provides an X window
+for its child widget. This is important as many GTK widgets do not
+have an associated X window. Not having an X window saves memory and
+improves performance, but also has some drawbacks. A widget without an
+X window cannot receive events, and does not perform any clipping on
+its contents. Although the name <EM>EventBox</EM> emphasizes the
+event-handling function, the widget can also be used for clipping.
+(and more, see the example below).
+<P>To create a new EventBox widget, use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_event_box_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A child widget can then be added to this EventBox:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_container_add( GTK_CONTAINER(event_box), child_widget );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The following example demonstrates both uses of an EventBox - a label
+is created that is clipped to a small box, and set up so that a
+mouse-click on the label causes the program to exit. Resizing the
+window reveals varying amounts of the label.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start eventbox eventbox.c */
+
+#include &lt;gtk/gtk.h>
+
+int main( int argc,
+          char *argv[] )
+{
+    GtkWidget *window;
+    GtkWidget *event_box;
+    GtkWidget *label;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    gtk_window_set_title (GTK_WINDOW (window), "Event Box");
+    
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+    
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+    
+    /* Create an EventBox and add it to our toplevel window */
+    
+    event_box = gtk_event_box_new ();
+    gtk_container_add (GTK_CONTAINER(window), event_box);
+    gtk_widget_show (event_box);
+    
+    /* Create a long label */
+    
+    label = gtk_label_new ("Click here to quit, quit, quit, quit, quit");
+    gtk_container_add (GTK_CONTAINER (event_box), label);
+    gtk_widget_show (label);
+    
+    /* Clip it short. */
+    gtk_widget_set_usize (label, 110, 20);
+    
+    /* And bind an action to it */
+    gtk_widget_set_events (event_box, GDK_BUTTON_PRESS_MASK);
+    gtk_signal_connect (GTK_OBJECT(event_box), "button_press_event",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+    
+    /* Yet one more thing you need an X window for ... */
+    
+    gtk_widget_realize (event_box);
+    gdk_window_set_cursor (event_box->window, gdk_cursor_new (GDK_HAND1));
+    
+    gtk_widget_show (window);
+    
+    gtk_main ();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>   
+<H2><A NAME="sec_Alignment"></A> <A NAME="ss10.2">10.2 The Alignment widget </A>
+</H2>
+
+<P>The alignment widget allows you to place a widget within its window at
+a position and size relative to the size of the Alignment widget
+itself. For example, it can be very useful for centering a widget
+within the window.
+<P>There are only two functions associated with the Alignment widget:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_alignment_new( gfloat xalign,
+                              gfloat yalign,
+                              gfloat xscale,
+                              gfloat yscale );
+
+void gtk_alignment_set( GtkAlignment *alignment,
+                        gfloat        xalign,
+                        gfloat        yalign,
+                        gfloat        xscale,
+                        gfloat        yscale );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first function creates a new Alignment widget with the specified
+parameters. The second function allows the alignment paramters of an
+exisiting Alignment widget to be altered.
+<P>All four alignment parameters are floating point numbers which can
+range from 0.0 to 1.0. The <CODE>xalign</CODE> and <CODE>yalign</CODE> arguments
+affect the position of the widget placed within the Alignment
+widget. The <CODE>xscale</CODE> and <CODE>yscale</CODE> arguments effect the amount of
+space allocated to the widget.
+<P>A child widget can be added to this Alignment widget using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_container_add( GTK_CONTAINER(alignment), child_widget );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>For an example of using an Alignment widget, refer to the example for
+the 
+<A HREF="gtk_tut-9.html#sec_ProgressBar">Progress Bar</A> widget.
+<P>
+<H2><A NAME="ss10.3">10.3 Fixed Container</A>
+</H2>
+
+<P>The Fixed container allows you to place widgets at a fixed position
+within its window, relative to its upper left hand corner. The
+position of the widgets can be changed dynamically.
+<P>There are only three functions associated with the fixed widget:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_fixed_new( void );
+
+void gtk_fixed_put( GtkFixed  *fixed,
+                    GtkWidget *widget,
+                    gint16     x,
+                    gint16     y );
+
+void gtk_fixed_move( GtkFixed  *fixed,
+                     GtkWidget *widget,
+                     gint16     x,
+                     gint16     y );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The function <CODE>gtk_fixed_new</CODE> allows you to create a new Fixed
+container.
+<P><CODE>gtk_fixed_put</CODE> places <CODE>widget</CODE> in the container <CODE>fixed</CODE> at
+the position specified by <CODE>x</CODE> and <CODE>y</CODE>.
+<P><CODE>gtk_fixed_move</CODE> allows the specified widget to be moved to a new
+position.
+<P>The following example illustrates how to use the Fixed Container.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start fixed fixed.c */
+
+#include &lt;gtk/gtk.h>
+
+/* I'm going to be lazy and use some global variables to
+ * store the position of the widget within the fixed
+ * container */
+gint x=50;
+gint y=50;
+
+/* This callback function moves the button to a new position
+ * in the Fixed container. */
+void move_button( GtkWidget *widget,
+                  GtkWidget *fixed )
+{
+  x = (x+30)%300;
+  y = (y+50)%300;
+  gtk_fixed_move( GTK_FIXED(fixed), widget, x, y); 
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+  /* GtkWidget is the storage type for widgets */
+  GtkWidget *window;
+  GtkWidget *fixed;
+  GtkWidget *button;
+  gint i;
+
+  /* Initialise GTK */
+  gtk_init(&amp;argc, &amp;argv);
+    
+  /* Create a new window */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title(GTK_WINDOW(window), "Fixed Container");
+
+  /* Here we connect the "destroy" event to a signal handler */ 
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+ 
+  /* Sets the border width of the window. */
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  /* Create a Fixed Container */
+  fixed = gtk_fixed_new();
+  gtk_container_add(GTK_CONTAINER(window), fixed);
+  gtk_widget_show(fixed);
+  
+  for (i = 1 ; i &lt;= 3 ; i++) {
+    /* Creates a new button with the label "Press me" */
+    button = gtk_button_new_with_label ("Press me");
+  
+    /* When the button receives the "clicked" signal, it will call the
+     * function move_button() passing it the Fixed Container as its
+     * argument. */
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (move_button), fixed);
+  
+    /* This packs the button into the fixed containers window. */
+    gtk_fixed_put (GTK_FIXED (fixed), button, i*50, i*50);
+  
+    /* The final step is to display this newly created widget. */
+    gtk_widget_show (button);
+  }
+
+  /* Display the window */
+  gtk_widget_show (window);
+    
+  /* Enter the event loop */
+  gtk_main ();
+    
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss10.4">10.4 Layout Container</A>
+</H2>
+
+<P>The Layout container is similar to the Fixed container except that it
+implements an infinite (where infinity is less than 2^32) scrolling
+area. The X window system has a limitation where windows can be at
+most 32767 pixels wide or tall. The Layout container gets around this
+limitation by doing some exotic stuff using window and bit gravities,
+so that you can have smooth scrolling even when you have many child
+widgets in your scrolling area.
+<P>A Layout container is created using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_layout_new( GtkAdjustment *hadjustment,
+                           GtkAdjustment *vadjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you can see, you can optionally specify the Adjustment objects that
+the Layout widget will use for its scrolling.
+<P>You can add and move widgets in the Layout container using the
+following two functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_layout_put( GtkLayout *layout,
+                     GtkWidget *widget,
+                     gint       x,
+                     gint       y );
+
+void gtk_layout_move( GtkLayout *layout,
+                      GtkWidget *widget,
+                      gint       x,
+                      gint       y );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The size of the Layout container can be set using the next function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_layout_set_size( GtkLayout *layout,
+                          guint      width,
+                          guint      height );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Layout containers are one of the very few widgets in the GTK widget
+set that actively repaint themselves on screen as they are changed
+using the above functions (the vast majority of widgets queue
+requests which are then processed when control returns to the
+<CODE>gtk_main()</CODE> function).
+<P>When you want to make a large number of changes to a Layout container,
+you can use the following two functions to disable and re-enable this
+repainting functionality:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_layout_freeze( GtkLayout *layout );
+
+void gtk_layout_thaw( GtkLayout *layout );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The final four functions for use with Layout widgets are for
+manipulating the horizontal and vertical adjustment widgets:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAdjustment* gtk_layout_get_hadjustment( GtkLayout *layout );
+
+GtkAdjustment* gtk_layout_get_vadjustment( GtkLayout *layout );
+
+void gtk_layout_set_hadjustment( GtkLayout     *layout,
+                                 GtkAdjustment *adjustment );
+
+void gtk_layout_set_vadjustment( GtkLayout     *layout,
+                                 GtkAdjustment *adjustment);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="sec_Frames"></A> <A NAME="ss10.5">10.5 Frames </A>
+</H2>
+
+<P>Frames can be used to enclose one or a group of widgets with a box
+which can optionally be labelled. The position of the label and the
+style of the box can be altered to suit.
+<P>A Frame can be created with the following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_frame_new( const gchar *label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The label is by default placed in the upper left hand corner of the
+frame. A value of NULL for the <CODE>label</CODE> argument will result in no
+label being displayed. The text of the label can be changed using the
+next function.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_frame_set_label( GtkFrame    *frame,
+                          const gchar *label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The position of the label can be changed using this function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_frame_set_label_align( GtkFrame *frame,
+                                gfloat    xalign,
+                                gfloat    yalign );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>xalign</CODE> and <CODE>yalign</CODE> take values between 0.0 and 1.0. <CODE>xalign</CODE>
+indicates the position of the label along the top horizontal of the
+frame. <CODE>yalign</CODE> is not currently used. The default value of xalign
+is 0.0 which places the label at the left hand end of the frame.
+<P>The next function alters the style of the box that is used to outline
+the frame.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_frame_set_shadow_type( GtkFrame      *frame,
+                                GtkShadowType  type);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>type</CODE> argument can take one of the following values:
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_SHADOW_NONE
+  GTK_SHADOW_IN
+  GTK_SHADOW_OUT
+  GTK_SHADOW_ETCHED_IN (the default)
+  GTK_SHADOW_ETCHED_OUT
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The following code example illustrates the use of the Frame widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start frame frame.c */
+
+#include &lt;gtk/gtk.h>
+
+int main( int   argc,
+          char *argv[] )
+{
+  /* GtkWidget is the storage type for widgets */
+  GtkWidget *window;
+  GtkWidget *frame;
+  GtkWidget *button;
+  gint i;
+
+  /* Initialise GTK */
+  gtk_init(&amp;argc, &amp;argv);
+    
+  /* Create a new window */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title(GTK_WINDOW(window), "Frame Example");
+
+  /* Here we connect the "destroy" event to a signal handler */ 
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+
+  gtk_widget_set_usize(window, 300, 300);
+  /* Sets the border width of the window. */
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  /* Create a Frame */
+  frame = gtk_frame_new(NULL);
+  gtk_container_add(GTK_CONTAINER(window), frame);
+
+  /* Set the frame's label */
+  gtk_frame_set_label( GTK_FRAME(frame), "GTK Frame Widget" );
+
+  /* Align the label at the right of the frame */
+  gtk_frame_set_label_align( GTK_FRAME(frame), 1.0, 0.0);
+
+  /* Set the style of the frame */
+  gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_ETCHED_OUT);
+
+  gtk_widget_show(frame);
+  
+  /* Display the window */
+  gtk_widget_show (window);
+    
+  /* Enter the event loop */
+  gtk_main ();
+    
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>   
+<H2><A NAME="ss10.6">10.6 Aspect Frames</A>
+</H2>
+
+<P>The aspect frame widget is like a frame widget, except that it also
+enforces the aspect ratio (that is, the ratio of the width to the
+height) of the child widget to have a certain value, adding extra
+space if necessary. This is useful, for instance, if you want to
+preview a larger image. The size of the preview should vary when the
+user resizes the window, but the aspect ratio needs to always match
+the original image.
+<P>To create a new aspect frame use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_aspect_frame_new( const gchar *label,
+                                 gfloat       xalign,
+                                 gfloat       yalign,
+                                 gfloat       ratio,
+                                 gint         obey_child);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>xalign</CODE> and <CODE>yalign</CODE> specify alignment as with Alignment
+widgets. If <CODE>obey_child</CODE> is true, the aspect ratio of a child
+widget will match the aspect ratio of the ideal size it requests.
+Otherwise, it is given by <CODE>ratio</CODE>.
+<P>To change the options of an existing aspect frame, you can use:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_aspect_frame_set( GtkAspectFrame *aspect_frame,
+                           gfloat          xalign,
+                           gfloat          yalign,
+                           gfloat          ratio,
+                           gint            obey_child);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As an example, the following program uses an AspectFrame to present a
+drawing area whose aspect ratio will always be 2:1, no matter how the
+user resizes the top-level window.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start aspectframe aspectframe.c */
+
+#include &lt;gtk/gtk.h>
+   
+int main( int argc,
+          char *argv[] )
+{
+    GtkWidget *window;
+    GtkWidget *aspect_frame;
+    GtkWidget *drawing_area;
+    gtk_init (&amp;argc, &amp;argv);
+   
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (window), "Aspect Frame");
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+   
+    /* Create an aspect_frame and add it to our toplevel window */
+   
+    aspect_frame = gtk_aspect_frame_new ("2x1", /* label */
+                                         0.5, /* center x */
+                                         0.5, /* center y */
+                                         2, /* xsize/ysize = 2 */
+                                         FALSE /* ignore child's aspect */);
+   
+    gtk_container_add (GTK_CONTAINER(window), aspect_frame);
+    gtk_widget_show (aspect_frame);
+   
+    /* Now add a child widget to the aspect frame */
+   
+    drawing_area = gtk_drawing_area_new ();
+   
+    /* Ask for a 200x200 window, but the AspectFrame will give us a 200x100
+     * window since we are forcing a 2x1 aspect ratio */
+    gtk_widget_set_usize (drawing_area, 200, 200);
+    gtk_container_add (GTK_CONTAINER(aspect_frame), drawing_area);
+    gtk_widget_show (drawing_area);
+   
+    gtk_widget_show (window);
+    gtk_main ();
+    return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>   
+<H2><A NAME="ss10.7">10.7 Paned Window Widgets</A>
+</H2>
+
+<P>The paned window widgets are useful when you want to divide an area
+into two parts, with the relative size of the two parts controlled by
+the user. A groove is drawn between the two portions with a handle
+that the user can drag to change the ratio. The division can either be
+horizontal (HPaned) or vertical (VPaned).
+<P>To create a new paned window, call one of:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_hpaned_new (void);
+
+GtkWidget *gtk_vpaned_new (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>After creating the paned window widget, you need to add child widgets
+to its two halves. To do this, use the functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_paned_add1 (GtkPaned *paned, GtkWidget *child);
+
+void gtk_paned_add2 (GtkPaned *paned, GtkWidget *child);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>gtk_paned_add1()</CODE> adds the child widget to the left or top half of
+the paned window. <CODE>gtk_paned_add2()</CODE> adds the child widget to the
+right or bottom half of the paned window.
+<P>A paned widget can be changed visually using the following two
+functions.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_paned_set_handle_size( GtkPaned *paned,
+                                guint16   size);
+
+void gtk_paned_set_gutter_size( GtkPaned *paned,
+                                guint16   size);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first of these sets the size of the handle and the second sets the
+size of the gutter that is between the two parts of the paned window.
+<P>As an example, we will create part of the user interface of an
+imaginary email program. A window is divided into two portions
+vertically, with the top portion being a list of email messages and
+the bottom portion the text of the email message. Most of the program
+is pretty straightforward. A couple of points to note: text can't be
+added to a Text widget until it is realized. This could be done by
+calling <CODE>gtk_widget_realize()</CODE>, but as a demonstration of an
+alternate technique, we connect a handler to the "realize" signal to
+add the text. Also, we need to add the <CODE>GTK_SHRINK</CODE> option to some
+of the items in the table containing the text window and its
+scrollbars, so that when the bottom portion is made smaller, the
+correct portions shrink instead of being pushed off the bottom of the
+window.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start paned paned.c */
+
+#include &lt;stdio.h>
+#include &lt;gtk/gtk.h>
+   
+/* Create the list of "messages" */
+GtkWidget *create_list( void )
+{
+
+    GtkWidget *scrolled_window;
+    GtkWidget *list;
+    GtkWidget *list_item;
+   
+    int i;
+    char buffer[16];
+   
+    /* Create a new scrolled window, with scrollbars only if needed */
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, 
+                                    GTK_POLICY_AUTOMATIC);
+   
+    /* Create a new list and put it in the scrolled window */
+    list = gtk_list_new ();
+    gtk_scrolled_window_add_with_viewport (
+               GTK_SCROLLED_WINDOW (scrolled_window), list);
+    gtk_widget_show (list);
+   
+    /* Add some messages to the window */
+    for (i=0; i&lt;10; i++) {
+
+        sprintf(buffer,"Message #%d",i);
+        list_item = gtk_list_item_new_with_label (buffer);
+        gtk_container_add (GTK_CONTAINER(list), list_item);
+        gtk_widget_show (list_item);
+
+    }
+   
+    return scrolled_window;
+}
+   
+/* Add some text to our text widget - this is a callback that is invoked
+when our window is realized. We could also force our window to be
+realized with gtk_widget_realize, but it would have to be part of
+a hierarchy first */
+
+void realize_text( GtkWidget *text,
+                   gpointer data )
+{
+    gtk_text_freeze (GTK_TEXT (text));
+    gtk_text_insert (GTK_TEXT (text), NULL, &amp;text->style->black, NULL,
+    "From: pathfinder@nasa.gov\n"
+    "To: mom@nasa.gov\n"
+    "Subject: Made it!\n"
+    "\n"
+    "We just got in this morning. The weather has been\n"
+    "great - clear but cold, and there are lots of fun sights.\n"
+    "Sojourner says hi. See you soon.\n"
+    " -Path\n", -1);
+   
+    gtk_text_thaw (GTK_TEXT (text));
+}
+   
+/* Create a scrolled text area that displays a "message" */
+GtkWidget *create_text( void )
+{
+    GtkWidget *table;
+    GtkWidget *text;
+    GtkWidget *hscrollbar;
+    GtkWidget *vscrollbar;
+   
+    /* Create a table to hold the text widget and scrollbars */
+    table = gtk_table_new (2, 2, FALSE);
+   
+    /* Put a text widget in the upper left hand corner. Note the use of
+     * GTK_SHRINK in the y direction */
+    text = gtk_text_new (NULL, NULL);
+    gtk_table_attach (GTK_TABLE (table), text, 0, 1, 0, 1,
+                      GTK_FILL | GTK_EXPAND,
+                      GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
+    gtk_widget_show (text);
+   
+    /* Put a HScrollbar in the lower left hand corner */
+    hscrollbar = gtk_hscrollbar_new (GTK_TEXT (text)->hadj);
+    gtk_table_attach (GTK_TABLE (table), hscrollbar, 0, 1, 1, 2,
+                      GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+    gtk_widget_show (hscrollbar);
+   
+    /* And a VScrollbar in the upper right */
+    vscrollbar = gtk_vscrollbar_new (GTK_TEXT (text)->vadj);
+    gtk_table_attach (GTK_TABLE (table), vscrollbar, 1, 2, 0, 1,
+                      GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+    gtk_widget_show (vscrollbar);
+   
+    /* Add a handler to put a message in the text widget when it is realized */
+    gtk_signal_connect (GTK_OBJECT (text), "realize",
+                        GTK_SIGNAL_FUNC (realize_text), NULL);
+   
+    return table;
+}
+   
+int main( int   argc,
+          char *argv[] )
+{
+    GtkWidget *window;
+    GtkWidget *vpaned;
+    GtkWidget *list;
+    GtkWidget *text;
+
+    gtk_init (&amp;argc, &amp;argv);
+   
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (window), "Paned Windows");
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+    gtk_widget_set_usize (GTK_WIDGET(window), 450, 400);
+
+    /* create a vpaned widget and add it to our toplevel window */
+   
+    vpaned = gtk_vpaned_new ();
+    gtk_container_add (GTK_CONTAINER(window), vpaned);
+    gtk_paned_set_handle_size (GTK_PANED(vpaned),
+                               10);
+    gtk_paned_set_gutter_size (GTK_PANED(vpaned),
+                               15);                       
+    gtk_widget_show (vpaned);
+   
+    /* Now create the contents of the two halves of the window */
+   
+    list = create_list ();
+    gtk_paned_add1 (GTK_PANED(vpaned), list);
+    gtk_widget_show (list);
+   
+    text = create_text ();
+    gtk_paned_add2 (GTK_PANED(vpaned), text);
+    gtk_widget_show (text);
+    gtk_widget_show (window);
+    gtk_main ();
+    return 0;
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="sec_Viewports"></A> <A NAME="ss10.8">10.8 Viewports </A>
+</H2>
+
+<P>It is unlikely that you will ever need to use the Viewport widget
+directly. You are much more likely to use the
+<A HREF="#sec_ScrolledWindow">Scrolled Window</A> widget which
+itself uses the Viewport.
+<P>A viewport widget allows you to place a larger widget within it such
+that you can view a part of it at a time. It uses
+<A HREF="gtk_tut-7.html#sec_Adjustment">Adjustments</A> to define the area that
+is currently in view.
+<P>A Viewport is created with the function
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_viewport_new( GtkAdjustment *hadjustment,
+                             GtkAdjustment *vadjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you can see you can specify the horizontal and vertical Adjustments
+that the widget is to use when you create the widget. It will create
+its own if you pass NULL as the value of the arguments.
+<P>You can get and set the adjustments after the widget has been created
+using the following four functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAdjustment *gtk_viewport_get_hadjustment (GtkViewport *viewport );
+
+GtkAdjustment *gtk_viewport_get_vadjustment (GtkViewport *viewport );
+
+void gtk_viewport_set_hadjustment( GtkViewport   *viewport,
+                                   GtkAdjustment *adjustment );
+
+void gtk_viewport_set_vadjustment( GtkViewport   *viewport,
+                                   GtkAdjustment *adjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The only other viewport function is used to alter its appearance:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_viewport_set_shadow_type( GtkViewport   *viewport,
+                                   GtkShadowType  type );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Possible values for the <CODE>type</CODE> parameter are:
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_SHADOW_NONE,
+  GTK_SHADOW_IN,
+  GTK_SHADOW_OUT,
+  GTK_SHADOW_ETCHED_IN,
+  GTK_SHADOW_ETCHED_OUT
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="sec_ScrolledWindow"></A> <A NAME="ss10.9">10.9 Scrolled Windows </A>
+</H2>
+
+<P>Scrolled windows are used to create a scrollable area with another
+widget inside it. You may insert any type of widget into a scrolled
+window, and it will be accessible regardless of the size by using the
+scrollbars.
+<P>The following function is used to create a new scrolled window.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_scrolled_window_new( GtkAdjustment *hadjustment,
+                                    GtkAdjustment *vadjustment );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Where the first argument is the adjustment for the horizontal
+direction, and the second, the adjustment for the vertical direction.
+These are almost always set to NULL.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scrolled_window_set_policy( GtkScrolledWindow *scrolled_window,
+                                     GtkPolicyType      hscrollbar_policy,
+                                     GtkPolicyType      vscrollbar_policy );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This sets the policy to be used with respect to the scrollbars.
+The first argument is the scrolled window you wish to change. The second
+sets the policy for the horizontal scrollbar, and the third the policy for 
+the vertical scrollbar.
+<P>The policy may be one of <CODE>GTK_POLICY_AUTOMATIC</CODE> or
+<CODE>GTK_POLICY_ALWAYS</CODE>. <CODE>GTK_POLICY_AUTOMATIC</CODE> will automatically
+decide whether you need scrollbars, whereas <CODE>GTK_POLICY_ALWAYS</CODE>
+will always leave the scrollbars there.
+<P>You can then place your object into the scrolled window using the
+following function.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_scrolled_window_add_with_viewport( GtkScrolledWindow *scrolled_window,
+                                            GtkWidget         *child);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here is a simple example that packs a table eith 100 toggle buttons
+into a scrolled window. I've only commented on the parts that may be
+new to you.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start scrolledwin scrolledwin.c */
+
+#include &lt;stdio.h>
+#include &lt;gtk/gtk.h>
+
+void destroy( GtkWidget *widget,
+              gpointer   data )
+{
+    gtk_main_quit();
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+    static GtkWidget *window;
+    GtkWidget *scrolled_window;
+    GtkWidget *table;
+    GtkWidget *button;
+    char buffer[32];
+    int i, j;
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    /* Create a new dialog window for the scrolled window to be
+     * packed into.  */
+    window = gtk_dialog_new ();
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        (GtkSignalFunc) destroy, NULL);
+    gtk_window_set_title (GTK_WINDOW (window), "GtkScrolledWindow example");
+    gtk_container_set_border_width (GTK_CONTAINER (window), 0);
+    gtk_widget_set_usize(window, 300, 300);
+    
+    /* create a new scrolled window. */
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    
+    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 10);
+    
+    /* the policy is one of GTK_POLICY AUTOMATIC, or GTK_POLICY_ALWAYS.
+     * GTK_POLICY_AUTOMATIC will automatically decide whether you need
+     * scrollbars, whereas GTK_POLICY_ALWAYS will always leave the scrollbars
+     * there.  The first one is the horizontal scrollbar, the second, 
+     * the vertical. */
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+    /* The dialog window is created with a vbox packed into it. */                                                              
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG(window)->vbox), scrolled_window, 
+                        TRUE, TRUE, 0);
+    gtk_widget_show (scrolled_window);
+    
+    /* create a table of 10 by 10 squares. */
+    table = gtk_table_new (10, 10, FALSE);
+    
+    /* set the spacing to 10 on x and 10 on y */
+    gtk_table_set_row_spacings (GTK_TABLE (table), 10);
+    gtk_table_set_col_spacings (GTK_TABLE (table), 10);
+    
+    /* pack the table into the scrolled window */
+    gtk_scrolled_window_add_with_viewport (
+                   GTK_SCROLLED_WINDOW (scrolled_window), table);
+    gtk_widget_show (table);
+    
+    /* this simply creates a grid of toggle buttons on the table
+     * to demonstrate the scrolled window. */
+    for (i = 0; i &lt; 10; i++)
+       for (j = 0; j &lt; 10; j++) {
+          sprintf (buffer, "button (%d,%d)\n", i, j);
+          button = gtk_toggle_button_new_with_label (buffer);
+          gtk_table_attach_defaults (GTK_TABLE (table), button,
+                                     i, i+1, j, j+1);
+          gtk_widget_show (button);
+       }
+    
+    /* Add a "close" button to the bottom of the dialog */
+    button = gtk_button_new_with_label ("close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (window));
+    
+    /* this makes it so the button is the default. */
+    
+    GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->action_area), button, TRUE, TRUE, 0);
+    
+    /* This grabs this button to be the default button. Simply hitting
+     * the "Enter" key will cause this button to activate. */
+    gtk_widget_grab_default (button);
+    gtk_widget_show (button);
+    
+    gtk_widget_show (window);
+    
+    gtk_main();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Try playing with resizing the window. You'll notice how the scrollbars
+react. You may also wish to use the gtk_widget_set_usize() call to set
+the default size of the window or other widgets.
+<P>   
+<H2><A NAME="ss10.10">10.10 Button Boxes</A>
+</H2>
+
+<P>Button Boxes are a convenient way to quickly layout a group of
+buttons. They come in both horizontal and vertical flavours. You
+create a new Button Box with one of the following calls, which create
+a horizontal or vertical box, respectively:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_hbutton_box_new( void );
+
+GtkWidget *gtk_vbutton_box_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The only attributes pertaining to button boxes effect how the buttons
+are laid out. You can change the spacing between the buttons with:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_hbutton_box_set_spacing_default( gint spacing );
+
+void gtk_vbutton_box_set_spacing_default( gint spacing );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Similarly, the current spacing values can be queried using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_hbutton_box_get_spacing_default( void );
+
+gint gtk_vbutton_box_get_spacing_default( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The second attribute that we can access effects the layout of the
+buttons within the box. It is set using one of:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_hbutton_box_set_layout_default( GtkButtonBoxStyle layout );
+
+void gtk_vbutton_box_set_layout_default( GtkButtonBoxStyle layout );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>layout</CODE> argument can take one of the following values:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_BUTTONBOX_DEFAULT_STYLE
+  GTK_BUTTONBOX_SPREAD
+  GTK_BUTTONBOX_EDGE
+  GTK_BUTTONBOX_START
+  GTK_BUTTONBOX_END
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The current layout setting can be retrieved using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkButtonBoxStyle gtk_hbutton_box_get_layout_default( void );
+
+GtkButtonBoxStyle gtk_vbutton_box_get_layout_default( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Buttons are added to a Button Box using the usual function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+    gtk_container_add( GTK_CONTAINER(button_box), child_widget );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here's an example that illustrates all the different layout settings
+for Button Boxes.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start buttonbox buttonbox.c */
+
+#include &lt;gtk/gtk.h>
+
+/* Create a Button Box with the specified parameters */
+GtkWidget *create_bbox( gint  horizontal,
+                        char *title,
+                        gint  spacing,
+                        gint  child_w,
+                        gint  child_h,
+                        gint  layout )
+{
+  GtkWidget *frame;
+  GtkWidget *bbox;
+  GtkWidget *button;
+
+  frame = gtk_frame_new (title);
+
+  if (horizontal)
+    bbox = gtk_hbutton_box_new ();
+  else
+    bbox = gtk_vbutton_box_new ();
+
+  gtk_container_set_border_width (GTK_CONTAINER (bbox), 5);
+  gtk_container_add (GTK_CONTAINER (frame), bbox);
+
+  /* Set the appearance of the Button Box */
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), layout);
+  gtk_button_box_set_spacing (GTK_BUTTON_BOX (bbox), spacing);
+  gtk_button_box_set_child_size (GTK_BUTTON_BOX (bbox), child_w, child_h);
+
+  button = gtk_button_new_with_label ("OK");
+  gtk_container_add (GTK_CONTAINER (bbox), button);
+
+  button = gtk_button_new_with_label ("Cancel");
+  gtk_container_add (GTK_CONTAINER (bbox), button);
+
+  button = gtk_button_new_with_label ("Help");
+  gtk_container_add (GTK_CONTAINER (bbox), button);
+
+  return(frame);
+}
+
+int main( int   argc,
+          char *argv[] )
+{
+  static GtkWidget* window = NULL;
+  GtkWidget *main_vbox;
+  GtkWidget *vbox;
+  GtkWidget *hbox;
+  GtkWidget *frame_horz;
+  GtkWidget *frame_vert;
+
+  /* Initialize GTK */
+  gtk_init( &amp;argc, &amp;argv );
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (window), "Button Boxes");
+
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                      GTK_SIGNAL_FUNC(gtk_main_quit),
+                      NULL);
+
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  main_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (window), main_vbox);
+
+  frame_horz = gtk_frame_new ("Horizontal Button Boxes");
+  gtk_box_pack_start (GTK_BOX (main_vbox), frame_horz, TRUE, TRUE, 10);
+
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox), 10);
+  gtk_container_add (GTK_CONTAINER (frame_horz), vbox);
+
+  gtk_box_pack_start (GTK_BOX (vbox),
+           create_bbox (TRUE, "Spread (spacing 40)", 40, 85, 20, GTK_BUTTONBOX_SPREAD),
+                      TRUE, TRUE, 0);
+
+  gtk_box_pack_start (GTK_BOX (vbox),
+           create_bbox (TRUE, "Edge (spacing 30)", 30, 85, 20, GTK_BUTTONBOX_EDGE),
+                      TRUE, TRUE, 5);
+
+  gtk_box_pack_start (GTK_BOX (vbox),
+           create_bbox (TRUE, "Start (spacing 20)", 20, 85, 20, GTK_BUTTONBOX_START),
+                      TRUE, TRUE, 5);
+
+  gtk_box_pack_start (GTK_BOX (vbox),
+           create_bbox (TRUE, "End (spacing 10)", 10, 85, 20, GTK_BUTTONBOX_END),
+                      TRUE, TRUE, 5);
+
+  frame_vert = gtk_frame_new ("Vertical Button Boxes");
+  gtk_box_pack_start (GTK_BOX (main_vbox), frame_vert, TRUE, TRUE, 10);
+
+  hbox = gtk_hbox_new (FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox), 10);
+  gtk_container_add (GTK_CONTAINER (frame_vert), hbox);
+
+  gtk_box_pack_start (GTK_BOX (hbox),
+           create_bbox (FALSE, "Spread (spacing 5)", 5, 85, 20, GTK_BUTTONBOX_SPREAD),
+                      TRUE, TRUE, 0);
+
+  gtk_box_pack_start (GTK_BOX (hbox),
+           create_bbox (FALSE, "Edge (spacing 30)", 30, 85, 20, GTK_BUTTONBOX_EDGE),
+                      TRUE, TRUE, 5);
+
+  gtk_box_pack_start (GTK_BOX (hbox),
+           create_bbox (FALSE, "Start (spacing 20)", 20, 85, 20, GTK_BUTTONBOX_START),
+                      TRUE, TRUE, 5);
+
+  gtk_box_pack_start (GTK_BOX (hbox),
+           create_bbox (FALSE, "End (spacing 20)", 20, 85, 20, GTK_BUTTONBOX_END),
+                      TRUE, TRUE, 5);
+
+  gtk_widget_show_all (window);
+
+  /* Enter the event loop */
+  gtk_main ();
+    
+  return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>   
+<H2><A NAME="ss10.11">10.11 Toolbar</A>
+</H2>
+
+<P>Toolbars are usually used to group some number of widgets in order to
+simplify customization of their look and layout. Typically a toolbar
+consists of buttons with icons, labels and tooltips, but any other
+widget can also be put inside a toolbar. Finally, items can be
+arranged horizontally or vertically and buttons can be displayed with
+icons, labels, or both.
+<P>Creating a toolbar is (as one may already suspect) done with the
+following function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_toolbar_new( GtkOrientation orientation,
+                            GtkToolbarStyle  style );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>where orientation may be one of:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_ORIENTATION_HORIZONTAL    
+  GTK_ORIENTATION_VERTICAL
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>and style one of:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_TOOLBAR_TEXT
+  GTK_TOOLBAR_ICONS
+  GTK_TOOLBAR_BOTH
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The style applies to all the buttons created with the `item' functions
+(not to buttons inserted into toolbar as separate widgets).
+<P>After creating a toolbar one can append, prepend and insert items
+(that means simple text strings) or elements (that means any widget
+types) into the toolbar. To describe an item we need a label text, a
+tooltip text, a private tooltip text, an icon for the button and a
+callback function for it. For example, to append or prepend an item
+you may use the following functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_toolbar_append_item( GtkToolbar    *toolbar,
+                                    const char    *text,
+                                    const char    *tooltip_text,
+                                    const char    *tooltip_private_text,
+                                    GtkWidget     *icon,
+                                    GtkSignalFunc  callback,
+                                    gpointer       user_data );
+
+GtkWidget *gtk_toolbar_prepend_item( GtkToolbar    *toolbar,
+                                     const char    *text,
+                                     const char    *tooltip_text,
+                                     const char    *tooltip_private_text,
+                                     GtkWidget     *icon,
+                                     GtkSignalFunc  callback,
+                                     gpointer       user_data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If you want to use gtk_toolbar_insert_item, the only additional
+parameter which must be specified is the position in which the item
+should be inserted, thus:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_toolbar_insert_item( GtkToolbar    *toolbar,
+                                    const char    *text,
+                                    const char    *tooltip_text,
+                                    const char    *tooltip_private_text,
+                                    GtkWidget     *icon,
+                                    GtkSignalFunc  callback,
+                                    gpointer       user_data,
+                                    gint           position );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>To simplify adding spaces between toolbar items, you may use the
+following functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toolbar_append_space( GtkToolbar *toolbar );
+
+void gtk_toolbar_prepend_space( GtkToolbar *toolbar );
+
+void gtk_toolbar_insert_space( GtkToolbar *toolbar,
+                               gint        position );
+ 
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>While the size of the added space can be set globally for a
+whole toolbar with the function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toolbar_set_space_size( GtkToolbar *toolbar,
+                                 gint        space_size) ;
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>If it's required, the orientation of a toolbar and its style can be
+changed "on the fly" using the following functions:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toolbar_set_orientation( GtkToolbar     *toolbar,
+                                  GtkOrientation  orientation );
+
+void gtk_toolbar_set_style( GtkToolbar      *toolbar,
+                            GtkToolbarStyle  style );
+
+void gtk_toolbar_set_tooltips( GtkToolbar *toolbar,
+                               gint        enable );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Where <CODE>orientation</CODE> is one of <CODE>GTK_ORIENTATION_HORIZONTAL</CODE> or
+<CODE>GTK_ORIENTATION_VERTICAL</CODE>. The <CODE>style</CODE> is used to set
+appearance of the toolbar items by using one of
+<CODE>GTK_TOOLBAR_ICONS</CODE>, <CODE>GTK_TOOLBAR_TEXT</CODE>, or
+<CODE>GTK_TOOLBAR_BOTH</CODE>.
+<P>To show some other things that can be done with a toolbar, let's take
+the following program (we'll interrupt the listing with some
+additional explanations):
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+
+#include "gtk.xpm"
+
+/* This function is connected to the Close button or
+ * closing the window from the WM */
+gint delete_event (GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+  gtk_main_quit ();
+  return(FALSE);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The above beginning seems for sure familiar to you if it's not your first
+GTK program. There is one additional thing though, we include a nice XPM
+picture to serve as an icon for all of the buttons.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* close_button; /* This button will emit signal to close
+                          * application */
+GtkWidget* tooltips_button; /* to enable/disable tooltips */
+GtkWidget* text_button,
+         * icon_button,
+         * both_button; /* radio buttons for toolbar style */
+GtkWidget* entry; /* a text entry to show packing any widget into
+                   * toolbar */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>In fact not all of the above widgets are needed here, but to make things
+clearer I put them all together.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* that's easy... when one of the buttons is toggled, we just
+ * check which one is active and set the style of the toolbar
+ * accordingly
+ * ATTENTION: our toolbar is passed as data to callback ! */
+void radio_event (GtkWidget *widget, gpointer data)
+{
+  if (GTK_TOGGLE_BUTTON (text_button)->active) 
+    gtk_toolbar_set_style(GTK_TOOLBAR ( data ), GTK_TOOLBAR_TEXT);
+  else if (GTK_TOGGLE_BUTTON (icon_button)->active)
+    gtk_toolbar_set_style(GTK_TOOLBAR ( data ), GTK_TOOLBAR_ICONS);
+  else if (GTK_TOGGLE_BUTTON (both_button)->active)
+    gtk_toolbar_set_style(GTK_TOOLBAR ( data ), GTK_TOOLBAR_BOTH);
+}
+
+/* even easier, just check given toggle button and enable/disable 
+ * tooltips */
+void toggle_event (GtkWidget *widget, gpointer data)
+{
+  gtk_toolbar_set_tooltips (GTK_TOOLBAR ( data ),
+                            GTK_TOGGLE_BUTTON (widget)->active );
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The above are just two callback functions that will be called when
+one of the buttons on a toolbar is pressed. You should already be
+familiar with things like this if you've already used toggle buttons (and
+radio buttons).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+int main (int argc, char *argv[])
+{
+  /* Here is our main window (a dialog) and a handle for the handlebox */
+  GtkWidget* dialog;
+  GtkWidget* handlebox;
+
+  /* Ok, we need a toolbar, an icon with a mask (one for all of 
+     the buttons) and an icon widget to put this icon in (but 
+     we'll create a separate widget for each button) */
+  GtkWidget * toolbar;
+  GdkPixmap * icon;
+  GdkBitmap * mask;
+  GtkWidget * iconw;
+
+  /* this is called in all GTK application. */
+  gtk_init (&amp;argc, &amp;argv);
+  
+  /* create a new window with a given title, and nice size */
+  dialog = gtk_dialog_new ();
+  gtk_window_set_title ( GTK_WINDOW ( dialog ) , "GTKToolbar Tutorial");
+  gtk_widget_set_usize( GTK_WIDGET ( dialog ) , 600 , 300 );
+  GTK_WINDOW ( dialog ) ->allow_shrink = TRUE;
+
+  /* typically we quit if someone tries to close us */
+  gtk_signal_connect ( GTK_OBJECT ( dialog ), "delete_event",
+                       GTK_SIGNAL_FUNC ( delete_event ), NULL);
+
+  /* we need to realize the window because we use pixmaps for 
+   * items on the toolbar in the context of it */
+  gtk_widget_realize ( dialog );
+
+  /* to make it nice we'll put the toolbar into the handle box, 
+   * so that it can be detached from the main window */
+  handlebox = gtk_handle_box_new ();
+  gtk_box_pack_start ( GTK_BOX ( GTK_DIALOG(dialog)->vbox ),
+                       handlebox, FALSE, FALSE, 5 );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The above should be similar to any other GTK application. Just
+initialization of GTK, creating the window, etc. There is only one
+thing that probably needs some explanation: a handle box. A handle box
+is just another box that can be used to pack widgets in to. The
+difference between it and typical boxes is that it can be detached
+from a parent window (or, in fact, the handle box remains in the
+parent, but it is reduced to a very small rectangle, while all of its
+contents are reparented to a new freely floating window). It is
+usually nice to have a detachable toolbar, so these two widgets occur
+together quite often.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* toolbar will be horizontal, with both icons and text, and
+   * with 5pxl spaces between items and finally, 
+   * we'll also put it into our handlebox */
+  toolbar = gtk_toolbar_new ( GTK_ORIENTATION_HORIZONTAL,
+                              GTK_TOOLBAR_BOTH );
+  gtk_container_set_border_width ( GTK_CONTAINER ( toolbar ) , 5 );
+  gtk_toolbar_set_space_size ( GTK_TOOLBAR ( toolbar ), 5 );
+  gtk_container_add ( GTK_CONTAINER ( handlebox ) , toolbar );
+
+  /* now we create icon with mask: we'll reuse it to create
+   * icon widgets for toolbar items */
+  icon = gdk_pixmap_create_from_xpm_d ( dialog->window, &amp;mask,
+      &amp;dialog->style->white, gtk_xpm );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Well, what we do above is just a straightforward initialization of
+the toolbar widget and creation of a GDK pixmap with its mask. If you
+want to know something more about using pixmaps, refer to GDK
+documentation or to the 
+<A HREF="gtk_tut-9.html#sec_Pixmaps">Pixmaps</A> section
+earlier in this tutorial.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* our first item is &lt;close> button */
+  iconw = gtk_pixmap_new ( icon, mask ); /* icon widget */
+  close_button = 
+    gtk_toolbar_append_item ( GTK_TOOLBAR (toolbar), /* our toolbar */
+                              "Close",               /* button label */
+                              "Closes this app",     /* this button's tooltip */
+                              "Private",             /* tooltip private info */
+                              iconw,                 /* icon widget */
+                              GTK_SIGNAL_FUNC (delete_event), /* a signal */
+                               NULL );
+  gtk_toolbar_append_space ( GTK_TOOLBAR ( toolbar ) ); /* space after item */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>In the above code you see the simplest case: adding a button to
+toolbar.  Just before appending a new item, we have to construct a
+pixmap widget to serve as an icon for this item; this step will have
+to be repeated for each new item. Just after the item we also add a
+space, so the following items will not touch each other. As you see
+gtk_toolbar_append_item returns a pointer to our newly created button
+widget, so that we can work with it in the normal way.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* now, let's make our radio buttons group... */
+  iconw = gtk_pixmap_new ( icon, mask );
+  icon_button = gtk_toolbar_append_element(
+                    GTK_TOOLBAR(toolbar),
+                    GTK_TOOLBAR_CHILD_RADIOBUTTON, /* a type of element */
+                    NULL,                          /* pointer to widget */
+                    "Icon",                        /* label */
+                    "Only icons in toolbar",       /* tooltip */
+                    "Private",                     /* tooltip private string */
+                    iconw,                         /* icon */
+                    GTK_SIGNAL_FUNC (radio_event), /* signal */
+                    toolbar);                      /* data for signal */
+  gtk_toolbar_append_space ( GTK_TOOLBAR ( toolbar ) );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Here we begin creating a radio buttons group. To do this we use
+gtk_toolbar_append_element.  In fact, using this function one can also
++add simple items or even spaces (type = <CODE>GTK_TOOLBAR_CHILD_SPACE</CODE>
+or +<CODE>GTK_TOOLBAR_CHILD_BUTTON</CODE>). In the above case we start
+creating a radio group. In creating other radio buttons for this group
+a pointer to the previous button in the group is required, so that a
+list of buttons can be easily constructed (see the section on 
+<A HREF="gtk_tut-6.html#sec_Radio_Buttons">Radio Buttons</A> earlier in this
+tutorial).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* following radio buttons refer to previous ones */
+  iconw = gtk_pixmap_new ( icon, mask );
+  text_button = 
+    gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                               GTK_TOOLBAR_CHILD_RADIOBUTTON,
+                               icon_button,
+                               "Text",
+                               "Only texts in toolbar",
+                               "Private",
+                               iconw,
+                               GTK_SIGNAL_FUNC (radio_event),
+                               toolbar);
+  gtk_toolbar_append_space ( GTK_TOOLBAR ( toolbar ) );
+                                          
+  iconw = gtk_pixmap_new ( icon, mask );
+  both_button = 
+    gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                               GTK_TOOLBAR_CHILD_RADIOBUTTON,
+                               text_button,
+                               "Both",
+                               "Icons and text in toolbar",
+                               "Private",
+                               iconw,
+                               GTK_SIGNAL_FUNC (radio_event),
+                               toolbar);
+  gtk_toolbar_append_space ( GTK_TOOLBAR ( toolbar ) );
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_button),TRUE);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>In the end we have to set the state of one of the buttons manually
+(otherwise they all stay in active state, preventing us from switching
+between them).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* here we have just a simple toggle button */
+  iconw = gtk_pixmap_new ( icon, mask );
+  tooltips_button = 
+    gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                               GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+                               NULL,
+                               "Tooltips",
+                               "Toolbar with or without tips",
+                               "Private",
+                               iconw,
+                               GTK_SIGNAL_FUNC (toggle_event),
+                               toolbar);
+  gtk_toolbar_append_space ( GTK_TOOLBAR ( toolbar ) );
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tooltips_button),TRUE);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>A toggle button can be created in the obvious way (if one knows how to create
+radio buttons already).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* to pack a widget into toolbar, we only have to 
+   * create it and append it with an appropriate tooltip */
+  entry = gtk_entry_new ();
+  gtk_toolbar_append_widget( GTK_TOOLBAR (toolbar), 
+                             entry, 
+                             "This is just an entry", 
+                             "Private" );
+
+  /* well, it isn't created within thetoolbar, so we must still show it */
+  gtk_widget_show ( entry );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As you see, adding any kind of widget to a toolbar is simple. The
+one thing you have to remember is that this widget must be shown manually
+(contrary to other items which will be shown together with the toolbar).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* that's it ! let's show everything. */
+  gtk_widget_show ( toolbar );
+  gtk_widget_show (handlebox);
+  gtk_widget_show ( dialog );
+
+  /* rest in gtk_main and wait for the fun to begin! */
+  gtk_main ();
+  
+  return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>So, here we are at the end of toolbar tutorial. Of course, to appreciate
+it in full you need also this nice XPM icon, so here it is:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* XPM */
+static char * gtk_xpm[] = {
+"32 39 5 1",
+".      c none",
+"+      c black",
+"@      c #3070E0",
+"#      c #F05050",
+"$      c #35E035",
+"................+...............",
+"..............+++++.............",
+"............+++++@@++...........",
+"..........+++++@@@@@@++.........",
+"........++++@@@@@@@@@@++........",
+"......++++@@++++++++@@@++.......",
+".....+++@@@+++++++++++@@@++.....",
+"...+++@@@@+++@@@@@@++++@@@@+....",
+"..+++@@@@+++@@@@@@@@+++@@@@@++..",
+".++@@@@@@+++@@@@@@@@@@@@@@@@@@++",
+".+#+@@@@@@++@@@@+++@@@@@@@@@@@@+",
+".+##++@@@@+++@@@+++++@@@@@@@@$@.",
+".+###++@@@@+++@@@+++@@@@@++$$$@.",
+".+####+++@@@+++++++@@@@@+@$$$$@.",
+".+#####+++@@@@+++@@@@++@$$$$$$+.",
+".+######++++@@@@@@@++@$$$$$$$$+.",
+".+#######+##+@@@@+++$$$$$$@@$$+.",
+".+###+++##+##+@@++@$$$$$$++$$$+.",
+".+###++++##+##+@@$$$$$$$@+@$$@+.",
+".+###++++++#+++@$$@+@$$@++$$$@+.",
+".+####+++++++#++$$@+@$$++$$$$+..",
+".++####++++++#++$$@+@$++@$$$$+..",
+".+#####+++++##++$$++@+++$$$$$+..",
+".++####+++##+#++$$+++++@$$$$$+..",
+".++####+++####++$$++++++@$$$@+..",
+".+#####++#####++$$+++@++++@$@+..",
+".+#####++#####++$$++@$$@+++$@@..",
+".++####++#####++$$++$$$$$+@$@++.",
+".++####++#####++$$++$$$$$$$$+++.",
+".+++####+#####++$$++$$$$$$$@+++.",
+"..+++#########+@$$+@$$$$$$+++...",
+"...+++########+@$$$$$$$$@+++....",
+".....+++######+@$$$$$$$+++......",
+"......+++#####+@$$$$$@++........",
+".......+++####+@$$$$+++.........",
+".........++###+$$$@++...........",
+"..........++##+$@+++............",
+"...........+++++++..............",
+".............++++..............."};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss10.12">10.12 Notebooks</A>
+</H2>
+
+<P>The NoteBook Widget is a collection of "pages" that overlap each
+other, each page contains different information with only one page
+visible at a time. This widget has become more common lately in GUI
+programming, and it is a good way to show blocks of similar
+information that warrant separation in their display.
+<P>The first function call you will need to know, as you can probably
+guess by now, is used to create a new notebook widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_notebook_new( void );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Once the notebook has been created, there are a number of functions
+that operate on the notebook widget. Let's look at them individually.
+<P>The first one we will look at is how to position the page indicators.
+These page indicators or "tabs" as they are referred to, can be
+positioned in four ways: top, bottom, left, or right.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_tab_pos( GtkNotebook     *notebook,
+                               GtkPositionType  pos );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>GtkPositionType will be one of the following, which are pretty self
+explanatory:
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_POS_LEFT
+  GTK_POS_RIGHT
+  GTK_POS_TOP
+  GTK_POS_BOTTOM
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>GTK_POS_TOP</CODE> is the default.
+<P>Next we will look at how to add pages to the notebook. There are three
+ways to add pages to the NoteBook. Let's look at the first two
+together as they are quite similar.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_append_page( GtkNotebook *notebook,
+                               GtkWidget   *child,
+                               GtkWidget   *tab_label );
+
+void gtk_notebook_prepend_page( GtkNotebook *notebook,
+                                GtkWidget   *child,
+                                GtkWidget   *tab_label );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>These functions add pages to the notebook by inserting them from the
+back of the notebook (append), or the front of the notebook (prepend).
+<CODE>child</CODE> is the widget that is placed within the notebook page, and
+<CODE>tab_label</CODE> is the label for the page being added. The <CODE>child</CODE>
+widget must be created separately, and is typically a set of options
+setup witin one of the other container widgets, such as a table.
+<P>The final function for adding a page to the notebook contains all of
+the properties of the previous two, but it allows you to specify what
+position you want the page to be in the notebook.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_insert_page( GtkNotebook *notebook,
+                               GtkWidget   *child,
+                               GtkWidget   *tab_label,
+                               gint         position );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The parameters are the same as _append_ and _prepend_ except it
+contains an extra parameter, <CODE>position</CODE>.  This parameter is used to
+specify what place this page will be inserted into the first page
+having position zero.
+<P>Now that we know how to add a page, lets see how we can remove a page
+from the notebook.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_remove_page( GtkNotebook *notebook,
+                               gint         page_num );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This function takes the page specified by <CODE>page_num</CODE> and removes it
+from the widget pointed to by <CODE>notebook</CODE>.
+<P>To find out what the current page is in a notebook use the function:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_notebook_get_current_page( GtkNotebook *notebook );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>These next two functions are simple calls to move the notebook page
+forward or backward. Simply provide the respective function call with
+the notebook widget you wish to operate on. Note: When the NoteBook is
+currently on the last page, and gtk_notebook_next_page is called, the
+notebook will wrap back to the first page. Likewise, if the NoteBook
+is on the first page, and gtk_notebook_prev_page is called, the
+notebook will wrap to the last page.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_next_page( GtkNoteBook *notebook );
+
+void gtk_notebook_prev_page( GtkNoteBook *notebook );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>This next function sets the "active" page. If you wish the notebook to
+be opened to page 5 for example, you would use this function.  Without
+using this function, the notebook defaults to the first page.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_page( GtkNotebook *notebook,
+                            gint         page_num );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The next two functions add or remove the notebook page tabs and the
+notebook border respectively.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_show_tabs( GtkNotebook *notebook,
+                                 gboolean     show_tabs);
+
+void gtk_notebook_set_show_border( GtkNotebook *notebook,
+                                   gboolean     show_border );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The next function is useful when the you have a large number of pages,
+and the tabs don't fit on the page. It allows the tabs to be scrolled
+through using two arrow buttons.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_notebook_set_scrollable( GtkNotebook *notebook,
+                                  gboolean     scrollable );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>show_tabs</CODE>, <CODE>show_border</CODE> and <CODE>scrollable</CODE> can be either
+TRUE or FALSE.
+<P>Now let's look at an example, it is expanded from the testgtk.c code
+that comes with the GTK distribution. This small program creates a
+window with a notebook and six buttons. The notebook contains 11
+pages, added in three different ways, appended, inserted, and
+prepended. The buttons allow you rotate the tab positions, add/remove
+the tabs and border, remove a page, change pages in both a forward and
+backward manner, and exit the program.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start notebook notebook.c */
+
+#include &lt;stdio.h>
+#include &lt;gtk/gtk.h>
+
+/* This function rotates the position of the tabs */
+void rotate_book( GtkButton   *button,
+                  GtkNotebook *notebook )
+{
+    gtk_notebook_set_tab_pos (notebook, (notebook->tab_pos +1) %4);
+}
+
+/* Add/Remove the page tabs and the borders */
+void tabsborder_book( GtkButton   *button,
+                      GtkNotebook *notebook )
+{
+    gint tval = FALSE;
+    gint bval = FALSE;
+    if (notebook->show_tabs == 0)
+            tval = TRUE; 
+    if (notebook->show_border == 0)
+            bval = TRUE;
+    
+    gtk_notebook_set_show_tabs (notebook, tval);
+    gtk_notebook_set_show_border (notebook, bval);
+}
+
+/* Remove a page from the notebook */
+void remove_book( GtkButton   *button,
+                  GtkNotebook *notebook )
+{
+    gint page;
+    
+    page = gtk_notebook_get_current_page(notebook);
+    gtk_notebook_remove_page (notebook, page);
+    /* Need to refresh the widget -- 
+     This forces the widget to redraw itself. */
+    gtk_widget_draw(GTK_WIDGET(notebook), NULL);
+}
+
+gint delete( GtkWidget *widget,
+             GtkWidget *event,
+             gpointer   data )
+{
+    gtk_main_quit();
+    return(FALSE);
+}
+
+int main( int argc,
+          char *argv[] )
+{
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *table;
+    GtkWidget *notebook;
+    GtkWidget *frame;
+    GtkWidget *label;
+    GtkWidget *checkbutton;
+    int i;
+    char bufferf[32];
+    char bufferl[32];
+    
+    gtk_init (&amp;argc, &amp;argv);
+    
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (delete), NULL);
+    
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+    table = gtk_table_new(3,6,FALSE);
+    gtk_container_add (GTK_CONTAINER (window), table);
+    
+    /* Create a new notebook, place the position of the tabs */
+    notebook = gtk_notebook_new ();
+    gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_TOP);
+    gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0,6,0,1);
+    gtk_widget_show(notebook);
+    
+    /* Let's append a bunch of pages to the notebook */
+    for (i=0; i &lt; 5; i++) {
+        sprintf(bufferf, "Append Frame %d", i+1);
+        sprintf(bufferl, "Page %d", i+1);
+        
+        frame = gtk_frame_new (bufferf);
+        gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
+        gtk_widget_set_usize (frame, 100, 75);
+        gtk_widget_show (frame);
+        
+        label = gtk_label_new (bufferf);
+        gtk_container_add (GTK_CONTAINER (frame), label);
+        gtk_widget_show (label);
+        
+        label = gtk_label_new (bufferl);
+        gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
+    }
+      
+    /* Now let's add a page to a specific spot */
+    checkbutton = gtk_check_button_new_with_label ("Check me please!");
+    gtk_widget_set_usize(checkbutton, 100, 75);
+    gtk_widget_show (checkbutton);
+   
+    label = gtk_label_new ("Add page");
+    gtk_notebook_insert_page (GTK_NOTEBOOK (notebook), checkbutton, label, 2);
+    
+    /* Now finally let's prepend pages to the notebook */
+    for (i=0; i &lt; 5; i++) {
+        sprintf(bufferf, "Prepend Frame %d", i+1);
+        sprintf(bufferl, "PPage %d", i+1);
+        
+        frame = gtk_frame_new (bufferf);
+        gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
+        gtk_widget_set_usize (frame, 100, 75);
+        gtk_widget_show (frame);
+        
+        label = gtk_label_new (bufferf);
+        gtk_container_add (GTK_CONTAINER (frame), label);
+        gtk_widget_show (label);
+        
+        label = gtk_label_new (bufferl);
+        gtk_notebook_prepend_page (GTK_NOTEBOOK(notebook), frame, label);
+    }
+    
+    /* Set what page to start at (page 4) */
+    gtk_notebook_set_page (GTK_NOTEBOOK(notebook), 3);
+
+    /* Create a bunch of buttons */
+    button = gtk_button_new_with_label ("close");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               GTK_SIGNAL_FUNC (delete), NULL);
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 0,1,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("next page");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_notebook_next_page,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 1,2,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("prev page");
+    gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                               (GtkSignalFunc) gtk_notebook_prev_page,
+                               GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 2,3,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("tab position");
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        (GtkSignalFunc) rotate_book,
+                        GTK_OBJECT(notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 3,4,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("tabs/border on/off");
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        (GtkSignalFunc) tabsborder_book,
+                        GTK_OBJECT (notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 4,5,1,2);
+    gtk_widget_show(button);
+    
+    button = gtk_button_new_with_label ("remove page");
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        (GtkSignalFunc) remove_book,
+                        GTK_OBJECT(notebook));
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 5,6,1,2);
+    gtk_widget_show(button);
+    
+    gtk_widget_show(table);
+    gtk_widget_show(window);
+    
+    gtk_main ();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>I hope this helps you on your way with creating notebooks for your
+GTK applications.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-11.html">Next</A>
+<A HREF="gtk_tut-9.html">Previous</A>
+<A HREF="gtk_tut.html#toc10">Contents</A>
+</BODY>
+</HTML>

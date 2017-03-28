@@ -1,0 +1,584 @@
+<refentry id="pango-Scripts">
+<refmeta>
+<refentrytitle>Scripts</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Scripts</refname><refpurpose>Identifying writing systems</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+struct      <link linkend="PangoScriptIter">PangoScriptIter</link>;
+enum        <link linkend="PangoScript">PangoScript</link>;
+#define     <link linkend="PANGO-TYPE-SCRIPT-CAPS">PANGO_TYPE_SCRIPT</link>
+<link linkend="PangoScript">PangoScript</link> <link linkend="pango-script-for-unichar">pango_script_for_unichar</link>        (<link linkend="gunichar">gunichar</link> ch);
+<link linkend="PangoLanguage">PangoLanguage</link>* <link linkend="pango-script-get-sample-language">pango_script_get_sample_language</link>
+                                            (<link linkend="PangoScript">PangoScript</link> script);
+<link linkend="gboolean">gboolean</link>    <link linkend="pango-language-includes-script">pango_language_includes_script</link>  (<link linkend="PangoLanguage">PangoLanguage</link> *language,
+                                             <link linkend="PangoScript">PangoScript</link> script);
+<link linkend="PangoScriptIter">PangoScriptIter</link>* <link linkend="pango-script-iter-new">pango_script_iter_new</link>      (const <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length);
+<link linkend="void">void</link>        <link linkend="pango-script-iter-get-range">pango_script_iter_get_range</link>     (<link linkend="PangoScriptIter">PangoScriptIter</link> *iter,
+                                             G_CONST_RETURN <link linkend="char">char</link> **start,
+                                             G_CONST_RETURN <link linkend="char">char</link> **end,
+                                             <link linkend="PangoScript">PangoScript</link> *script);
+<link linkend="gboolean">gboolean</link>    <link linkend="pango-script-iter-next">pango_script_iter_next</link>          (<link linkend="PangoScriptIter">PangoScriptIter</link> *iter);
+<link linkend="void">void</link>        <link linkend="pango-script-iter-free">pango_script_iter_free</link>          (<link linkend="PangoScriptIter">PangoScriptIter</link> *iter);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The functions in this section are used to identify the writing
+system, or <firstterm>script</firstterm> of individual characters
+and of ranges within a larger text string.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="PangoScriptIter"/>struct PangoScriptIter</title>
+<indexterm><primary>PangoScriptIter</primary></indexterm><programlisting>struct PangoScriptIter;</programlisting>
+<para>
+A <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link> is used to iterate through a string
+and identify ranges in different scripts.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoScript"/>enum PangoScript</title>
+<indexterm><primary>PangoScript</primary></indexterm><programlisting>typedef enum {                         /* ISO 15924 code */
+      PANGO_SCRIPT_INVALID_CODE = -1,
+      PANGO_SCRIPT_COMMON       = 0,   /* Zyyy */
+      PANGO_SCRIPT_INHERITED,          /* Qaai */
+      PANGO_SCRIPT_ARABIC,             /* Arab */
+      PANGO_SCRIPT_ARMENIAN,           /* Armn */
+      PANGO_SCRIPT_BENGALI,            /* Beng */
+      PANGO_SCRIPT_BOPOMOFO,           /* Bopo */
+      PANGO_SCRIPT_CHEROKEE,           /* Cher */
+      PANGO_SCRIPT_COPTIC,             /* Qaac */
+      PANGO_SCRIPT_CYRILLIC,           /* Cyrl (Cyrs) */
+      PANGO_SCRIPT_DESERET,            /* Dsrt */
+      PANGO_SCRIPT_DEVANAGARI,         /* Deva */
+      PANGO_SCRIPT_ETHIOPIC,           /* Ethi */
+      PANGO_SCRIPT_GEORGIAN,           /* Geor (Geon, Geoa) */
+      PANGO_SCRIPT_GOTHIC,             /* Goth */
+      PANGO_SCRIPT_GREEK,              /* Grek */
+      PANGO_SCRIPT_GUJARATI,           /* Gujr */
+      PANGO_SCRIPT_GURMUKHI,           /* Guru */
+      PANGO_SCRIPT_HAN,                /* Hani */
+      PANGO_SCRIPT_HANGUL,             /* Hang */
+      PANGO_SCRIPT_HEBREW,             /* Hebr */
+      PANGO_SCRIPT_HIRAGANA,           /* Hira */
+      PANGO_SCRIPT_KANNADA,            /* Knda */
+      PANGO_SCRIPT_KATAKANA,           /* Kana */
+      PANGO_SCRIPT_KHMER,              /* Khmr */
+      PANGO_SCRIPT_LAO,                /* Laoo */
+      PANGO_SCRIPT_LATIN,              /* Latn (Latf, Latg) */
+      PANGO_SCRIPT_MALAYALAM,          /* Mlym */
+      PANGO_SCRIPT_MONGOLIAN,          /* Mong */
+      PANGO_SCRIPT_MYANMAR,            /* Mymr */
+      PANGO_SCRIPT_OGHAM,              /* Ogam */
+      PANGO_SCRIPT_OLD_ITALIC,         /* Ital */
+      PANGO_SCRIPT_ORIYA,              /* Orya */
+      PANGO_SCRIPT_RUNIC,              /* Runr */
+      PANGO_SCRIPT_SINHALA,            /* Sinh */
+      PANGO_SCRIPT_SYRIAC,             /* Syrc (Syrj, Syrn, Syre) */
+      PANGO_SCRIPT_TAMIL,              /* Taml */
+      PANGO_SCRIPT_TELUGU,             /* Telu */
+      PANGO_SCRIPT_THAANA,             /* Thaa */
+      PANGO_SCRIPT_THAI,               /* Thai */
+      PANGO_SCRIPT_TIBETAN,            /* Tibt */
+      PANGO_SCRIPT_CANADIAN_ABORIGINAL, /* Cans */
+      PANGO_SCRIPT_YI,                 /* Yiii */
+      PANGO_SCRIPT_TAGALOG,            /* Tglg */
+      PANGO_SCRIPT_HANUNOO,            /* Hano */
+      PANGO_SCRIPT_BUHID,              /* Buhd */
+      PANGO_SCRIPT_TAGBANWA,           /* Tagb */
+
+      /* Unicode-4.0 additions */
+      PANGO_SCRIPT_BRAILLE,            /* Brai */
+      PANGO_SCRIPT_CYPRIOT,            /* Cprt */
+      PANGO_SCRIPT_LIMBU,              /* Limb */
+      PANGO_SCRIPT_OSMANYA,            /* Osma */
+      PANGO_SCRIPT_SHAVIAN,            /* Shaw */
+      PANGO_SCRIPT_LINEAR_B,           /* Linb */
+      PANGO_SCRIPT_TAI_LE,             /* Tale */
+      PANGO_SCRIPT_UGARITIC            /* Ugar */
+} PangoScript;
+</programlisting>
+<para>
+The <link linkend="PangoScript"><type>PangoScript</type></link> enumeration identifies different writing
+systems. The values correspond to the names defined in the
+Unicode standard. (See <ulink
+url="http://www.unicode.org/reports/tr24/">Unicode Standard Annex
+<link linkend="24-CAPS"><type>24</type></link>: Script names</ulink>).
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>PANGO_SCRIPT_INVALID_CODE</literal></term>
+<listitem><simpara>a value never used for any unicode character
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_COMMON</literal></term>
+<listitem><simpara>a character used by multiple different scripts
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_INHERITED</literal></term>
+<listitem><simpara>a mark glyph that takes its script from the
+  base glyph to which it is attached.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_ARABIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_ARMENIAN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_BENGALI</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_BOPOMOFO</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_CHEROKEE</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_COPTIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_CYRILLIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_DESERET</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_DEVANAGARI</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_ETHIOPIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_GEORGIAN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_GOTHIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_GREEK</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_GUJARATI</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_GURMUKHI</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_HAN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_HANGUL</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_HEBREW</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_HIRAGANA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_KANNADA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_KATAKANA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_KHMER</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_LAO</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_LATIN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_MALAYALAM</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_MONGOLIAN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_MYANMAR</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_OGHAM</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_OLD_ITALIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_ORIYA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_RUNIC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_SINHALA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_SYRIAC</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_TAMIL</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_TELUGU</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_THAANA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_THAI</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_TIBETAN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_CANADIAN_ABORIGINAL</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_YI</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_TAGALOG</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_HANUNOO</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_BUHID</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_TAGBANWA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_BRAILLE</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_CYPRIOT</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_LIMBU</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_OSMANYA</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_SHAVIAN</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_LINEAR_B</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_TAI_LE</literal></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>PANGO_SCRIPT_UGARITIC</literal></term>
+<listitem><simpara>
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-TYPE-SCRIPT-CAPS"/>PANGO_TYPE_SCRIPT</title>
+<indexterm><primary>PANGO_TYPE_SCRIPT</primary></indexterm><programlisting>#define PANGO_TYPE_SCRIPT (pango_script_get_type())
+</programlisting>
+<para>
+The GObject type for <link linkend="PangoScript"><type>PangoScript</type></link>
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-script-for-unichar"/>pango_script_for_unichar ()</title>
+<indexterm><primary>pango_script_for_unichar</primary></indexterm><programlisting><link linkend="PangoScript">PangoScript</link> pango_script_for_unichar        (<link linkend="gunichar">gunichar</link> ch);</programlisting>
+<para>
+Looks up the <link linkend="PangoScript"><type>PangoScript</type></link> for a particular character (as defined by
+Unicode Technical report <link linkend="24-CAPS"><type>24</type></link>). No check is made for <parameter>ch</parameter> being
+valid unicode character; if you pass in invalid character, the
+result is undefined.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ch</parameter>&nbsp;:</term>
+<listitem><simpara> a unicode characters
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the <link linkend="PangoScript"><type>PangoScript</type></link> for the character.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-script-get-sample-language"/>pango_script_get_sample_language ()</title>
+<indexterm><primary>pango_script_get_sample_language</primary></indexterm><programlisting><link linkend="PangoLanguage">PangoLanguage</link>* pango_script_get_sample_language
+                                            (<link linkend="PangoScript">PangoScript</link> script);</programlisting>
+<para>
+Given a script, finds a language tag that is reasonably
+representative of that script. This will usually be the
+most widely spoken or used language written in that script:
+for instance, the sample language for <literal>PANGO_SCRIPT_CYRILLIC</literal>
+is <literal>ru</literal> (Russian), the sample lanugage
+for <literal>PANGO_SCRIPT_ARABIC</literal> is <literal>ar</literal>.
+</para>
+<para>
+For some
+scripts, no sample language will be returned because there
+is no language that is sufficiently representative. The best
+example of this is <literal>PANGO_SCRIPT_HAN</literal>, where various different
+variants of written Chinese, Japanese, and Korean all use
+significantly different sets of Han characters and forms
+of shared characters. No sample language can be provided
+for many historical scripts as well.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>script</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoScript"><type>PangoScript</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a <link linkend="PangoLanguage"><type>PangoLanguage</type></link> that is representative
+of the script, or <literal>NULL</literal> if no such language exists.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-language-includes-script"/>pango_language_includes_script ()</title>
+<indexterm><primary>pango_language_includes_script</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    pango_language_includes_script  (<link linkend="PangoLanguage">PangoLanguage</link> *language,
+                                             <link linkend="PangoScript">PangoScript</link> script);</programlisting>
+<para>
+Determines if <parameter>script</parameter> is one of the scripts used to
+write <parameter>language</parameter>. The returned value is conservative;
+if nothing is known about the language tag <parameter>language</parameter>,
+<literal>TRUE</literal> will be returned, since, as far as Pango knows,
+<parameter>script</parameter> might be used to write <parameter>language</parameter>.
+</para>
+<para>
+This routine is used in Pango's itemization process when
+determining if a supplied language tag is relevant to
+a particular section of text. It probably is not useful for
+applications in most circumstances.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>language</parameter>&nbsp;:</term>
+<listitem><simpara> a PangoLanguage
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>script</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoScript"><type>PangoScript</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if <parameter>script</parameter> is one of the scripts used
+to write <parameter>language</parameter>, or if nothing is known about <parameter>language</parameter>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  1.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="pango-script-iter-new"/>pango_script_iter_new ()</title>
+<indexterm><primary>pango_script_iter_new</primary></indexterm><programlisting><link linkend="PangoScriptIter">PangoScriptIter</link>* pango_script_iter_new      (const <link linkend="char">char</link> *text,
+                                             <link linkend="int">int</link> length);</programlisting>
+<para>
+Create a new <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link>, used to break a string of
+Unicode into runs by text. No copy is made of <parameter>text</parameter>, so
+the caller needs to make sure it remains valid until
+the iterator is freed with <link linkend="pango-script-iter-free"><function>pango_script_iter_free()</function></link>.x</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara> a UTF-8 string
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>length</parameter>&nbsp;:</term>
+<listitem><simpara> length of <parameter>text</parameter>, or -1 if <parameter>text</parameter> is NUL-terminated.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the newly created script iterator, initialized
+ to point at the first range in the text. If the string is
+ empty, it will point at an empty range.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-script-iter-get-range"/>pango_script_iter_get_range ()</title>
+<indexterm><primary>pango_script_iter_get_range</primary></indexterm><programlisting><link linkend="void">void</link>        pango_script_iter_get_range     (<link linkend="PangoScriptIter">PangoScriptIter</link> *iter,
+                                             G_CONST_RETURN <link linkend="char">char</link> **start,
+                                             G_CONST_RETURN <link linkend="char">char</link> **end,
+                                             <link linkend="PangoScript">PangoScript</link> *script);</programlisting>
+<para>
+Gets information about the range to which <parameter>iter</parameter> currently points.
+The range is the is the set of locations p where *start &lt;= p &lt; *end.
+(That is, it doesn't include the character stored at *end)</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>start</parameter>&nbsp;:</term>
+<listitem><simpara> location to store start position of the range, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>end</parameter>&nbsp;:</term>
+<listitem><simpara> location to store end position of the range, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>script</parameter>&nbsp;:</term>
+<listitem><simpara> location to store script for range, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-script-iter-next"/>pango_script_iter_next ()</title>
+<indexterm><primary>pango_script_iter_next</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    pango_script_iter_next          (<link linkend="PangoScriptIter">PangoScriptIter</link> *iter);</programlisting>
+<para>
+Advances a <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link> to the next range. If the iter
+is already at the end, it is left unchanged and <literal>FALSE</literal>
+is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the iter was succesfully advanced.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="pango-script-iter-free"/>pango_script_iter_free ()</title>
+<indexterm><primary>pango_script_iter_free</primary></indexterm><programlisting><link linkend="void">void</link>        pango_script_iter_free          (<link linkend="PangoScriptIter">PangoScriptIter</link> *iter);</programlisting>
+<para>
+Frees a <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link> created with <link linkend="pango-script-iter-new"><function>pango_script_iter_new()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="PangoScriptIter"><type>PangoScriptIter</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

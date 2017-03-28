@@ -1,0 +1,205 @@
+#!/bin/sh
+
+# Copyright (C) 2002-2009 RealVNC Ltd.  All Rights Reserved.
+
+# Get the IP address of the primary network interface
+
+error_exit()
+{
+    echo $1
+    exit 1
+}
+
+unwrap()
+{
+    $awk -v cols=$1 -v n=0 \
+    ' {
+        for (i=1; i<=NF; ++i) {
+          if (n != 0) printf " ";
+          printf "%s", $i;
+          if (++n == cols) {
+            printf "\n";
+            n = 0;
+          }
+        }
+      }' $2
+}
+
+find_column()
+{
+     $awk -v target="$1" \
+     ' {
+         for (i=1; i<=NF; ++i) {
+           if ($i ~ target) {
+             print i; exit
+           }
+         }
+       }'
+}
+
+primary_ip_linux()
+{
+    # On Linux, we can get the network interface corresponding to the
+    # default route from /proc/net/route, and feed it into "ifconfig"
+    # to get the IP address.
+    interf=`$awk '$2=="00000000" && int($4/2)%2==1 {print $1; exit}' /proc/net/route`
+    [ -n "$interf" ] || error_exit "No default network interface"
+    ip=`$ifconfig $interf 2>/dev/null | \
+        $tr ':' ' ' | \
+        $awk '$1=="inet" && $2=="addr" {print $3; exit}
+              $1=="inet" {print $2; exit}'`
+    [ -n "$ip" ] || error_exit "No IP address found"
+    echo $ip
+    exit 0
+}
+
+primary_ip_hpux()
+{
+
+    # Override any locale settings that might affect the output of commands
+    export LC_ALL=C
+    unset LANG
+
+    # On HP-UX, "netstat -rnv" tells us the network interface corresponding
+    # to the default route, and "ifconfig" tells us its IP address. However,
+    # the netstat output needs some pre-processing.
+
+    # Get column headers from second line of netstat output
+    headers=`$netstat -rnv 2>/dev/null | $awk 'FNR == 2'`
+
+    # Find the relevant columns, and the total number of columns
+    netmask_col=`echo $headers | find_column '/Netmask$'`
+    flags_col=`echo $headers | find_column '^Flags$'`
+    iface_col=`echo $headers | find_column '^Interface$'`
+    columns=`echo $headers | $awk '{ print NF }'`
+
+    # In case we didn't find some of the columns, hard-code them
+    # based on the total number of columns found.
+
+    if [ "$columns" = "6" ]; then
+        [ -z "$netmask_col" ] && netmask_col=1
+        [ -z "$flags_col" ] && flags_col=3
+        [ -z "$iface_col" ] && iface_col=5
+    elif [ "$columns" = "7" ]; then
+        [ -z "$netmask_col" ] && netmask_col=1
+        [ -z "$flags_col" ] && flags_col=3
+        [ -z "$iface_col" ] && iface_col=6
+    fi
+
+    [ -z "$netmask_col" ] && error_exit "Could not find Netmask column"
+    [ -z "$flags_col" ] && error_exit "Could not find Flags column"
+    [ -z "$iface_col" ] && error_exit "Could not find Interface column"
+
+    interf=`$netstat -rnv 2>/dev/null | \
+            $awk 'FNR > 1' | \
+            unwrap $columns | \
+            $awk -v flags_col=$flags_col \
+                 -v netmask_col=$netmask_col \
+                 -v iface_col=$iface_col \
+                '$netmask_col ~ "/0\.0\.0\.0$" && $flags_col ~ "G" {
+                   print $iface_col; exit
+                 }'`
+    [ -n "$interf" ] || error_exit "No default network interface"
+    ip=`$ifconfig $interf 2>/dev/null | \
+        $awk '$1 == "inet" { print $2; exit }'`
+    [ -n "$ip" ] || error_exit "No IP address found"
+    echo $ip
+    exit 0
+}
+
+primary_ip_solaris()
+{
+    # On Solaris, "netstat -rnv" tells us the default gateway. We check this
+    # against the IP address and netmask of each interface obtained from
+    # ifconfig to find a match
+    defrouter=`$netstat -rnv 2>/dev/null | \
+               $awk '$2=="0.0.0.0" {print $3; exit}'`
+    [ -n "$defrouter" ] || error_exit "No default router found"
+    prog='function mask_byte(mask, byte)
+          {
+            if (mask == "00") return 0;
+            else if (mask == "80") div = 128;
+            else if (mask == "c0") div = 64;
+            else if (mask == "e0") div = 32;
+            else if (mask == "f0") div = 16;
+            else if (mask == "f8") div = 8;
+            else if (mask == "fc") div = 4;
+            else if (mask == "fe") div = 2;
+            else return byte;
+            return int(byte / div) * div;
+          }
+          BEGIN {
+            if (split(def, defrouter, "\\.") != 4)
+              exit(1);
+          }
+          $1=="inet" && $3="netmask" {
+            n = split($2, nums, "\\.")
+            if (n != 4) next;
+            for (i=0; i<4; ++i)
+              if (mask_byte(substr($4, 2*i+1, 2), int(nums[i+1])) != mask_byte(substr($4, 2*i+1, 2), int(defrouter[i+1])))
+                next;
+            print $2;
+            exit(0);
+          }'
+    ip=`$ifconfig -au | \
+        $awk -v def=$defrouter "$prog"`
+    [ -n "$ip" ] || error_exit "No IP address found"
+    echo $ip
+    exit 0
+}
+
+primary_ip_aix_darwin()
+{
+    # On AIX and Darwin, "netstat -rn" tells us the network interface
+    # corresponding to the default route, and "ifconfig" tells us its IP
+    # address. We look for entry where the fist field is not an IP address
+    # (on English systems it will be "default"), the second is an IP address
+    # and the third contains an upper-case G.
+    interf=`$netstat -rn 2>/dev/null | \
+            $awk '($1 !~ /^[0-9:.\/]+$/ || $1 == "0.0.0.0") \
+               && $2  ~ /^[0-9:.\/]+$/ \
+               && $3  ~ /G/ \
+               {print $6; exit}'`
+    [ -n "$interf" ] || error_exit "No default network interface"
+    ip=`$ifconfig $interf 2>/dev/null | \
+        $awk '$1 == "inet" { print $2; exit }'`
+    [ -n "$ip" ] || error_exit "No IP address found"
+    echo $ip
+    exit 0
+}
+
+# Default program locations
+awk=/usr/bin/awk
+ifconfig=/sbin/ifconfig
+netstat=/bin/netstat
+tr=/usr/bin/tr
+
+# Platform-specific overrides
+SYSNAME=`uname -s`
+case "$SYSNAME" in
+    Linux)
+        primary_ip_linux
+        ;;
+    SunOS)
+        awk=/usr/bin/nawk
+        netstat=/usr/bin/netstat
+        primary_ip_solaris
+        ;;
+    HP-UX)
+        ifconfig=/usr/sbin/ifconfig
+        netstat=/usr/bin/netstat
+        primary_ip_hpux
+        ;;
+    AIX)
+        ifconfig=/usr/sbin/ifconfig
+        netstat=/usr/bin/netstat
+        primary_ip_aix_darwin
+        ;;
+    Darwin)
+        netstat=/usr/sbin/netstat
+        primary_ip_aix_darwin
+        ;;
+    *)
+        error_exit "Unsupported platform"
+        ;;
+esac

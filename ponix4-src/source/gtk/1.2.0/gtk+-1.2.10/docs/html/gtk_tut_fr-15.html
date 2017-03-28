@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Temporisations, fonctions d'E/S et d'attente</TITLE>
+ <LINK HREF="gtk_tut_fr-16.html" REL=next>
+ <LINK HREF="gtk_tut_fr-14.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc15" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-16.html">Page suivante</A>
+<A HREF="gtk_tut_fr-14.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc15">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="sec_timeouts"></A> <A NAME="s15">15. Temporisations, fonctions d'E/S et d'attente</A></H2>
+
+<P>
+<H2><A NAME="ss15.1">15.1 Temporisations</A>
+</H2>
+
+<P>Vous pouvez vous demander comment faire pour que GTK fasse quelque
+chose d'utile lorsqu'il est dans <EM>gtk_main</EM>. En fait, on a
+plusieurs options. L'utilisation des fonctions suivantes permet de
+créer une temporisation qui sera appelée tous les
+<EM>interval</EM> millisecondes.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_timeout_add (guint32 interval,
+                      GtkFunction function,
+                      gpointer data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le premier paramètre est le nombre de millisecondes entre les appels à
+notre fonction. Le deuxième est la fonction à appeler et le troisième
+est la donnée passée à cette fonction de rappel. La valeur retournée
+est un « marqueur » de type entier qui pourra être utilisé pour
+arrêter la temporisation en appelant&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_timeout_remove (gint tag);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>On peut aussi stopper la fonction de temporisation en faisant
+retourner zéro ou FALSE à notre fonction de rappel. Évidemment, cela
+veut dire que si vous voulez que votre fonction continue à être
+appelée, elle doit retourner une valeur non nulle, ou TRUE.
+<P>La déclaration de votre fonction de rappel doit ressembler à ça&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint timeout_callback (gpointer data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss15.2">15.2 Surveillance des E/S</A>
+</H2>
+
+<P>Une autre caractéristique intéressante du GTK est la possibilité de
+vérifier les données d'un descripteur de fichier (celles retournées
+par <EM>open</EM>(2) ou <EM>socket</EM>(2)). C'est particulièrement pratique pour les
+applications réseau. La fonction suivante permet cette
+vérification&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gdk_input_add (gint source,
+                    GdkInputCondition condition,
+                    GdkInputFunction  function,
+                    gpointer data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Le premier paramètre est le descripteur de fichier que l'on veut
+étudier, le second spécifie ce qu'on veut que le GDK recherche. Cela
+peut être&nbsp;:
+<P>GDK_INPUT_READ - Appel <EM>function</EM> lorsqu'il y a une donnée prête à
+être lue dans le descripteur de fichier.
+<P>GDK_INPUT_WRITE - Appel de <EM>function</EM> lorsque le descripteur de
+fichier est prêt pour une écriture.
+<P>Je suis sûr que vous vous doutez, maintenant, que le troisième
+paramètre est la fonction que l'on veut appeler lorsque les conditions
+ci-dessus sont satisfaites. Le dernier paramètre est la donnée à
+passer à cette fonction.
+<P>La valeur retournée est un marqueur qui pourra être utilisé pour dire
+au GDK de cesser de surveiller ce descripteur à l'aide de la fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gdk_input_remove (gint tag);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La fonction de rappel doit être déclarée de la façon suivante&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void input_callback (gpointer data, gint source, 
+                     GdkInputCondition condition);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<H2><A NAME="ss15.3">15.3 Fonctions d'attente</A>
+</H2>
+
+<P>Que se passe-t'il si vous avez une fonction qui doit être appelée
+lorsque rien d'autre ne se passe ? On utilise la fonction suivante qui force
+GTK à appeler <EM>function</EM> lorsqu'on est en phase d'inaction&nbsp;;
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_idle_add (GtkFunction function,
+                   gpointer data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_idle_remove (gint tag);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Je n'expliquerai pas la signification des paramètres car ils
+ressemblent beaucoup à ceux déjà vus ci-dessus. La fonction pointée
+par le premier paramètre de <EM>gtk_idle_add()</EM> sera appelée à chaque
+occasion. Comme pour les autres, retourner FALSE empêchera la fonction
+d'attente d'être appelée.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-16.html">Page suivante</A>
+<A HREF="gtk_tut_fr-14.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc15">Table des matières</A>
+</BODY>
+</HTML>

@@ -1,0 +1,34 @@
+From 92a33298e9a329d4bed9f723811c5bedc7d92b9c Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 11 Jun 2012 12:19:35 +0530
+Subject: [PATCH 44/57] ath9k_hw: process MCI interrupts only when btcoex is
+ enabled
+
+let us process MCI interrupts only when BTCOEX is enabled to avoid
+processing bogus interrupts.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mac.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mac.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mac.c
+@@ -181,11 +181,14 @@ static bool ar9003_hw_get_isr(struct ath
+ 	u32 mask2 = 0;
+ 	struct ath9k_hw_capabilities *pCap = &ah->caps;
+ 	struct ath_common *common = ath9k_hw_common(ah);
+-	u32 sync_cause = 0, async_cause;
++	u32 sync_cause = 0, async_cause, async_mask = AR_INTR_MAC_IRQ;
++
++	if (ath9k_hw_mci_is_enabled(ah))
++		async_mask |= AR_INTR_ASYNC_MASK_MCI;
+ 
+ 	async_cause = REG_READ(ah, AR_INTR_ASYNC_CAUSE);
+ 
+-	if (async_cause & (AR_INTR_MAC_IRQ | AR_INTR_ASYNC_MASK_MCI)) {
++	if (async_cause & async_mask) {
+ 		if ((REG_READ(ah, AR_RTC_STATUS) & AR_RTC_STATUS_M)
+ 				== AR_RTC_STATUS_ON)
+ 			isr = REG_READ(ah, AR_ISR);

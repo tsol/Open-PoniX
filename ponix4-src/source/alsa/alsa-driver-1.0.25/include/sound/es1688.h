@@ -1,0 +1,1 @@
+../../alsa-kernel/include/es1688.h

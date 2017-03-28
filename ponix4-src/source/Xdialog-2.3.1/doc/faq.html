@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>Xdialog documentation - FAQ</title>
+</head>
+<body bgcolor="#102050" text="#F0E0A0" link="#00E000" vlink="#FF00B0" alink="#FF0000">
+<table border=0 width="100%"><tr>
+<td align="left"><a href="compatibility.html">previous</a><a name="TOP">&nbsp;</a>&nbsp;<a href="authors.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#BOTTOM">bottom</a></td>
+</tr></table>
+<hr>
+<center>
+<h1>Xdialog documentation - FAQ</h1>
+<hr width=30%>
+</center>
+<p>&nbsp;
+<p align="justify">Xdialog FAQ v1.60, compiled by Thierry Godefroy &lt;<a href="mailto:xdialog@free.fr">xdialog@free.fr</a>&gt;
+<hr>
+<h2>FAQ contents:</h2>
+<ol>
+<li><a href="#Q01">Can I use Xdialog from a Perl script&nbsp;?</a>
+<li><a href="#Q02">How to recover the output of Xdialog in the Perl script then&nbsp;?</a>
+<li><a href="#Q03">How to make Xdialog windows to appear at a given position (in absolute coordinates) on the screen&nbsp;?</a>
+<li><a href="#Q04">What are the ways to customize Xdialog windows look for a given script&nbsp;?</a>
+<li><a href="#Q05">How could I make the printer used by Xdialog user-dependant&nbsp;?</a>
+<li><a href="#Q06">Why does the --fill option of Xdialog sometimes fails to make the text fit the boxes&nbsp;?</a>
+<li><a href="#Q07">How to force the use of fixed width fonts in all Xdialog widgets&nbsp;?</a>
+<li><a href="#Q08">How to select hidden files/directories with the file/directory selector&nbsp;?</a>
+<li><a href="#Q09">How to build dynamically a menu using Xdialog&nbsp;?</a>
+<li><a href="#Q10">I just compiled Xdialog but I sometimes get core dumps or segfaults with some menus: what's wrong with it&nbsp;?</a>
+<li><a href="#Q11">Why am I getting Gtk/Gdk/Glib messages mixed up with the results returned by Xdialog&nbsp;?&nbsp; Can I prevent that to happen&nbsp;?</a>
+<li><a href="#Q12">Will you make a GTK2 version of Xdialog&nbsp;?</a>
+<li><a href="#Q13">Why are fixed fonts broken when using --rc-file option and XDIALOG_HIGH_DIALOG_COMPAT mode under Mandrake/Mandriva&nbsp;?</a>
+</ol>
+<hr>
+<ol>
+<h2><li><a name="Q01">Can I use Xdialog from a Perl script&nbsp;?</a></h2>
+<p align="justify">Yes, in fact you can use Xdialog from any scripting language supporting external command calls.
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q02">How to recover the output of Xdialog in the Perl script then&nbsp;?</a></h2>
+<p align="justify">I found three ways (but there are perhaps more; I'm not a Perl guru !):
+<p align="justify">a.- Using the "system" command (not the best way IMHO):
+<p align="justify">Just redirect the Xdialog output into a temp file, then use the "open" command to read the result, put it in a table and use it (here just printing it):
+<pre>
+        system('Xdialog --inputbox "Please enter something below:" 0 0 2&gt;/tmp/my_temp_file');
+        if ($? == 0) {
+                open(RESULT, "/tmp/my_temp_file");
+                @result=&lt;RESULT&gt;;
+                close(RESULT);
+                print @result;
+        }
+</pre><p align="justify">Finally, destroy the temp file (may be there is a better way to do this...):<pre>
+system("rm -f /tmp/my_temp_file");
+</pre>
+<p align="justify">b.- Using backquotes (just like in "sh": IMHO the best way...):
+<pre>
+        $result=`Xdialog --stdout --inputbox "Please enter something below:" 0 0`;
+        if ($? == 0) {
+                print $result;
+        }
+</pre>
+<p align="justify">c.- Using "open" and streams (useful if you want the result to be put in a table):
+<pre>
+        open(RESULT, 'Xdialog --stdout --inputbox "Please enter something below:" 0 0 |');
+        if ($? == 0) {
+                @result=&lt;RESULT&gt;;
+                print @result;
+        }
+        close(RESULT);
+</pre>
+<p align="justify">Note the use of <a href="common.html#OUTPUT">--stdout</a> in (b) and (c) so to send the result returned by Xdialog to the proper output stream...
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q03">How to make Xdialog windows to appear at a given position (in absolute coordinates) on the screen&nbsp;?</a></h2>
+<p align="justify">There are two ways but the result is not guaranteed as some window managers will simply ignore or override the GTK+ placement requirements and place the windows where they feel like.
+<p align="justify">a.- As of v2.0.0, Xdialog takes into account the origin coordinates given into a &quot;-geometry&quot;-like parameter; e.g. passing 240x120+150+80 as a size parameter to Xdialog will place its window (which size will be 240x120 pixels) at Xorg=150 and Yorg=80. In this example, you may as well let Xdialog auto-size by passing 0x0+150+80 instead. E.g;:
+<pre>
+Xdialog --title ppp.log --tailbox /var/log/ppp.log 0x0+150+80
+</pre>
+<p align="justify">b.- Some window manager do allow to place a window with a given title or class name at a given position on the screen. Xdialog therefore provides a way to set its window manager class name through the <a href="common.html#WMCLASS">--wmclass</a> option. E.g.:
+<pre>
+Xdialog --wmclass ppp_log_tailbox --title ppp.log --auto-placement \
+        --tailbox /var/log/ppp.log 0 0
+</pre>
+<p align="justify">Now this Xdialog tailbox is registered with the &quot;ppp_log_tailbox&quot; name. With twm and fvwm(2/95) you will have to edit the .Xdefaults file in your home directory, adding &quot;ppp_log_tailbox*geometry&quot; parameters so to set the Xdialog position and/or size. With sawfish, just move the Xdialog window to the place of your choice, pull down the window manager options menu (clicking on a given button in the Xdialog window title bar or on the title bar itself: this is user configurable and may also depend from your sawfish theme) and choose the &quot;History&quot;/&quot;Remember position&quot; item in the menu; the next time an Xdialog window with a &quot;ppp_log_tailbox&quot; wmclass will be open, it will pop up at the remembered position...
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q04">What are the ways to customize Xdialog windows look for a given script&nbsp;?</a></h2>
+<p>a.- Windows decorations:
+<p align="justify">Through <a href="common.html#WMCLASS">--wmclass</a> option provided your window manager makes use of the wmclass name of the windows so to decorate them differently. The method is the same as in §3 (just use the Xdialog <a href="common.html#WMCLASS">--wmclass</a> option and RTFM of your window manager; hints: &quot;winoptions&quot; editing for IceWM, window manager option menu use for sawfish, &quot;.Xdefaults&quot; editing for twm/fvwm, etc...).
+<p>b.- GTK+ themes:
+<p align="justify">As of v1.4.6, Xdialog accepts a new <a href="common.html#RCFILE">--rc-file</a> option. Thanks to this feature Xdialog can be instructed to use a given GTK+ theme (which may therefore be different from the theme currently in use).
+<p>c.- User defined icons:
+<p align="justify">As of v1.4.6, Xdialog accepts the new <a href="transient.html#ICON">--icon</a> option that will make a user defined icon (in XPM format only) to appear on the left of the <a href="syntax.html#TEXT">&lt;text&gt;</a> (for the Xdialog box options using this parameter, the box options without a <a href="syntax.html#TEXT">&lt;text&gt;</a> parameter in their syntax are not taking the <a href="transient.html#ICON">--icon</a> option into account).
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q05">How could I make the printer used by Xdialog user-dependant&nbsp;?</a></h2>
+<p align="justify">The name of the printer to be used by Xdialog is to be passed after the <a href="transient.html#PRINT">--print</a> option in the Xdialog command line. Nothing prevents you to make this printer name a variable which will be set via an sh include file. Here is an example of how to do it:
+<pre>
+#!/bin/sh
+
+# Sample script with per-user costumizable printer name.
+
+# First set the default printer.
+XDIALOG_PRINTER="lp"
+
+# Check if the user wants to use its own printer.
+if [ -f ~/.xdialog-printer] ; then
+	. ~/.xdialog-printer
+fi
+
+Xdialog --print $XDIALOG_PRINTER .../...
+</pre>
+<hr width="30%">
+<p align="justify">Then for each user, the following <b>.xdialog-printer</b> file may be put in its home directory:
+<pre>
+# /home/foo/.xdialog-printer include file for user "foo".
+
+# Let's use the "bar" printer...
+XDIALOG_PRINTER="bar"
+</pre>
+<hr>
+<h2><li><a name="Q06">Why</a> does the <a href="common.html#JUSTIFICATION">--fill</a> option of Xdialog sometimes fails to make the text fit the boxes&nbsp;?</h2>
+<p align="justify">Because this option must use the GTK+ auto-wrapping mode and alas this only really works when the box auto-sizing feature of GTK+ is used. The work around is therefore to let GTK+ calculate the size of the box by passing a 0x0 (or 0 0) size to Xdialog.
+</pre>
+<hr>
+<h2><li><a name="Q07">How</a> to force the use of fixed width fonts in all Xdialog widgets&nbsp;?</h2>
+<p align="justify">With some scripts written for <b>dialog</b>, some pre-formatted text may appear mis-aligned in Xdialog menus. This is because GTK+ uses proportional fonts while the console tools such as dialog may only use fixed width fonts.
+<p align="justify">While the <a href="transient.html#FIXEDFONT">--fixed-font</a> intructs Xdialog to use a fixed width font (more exactly a monospacing one) into the text windows of the <a href="box.html#TAILBOX">tailbox</a>, <a href="box.html#TEXTBOX">textbox</a> and <a href="box.html#EDITBOX">editbox</a> widgets, the labels and backtitle of Xdialog still use the font defined in the GTK+ theme in force when Xdialog is started. There are two ways around this, by using either the (c)dialog <a href="compatibility.html#HIGH">high compatibility</a> mode, or the <a href="common.html#RCFILE">--rc-file</a> option together with a gtkrc file where the font parameter is set for a monospacing font name. E.g.:
+<pre>
+style 'fixed_font' {
+ font = "-*-*-medium-r-normal-*-*-*-*-*-m-70-iso8859-1"
+}
+widget '*' style 'fixed_font'
+</pre>
+<hr>
+<h2><li><a name="Q08">How</a> to select hidden files/directories with the <a href="box.html#FSELECT">file</a>/<a href="box.html#DSELECT">directory</a> selector&nbsp;?</h2>
+<p align="justify">In the exact same way as with any software using the GTK+ file selector: type a &quot;.&quot; into the text entry field and then press the TAB key: the hidden files/directories will then be presented into the selector lists, allowing you to select one with the mouse.
+<p align="justify">Also, appending &quot;.*&quot; to the default directory name into the Xdialog command line, makes all the hidden file/directory names (and only them) to appear into the fselect/dselect widgets when poped up. E.g.:
+<pre>
+Xdialog --fselect "/home/foo/.*" 0 0
+</pre>
+<hr>
+<h2><li><a name="Q09">How</a> to build dynamically a menu using Xdialog&nbsp;?</h2>
+<p align="justify">You may need to build dynamically a menu for some scripts. Although Xdialog does not accept to take its parameters from a file (in which you could put the menu entries), nothing prevents you to build dynamically a sub-script containing a Xdialog command, and then call it from you main script. Take a look to the <a href="samples/xlock-wrapper">xlock-wrapper</a> script which uses such a trick.
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q10">I</a> just compiled Xdialog but I sometimes get core dumps or segfaults with some menus: what's wrong with it&nbsp;?</h2>
+<p align="justify">There is currently no known bug in Xdialog code (and I use Xdialog on four different Linux systems without problem so far). But here are some hints on why it may fail to run on some systems:
+<p align="justify">a.- Xdialog can <b>theorically</b> be used with GTK+ v1.2.0 and upper but it has only been extensively tested with GTK+ v1.2.8 to v1.2.10: if you are using an older GTK+ version, please upgrade (some segfaults have been reported when using GTK+ v1.2.6 that disappeared once upgraded to GTK+ v1.2.8).
+<p align="justify">b.- GCC is a fine compiler, but GCC v2.95 is broken&nbsp;!&nbsp;&nbsp;It sometimes fails to notice that the stack has been tidied on return of self-tidying functions (mostly math functions)... As a result, compiling any program with the <b>-fomit-frame-pointer</b> flag may result in instable binaries (or even instable Linux kernel: I recompiled mine with <b>-fno-omit-frame-pointer</b> and some strange crashes I got in the past are now history !): If you compile Xdialog with this flag you <b>WILL</b> get into trouble... Please use the <b>-fno-omit-frame-pointer</b> flag when compiling Xdialog with gcc v2.95.x (as of Xdialog v1.5.0, the <b>configure</b> script takes care of adding automatically this compile option when a bugged gcc version is detected)&nbsp;!
+<p align="justify">If you meet the requirements above and still get segfaults with Xdialog, then this is probably a Xdialog bug that you should report to <a href="mailto:xdialog@free.fr">me</a>; please be precise and give example(s) of how to reproduce the bug (I am generally pretty quick to diagnoze/fix bugs provided they were properly reported).
+<br>&nbsp;
+</ul>
+<hr>
+<h2><li><a name="Q11">Why</a> am I getting Gtk/Gdk/Glib messages mixed up with the results returned by Xdialog&nbsp;?&nbsp; Can I prevent that to happen&nbsp;?</h2>
+<p align="justify">Because your GTK+ setup is badly configured... Most probably, you are lacking some fonts for your locale and/or your GTK theme is buggy... You should find out and fix it. This is <b>not</b> a Xdialog bug, please do not report it as such&nbsp;!&nbsp; For convenience and as a quick hack (to let you the time to fix your system later and yet let you use Xdialog), I adopted in v2.2.0 a slightly modified version of Debian's hack for v2.0.6: by setting the XDIALOG_NO_GMSGS environment variable to "TRUE", (or "1"), you may disable <u>all</u> messages sent by GTK/GDK/GLIB. Note, yet, that GNOME may still send such messages (including on stdout), and I did not find any way to divert them so far...
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q12">Will</a> you make a GTK2 version of Xdialog&nbsp;?</h2>
+<p align="justify">Well... The idea behind Xdialog was to need for as little dependencies as possible (it only needs for glib and gtk+ v1.2.10, beside the X11 server)... I therefore always rejected the idea to port it to GTK2, the latter needing for an insane number of libraries and being as well quite sluggish (beside, who needs for anti-aliased fonts in dialogs and menus&nbsp;?... Not me...). The only interest for such a port would be the UTF8 support (but here again, it is of little to no interest for most people, unless they live in a country such as China, Japan or Russia...). For all the above reasons, I never even tried to port Xdialog to GTK2, and I'm afraid I can't help you (I never had any interest in GTK2 itself either, and I keep using GTK+ v1.2.10 as it suits all my needs).
+<p align="justify">This said, someone did send me a patch to turn Xdialog into a GTK2 app. Of course, I reworked it so that the default is still to compile Xdialog against GTK1 (but you may try and compile it for GTK2, see the <a href="changelog.html">Change log</a>). The GTK2 port is still incomplete and buggy (problem with output of accented characters on systems using ISO charsets), so if you feel like taking over the burden to complete the port, I'll gladly include your patches into the next release...
+<br>&nbsp;
+<hr>
+<h2><li><a name="Q13">Why</a> are fixed fonts broken when using --rc-file option and XDIALOG_HIGH_DIALOG_COMPAT mode under Mandrake/Mandriva&nbsp;?</h2>
+<p align="justify">Because, in their most recent distros (v10.2/LE2005 and probably others), Mandrake used two patches which are breaking some GTK+ functionality. One of the patch is allowing to update all already open GTK windows whenever a theme change occurs (who cares&nbsp;?... Do you change the theme every 5 minutes&nbsp;?... Can't you stand having temporarily unmatched window themes just after a change&nbsp;?), but overrides any custom gtkrc setting as a result. The other broken patch is supposed to "fix" locales problem (I didn't even notice there was any&nbsp;!), but breaks fonts matching as a result. To fix this problem, you may download from Xdialog's website the custom GTK+ packages I rebuilt.
+<br>&nbsp;
+<hr>
+<table border=0 width="100%"><tr>
+<td align="left"><a href="compatibility.html">previous</a><a name="BOTTOM">&nbsp;</a>&nbsp;<a href="authors.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#TOP">top</a></td>
+</tr></table>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>

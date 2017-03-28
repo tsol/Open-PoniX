@@ -1,0 +1,108 @@
+--- ../../alsa-kernel/include/core.h	2010-11-02 16:17:51.000000000 +0100
++++ core.h	2011-03-04 15:42:18.000000000 +0100
+@@ -104,8 +104,16 @@
+ 	char shortname[32];		/* short name of this soundcard */
+ 	char longname[80];		/* name of this soundcard */
+ 	char mixername[80];		/* mixer name */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 27)
++#ifdef __GENKSYMS__
++	char components[80];		/* just for ABI compatibility */
++#else
++	char old_components[80];	/* just for ABI compatibility */
++#endif
++#else
+ 	char components[128];		/* card components delimited with
+ 								space */
++#endif
+ 	struct module *module;		/* top-level module */
+ 
+ 	void *private_data;		/* private data for soundcard */
+@@ -125,7 +133,15 @@
+ 	struct snd_info_entry *proc_id;	/* the card id */
+ 	struct proc_dir_entry *proc_root_link;	/* number link to real id */
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 30)
++#ifdef __GENKSYMS__
++	struct snd_monitor_file *files;	/* just for ABI compatibility */
++#else
++	void *old_monitor_file_next;	/* just for ABI compatibility */
++#endif
++#else
+ 	struct list_head files_list;	/* all files associated to this card */
++#endif
+ 	struct snd_shutdown_f_ops *s_f_ops; /* file operations in the shutdown
+ 								state */
+ 	spinlock_t files_lock;		/* lock the files for this card */
+@@ -133,7 +149,9 @@
+ 	int free_on_last_close;		/* free in context of file_release */
+ 	wait_queue_head_t shutdown_sleep;
+ 	struct device *dev;		/* device assigned to this card */
++#ifndef CONFIG_SYSFS_DEPRECATED
+ 	struct device *card_dev;	/* cardX object for sysfs */
++#endif
+ 
+ #ifdef CONFIG_PM
+ 	unsigned int power_state;	/* power state */
+@@ -145,6 +163,17 @@
+ 	struct snd_mixer_oss *mixer_oss;
+ 	int mixer_oss_change_count;
+ #endif
++
++	/* added in the tail */
++#ifndef __GENKSYMS__
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 27)
++	char components[128];		/* card components delimited with
++								space */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 30)
++	struct list_head files_list;	/* all files associated to this card */
++#endif
++#endif /* !__GENKSYMS__ */
+ };
+ 
+ #ifdef CONFIG_PM
+@@ -194,7 +223,11 @@
+ /* return a device pointer linked to each sound device as a parent */
+ static inline struct device *snd_card_get_device_link(struct snd_card *card)
+ {
++#ifdef CONFIG_SYSFS_DEPRECATED
++	return card ? card->dev : NULL;
++#else
+ 	return card ? card->card_dev : NULL;
++#endif
+ }
+ 
+ /* sound.c */
+@@ -296,7 +329,11 @@
+ int snd_card_file_add(struct snd_card *card, struct file *file);
+ int snd_card_file_remove(struct snd_card *card, struct file *file);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
++#define snd_card_set_dev(card,dev) /* no struct device */
++#else
+ #define snd_card_set_dev(card, devptr) ((card)->dev = (devptr))
++#endif
+ 
+ /* device.c */
+ 
+@@ -411,12 +448,20 @@
+ 
+ /* for easier backward-porting */
+ #if defined(CONFIG_GAMEPORT) || defined(CONFIG_GAMEPORT_MODULE)
++#ifndef gameport_set_dev_parent
+ #define gameport_set_dev_parent(gp,xdev) ((gp)->dev.parent = (xdev))
+ #define gameport_set_port_data(gp,r) ((gp)->port_data = (r))
+ #define gameport_get_port_data(gp) (gp)->port_data
+ #endif
++#endif
+ 
+ /* PCI quirk list helper */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 30)
++/* rename for ABI compatibility */
++#define snd_pci_quirk		snd_pci_new_quirk
++#define snd_pci_quirk_lookup	snd_pci_new_quirk_lookup
++#endif
++
+ struct snd_pci_quirk {
+ 	unsigned short subvendor;	/* PCI subvendor ID */
+ 	unsigned short subdevice;	/* PCI subdevice ID */

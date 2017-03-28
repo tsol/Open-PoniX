@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>Xdialog documentation - Compatibility</title>
+</head>
+<body bgcolor="#102050" text="#F0E0A0" link="#00E000" vlink="#FF00B0" alink="#FF0000">
+<table border=0 width="100%"><tr>
+<td align="left"><a href="gtk.html">previous</a><a name="TOP">&nbsp;</a>&nbsp;<a href="faq.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#BOTTOM">bottom</a></td>
+</tr></table>
+<hr>
+<center>
+<h1>Xdialog documentation - Compatibility</h1>
+<hr width=30%>
+</center>
+<p>&nbsp;
+<h2>dialog-compatible utilities:</h2>
+<p align="justify">There are a few <b>dialog</b> &quot;compatible&quot; utilities around, some of them just mimic <b>dialog</b>  without adding new features (e.g. <b>gdialog</b>), others add features and may differ in their syntax (<b>cdialog</b>, <b>wdialog</b>). I currently know about:
+<ul>
+<p><li><a name="DIALOG"><b>dialog</b></a>: the original one (up to v0.3) which has been upgraded and declined in further versions by contributors (v0.4, v0.6a-0.6z, v0.7). AFAIK it is no more actively developed.
+<p><li><a name="CDIALOG"><b>cdialog</b></a>: a much improved version of dialog which is still developed. Its binary file may actually be named <b>cdialog</b> or <b>dialog</b>, but you may check the usage message printed for the &quot;ComeOn Dialog!&quot; string IOT find out if your &quot;dialog&quot; binary is in fact &quot;cdialog&quot;.  You may as well try: <pre>dialog --print-version</pre> which should report v0.9 or higher for cdialog.
+<p><li><a name="GDIALOG"><b>gdialog</b></a>: a Gnome utility that mimics closely <b>dialog</b> but that misses the new features of <b>cdialog</b>.
+<p><li><a name="WDIALOG"><b>wdialog</b></a> and <b>Wxdialog</b>: a set of utilities which aim is to provide an installation wizard for both UNIX console (using wdialog) and X11 (using Wxdialog). The Wxdialog code is based on the (rather unstable and now quite outdated) Xdialog v1.2.0 code. IMHO Wxdialog is rather pointless, given the features Xdialog provides (including the <a href="transient.html#WIZARD">wizard</a> mode, the <a href="box.html#INPUTBOX">multiple inputs boxes</a>, the <a href="box.html#PROGRESS">progress</a> report box, the <a href="transient.html#CHECK">check</a> button, etc)...
+<p><li><a name="WHIPTAIL"><b>whiptail</b></a>: a dialog clone which I heard about but that I never tested (IIRC it uses newt instead of ncurses).
+</ul>
+<hr>
+<h2><a name="HIGH">Xdialog high compatibility mode</a>:</h2>
+<p align="justify">As a drop in replacement for <b>dialog</b>, <b>cdialog</b> and <b>gdialog</b>, Xdialog tries to maintain the highest degree of compatibility wherever possible. Because of the differences between a ncurses based console utility and a GTK+ based X11 utility, this compatibility is not perfect though. Also, the Xdialog development history introduces its own oddities and some of the default Xdialog behaviours are different from those of (c)dialog...
+<p align="justify">I came to the conclusion that the only way to keep the highest possible compatility without sacrifying any of the new features offered by Xdialog, was to make it behave in two possible ways, depending on its actual usage in each script (either as a drop in replacement or as a full featured independent utility).
+<p align="justify">The approach I adopted is to allow Xdialog behaviour customisation using specific environment variables. The advantage of this solution is that while modified with some environment variable assigments, the script is still usable with (c)dialog.
+<p align="justify">As of v2.0.0, Xdialog checks for the existence of the <b>XDIALOG_HIGH_DIALOG_COMPAT</b> environment variable; if this variable is set to &quot;<b>1</b>&quot; or &quot;<b>true</b>&quot; (case insensitive), then Xdialog behaves in the closest way to (c)dialog (dropping some of its features and adopting (c/g)dialog defaults and syntax), the net effect being that:
+<ul>
+<li>a fixed (monospacing) font is used in all Xdialog GTK+ widgets (including labels, tags, menu/list items and buttons);
+<li>the <a href="common.html#JUSTIFICATION">--left</a> common option is used as the default justification option instead of the <a href="common.html#JUSTIFICATION">--center</a> one;
+<li>the &lt;<a href="box.html#TEXT">text</a>&gt; wrapping is always in force (<a href="common.html#WRAP">--wrap</a>) and the <a href="common.html#JUSTIFICATION">--fill</a> option is ignored.
+<li>the <a href="common.html#CRWRAP">--no-cr-wrap</a> common option is used as the default instead of the <a href="common.html#CRWRAP">--cr-wrap</a> one (but it does not apply to the &lt;backtitle&gt; in this case).
+<li>regardless of the specified box size, the auto-sizing feature of Xdialog is forced when <b>XDIALOG_FORCE_AUTOSIZE</b> environment variable is set to &quot;<b>1</b>&quot; or &quot;<b>true</b>&quot;. This makes for the sizing problems of some menus (e.g. when the specified box size is actually too small for the number of specified menu/list entries to fit, or when a backtitle is specified; with (c)dialog the backtitle is not held into the boxes themselves, unlike Xdialog which needs therefore for more room in its widgets).
+<li>the <i>Cancel</i> button is not displayed into the <a href="box.html#TAILBOX">tailbox</a> and <a href="box.html#TEXTBOX">textbox</a> widgets;
+<li>the <a href="box.html#INFOBOX">infobox</a> widget is turned into a <a href="box.html#INFOBOX">msgbox</a> unless the <b>XDIALOG_INFOBOX_TIMEOUT</b> environment variable is set (in 1/1000s) and greater than 0, in which case an actual <a href="box.html#INFOBOX">infobox</a> <b>without button</b> is used;
+<li>the <a href="special.html#VERSION">--version</a> special option returns the same string as <a href="special.html#VERSION">--print-version</a>.
+</ul>
+<p align="justify">In order to take benefit of this improved compatibility in an existing (c)dialog script, you just have to add the following line to the script before the first invocation of Xdialog:
+<pre>
+set XDIALOG_HIGH_DIALOG_COMPAT=true
+</pre>
+or, if you use <b>bash</b>:
+<pre>
+export XDIALOG_HIGH_DIALOG_COMPAT=true
+</pre>
+<p align="justify">Then, before each Xdialog invocation in the script, you may customize the behaviour of Xdialog by setting the <b>XDIALOG_FORCE_AUTOSIZE</b> and <b>XDIALOG_INFOBOX_TIMEOUT</b> environment variables.
+<p align="justify">Simple, isn't it ?
+<hr>
+<h2><a name="FEATURES">Other compatibility features</a>:</h2>
+<p align="justify">By default and whether <b>XDIALOG_HIGH_DIALOG_COMPAT</b> is set or not, Xdialog does its best to accept (c)dialog syntax and options:
+<ul>
+<li>the cdialog <b>--passwordbox</b> box option is accepted by Xdialog and interpreted as <a href="transient.html#PASSWORD">--password</a> <a href="box.html#INPUTBOX">--inputbox</a>.
+<li>the (c)dialog <b>--menu</b> box option is accepted by Xdialog and interpreted as <a href="box.html#MENUBOX">--menubox</a>.
+<li>the cdialog <b>--defaultno</b> option is accepted by Xdialog and interpreted as <a href="transient.html#DEFAULTNO">--default-no</a>.
+<li>Because the <a href="box.html#GAUGE">gauge</a> widget is wrongly spelled as &quot;guage&quot; in some releases of (c/g)dialog (this is what happens when the programmer is dyslexic&nbsp;;-) Xdialog also accepts the <b>--guage</b> option for the <a href="box.html#GAUGE">gauge</a> widget... Of course as you are not dyslexic (are you&nbsp;?), you should only use <b>--gauge</b> in your own Xdialog scripts&nbsp;!
+<li>Xdialog ignores any unknown transient/common option (and any associated parameter) passed into its command line. You may therefore use Xdialog in place of (c)dialog in an existing script without removing the options that are irrelevant to Xdialog (such as --clear, --no-kill, --and-widget, etc...).
+<li>Xdialog accepts a standalone <b>--clear</b> option in its command line (this does nothing but Xdialog does not complain about a missing box option).
+<li>A small wrapper (Xdialog.wrapper) is available and may be installed by running the <a href="samples/install-wrapper">install-wrapper</a> script from the <a href="samples/">samples</a> directory, just type:<pre>cd %%datadir%%/doc/Xdialog-%%version%%/samples;./install-wrapper</pre>This wrapper will make any script using (c)dialog to call automatically Xdialog when a X display is available (if no X display is available, then the actual (c)dialog binary is called instead); to ensure the best possible compatibility, Xdialog is called by Xdialog.wrapper in <a href="#HIGH">high compatibility mode</a> with forced autosize feature on (unless the <b>XDIALOG_HIGH_DIALOG_COMPAT</b> and/or the <b>XDIALOG_FORCE_AUTOSIZE</b> environment variables are already set, in which case their value is not changed by Xdialog.wrapper).
+</ul>
+<hr>
+<h2><a name="PENDING">Pending compatibility issues</a>:</h2>
+<p align="justify">Some Xdialog widgets can't be made 100% (c)dialog compatible:
+<ul>
+<li>The <a href="box.html#INFOBOX">infobox</a> which behaviour in (c)dialog is to print a box on the console and return immediately to the calling script without clearing the console (the &quot;box&quot; therefore staying displayed); when the next menu is setup, (c)dialog overwrites the infobox. This behaviour can't be reproduced with GTK+ menus although this could be coarsely simulated by forking Xdialog when such a menu is needed (but so far I could not figure out how to fork successfully with GTK+...).
+<br>With Xdialog, you will have to set <b>XDIALOG_HIGH_DIALOG_COMPAT</b> to &quot;true&quot; and then to choose which type of <a href="box.html#INFOBOX">infobox</a> to use by setting (or not) <b>XDIALOG_INFOBOX_TIMEOUT</b> accordingly: whatever type you choose, the script will be suspended until the <a href="box.html#INFOBOX">infobox</a> is closed (either after the timeout period or when the user presses the <i>OK</i> button)...
+<p><li>Although allowed by Xdialog, the <a href="box.html#TAILBOX">--tailboxbg</a> option will not make Xdialog to fork nor to run in the background: an explicit &quot;&amp;&quot; has to be appended to the Xdialog command line IOT run it as a background process.
+</ul>
+<hr>
+<table border=0 width="100%"><tr>
+<td align="left"><a href="gtk.html">previous</a><a name="BOTTOM">&nbsp;</a>&nbsp;<a href="faq.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#TOP">top</a></td>
+</tr></table>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>

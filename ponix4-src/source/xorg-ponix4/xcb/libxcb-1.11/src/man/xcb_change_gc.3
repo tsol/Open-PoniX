@@ -1,0 +1,200 @@
+.TH xcb_change_gc 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_change_gc \- change graphics context components
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_change_gc\fP(xcb_connection_t\ *\fIconn\fP, xcb_gcontext_t\ \fIgc\fP, uint32_t\ \fIvalue_mask\fP, const uint32_t\ *\fIvalue_list\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIgc\fP 1i
+The graphics context to change.
+.IP \fIvalue_mask\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_GC_FUNCTION\fP 1i
+TODO: Refer to GX
+.IP \fIXCB_GC_PLANE_MASK\fP 1i
+In graphics operations, given a source and destination pixel, the result is
+computed bitwise on corresponding bits of the pixels; that is, a Boolean
+operation is performed in each bit plane. The plane-mask restricts the
+operation to a subset of planes, so the result is:
+
+        ((src FUNC dst) AND plane-mask) OR (dst AND (NOT plane-mask))
+.IP \fIXCB_GC_FOREGROUND\fP 1i
+Foreground colorpixel.
+.IP \fIXCB_GC_BACKGROUND\fP 1i
+Background colorpixel.
+.IP \fIXCB_GC_LINE_WIDTH\fP 1i
+The line-width is measured in pixels and can be greater than or equal to one, a wide line, or the
+special value zero, a thin line.
+.IP \fIXCB_GC_LINE_STYLE\fP 1i
+The line-style defines which sections of a line are drawn:
+Solid                The full path of the line is drawn.
+DoubleDash           The full path of the line is drawn, but the even dashes are filled differently
+                     than the odd dashes (see fill-style), with Butt cap-style used where even and
+                     odd dashes meet.
+OnOffDash            Only the even dashes are drawn, and cap-style applies to all internal ends of
+                     the individual dashes (except NotLast is treated as Butt).
+.IP \fIXCB_GC_CAP_STYLE\fP 1i
+The cap-style defines how the endpoints of a path are drawn:
+NotLast    The result is equivalent to Butt, except that for a line-width of zero the final
+           endpoint is not drawn.
+Butt       The result is square at the endpoint (perpendicular to the slope of the line)
+           with no projection beyond.
+Round      The result is a circular arc with its diameter equal to the line-width, centered
+           on the endpoint; it is equivalent to Butt for line-width zero.
+Projecting The result is square at the end, but the path continues beyond the endpoint for
+           a distance equal to half the line-width; it is equivalent to Butt for line-width
+           zero.
+.IP \fIXCB_GC_JOIN_STYLE\fP 1i
+The join-style defines how corners are drawn for wide lines:
+Miter               The outer edges of the two lines extend to meet at an angle. However, if the
+                    angle is less than 11 degrees, a Bevel join-style is used instead.
+Round               The result is a circular arc with a diameter equal to the line-width, centered
+                    on the joinpoint.
+Bevel               The result is Butt endpoint styles, and then the triangular notch is filled.
+.IP \fIXCB_GC_FILL_STYLE\fP 1i
+The fill-style defines the contents of the source for line, text, and fill requests. For all text and fill
+requests (for example, PolyText8, PolyText16, PolyFillRectangle, FillPoly, and PolyFillArc)
+as well as for line requests with line-style Solid, (for example, PolyLine, PolySegment,
+PolyRectangle, PolyArc) and for the even dashes for line requests with line-style OnOffDash
+or DoubleDash:
+Solid                     Foreground
+Tiled                     Tile
+OpaqueStippled            A tile with the same width and height as stipple but with background
+                          everywhere stipple has a zero and with foreground everywhere stipple
+                          has a one
+Stippled                  Foreground masked by stipple
+For the odd dashes for line requests with line-style DoubleDash:
+Solid                     Background
+Tiled                     Same as for even dashes
+OpaqueStippled            Same as for even dashes
+Stippled                  Background masked by stipple
+.IP \fIXCB_GC_FILL_RULE\fP 1i
+
+.IP \fIXCB_GC_TILE\fP 1i
+The tile/stipple represents an infinite two-dimensional plane with the tile/stipple replicated in all
+dimensions. When that plane is superimposed on the drawable for use in a graphics operation,
+the upper-left corner of some instance of the tile/stipple is at the coordinates within the drawable
+specified by the tile/stipple origin. The tile/stipple and clip origins are interpreted relative to the
+origin of whatever destination drawable is specified in a graphics request.
+The tile pixmap must have the same root and depth as the gcontext (or a Match error results).
+The stipple pixmap must have depth one and must have the same root as the gcontext (or a
+Match error results). For fill-style Stippled (but not fill-style
+OpaqueStippled), the stipple pattern is tiled in a single plane and acts as an
+additional clip mask to be ANDed with the clip-mask.
+Any size pixmap can be used for tiling or stippling, although some sizes may be faster to use than
+others.
+.IP \fIXCB_GC_STIPPLE\fP 1i
+The tile/stipple represents an infinite two-dimensional plane with the tile/stipple replicated in all
+dimensions. When that plane is superimposed on the drawable for use in a graphics operation,
+the upper-left corner of some instance of the tile/stipple is at the coordinates within the drawable
+specified by the tile/stipple origin. The tile/stipple and clip origins are interpreted relative to the
+origin of whatever destination drawable is specified in a graphics request.
+The tile pixmap must have the same root and depth as the gcontext (or a Match error results).
+The stipple pixmap must have depth one and must have the same root as the gcontext (or a
+Match error results). For fill-style Stippled (but not fill-style
+OpaqueStippled), the stipple pattern is tiled in a single plane and acts as an
+additional clip mask to be ANDed with the clip-mask.
+Any size pixmap can be used for tiling or stippling, although some sizes may be faster to use than
+others.
+.IP \fIXCB_GC_TILE_STIPPLE_ORIGIN_X\fP 1i
+TODO
+.IP \fIXCB_GC_TILE_STIPPLE_ORIGIN_Y\fP 1i
+TODO
+.IP \fIXCB_GC_FONT\fP 1i
+Which font to use for the \fIImageText8\fP and \fIImageText16\fP requests.
+.IP \fIXCB_GC_SUBWINDOW_MODE\fP 1i
+For ClipByChildren, both source and destination windows are additionally
+clipped by all viewable InputOutput children. For IncludeInferiors, neither
+source nor destination window is
+clipped by inferiors. This will result in including subwindow contents in the source and drawing
+through subwindow boundaries of the destination. The use of IncludeInferiors with a source or
+destination window of one depth with mapped inferiors of differing depth is not illegal, but the
+semantics is undefined by the core protocol.
+.IP \fIXCB_GC_GRAPHICS_EXPOSURES\fP 1i
+Whether ExposureEvents should be generated (1) or not (0).
+
+The default is 1.
+.IP \fIXCB_GC_CLIP_ORIGIN_X\fP 1i
+TODO
+.IP \fIXCB_GC_CLIP_ORIGIN_Y\fP 1i
+TODO
+.IP \fIXCB_GC_CLIP_MASK\fP 1i
+The clip-mask restricts writes to the destination drawable. Only pixels where the clip-mask has
+bits set to 1 are drawn. Pixels are not drawn outside the area covered by the clip-mask or where
+the clip-mask has bits set to 0. The clip-mask affects all graphics requests, but it does not clip
+sources. The clip-mask origin is interpreted relative to the origin of whatever destination drawable is specified in a graphics request. If a pixmap is specified as the clip-mask, it must have
+depth 1 and have the same root as the gcontext (or a Match error results). If clip-mask is None,
+then pixels are always drawn, regardless of the clip origin. The clip-mask can also be set with the
+SetClipRectangles request.
+.IP \fIXCB_GC_DASH_OFFSET\fP 1i
+TODO
+.IP \fIXCB_GC_DASH_LIST\fP 1i
+TODO
+.IP \fIXCB_GC_ARC_MODE\fP 1i
+TODO
+.RE
+.RS 1i
+
+
+.RE
+.IP \fIvalue_list\fP 1i
+Values for each of the components specified in the bitmask \fIvalue_mask\fP. The
+order has to correspond to the order of possible \fIvalue_mask\fP bits. See the
+example.
+.SH DESCRIPTION
+Changes the components specified by \fIvalue_mask\fP for the specified graphics context.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_change_gc_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_alloc_error_t\fP 1i
+The X server could not allocate the requested resources (no memory?).
+.IP \fIxcb_font_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_g_context_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_match_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_pixmap_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_value_error_t\fP 1i
+TODO: reasons?
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Changes the foreground color component of the specified graphics context.
+ *
+ */
+void my_example(xcb_connection *conn, xcb_gcontext_t gc, uint32_t fg, uint32_t bg) {
+    /* C99 allows us to use a compact way of changing a single component: */
+    xcb_change_gc(conn, gc, XCB_GC_FOREGROUND, (uint32_t[]){ fg });
+
+    /* The more explicit way. Beware that the order of values is important! */
+    uint32_t mask = 0;
+    mask |= XCB_GC_FOREGROUND;
+    mask |= XCB_GC_BACKGROUND;
+
+    uint32_t values[] = {
+        fg,
+        bg
+    };
+    xcb_change_gc(conn, gc, mask, values);
+    xcb_flush(conn);
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

@@ -1,0 +1,37 @@
+From 5039f38e16695a0a5c72b08c6a6cc66844a657b1 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Tue, 19 Jun 2012 14:50:28 +0530
+Subject: [PATCH 72/90] ath9k: do not sampling on ani timer when chip is in
+ sleep
+
+The baseband and cycle counters are being sampled during ani
+processing for debugging purpose. Whenever the ani is postponded
+due to sleep state, taking samples on that time is of no use and
+also unneccesarily waking up the chip might increase the power
+consumption on idle associated state. Hence moving debug function
+within powersave block.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/link.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/link.c
++++ b/drivers/net/wireless/ath/ath9k/link.c
+@@ -407,6 +407,7 @@ void ath_ani_calibrate(unsigned long dat
+ 		longcal ? "long" : "", shortcal ? "short" : "",
+ 		aniflag ? "ani" : "", common->ani.caldone ? "true" : "false");
+ 
++	ath9k_debug_samp_bb_mac(sc);
+ 	ath9k_ps_restore(sc);
+ 
+ set_timer:
+@@ -415,7 +416,6 @@ set_timer:
+ 	* The interval must be the shortest necessary to satisfy ANI,
+ 	* short calibration and long calibration.
+ 	*/
+-	ath9k_debug_samp_bb_mac(sc);
+ 	cal_interval = ATH_LONG_CALINTERVAL;
+ 	if (sc->sc_ah->config.enable_ani)
+ 		cal_interval = min(cal_interval,

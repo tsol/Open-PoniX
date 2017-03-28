@@ -1,0 +1,59 @@
+CC=@CC@
+CFLAGS=@CFLAGS@
+CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+MAGIC=magic
+MAGICFILES=$(wildcard $(MAGIC)/$(MAGIC).*)
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+MAGICPATH=@sysconfdir@/binwalk/$(MAGIC)
+ETC=$(DESTDIR)@sysconfdir@/binwalk
+BIN=$(DESTDIR)@bindir@
+
+.PHONY: all magi install uninstall clean cleanall distclean
+
+all: binwalk
+
+binwalk: dd.o common.o md5.o mparse.o filter.o update.o
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DMAGIC='"$(MAGICPATH).binwalk"' -DMAGIC_CAST='"$(MAGICPATH).bincast"' -DMAGIC_ARCH='"$(MAGICPATH).binarch"' binwalk.c -o binwalk *.o $(LDFLAGS)
+
+dd.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c dd.c
+
+common.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c common.c
+
+md5.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c md5.c
+
+mparse.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c mparse.c
+
+filter.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c filter.c
+
+update.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c update.c
+
+magi:
+	cat $(MAGICFILES) > $(MAGIC).binwalk
+
+install:
+	mkdir -p $(ETC)
+	mkdir -p $(BIN)
+	cp $(MAGIC).bin* $(ETC)
+	cp binwalk $(BIN)/binwalk
+
+uninstall:
+	rm -rf $(ETC)
+	rm -f $(BIN)/binwalk
+
+clean:
+	rm -f binwalk *.o
+
+cleanall: clean
+	rm -rf config.* *.cache
+	rm -f Makefile
+
+distclean: cleanall
+

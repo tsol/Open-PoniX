@@ -1,0 +1,42 @@
+From adfbda62248258a402253744e4eed6b87fb43169 Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Date: Wed, 29 Aug 2012 09:20:42 +0530
+Subject: [PATCH] ath9k: Fix TX filter usage
+
+The TX filter bit for a station would be set by the HW
+when a frame is not acked. A frame would be completed with
+ATH9K_TXERR_FILT status only when the corresponding filter bit
+for the destination station is already set.
+
+Currently, un-acknowledged  packets are added to the pending queue
+and retried, but the "clear_dest_mask" bit in the descriptor is
+set only when the TX status has been ATH9K_TXERR_FILT. This results
+in packet loss and the log shows:
+
+wlan0: dropped TX filtered frame, queue_len=0 PS=0 @4309746071
+wlan0: dropped TX filtered frame, queue_len=0 PS=0 @4309746076
+wlan0: dropped TX filtered frame, queue_len=0 PS=0 @4309746377
+...
+...
+
+This issue can be resolved by making sure that the destination
+mask is cleared when the packet is being retried and the earlier
+TX status is ATH9K_TXERR_XRETRY.
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/xmit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -568,7 +568,7 @@ static void ath_tx_complete_aggr(struct
+ 		if (!an->sleeping) {
+ 			ath_tx_queue_tid(txq, tid);
+ 
+-			if (ts->ts_status & ATH9K_TXERR_FILT)
++			if (ts->ts_status & (ATH9K_TXERR_FILT | ATH9K_TXERR_XRETRY))
+ 				tid->ac->clear_ps_filter = true;
+ 		}
+ 	}

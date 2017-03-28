@@ -1,0 +1,377 @@
+<refentry id="gdk-Threads">
+<refmeta>
+<refentrytitle>Threads</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Threads</refname><refpurpose>Functions for using GDK in multi-threaded programs</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk/gdk.h&gt;
+
+
+#define     <link linkend="GDK-THREADS-ENTER-CAPS">GDK_THREADS_ENTER</link>               ()
+#define     <link linkend="GDK-THREADS-LEAVE-CAPS">GDK_THREADS_LEAVE</link>               ()
+<link linkend="void">void</link>        <link linkend="gdk-threads-init">gdk_threads_init</link>                (void);
+<link linkend="void">void</link>        <link linkend="gdk-threads-enter">gdk_threads_enter</link>               (void);
+<link linkend="void">void</link>        <link linkend="gdk-threads-leave">gdk_threads_leave</link>               (void);
+extern      GMutex *<link linkend="gdk-threads-mutex">gdk_threads_mutex</link>;
+<link linkend="void">void</link>        <link linkend="gdk-threads-set-lock-functions">gdk_threads_set_lock_functions</link>  (<link linkend="GCallback">GCallback</link> enter_fn,
+                                             <link linkend="GCallback">GCallback</link> leave_fn);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+For thread safety, GDK relies on the thread primitives in GLib, 
+and on the thread-safe GLib main loop.
+</para>
+<para>
+GLib is completely thread safe (all global data is automatically 
+locked), but individual data structure instances are not automatically 
+locked for performance reasons. So e.g. you must coordinate 
+accesses to the same <link linkend="GHashTable"><type>GHashTable</type></link> from multiple threads.
+</para>
+<para>
+GTK+ is "thread aware" but not thread safe &mdash; it provides a
+global lock controlled by <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>/<link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link>
+which protects all use of GTK+. That is, only one thread can use GTK+ 
+at any given time.
+</para>
+<para>
+You must call <link linkend="g-thread-init"><function>g_thread_init()</function></link> and <link linkend="gdk-threads-init"><function>gdk_threads_init()</function></link> before executing
+any other GTK+ or GDK functions in a threaded GTK+ program.
+</para>
+<para>
+Idles, timeouts, and input functions are executed outside
+of the main GTK+ lock. So, if you need to call GTK+
+inside of such a callback, you must surround the callback
+with a <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>/<link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link> pair.
+(However, signals are still executed within the main
+GTK+ lock.)
+</para>
+<para>
+In particular, this means, if you are writing widgets that might 
+be used in threaded programs, you <emphasis>must</emphasis> surround 
+timeouts and idle functions in this matter.
+</para>
+<para>
+As always, you must also surround any calls to GTK+ not made within 
+a signal handler with a <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>/<link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link> pair.
+</para>
+
+<para>
+Before calling <link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link> from a thread other
+than your main thread, you probably want to call <link linkend="gdk-flush"><function>gdk_flush()</function></link>
+to send all pending commands to the windowing system.
+(The reason you don't need to do this from the main thread
+is that GDK always automatically flushes pending commands
+when it runs out of incoming events to process and has
+to sleep while waiting for more events.)
+</para>
+
+<para>A minimal main program for a threaded GTK+ application
+looks like:</para>
+
+<informalexample>
+<programlisting role="C">
+int
+main (int argc, char *argv[])
+{
+  GtkWidget *window;
+
+  g_thread_init (NULL);
+  gdk_threads_init (<!-- -->);
+  gtk_init (&amp;argc, &amp;argv);
+
+  window = create_window (<!-- -->);
+  gtk_widget_show (window);
+
+  gdk_threads_enter (<!-- -->);
+  gtk_main (<!-- -->);
+  gdk_threads_leave (<!-- -->);
+
+  return 0;
+}
+</programlisting>
+</informalexample>
+
+<para>
+Callbacks require a bit of attention. Callbacks from GTK+ signals
+are made within the GTK+ lock. However callbacks from GLib (timeouts,
+IO callbacks, and idle functions) are made outside of the GTK+
+lock. So, within a signal handler you do not need to call
+<link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>, but within the other types of callbacks, you
+do.
+</para>
+
+<para>Erik Mouw contributed the following code example to
+illustrate how to use threads within GTK+ programs.
+</para>
+
+<informalexample>
+<programlisting role="C">
+/*-------------------------------------------------------------------------
+ * Filename:      gtk-thread.c
+ * Version:       0.99.1
+ * Copyright:     Copyright (C) 1999, Erik Mouw
+ * Author:        Erik Mouw &lt;J.A.K.Mouw<parameter>its.tudelft.nl</parameter>&gt;
+ * Description:   GTK threads example. 
+ * Created at:    Sun Oct 17 21:27:09 1999
+ * Modified by:   Erik Mouw &lt;J.A.K.Mouw<parameter>its.tudelft.nl</parameter>&gt;
+ * Modified at:   Sun Oct 24 17:21:41 1999
+ *-----------------------------------------------------------------------*/
+/*
+ * Compile with:
+ *
+ * cc -o gtk-thread gtk-thread.c `gtk-config --cflags --libs gthread`
+ *
+ * Thanks to Sebastian Wilhelmi and Owen Taylor for pointing out some
+ * bugs.
+ *
+ */
+
+&num;include &lt;stdio.h&gt;
+&num;include &lt;stdlib.h&gt;
+&num;include &lt;unistd.h&gt;
+&num;include &lt;time.h&gt;
+&num;include &lt;gtk/gtk.h&gt;
+&num;include &lt;glib.h&gt;
+&num;include &lt;pthread.h&gt;
+
+&num;define YES_IT_IS    (1)
+&num;define NO_IT_IS_NOT (0)
+
+typedef struct 
+{
+  GtkWidget *label;
+  int what;
+} yes_or_no_args;
+
+G_LOCK_DEFINE_STATIC (yes_or_no);
+static volatile int yes_or_no = YES_IT_IS;
+
+void destroy (GtkWidget *widget, gpointer data)
+{
+  gtk_main_quit (<!-- -->);
+}
+
+void *argument_thread (void *args)
+{
+  yes_or_no_args *data = (yes_or_no_args *)args;
+  gboolean say_something;
+
+  for (;;)
+    {
+      /* sleep a while */
+      sleep(rand(<!-- -->) / (RAND_MAX / 3) + 1);
+
+      /* lock the yes_or_no_variable */
+      G_LOCK(yes_or_no);
+
+      /* do we have to say something? */
+      say_something = (yes_or_no != data->what);
+
+      if(say_something)
+	{
+	  /* set the variable */
+	  yes_or_no = data->what;
+	}
+
+      /* Unlock the yes_or_no variable */
+      G_UNLOCK (yes_or_no);
+
+      if (say_something)
+	{
+	  /* get GTK thread lock */
+	  gdk_threads_enter (<!-- -->);
+
+	  /* set label text */
+	  if(data->what == YES_IT_IS)
+	    gtk_label_set_text (GTK_LABEL (data->label), "O yes, it is!");
+	  else
+	    gtk_label_set_text (GTK_LABEL (data->label), "O no, it isn't!");
+
+	  /* release GTK thread lock */
+	  gdk_threads_leave (<!-- -->);
+	}
+    }
+
+  return NULL;
+}
+
+int main (int argc, char *argv[])
+{
+  GtkWidget *window;
+  GtkWidget *label;
+  yes_or_no_args yes_args, no_args;
+  pthread_t no_tid, yes_tid;
+
+  /* init threads */
+  g_thread_init (NULL);
+  gdk_threads_init (<!-- -->);
+
+  /* init gtk */
+  gtk_init(&amp;argc, &amp;argv);
+
+  /* init random number generator */
+  srand ((unsigned int) time (NULL));
+
+  /* create a window */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+		      GTK_SIGNAL_FUNC (destroy), NULL);
+
+  gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  /* create a label */
+  label = gtk_label_new ("And now for something completely different ...");
+  gtk_container_add (GTK_CONTAINER (window), label);
+  
+  /* show everything */
+  gtk_widget_show (label);
+  gtk_widget_show (window);
+
+  /* create the threads */
+  yes_args.label = label;
+  yes_args.what = YES_IT_IS;
+  pthread_create (&amp;yes_tid, NULL, argument_thread, &amp;yes_args);
+
+  no_args.label = label;
+  no_args.what = NO_IT_IS_NOT;
+  pthread_create (&amp;no_tid, NULL, argument_thread, &amp;no_args);
+
+  /* enter the GTK main loop */
+  gdk_threads_enter (<!-- -->);
+  gtk_main (<!-- -->);
+  gdk_threads_leave (<!-- -->);
+
+  return 0;
+}
+</programlisting>
+</informalexample>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GDK-THREADS-ENTER-CAPS"/>GDK_THREADS_ENTER()</title>
+<indexterm><primary>GDK_THREADS_ENTER</primary></indexterm><programlisting>#define     GDK_THREADS_ENTER()</programlisting>
+<para>
+This macro marks the beginning of a critical section in which GDK and GTK+
+functions can be called.  Only one thread at a time can be in such a
+critial section. The macro expands to a no-op if <link linkend="G-THREADS-ENABLED-CAPS"><type>G_THREADS_ENABLED</type></link>
+has not been defined. Typically <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link> should be used 
+instead of this macro.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GDK-THREADS-LEAVE-CAPS"/>GDK_THREADS_LEAVE()</title>
+<indexterm><primary>GDK_THREADS_LEAVE</primary></indexterm><programlisting>#define     GDK_THREADS_LEAVE()</programlisting>
+<para>
+This macro marks the end of a critical section 
+begun with <link linkend="GDK-THREADS-ENTER-CAPS"><type>GDK_THREADS_ENTER</type></link>.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-threads-init"/>gdk_threads_init ()</title>
+<indexterm><primary>gdk_threads_init</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_threads_init                (void);</programlisting>
+<para>
+Initializes GDK so that it can be used from multiple threads
+in conjunction with <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link> and <link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link>.
+<link linkend="g-thread-init"><function>g_thread_init()</function></link> must be called previous to this function.
+</para>
+<para>
+This call must be made before any use of the main loop from
+GTK+; to be safe, call it before <link linkend="gtk-init"><function>gtk_init()</function></link>.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-threads-enter"/>gdk_threads_enter ()</title>
+<indexterm><primary>gdk_threads_enter</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_threads_enter               (void);</programlisting>
+<para>
+This macro marks the beginning of a critical section
+in which GDK and GTK+ functions can be called.
+Only one thread at a time can be in such a critial 
+section.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-threads-leave"/>gdk_threads_leave ()</title>
+<indexterm><primary>gdk_threads_leave</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_threads_leave               (void);</programlisting>
+<para>
+Leaves a critical region begun with <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>. 
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-threads-mutex"/>gdk_threads_mutex</title>
+<indexterm><primary>gdk_threads_mutex</primary></indexterm><programlisting>extern GMutex *gdk_threads_mutex; /* private */
+</programlisting>
+<warning><para><literal>gdk_threads_mutex</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The <link linkend="GMutex"><type>GMutex</type></link> used to implement the critical region for
+<link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>/<link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link>. This variable should not be
+used directly &mdash; consider it private.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-threads-set-lock-functions"/>gdk_threads_set_lock_functions ()</title>
+<indexterm><primary>gdk_threads_set_lock_functions</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_threads_set_lock_functions  (<link linkend="GCallback">GCallback</link> enter_fn,
+                                             <link linkend="GCallback">GCallback</link> leave_fn);</programlisting>
+<para>
+Allows the application to replace the standard method that
+GDK uses to protect its data structures. Normally, GDK
+creates a single <link linkend="GMutex"><type>GMutex</type></link> that is locked by <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link>,
+and released by <link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link>; using this function an
+application provides, instead, a function <parameter>enter_fn</parameter> that is
+called by <link linkend="gdk-threads-enter"><function>gdk_threads_enter()</function></link> and a function <parameter>leave_fn</parameter> that is
+called by <link linkend="gdk-threads-leave"><function>gdk_threads_leave()</function></link>.
+</para>
+<para>
+The functions must provide at least same locking functionality
+as the default implementation, but can also do extra application
+specific processing.
+</para>
+<para>
+As an example, consider an application that has its own recursive
+lock that when held, holds the GTK+ lock as well. When GTK+ unlocks
+the GTK+ lock when entering a recursive main loop, the application
+must temporarily release its lock as well.
+</para>
+<para>
+Most threaded GTK+ apps won't need to use this method.
+</para>
+<para>
+This method must be called before <link linkend="gdk-threads-init"><function>gdk_threads_init()</function></link>, and cannot
+be called multiple times.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>enter_fn</parameter>&nbsp;:</term>
+<listitem><simpara>   function called to guard GDK
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>leave_fn</parameter>&nbsp;:</term>
+<listitem><simpara> function called to release the guard
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

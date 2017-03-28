@@ -1,0 +1,99 @@
+#!/bin/sh
+#
+
+PREFER_SUDO=true
+USAGE="Usage: `basename $0` description command"
+
+#-------------helper functions--------------------
+launch(){
+  OLD_IFS="$IFS"
+  IFS="= "
+  CFGFILE="$1"
+  CMDID="$2"
+  exec 5<&0 < "$CFGFILE"
+  while read key value; do
+    IFS="$OLD_IFS"
+    if [ "$key" = "$CMDID" ]; then
+      pr="$value"
+      set $pr
+      path=`which "$1" 2>/dev/null | grep -v "no $1"`
+      if [ -n "$path" ]; then
+        echo "$CMDID: executing command $value"
+        eval "$value"
+        exit 0
+      fi
+    fi
+  IFS="= "
+  done
+  exec 0<&5 5<&-
+  IFS=$OLD_IFS
+}
+
+launch_su(){
+  path=`which su 2>/dev/null | grep -v "no su"`
+  if [ -n "$path" ]; then
+    DESCRIPTION="$DESCR via su command"
+    launch $CONFIG_FILE "SU_LAUNCHCMD"
+  fi
+}
+
+launch_sudo(){
+  path=`which sudo 2>/dev/null | grep -v "no sudo"`
+  if [ -n "$path" ]; then
+    DESCRIPTION="$DESCR via sudo command"
+    launch $CONFIG_FILE "SUDO_LAUNCHCMD"
+  fi
+}
+
+#-------------script--------------------
+# get the options
+
+if [ $# -lt 2 ] ; then
+  echo "$USAGE" ;
+exit 1 ;
+fi
+
+DESCR="$1"; shift; COMMAND="$@"
+
+if [ -z "$COMMAND" ]; then
+  echo "$USAGE"
+  exit 1
+fi
+
+CONFIG_FILE="/etc/vnc/vncelevatecfg.custom"
+if [ ! -r "$CONFIG_FILE" ]; then
+  CONFIG_FILE="/etc/vnc/vncelevatecfg"
+  if [ ! -r "$CONFIG_FILE" ]; then
+    echo "could not find vncelevatecfg or vncelevatecfg.custom"
+    exit 1
+  fi
+fi
+
+#adjusting the path
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin/X11
+
+case `uname -s` in
+  SunOS) PATH=$PATH:/usr/sfw/bin:/usr/gnu/bin:/usr/xpg4/bin:/usr/xpg6/bin:/usr/openwin/bin:/usr/ucb ;;
+  AIX) PATH=$PATH:/opt/freeware/bin:/opt/freeware/sbin ;;
+esac
+
+#looking for a valid custom command
+DESCRIPTION="$DESCR via custom command"
+launch $CONFIG_FILE "CUSTOM_COMMAND"
+
+# Don't prefer sudo on redhat-based systems, as it's not setup by default
+if [ -f /etc/redhat-release ]; then
+  PREFER_SUDO=false
+fi
+
+if [ "$PREFER_SUDO" = "true" ]; then
+  launch_sudo
+  launch_su
+else
+  launch_su
+  launch_sudo
+fi
+
+#we expect to have launched by now; return error
+echo "could not elevate"
+exit 1

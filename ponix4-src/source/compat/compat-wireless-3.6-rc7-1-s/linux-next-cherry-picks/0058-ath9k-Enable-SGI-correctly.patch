@@ -1,0 +1,35 @@
+From 215999f38017e8e26791fafc60631b4099ee04ea Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qualcomm.com>
+Date: Wed, 12 Sep 2012 14:59:58 +0530
+Subject: [PATCH] ath9k: Enable SGI correctly
+
+Set the driver specific SGI flag based on the station's
+HT capabilities, otherwise rate control uses the wrong rate.
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/rc.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/rc.c
++++ b/drivers/net/wireless/ath/ath9k/rc.c
+@@ -1222,11 +1222,14 @@ static u8 ath_rc_build_ht_caps(struct at
+ 			caps |= WLAN_RC_TS_FLAG | WLAN_RC_DS_FLAG;
+ 		else if (sta->ht_cap.mcs.rx_mask[1])
+ 			caps |= WLAN_RC_DS_FLAG;
+-		if (sta->ht_cap.cap & IEEE80211_HT_CAP_SUP_WIDTH_20_40)
++		if (sta->ht_cap.cap & IEEE80211_HT_CAP_SUP_WIDTH_20_40) {
+ 			caps |= WLAN_RC_40_FLAG;
+-		if (sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_40 ||
+-		    sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_20)
+-			caps |= WLAN_RC_SGI_FLAG;
++			if (sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_40)
++				caps |= WLAN_RC_SGI_FLAG;
++		} else {
++			if (sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_20)
++				caps |= WLAN_RC_SGI_FLAG;
++		}
+ 	}
+ 
+ 	return caps;

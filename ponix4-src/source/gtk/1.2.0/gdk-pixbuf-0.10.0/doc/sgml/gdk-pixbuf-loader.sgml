@@ -1,0 +1,402 @@
+<refentry id="GdkPixbufLoader" revision="27 Aug 2000">
+<refmeta>
+<refentrytitle>GdkPixbufLoader</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GdkPixbufLoader</refname><refpurpose>Application-driven progressive image loading.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+#define     <link linkend="GDK-PIXBUF-LOADER">GDK_PIXBUF_LOADER</link>               (obj)
+<link linkend="GdkPixbufLoader">GdkPixbufLoader</link>* <link linkend="gdk-pixbuf-loader-new">gdk_pixbuf_loader_new</link>      (void);
+<link linkend="gboolean">gboolean</link>    <link linkend="gdk-pixbuf-loader-write">gdk_pixbuf_loader_write</link>         (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader,
+                                             const <link linkend="guchar">guchar</link> *buf,
+                                             <link linkend="size-t">size_t</link> count);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-loader-get-pixbuf">gdk_pixbuf_loader_get_pixbuf</link>    (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader);
+<link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link>* <link linkend="gdk-pixbuf-loader-get-animation">gdk_pixbuf_loader_get_animation</link>
+                                            (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader);
+void        <link linkend="gdk-pixbuf-loader-close">gdk_pixbuf_loader_close</link>         (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GtkObject">GtkObject</link>
+   +----GdkPixbufLoader
+</synopsis>
+
+</refsect1>
+
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GdkPixbufLoader-area-updated">area-updated</link>&quot;
+            void        user_function      (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gint">gint</link> arg1,
+                                            <link linkend="gint">gint</link> arg2,
+                                            <link linkend="gint">gint</link> arg3,
+                                            <link linkend="gint">gint</link> arg4,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GdkPixbufLoader-area-prepared">area-prepared</link>&quot;
+            void        user_function      (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GdkPixbufLoader-frame-done">frame-done</link>&quot;
+            void        user_function      (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> arg1,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GdkPixbufLoader-animation-done">animation-done</link>&quot;
+            void        user_function      (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GdkPixbufLoader-closed">closed</link>&quot;    void        user_function      (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    <link linkend="GdkPixbufLoader">GdkPixbufLoader</link> provides a way for applications to drive the
+    process of loading an image, by letting them send the image data
+    directly to the loader instead of having the loader read the data
+    from a file.  Applications can use this functionality instead of
+    <link linkend="gdk-pixbuf-new-from-file">gdk_pixbuf_new_from_file</link>() when they need to parse image data in
+    small chunks.  For example, it should be used when reading an
+    image from a (potentially) slow network connection, or when
+    loading an extremely large file.
+  </para>
+
+  <para>
+    To use <link linkend="GdkPixbufLoader">GdkPixbufLoader</link> to load an image, just create a new one,
+    and call <link linkend="gdk-pixbuf-loader-write">gdk_pixbuf_loader_write</link>() to send the data to it.  When
+    done, <link linkend="gdk-pixbuf-loader-close">gdk_pixbuf_loader_close</link>() should be called to end the stream
+    and finalize everything.  The loader will emit two important
+    signals throughout the process.  The first, "<link
+    linkend="GdkPixbufLoader-area-prepared">area_prepared</link>",
+    will be called as soon as the image has enough information to
+    determine the size of the image to be used.  It will pass a
+    <parameter>GdkPixbuf</parameter> in.  If you want to use it, you can simply ref it.  In
+    addition, no actual information will be passed in yet, so the
+    pixbuf can be safely filled with any temporary graphics (or an
+    initial color) as needed.  You can also call the
+    <link linkend="gdk-pixbuf-loader-get-pixbuf">gdk_pixbuf_loader_get_pixbuf</link>() once this signal has been emitted
+    and get the same pixbuf.
+  </para>
+
+  <para>
+    The other signal, "<link
+    linkend="GdkPixbufLoader-area-updated">area_updated</link>" gets
+    called every time a region is updated.  This way you can update a
+    partially completed image.  Note that you do not know anything
+    about the completeness of an image from the area updated.  For
+    example, in an interlaced image, you need to make several passes
+    before the image is done loading.
+  </para>
+
+  <refsect2>
+    <title>Loading an animation</title>
+
+    <para>
+      Loading an animation is a little more complex then loading an
+      image.  In addition to the above signals, there is also a "<link
+      linkend="GdkPixbufLoader-frame-done">frame_done</link>" signal,
+      as well as an "<link
+      linkend="GdkPixbufLoader-animation-done">animation_done</link>"
+      signal.  The first lets the application know that it is dealing
+      with an animation, instead of a static image.  It also passes a
+      <link linkend="GdkPixbufFrame">GdkPixbufFrame</link> in the signal.  As before, if you want to keep
+      the frame, you need to ref it.  Once the first "<link
+      linkend="GdkPixbufLoader-frame-done">frame_done</link>" signal
+      has been emitted, you can call <link linkend="gdk-pixbuf-loader-get-animation">gdk_pixbuf_loader_get_animation</link>()
+      to get the <link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link> struct.  Each subsequent frame
+      goes through a similar lifecycle.  For example "<link
+      linkend="GdkPixbufLoader-area-prepared">area_prepared</link>" is
+      re-emitted.  Then "<link
+      linkend="GdkPixbufLoader-area-updated">area_updated</link>" is
+      emitted as many times as necessary.  Finally, "<link
+      linkend="GdkPixbufLoader-animation-done">animation_done</link>"
+      is emitted as soon as all frames are done.
+    </para>
+  </refsect2>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GDK-PIXBUF-LOADER">GDK_PIXBUF_LOADER()</title>
+<programlisting>#define GDK_PIXBUF_LOADER(obj)		   (GTK_CHECK_CAST ((obj), GDK_TYPE_PIXBUF_LOADER, GdkPixbufLoader))
+</programlisting>
+  <para>
+    Casts a <link linkend="GtkObject">GtkObject</link> to a <link linkend="GdkPixbufLoader">GdkPixbufLoader</link>.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>obj</parameter>&nbsp;:</entry>
+<entry>A GTK+ object.
+
+
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-loader-new">gdk_pixbuf_loader_new ()</title>
+<programlisting><link linkend="GdkPixbufLoader">GdkPixbufLoader</link>* gdk_pixbuf_loader_new      (void);</programlisting>
+<para>
+Creates a new pixbuf loader object.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> A newly-created pixbuf loader.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-loader-write">gdk_pixbuf_loader_write ()</title>
+<programlisting><link linkend="gboolean">gboolean</link>    gdk_pixbuf_loader_write         (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader,
+                                             const <link linkend="guchar">guchar</link> *buf,
+                                             <link linkend="size-t">size_t</link> count);</programlisting>
+<para>
+This will cause a pixbuf loader to parse the next <parameter>count</parameter> bytes of an image.
+It will return TRUE if the data was loaded successfully, and FALSE if an
+error occurred.  In the latter case, the loader will be closed, and will not
+accept further writes.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry> A pixbuf loader.
+</entry></row>
+<row><entry align="right"><parameter>buf</parameter>&nbsp;:</entry>
+<entry> Pointer to image data.
+</entry></row>
+<row><entry align="right"><parameter>count</parameter>&nbsp;:</entry>
+<entry> Length of the <parameter>buf</parameter> buffer in bytes.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> <link linkend="TRUE">TRUE</link> if the write was successful, or <link linkend="FALSE">FALSE</link> if the loader
+cannot parse the buffer.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-loader-get-pixbuf">gdk_pixbuf_loader_get_pixbuf ()</title>
+<programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_loader_get_pixbuf    (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader);</programlisting>
+<para>
+Queries the GdkPixbuf that a pixbuf loader is currently creating.  In general
+it only makes sense to call this function afer the "area_prepared" signal has
+been emitted by the loader; this means that enough data has been read to know
+the size of the image that will be allocated.  If the loader has not received
+enough data via <link linkend="gdk-pixbuf-loader-write">gdk_pixbuf_loader_write</link>(), then this function returns NULL.
+The returned pixbuf will be the same in all future calls to the loader, so
+simply calling <link linkend="gdk-pixbuf-ref">gdk_pixbuf_ref</link>() should be sufficient to continue using it.  Additionally,
+if the loader is an animation, it will return the first frame of the animation.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry> A pixbuf loader.
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> The GdkPixbuf that the loader is creating, or NULL if not
+enough data has been read to determine how to create the image buffer.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-loader-get-animation">gdk_pixbuf_loader_get_animation ()</title>
+<programlisting><link linkend="GdkPixbufAnimation">GdkPixbufAnimation</link>* gdk_pixbuf_loader_get_animation
+                                            (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader);</programlisting>
+<para>
+Queries the GdkPixbufAnimation that a pixbuf loader is currently creating.
+In general it only makes sense to call this function afer the "area_prepared"
+signal has been emitted by the loader.  If the image is not an animation,
+then it will return NULL.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry> A pixbuf loader
+</entry></row>
+<row><entry align="right"><emphasis>Returns</emphasis> :</entry><entry> The GdkPixbufAnimation that the loader is loading, or NULL if
+ not enough data has been read to determine the information.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-loader-close">gdk_pixbuf_loader_close ()</title>
+<programlisting>void        gdk_pixbuf_loader_close         (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *loader);</programlisting>
+<para>
+Informs a pixbuf loader that no further writes with <link linkend="gdk-pixbuf-load-write">gdk_pixbuf_load_write</link>()
+will occur, so that it can free its internal loading structures.</para>
+<para>
+
+</para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry> A pixbuf loader.
+</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GdkPixbufLoader-area-updated">The &quot;area-updated&quot; signal</title>
+<programlisting>void        user_function                  (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gint">gint</link> arg1,
+                                            <link linkend="gint">gint</link> arg2,
+                                            <link linkend="gint">gint</link> arg3,
+                                            <link linkend="gint">gint</link> arg4,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+  <para>
+    This signal is emitted when a significant area of the image being
+    loaded has been updated.  Normally it means that a complete
+    scanline has been read in, but it could be a different area as
+    well.  Applications can use this signal to know when to repaint
+    areas of an image that is being loaded.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry>Loader which emitted the signal.
+</entry></row>
+<row><entry align="right"><parameter>x</parameter>&nbsp;:</entry>
+<entry>X offset of upper-left corner of the updated area.
+</entry></row>
+<row><entry align="right"><parameter>y</parameter>&nbsp;:</entry>
+<entry>Y offset of upper-left corner of the updated area.
+</entry></row>
+<row><entry align="right"><parameter>width</parameter>&nbsp;:</entry>
+<entry>Width of updated area.
+</entry></row>
+<row><entry align="right"><parameter>height</parameter>&nbsp;:</entry>
+<entry>Height of updated area.
+
+</entry></row>
+<row><entry align="right"><parameter>user_data</parameter>&nbsp;:</entry>
+<entry>user data set when the signal handler was connected.</entry></row>
+</tbody></tgroup></informaltable></refsect2><refsect2><title><anchor id="GdkPixbufLoader-area-prepared">The &quot;area-prepared&quot; signal</title>
+<programlisting>void        user_function                  (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+  <para>
+    This signal is emitted when the pixbuf loader has been fed the
+    initial amount of data that is required to figure out the size and
+    format of the image that it will create.  After this signal is
+    emitted, applications can call <link linkend="gdk-pixbuf-loader-get-pixbuf">gdk_pixbuf_loader_get_pixbuf</link>() to
+    fetch the partially-loaded pixbuf.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry>Loader which emitted the signal.
+
+</entry></row>
+<row><entry align="right"><parameter>user_data</parameter>&nbsp;:</entry>
+<entry>user data set when the signal handler was connected.</entry></row>
+</tbody></tgroup></informaltable></refsect2><refsect2><title><anchor id="GdkPixbufLoader-frame-done">The &quot;frame-done&quot; signal</title>
+<programlisting>void        user_function                  (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> arg1,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+  <para>
+    This signal is emitted when a frame is done loading.  It will be
+    emitted for each frame in an animation data stream.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry>Loader which emitted the signal.
+</entry></row>
+<row><entry align="right"><parameter>frame</parameter>&nbsp;:</entry>
+<entry>Frame which just completed loading.
+
+</entry></row>
+<row><entry align="right"><parameter>user_data</parameter>&nbsp;:</entry>
+<entry>user data set when the signal handler was connected.</entry></row>
+</tbody></tgroup></informaltable></refsect2><refsect2><title><anchor id="GdkPixbufLoader-animation-done">The &quot;animation-done&quot; signal</title>
+<programlisting>void        user_function                  (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+  <para>
+    This signal is emitted when an animation is done loading.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry>Loader which emitted the signal.
+
+</entry></row>
+<row><entry align="right"><parameter>user_data</parameter>&nbsp;:</entry>
+<entry>user data set when the signal handler was connected.</entry></row>
+</tbody></tgroup></informaltable></refsect2><refsect2><title><anchor id="GdkPixbufLoader-closed">The &quot;closed&quot; signal</title>
+<programlisting>void        user_function                  (<link linkend="GdkPixbufLoader">GdkPixbufLoader</link> *gdkpixbufloader,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+  <para>
+    This signal is emitted when <link linkend="gdk-pixbuf-loader-close">gdk_pixbuf_loader_close</link>() is called.
+    It can be used by different parts of an application to receive
+    notification when an image loader is closed by the code that
+    drives it.
+  </para><informaltable pgwide=1 frame="none" role="params">
+<tgroup cols="2">
+<colspec colwidth="2*">
+<colspec colwidth="8*">
+<tbody>
+<row><entry align="right"><parameter>loader</parameter>&nbsp;:</entry>
+<entry>Loader which emitted the signal.
+
+<!--
+Local variables:
+mode: sgml
+sgml-parent-document: ("../gdk-pixbuf.sgml" "book" "refsect2" "")
+End:
+-->
+
+</entry></row>
+<row><entry align="right"><parameter>user_data</parameter>&nbsp;:</entry>
+<entry>user data set when the signal handler was connected.</entry></row>
+</tbody></tgroup></informaltable></refsect2>
+</refsect1>
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="gdk-pixbuf-new-from-file">gdk_pixbuf_new_from_file</link>()
+  </para>
+</refsect1>
+
+</refentry>

@@ -1,0 +1,64 @@
+# The set of languages for which implicit dependencies are needed:
+SET(CMAKE_DEPENDS_LANGUAGES
+  "C"
+  )
+# The set of files for implicit dependencies of each language:
+SET(CMAKE_DEPENDS_CHECK_C
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/args.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/args.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/bitmap.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/bitmap.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/dsp.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/dsp.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/event.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/event.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/file.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/file.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/hexdump.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/hexdump.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/list.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/list.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/load_plugin.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/load_plugin.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/memory.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/memory.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/msusb.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/msusb.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/passphrase.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/passphrase.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/pcap.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/pcap.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/profiler.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/profiler.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/rail.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/rail.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/signal.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/signal.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/sleep.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/sleep.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/stopwatch.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/stopwatch.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/stream.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/stream.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/string.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/string.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/svc_plugin.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/svc_plugin.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/tcp.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/tcp.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/thread.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/thread.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/time.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/time.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/uds.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/uds.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/unicode.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/unicode.c.o"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/wait_obj.c" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/CMakeFiles/freerdp-utils.dir/wait_obj.c.o"
+  )
+SET(CMAKE_C_COMPILER_ID "GNU")
+
+# Preprocessor definitions for this target.
+SET(CMAKE_TARGET_DEFINITIONS
+  "HAVE_CONFIG_H"
+  "HAVE_CONFIG_H"
+  )
+
+# Pairs of files generated by the same build rule.
+SET(CMAKE_MULTIPLE_OUTPUT_PAIRS
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/libfreerdp-utils.so" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/libfreerdp-utils.so.1.1.0-dev"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/libfreerdp-utils.so.1.1" "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/libfreerdp/utils/libfreerdp-utils.so.1.1.0-dev"
+  )
+
+
+# Targets to which this target links.
+SET(CMAKE_TARGET_LINKED_INFO_FILES
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/winpr/libwinpr/crt/CMakeFiles/winpr-crt.dir/DependInfo.cmake"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/winpr/libwinpr/synch/CMakeFiles/winpr-synch.dir/DependInfo.cmake"
+  "/source/clients/freerdp-git-11032013-bmiklautz-numpadpatch/winpr/libwinpr/handle/CMakeFiles/winpr-handle.dir/DependInfo.cmake"
+  )
+
+# The include file search paths:
+SET(CMAKE_C_TARGET_INCLUDE_PATH
+  "."
+  "include"
+  "winpr/include"
+  )
+SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
+SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
+SET(CMAKE_ASM_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

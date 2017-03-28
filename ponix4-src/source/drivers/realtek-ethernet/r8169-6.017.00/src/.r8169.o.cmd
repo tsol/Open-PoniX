@@ -1,0 +1,1 @@
+cmd_/source/drivers/realtek-ethernet/r8169-6.017.00/src/r8169.o := ld -m elf_i386   -r -o /source/drivers/realtek-ethernet/r8169-6.017.00/src/r8169.o /source/drivers/realtek-ethernet/r8169-6.017.00/src/r8169_n.o 

@@ -1,0 +1,421 @@
+<?xml version="1.0"?>
+<theme name="blondie" author="Matthew Allum - mallum@handhelds.org"
+       desc="" version="1.0" engine_version="1" >
+
+<!-- List Resources, defined by an id and then a definition -->
+
+<!-- Colors, in the format #rrggbb. <color id="bgcol" def="#d6da7a" /> -->
+<color id="bgcol" def="#819cba" />
+<color id="dockcol" def="#e2dec6" />
+<color id="black" def="#000000cc" />
+<color id="lightside" def="#ffffff" />
+<color id="darkside" def="#9d9a8a" />
+<color id="red" def="#ff0000" />
+<color id="lowlightcol" def="#11111166" />
+<color id="menuhlcol" def="#9d9a8a" />
+<color id="shadowcol"   def="#11111166" />
+
+<!-- Fonts, alternate fonts can be listed seperated by a '|'   
+            The first matched will be used.                   -->
+<font id="titlefont" def="Sans bold 16px" />
+<font id="barfont"   def="Sans bold 10px" />
+
+<!-- Pixmaps. xpm or png ( if support compiled in ) supported.
+     They are expected to be found in the same location as this file -->
+<pixmap id="close"      filename="close.png" />
+<pixmap id="close-small" filename="close-small.png" />
+<pixmap id="menu"       filename="menu.png" />
+<pixmap id="hide"       filename="hide.png" />
+<pixmap id="next"       filename="next.png" />
+<pixmap id="prev"       filename="prev.png" />
+<pixmap id="accept"     filename="accept.png" />
+<pixmap id="que"        filename="que.png" />
+<pixmap id="titleleft"  filename="titleleft.png" />
+<pixmap id="titleright" filename="titleright.png" />
+<pixmap id="titlestrip" filename="titlestrip.png" />
+<pixmap id="dialogtopleft" filename="dialogtopleft.png" />
+<pixmap id="dialogtopright" filename="dialogtopright.png" />
+<pixmap id="dialogtoptile" filename="dialogtoptile.png" />
+<pixmap id="dialogbottomleft" filename="dialogbottomleft.png" />
+<pixmap id="dialogbottomright" filename="dialogbottomright.png" />
+<pixmap id="dialogbottomtile" filename="dialogbottomtile.png" />
+<pixmap id="dialogtopleft_notitle" filename="dialogtopleft2.png" />
+<pixmap id="dialogtopright_notitle" filename="dialogtopright2.png" />
+<pixmap id="dialogtoptile_notitle" filename="dialogtoptile2.png" />
+
+<!-- End resources, now frames ( window title/border decorations ). 
+
+     We now define each frame, for a particular window type, specified by
+     the 'id' attribute. 
+ 
+     Main and dialog windows can also have the borders defined. 
+-->
+
+<!-- Main windows title bar. You need to define its height -->
+<frame id="main" height="20">
+
+<!-- we then build up a number of layers. They are stacked composite 
+     on top of each other in the order there defined.  
+     They can be of the various types which reference various above resources.
+     The valid types are;     
+
+     plain          - A rectangle of solid color 
+     pixmap         - A pixmap stretched to its defined area. 
+	               specify w and h as 'object' to avoid stretching. 
+     pixmap-tiled   - As above but the pixmap is tiled
+     label          - This specifys where the title text is to be drawn.
+		      Note: this is always painted last.
+     gradient-horiz - Horizontaol gradient *
+     gradient-vert  - Vertical gradient    *
+     icon           - Window icon          *
+
+     Each layer have its geometry specified with the x, y, w and h attribues. 
+     They can be;
+
+     -  Percentages of the total frame size 
+     -  Absolute values from each side of the frame ( by using -/+ive values )
+     -  Reference the labels ( titles ) position ( lablex, labelw ) 
+
+     ...or simple combinations of a maximum of two of the above. See what is 
+     defined here for examples, and experiment !  
+
+     * See the 'gorilla' theme for examples of these.
+
+-->
+
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="bgcol" />
+
+  <layer x="5" y="0" w="100%-10"  h="100%" 
+   type="pixmap" pixmap="titlestrip" />
+
+  <layer x="0" y="0" w="object" h="object" 
+   type="pixmap" pixmap="titleleft" />
+
+  <layer x="-5" y="0" w="object" h="object" 
+   type="pixmap" pixmap="titleright" />
+
+  <layer x="14" y="2" w="100%-70" h="20" 
+   type="label" color="black" justify="left" font="titlefont" />
+
+<!-- Buttons.
+
+     Buttons are defined like layers. Each button has an action associated 
+     with it. Valid actions for a main client are -next, prev, close, hide, 
+     menu, help and accept. 
+
+    Each button ( except those defined inputonly. ) has an inactive 
+    and optionally active image. 
+
+     Notes:
+     - If a button is not defined it will not appear. 
+     - A button with the option 'inputonly' is invisible, but sensitve
+       to the defined area.
+     - You cant use 'object' in the geometry params. 
+     - Buttons appear on tope of everything else. 
+-->
+
+  <button x="5" y="5" w="6" h="4" action="menu" >
+   <active pixmap="menu" blend="-80"/>
+   <inactive pixmap="menu" />
+  </button>
+
+  <button x="labelx" y="2" w="labelw" h="20" 
+          action="menu" options="inputonly" />
+
+  <button x="-28" y="3" w="22" h="16" action="close" >
+   <active pixmap="close" blend="-80"/>
+   <inactive pixmap="close" />
+  </button>
+
+
+<!-- Advanced functionality, uncomment to enable
+
+  <button x="-42" y="2" w="16" h="16" action="hide" >
+   <active pixmap="hide" blend="-80" />
+   <inactive pixmap="hide" />
+  </button>
+
+  <button x="-35" y="0" w="8" h="16" action="next" >
+   <active pixmap="next" blend="-80"/>
+   <inactive pixmap="next" />
+  </button>
+
+  <button x="-47" y="0" w="8" h="16" action="prev" >
+   <active pixmap="prev" blend="-80" />
+   <inactive pixmap="prev" />
+  </button>
+
+  <button x="-59" y="0" w="8" h="16" action="accept" >
+   <active pixmap="accept" blend="-80" />
+   <inactive pixmap="accept" />
+  </button>
+
+  <button x="-71" y="0" w="8" h="16" action="help" >
+   <active pixmap="que" blend="-80" />
+   <inactive pixmap="que" />
+  </button>
+
+-->
+
+  <!-- support for panel in titlebar - not enabled in this theme
+   <panel x="100%-160" y="1" w="100" h="14" />
+    -->
+
+</frame>
+
+<!-- empty border frames, these are empty and will just be black with no 
+     layers. Notice the width/height attributes. -->
+
+<frame id="main-east"  width="1" />
+<frame id="main-west"  width="1" />
+<frame id="main-south" height="1" />
+
+
+<!-- dialog, the option specifys it will be shaped.
+     Any fully transparent pixels, will be masked to make this shaped 
+     window -->
+<frame id="dialog" height="16" options="shaped">
+
+  <layer x="5" y="0" w="100%-5"  h="100%" 
+   type="pixmap" pixmap="dialogtoptile" />
+
+  <layer x="0" y="0" w="object" h="object" 
+   type="pixmap" pixmap="dialogtopleft" />
+
+  <layer x="-5" y="0" w="object" h="object" 
+   type="pixmap" pixmap="dialogtopright" />
+
+  <layer x="14" y="1" w="100%-60" h="20" 
+   type="label" color="black" justify="left" font="titlefont" />
+
+   <!-- only a close, help or accept actioned button is valid -->
+
+  <button x="-13" y="0" w="7" h="16" action="close" >
+   <active pixmap="close-small" blend="-80"/>
+   <inactive pixmap="close-small" />
+  </button>
+
+  <button x="-24" y="0" w="8" h="16" action="accept" >
+   <active pixmap="accept" blend="-80" />
+   <inactive pixmap="accept" />
+  </button>
+
+  <button x="-34" y="0" w="8" h="16" action="help" >
+   <active pixmap="que" blend="-80" />
+   <inactive pixmap="que" />
+  </button>
+
+</frame>
+
+
+<!-- dialog borders, note they inherit the shaped option.
+     Do not specify buttons for them!                       -->
+
+<!-- The north dialog is only used when the dialog specifies it wants 
+     borders only, no title bar -->
+<frame id="dialog-north" height="5" options="shaped">
+
+  <layer x="5" y="0" w="100%-5"  h="100%"
+   type="pixmap" pixmap="dialogtoptile_notitle" />
+        
+  <layer x="0" y="0" w="object" h="object"
+   type="pixmap" pixmap="dialogtopleft_notitle" />
+                 
+  <layer x="-5" y="0" w="object" h="object"
+   type="pixmap" pixmap="dialogtopright_notitle" />
+  
+</frame>
+
+<frame id="dialog-east" width="2" >
+
+  <layer x="0" y="0" w="1"  h="100%" 
+   type="plain" color="darkside" />
+
+  <layer x="1" y="0" w="1"  h="100%" 
+   type="plain" color="black" />
+
+</frame>
+
+<frame id="dialog-west" width="2" >
+
+  <layer x="0" y="0" w="1"  h="100%" 
+   type="plain" color="black" />
+
+  <layer x="1" y="0" w="1"  h="100%" 
+   type="plain" color="lightside" />
+
+</frame>
+
+<frame id="dialog-south" height="5" >
+
+  <layer x="5" y="0" w="100%-5"  h="100%" 
+   type="pixmap" pixmap="dialogbottomtile" />
+
+  <layer x="0" y="0" w="object" h="object" 
+   type="pixmap" pixmap="dialogbottomleft" />
+
+  <layer x="-5" y="0" w="object" h="object" 
+   type="pixmap" pixmap="dialogbottomright" />
+
+</frame>
+
+<!-- message dialogs - only of use if mb is compiled to support these -->
+
+<frame id="message" height="4" >
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="red" />
+</frame>
+
+<frame id="message-east"  width="4" >
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="red" />
+</frame>
+
+<frame id="message-west"  width="4" >
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="red" />
+</frame>
+
+<frame id="message-south" height="4">
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="red" />
+</frame>
+
+<!-- utilities are things like xkbd. You need to define frames for 
+     both minimised and maximised states  -->
+
+<frame id="utility-max" width="12">
+
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="lightside" />
+
+  <layer x="1" y="1" w="100%-1"  h="100%-1" 
+   type="plain" color="darkside" />
+
+  <layer x="1" y="1" w="100%-2"  h="100%-2" 
+   type="plain" color="dockcol" />
+
+   <!-- Buttons, minimise action only valid here -->
+
+  <button x="3" y="1" w="12" h="12" action="minimize" >
+   <active pixmap="next" blend="-80"/>
+   <inactive pixmap="next" />
+  </button>
+
+  <button x="0" y="0" w="100%" h="100%" action="minimize" options="inputonly"/>
+
+</frame>
+
+<frame id="utility-min" height="12">
+
+  <layer x="0" y="0" w="100%"  h="100%" 
+   type="plain" color="lightside" />
+
+  <layer x="1" y="1" w="100%-1"  h="100%-1" 
+   type="plain" color="darkside" />
+
+  <layer x="1" y="1" w="100%-2"  h="100%-2" 
+   type="plain" color="dockcol" />
+
+  <layer x="14" y="0" w="100%-60" h="20" 
+   type="label" color="black" justify="left" font="barfont" />
+
+   <!-- close and maximise button actions valid here -->
+
+  <button x="0" y="0" w="100%-20" h="100%" 
+  action="maximize" options="inputonly"/>
+
+  <button x="-20" y="0" w="22" h="12" action="close" >
+   <active pixmap="close" blend="-80"/>
+   <inactive pixmap="close" />
+  </button>
+
+</frame>
+
+<!-- 
+    menu frames behave slightly differently to other frames and therefore
+    have extra attributes.  
+
+    - Size is calculated automatically. You can also optionally specify the 
+      spacing around the rendered menu items. eg;
+
+        border_north="0" 
+        border_south="5" 
+        border_east="2"
+        border_west="2"  
+
+      You can overide the auto calculated width with the 'fixed_width' 
+      frame attribute. A pixel size is expected. 
+
+    - The menu will automatically be aligned with the menu button.
+      You can overide this with the 'fixed_width' frame attribute. 
+      A pixel size is expected.
+
+    - No layer type label, for the menu text you need to specify extra 
+      attributes in the frame tag. eg;
+
+        font="titlefont" 
+        color="black" 
+        highlight="menuhlcol" 
+
+    - There are no buttons.
+
+-->
+
+<frame  id="menu" 
+        border_north="2" 
+        border_south="5" 
+        border_east="2"
+        border_west="2"  
+        font="titlefont" 
+        color="black" 
+        highlight="menuhlcol" 
+        options="shaped">
+
+  <layer x="0" y="0" w="100%"  h="-5" 
+   type="plain" color="black" />
+
+  <layer x="1" y="0" w="100%-2"  h="-5" 
+   type="plain" color="dockcol" />
+
+  <layer x="0" y="0" w="100%"  h="1" 
+   type="plain" color="lightside" />
+
+  <layer x="2" y="0" w="1"  h="-5" 
+   type="plain" color="lightside" />
+
+  <layer x="-2" y="0" w="1"  h="-5" 
+   type="plain" color="darkside" />
+
+  <layer x="5" y="-5" w="100%-10"  h="5" 
+   type="pixmap" pixmap="dialogbottomtile" />
+
+  <layer x="0" y="-5" w="object" h="object" 
+   type="pixmap" pixmap="dialogbottomleft" />
+
+  <layer x="-5" y="-5" w="object" h="object" 
+   type="pixmap" pixmap="dialogbottomright" />
+
+</frame>
+
+<!-- Specific global properties -->
+
+<!-- only takes effect if -use_lowlight switch used 
+     or mb is built with composite  -->
+
+<lowlight color="lowlightcol" /> 
+
+<!-- tweak the shadow style -->
+<!-- <shadow style="gaussian" /> -->
+<shadow style="simple" dx="3" dy="3" color="shadowcol"/>
+
+<!-- You can specify a character to be replaced by an image in text labels
+<subst char=":" pixmap="que" />
+-->
+
+<!-- Set cursor theme and size
+<cursor theme="foo" size="128" />
+-->
+
+</theme>

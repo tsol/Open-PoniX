@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Formats a 1440Kb DOS floppy disk.
+
+TITLE="HD floppy DOS format"
+
+# Change the following variable to suit your system:
+DEVICE="/dev/fd0u1440"
+MAX_TRACK=79
+# This changes depending on your language...
+FDFORMAT_MSG_LENGTH=87
+
+fdformat -n $DEVICE | \
+Xdialog --title "$TITLE" --no-close \
+	--progress "Please wait while low-level formatting...\n\n" 0 0 \
+	$MAX_TRACK $FDFORMAT_MSG_LENGTH
+
+( mkdosfs $DEVICE 2>/dev/null ; echo "XXXX" ) |
+Xdialog --title "$TITLE" --no-close --no-buttons \
+	--infobox "Making the DOS filesystem..." 0 0 0
+
+Xdialog --title "$TITLE" --msgbox "All done !" 0 0

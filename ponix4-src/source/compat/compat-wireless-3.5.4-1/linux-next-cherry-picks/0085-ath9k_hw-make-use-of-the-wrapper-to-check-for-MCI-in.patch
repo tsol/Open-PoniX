@@ -1,0 +1,26 @@
+From 812944891c598300afcc5628905d775019f25310 Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Wed, 27 Jun 2012 20:00:26 +0530
+Subject: [PATCH 85/90] ath9k_hw: make use of the wrapper to check for MCI
+ init
+
+ath9k_hw_mci_is_enabled wrapper also takes care of
+ATH9K_HW_CAP_MCI being set for the AR9462 under test.
+
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/gpio.c
++++ b/drivers/net/wireless/ath/ath9k/gpio.c
+@@ -416,7 +416,7 @@ int ath9k_init_btcoex(struct ath_softc *
+ 		txq = sc->tx.txq_map[WME_AC_BE];
+ 		ath9k_hw_init_btcoex_hw(sc->sc_ah, txq->axq_qnum);
+ 		sc->btcoex.bt_stomp_type = ATH_BTCOEX_STOMP_LOW;
+-		if (AR_SREV_9462(ah)) {
++		if (ath9k_hw_mci_is_enabled(ah)) {
+ 			sc->btcoex.duty_cycle = ATH_BTCOEX_DEF_DUTY_CYCLE;
+ 			INIT_LIST_HEAD(&sc->btcoex.mci.info);
+ 

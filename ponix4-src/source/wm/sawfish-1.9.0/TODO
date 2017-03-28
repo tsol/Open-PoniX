@@ -1,0 +1,274 @@
+-*- indented-text -*-
+
+IMPORTANT:
+
+This file is probably out of date. Use bugzilla.gnome.org instead. See
+the file `CONTRIBUTING' for instructions on reporting sawfish bugs.
+
+--
+
+TODO list for sawfish
+*********************
+
+Bugs are marked !, things that should be done soon are marked +,
+and longer-term ideas are marked -
+
+Outstanding bugs
+================
+
+  ! click-to-focus mode; cycle from a shade-hovered window to a normal
+    window, hideous flicker ensues
+
+  ! pavel says that in click-to-focus mode windows may occasionally
+    become unfocusable (i.e. every couple of days or so)
+
+    [ I added some code with high kludge-quotient, but still need a
+      real solution ]
+
+  ! uses a really kludgey method of getting command documentation.
+    In some cases it falls back to keying off the name associated with
+    the closure object.
+
+  ! need better error handling in sawfish-config (e.g. values that don't
+    match widget types)
+
+  ! workspace names don't change as workspaces are added/deleted
+
+    solution: use an alist mapping workspace ids to workspace names,
+    transform-window-workspaces also transforms the alist..?
+
+  ! in xdvi with emulate3buttons, press and hold right, then press
+    left, the wm root menu appears?!
+
+  ! `:type (or ...)' doesn't get serialized (and can't be) The
+    type-system for config items serializes and deserializes to/from
+    strings for types with no read syntax. The `:or' widget breaks
+    this scheme since there's no way to infer the type from the
+    object.
+
+    The workaround is to avoid declaring :or types whose components
+    have no read syntax..
+
+  ! running multiple instances of the wm loses,
+    because they share the same ~/.sawfish/custom file
+
+  ! keeping unshown windows unmapped isn't so great?
+
+    the ICCCM says that to go to Withdrawn state a window must send a
+    synthetic UnmapNotify, so this is not a problem. But it also says:
+    `NormalState - the client's top-level window is viewable'
+
+    one option is to set all hidden windows to IconicState. But this
+    would probably confuse the tasklist applet..
+
+    [ I have a patch to do this, and it totally breaks the workspace
+      handling of desk-guide and the tasklist ]
+
+  ! anim-outline just guesses where windows will be iconified to, so it
+    usually gets it wrong
+
+    [ the new GNOME/KDE wm hints have support for this ]
+
+  ! timestamp ordering code falls over with machines that vary their
+    clock rate..
+
+  ! swapped-out window properties aren't saved with session
+    This also means that a window in different viewports in different
+    workspaces will get saved in the single swapped-in viewport.
+
+  ! I bring up an exmh transient, and place it so it's totally enclosed
+    by the exmh parent window.  I put my mouse in the middle of the
+    transient so it has focus (I'm using sloppy focus.)  I then move to
+    a different desktop, and back. The transient window has focus still
+    (ie. I can type in it), but the frame is drawn in the unfocused
+    style.
+
+  ! edge-flipping while interactively placing a window can leave
+    rubber-band traces [this is hard to fix..]
+
+  ! if i press M-button1 (move-window-interactively) but not move the
+    window and _hold_ button1, it gets raised, but the window
+    decoration is not drawn, only if i move the window or release the
+    button
+
+  + Window history problems
+    - Saved old histories can cause problems. See
+      http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=114945&repeatmerged=yes
+
+  + allow enter/leave-notify events to be suppressed?
+
+    (use this when switching workspaces, but focus must be preserved)
+
+
+Window manager tasks
+====================
+
+  ! when drawing into frame parts manually, no way to set shape
+
+  ! should save increment-relative dimensions (not pixel relative)
+
+  + allow unused themes to be garbage-collected? (custom options?)
+
+  + commands to forward buttons 4&5 (mouse wheel) to the focused
+    window. My first attempt at this doesn't work..
+    
+  + make command list hierarchical?
+
+  + look into tear-off menus
+
+    need some way of notifying when dynamically generated menus have
+    changed
+
+  + some hci ideas:
+
+    placement mode to favour some/any of:
+
+	- near other windows in the same group
+
+    theme that has visual cues (colours?) for group membership
+
+  + look at kde khotkeys for ideas
+
+  + Full support of ewmh 
+
+  + sound themes
+
+  + drag-and-drop to configure window appearance?
+
+    this could depend on the theme, but it would be good to allow
+    dropping of colors (gradients?) and images for at least some themes
+
+    add a hook (frame-part-drop-hook?)
+
+    also allow theme files to be dropped on windows
+
+  + add a (destroyed . FUN) attribute to display-message
+
+    also allow multiple messages to be displayed/managed
+
+  + allow transparent backgrounds to frame parts
+
+    need to use overlays, solaris X server supports two types, what
+    about XFree?
+
+  + add option to prevent workspace switching while cycling
+
+  + in interactive placement, allow the window-pointer position to be
+    configurable 
+
+  + allow configuration of where move/resize display appears
+
+    allow relative to window, or relative to root, for both x and y
+
+  + Handle multiple-screen displays
+
+    What are the issues? Multiple root windows, and..?
+
+    [ use `Xnest -scrns N' to simulate multi-heading ]
+
+  + Icons (?)
+
+    Icons could be handled using a special frame/window type
+
+  - Rotated text
+
+    Allow text to be rendered at angles (in multiples of 90 degrees?).
+    This could be useful for the sides of windows
+
+    [ scp found a library for doing this with Xlib.. ]
+
+  - GTK theme
+
+    Is there any way that the gtk theme could support engine-based GTK
+    themes? Probably not without using a subprocess (since the engines
+    are written to GDK, not Xlib), this could get hairy..
+
+    Also, why do themes with bg_pixmap set use so much memory? Is it
+    just because the images are XPM's..?
+
+    re: engines, now that frame parts are proper objects, and thus
+    fg/bg specifiers may be functions, it should be possible to spawn a
+    GTK slave to do all redrawing (using the gtk_draw_foo functions)
+
+    have to be careful to avoid deadlocks though. Maybe avoid using
+    fifos for this reason, perhaps use SYSV shared memory segments and
+    semaphores?
+
+    [ I have a patch that does a first approximation of this, the
+    problem however is that GTK doesn't have enough drawing primitives 
+    to cleanly handle all buttons etc.. ]
+
+  - Remove root menu?
+
+    The argument is that doing this removes the need for the wm to
+    select ButtonPress events on the root window (which is a point of
+    conflict with, for example, a desktop file manager)
+
+    The sole need for the wm to manage the root menus (as far as I can
+    see) is so that it can offer window management functions (such as
+    "interactively move the focused window" or whatever), but all
+    these things can be invoked through sawfish-client, i.e.
+    "sawfish-client -c move-window-interactively"
+
+    With a bit of work the dynamically generated menus (e.g. the window
+    and workspace submenus) could also be generated through the client
+
+  - CORBA interface
+
+    I have a prototype idl, but it needs rewriting. The idea is to
+    basically reimplement the new GNOME/KDE wm hints using CORBA,
+    perhaps with some other useful features
+
+    Use rep-orbit to provide the CORBA binding
+
+  - `wmlets'
+
+    allow applications to inject ``policy'' into the wm to affect their
+    windows. This could either be (sandboxed?) lisp code, or something
+    more declarative (but even then it could be lisp data)
+
+    obvious uses for this: focus policy, placement policy, appearance
+    (apps that must (?) theme themself could also control their frames
+    without losing the consistent feel provided by the wm), ...?
+
+    (didn't NeWS allow this kind of thing, must do research..)
+
+   - Doc todos
+     workspaces, viewports, window groups, alist frame patterns,
+     frame parts as objects, placement, focus modes, symbolic event
+     structures...
+
+   - While choosing the theme, only the default type can be
+     previewed. One workaround is to temporarily change the `default'
+     mapping. Another is to print sample 4 types of windows.
+     * highlight the current frame part somehow
+     * clicking/hovering on a frame part selects that definition
+       <- But frame parts are defined inside of an entire design.
+     * auto-update, either after each change, or from the idle-hook?
+
+   - User customization of frame parts
+     Possibly add an `(extra sexp)' field that is evaluated then added
+     to the end of the frame part definition. But this is a horrible
+     kludge..
+
+configurator tasks
+========
+
+  + reversed dependences? i.e. `:depends (not foo)'
+
+  + more widgets:
+
+	(table ("NAME" ...) (WIDGET ...))	[doable]
+
+	(directory-name),
+
+  + maybe use CORBA for wm communication instead of client program? (or
+    perhaps support both somehow?)
+
+  + do i18n on choices from `:type symbol' options
+
+    also, strings embedded in types, e.g. list titles
+
+  + split theme menu by first letter, if many themes to show
+
+  + textual search for options/commands

@@ -1,0 +1,460 @@
+<refentry id="gdk-Images">
+<refmeta>
+<refentrytitle>Images</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Images</refname><refpurpose>A client-side area for bit-mapped graphics</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk/gdk.h&gt;
+
+
+struct      <link linkend="GdkImage">GdkImage</link>;
+<link linkend="GdkImage">GdkImage</link>*   <link linkend="gdk-image-new">gdk_image_new</link>                   (<link linkend="GdkImageType">GdkImageType</link> type,
+                                             <link linkend="GdkVisual">GdkVisual</link> *visual,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);
+enum        <link linkend="GdkImageType">GdkImageType</link>;
+<link linkend="GdkImage">GdkImage</link>*   <link linkend="gdk-image-new-bitmap">gdk_image_new_bitmap</link>            (<link linkend="GdkVisual">GdkVisual</link> *visual,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);
+<link linkend="GdkImage">GdkImage</link>*   <link linkend="gdk-image-get">gdk_image_get</link>                   (<link linkend="GdkDrawable">GdkDrawable</link> *drawable,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);
+<link linkend="GdkImage">GdkImage</link>*   <link linkend="gdk-image-ref">gdk_image_ref</link>                   (<link linkend="GdkImage">GdkImage</link> *image);
+<link linkend="void">void</link>        <link linkend="gdk-image-unref">gdk_image_unref</link>                 (<link linkend="GdkImage">GdkImage</link> *image);
+#define     <link linkend="gdk-image-destroy">gdk_image_destroy</link>
+<link linkend="GdkColormap">GdkColormap</link>* <link linkend="gdk-image-get-colormap">gdk_image_get_colormap</link>         (<link linkend="GdkImage">GdkImage</link> *image);
+<link linkend="void">void</link>        <link linkend="gdk-image-set-colormap">gdk_image_set_colormap</link>          (<link linkend="GdkImage">GdkImage</link> *image,
+                                             <link linkend="GdkColormap">GdkColormap</link> *colormap);
+
+<link linkend="void">void</link>        <link linkend="gdk-image-put-pixel">gdk_image_put_pixel</link>             (<link linkend="GdkImage">GdkImage</link> *image,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="guint32">guint32</link> pixel);
+<link linkend="guint32">guint32</link>     <link linkend="gdk-image-get-pixel">gdk_image_get_pixel</link>             (<link linkend="GdkImage">GdkImage</link> *image,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GdkImage"><type>GdkImage</type></link> type represents an area for drawing graphics.
+It has now been superceded to a large extent by the much more flexible
+<link linkend="gdk-GdkRGB">GdkRGB</link> functions.
+</para>
+<para>
+To create an empty <link linkend="GdkImage"><type>GdkImage</type></link> use <link linkend="gdk-image-new"><function>gdk_image_new()</function></link>.
+To create a <link linkend="GdkImage"><type>GdkImage</type></link> from bitmap data use <link linkend="gdk-image-new-bitmap"><function>gdk_image_new_bitmap()</function></link>.
+To create an image from part of a <link linkend="GdkWindow"><type>GdkWindow</type></link> use <link linkend="gdk-drawable-get-image"><function>gdk_drawable_get_image()</function></link>.
+</para>
+<para>
+The image can be manipulated with <link linkend="gdk-image-get-pixel"><function>gdk_image_get_pixel()</function></link> and
+<link linkend="gdk-image-put-pixel"><function>gdk_image_put_pixel()</function></link>, or alternatively by changing the actual pixel data.
+Though manipulating the pixel data requires complicated code to cope with
+the different formats that may be used.
+</para>
+<para>
+To draw a <link linkend="GdkImage"><type>GdkImage</type></link> in a <link linkend="GdkWindow"><type>GdkWindow</type></link> or <link linkend="GdkPixmap"><type>GdkPixmap</type></link> use <link linkend="gdk-draw-image"><function>gdk_draw_image()</function></link>.
+</para>
+<para>
+To destroy a <link linkend="GdkImage"><type>GdkImage</type></link> use <link linkend="gdk-image-destroy"><function>gdk_image_destroy()</function></link>.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GdkImage"/>struct GdkImage</title>
+<indexterm><primary>GdkImage</primary></indexterm><programlisting>struct GdkImage {
+
+  GObject parent_instance;
+
+  
+  GdkImageType	type; /* read only. */
+  GdkVisual    *visual;	    /* read only. visual used to create the image */
+  GdkByteOrder	byte_order; /* read only. */
+  gint		width; /* read only. */
+  gint		height; /* read only. */
+  guint16	depth; /* read only. */
+  guint16	bpp;	        /* read only. bytes per pixel */
+  guint16	bpl;	        /* read only. bytes per line */
+  guint16       bits_per_pixel; /* read only. bits per pixel */
+  gpointer	mem;
+
+  GdkColormap  *colormap; /* read only. */
+  
+  gpointer windowing_data; /* read only. */
+};
+</programlisting>
+<para>
+The <link linkend="GdkImage"><type>GdkImage</type></link> struct contains information on the image and the pixel data.
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="GObject">GObject</link> <structfield>parent_instance</structfield></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkImageType">GdkImageType</link> <structfield>type</structfield></term>
+<listitem><simpara>the type of the image.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkVisual">GdkVisual</link> *<structfield>visual</structfield></term>
+<listitem><simpara>the visual.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkByteOrder">GdkByteOrder</link> <structfield>byte_order</structfield></term>
+<listitem><simpara>the byte order.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>width</structfield></term>
+<listitem><simpara>the width of the image in pixels.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gint">gint</link> <structfield>height</structfield></term>
+<listitem><simpara>the height of the image in pixels.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>depth</structfield></term>
+<listitem><simpara>the depth of the image, i.e. the number of bits per pixel.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>bpp</structfield></term>
+<listitem><simpara>the number of bytes per pixel.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>bpl</structfield></term>
+<listitem><simpara>the number of bytes per line of the image.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="guint16">guint16</link> <structfield>bits_per_pixel</structfield></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gpointer">gpointer</link> <structfield>mem</structfield></term>
+<listitem><simpara>the pixel data.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="GdkColormap">GdkColormap</link> *<structfield>colormap</structfield></term>
+<listitem><simpara>
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="gpointer">gpointer</link> <structfield>windowing_data</structfield></term>
+<listitem><simpara>
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-new"/>gdk_image_new ()</title>
+<indexterm><primary>gdk_image_new</primary></indexterm><programlisting><link linkend="GdkImage">GdkImage</link>*   gdk_image_new                   (<link linkend="GdkImageType">GdkImageType</link> type,
+                                             <link linkend="GdkVisual">GdkVisual</link> *visual,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);</programlisting>
+<para>
+Creates a new <link linkend="GdkImage"><type>GdkImage</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>type</parameter>&nbsp;:</term>
+<listitem><simpara>the type of the <link linkend="GdkImage"><type>GdkImage</type></link>, one of <literal>GDK_IMAGE_NORMAL</literal>, <literal>GDK_IMAGE_SHARED</literal>
+and <literal>GDK_IMAGE_FASTEST</literal>. <literal>GDK_IMAGE_FASTEST</literal> is probably the best choice, since
+it will try creating a <literal>GDK_IMAGE_SHARED</literal> image first and if that fails it will
+then use <literal>GDK_IMAGE_NORMAL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>visual</parameter>&nbsp;:</term>
+<listitem><simpara>the <link linkend="GdkVisual"><type>GdkVisual</type></link> to use for the image.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara>the width of the image in pixels.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara>the height of the image in pixels.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a new <link linkend="GdkImage"><type>GdkImage</type></link>, or NULL if the image could not be created.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GdkImageType"/>enum GdkImageType</title>
+<indexterm><primary>GdkImageType</primary></indexterm><programlisting>typedef enum
+{
+  GDK_IMAGE_NORMAL,
+  GDK_IMAGE_SHARED,
+  GDK_IMAGE_FASTEST
+} GdkImageType;
+</programlisting>
+<para>
+Specifies the type of a <link linkend="GdkImage"><type>GdkImage</type></link>.
+</para><variablelist role="enum">
+<varlistentry>
+<term><literal>GDK_IMAGE_NORMAL</literal></term>
+<listitem><simpara>The original X image type, which is quite slow since the
+image has to be transferred from the client to the server to display it.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_IMAGE_SHARED</literal></term>
+<listitem><simpara>A faster image type, which uses shared memory to transfer
+the image data between client and server. However this will only be available
+if client and server are on the same machine and the shared memory extension
+is supported by the server.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>GDK_IMAGE_FASTEST</literal></term>
+<listitem><simpara>Specifies that <literal>GDK_IMAGE_SHARED</literal> should be tried first,
+and if that fails then <literal>GDK_IMAGE_NORMAL</literal> will be used.
+
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-new-bitmap"/>gdk_image_new_bitmap ()</title>
+<indexterm><primary>gdk_image_new_bitmap</primary></indexterm><programlisting><link linkend="GdkImage">GdkImage</link>*   gdk_image_new_bitmap            (<link linkend="GdkVisual">GdkVisual</link> *visual,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);</programlisting>
+<warning><para><literal>gdk_image_new_bitmap</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates a new <link linkend="GdkImage"><type>GdkImage</type></link> with a depth of 1 from the given data.
+<warning><para>THIS FUNCTION IS INCREDIBLY BROKEN. The passed-in data must 
+be allocated by <link linkend="malloc"><function>malloc()</function></link> (NOT <link linkend="g-malloc"><function>g_malloc()</function></link>) and will be freed when the 
+image is freed.</para></warning></para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>visual</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="GdkVisual"><type>GdkVisual</type></link> to use for the image.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> the pixel data. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> the width of the image in pixels. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> the height of the image in pixels. 
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GdkImage"><type>GdkImage</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-get"/>gdk_image_get ()</title>
+<indexterm><primary>gdk_image_get</primary></indexterm><programlisting><link linkend="GdkImage">GdkImage</link>*   gdk_image_get                   (<link linkend="GdkDrawable">GdkDrawable</link> *drawable,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="gint">gint</link> width,
+                                             <link linkend="gint">gint</link> height);</programlisting>
+<warning><para><literal>gdk_image_get</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+This is a deprecated wrapper for <link linkend="gdk-drawable-get-image"><function>gdk_drawable_get_image()</function></link>;
+<link linkend="gdk-drawable-get-image"><function>gdk_drawable_get_image()</function></link> should be used instead. Or even better: in
+most cases <link linkend="gdk-pixbuf-get-from-drawable"><function>gdk_pixbuf_get_from_drawable()</function></link> is the most convenient
+choice.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>drawable</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkDrawable"><type>GdkDrawable</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara> x coordinate in <parameter>window</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara> y coordinate in <parameter>window</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> width of area in <parameter>window</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> height of area in <parameter>window</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GdkImage"><type>GdkImage</type></link> or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-ref"/>gdk_image_ref ()</title>
+<indexterm><primary>gdk_image_ref</primary></indexterm><programlisting><link linkend="GdkImage">GdkImage</link>*   gdk_image_ref                   (<link linkend="GdkImage">GdkImage</link> *image);</programlisting>
+<warning><para><literal>gdk_image_ref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated function; use <link linkend="g-object-ref"><function>g_object_ref()</function></link> instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>image</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkImage"><type>GdkImage</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the image
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-unref"/>gdk_image_unref ()</title>
+<indexterm><primary>gdk_image_unref</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_image_unref                 (<link linkend="GdkImage">GdkImage</link> *image);</programlisting>
+<warning><para><literal>gdk_image_unref</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deprecated function; use <link linkend="g-object-unref"><function>g_object_unref()</function></link> instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>image</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkImage"><type>GdkImage</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-destroy"/>gdk_image_destroy</title>
+<indexterm><primary>gdk_image_destroy</primary></indexterm><programlisting>#define gdk_image_destroy              gdk_image_unref
+</programlisting>
+<warning><para><literal>gdk_image_destroy</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Destroys a <link linkend="GdkImage"><type>GdkImage</type></link>, freeing any resources allocated for it.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-get-colormap"/>gdk_image_get_colormap ()</title>
+<indexterm><primary>gdk_image_get_colormap</primary></indexterm><programlisting><link linkend="GdkColormap">GdkColormap</link>* gdk_image_get_colormap         (<link linkend="GdkImage">GdkImage</link> *image);</programlisting>
+<para>
+Retrieves the colormap for a given image, if it exists.  An image
+will have a colormap if the drawable from which it was created has
+a colormap, or if a colormap was set explicitely with
+<link linkend="gdk-image-set-colormap"><function>gdk_image_set_colormap()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>image</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkImage"><type>GdkImage</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> colormap for the image
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-set-colormap"/>gdk_image_set_colormap ()</title>
+<indexterm><primary>gdk_image_set_colormap</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_image_set_colormap          (<link linkend="GdkImage">GdkImage</link> *image,
+                                             <link linkend="GdkColormap">GdkColormap</link> *colormap);</programlisting>
+<para>
+Sets the colormap for the image to the given colormap.  Normally
+there's no need to use this function, images are created with the
+correct colormap if you get the image from a drawable. If you
+create the image from scratch, use the colormap of the drawable you
+intend to render the image to.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>image</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkImage"><type>GdkImage</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colormap</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkColormap"><type>GdkColormap</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-put-pixel"/>gdk_image_put_pixel ()</title>
+<indexterm><primary>gdk_image_put_pixel</primary></indexterm><programlisting><link linkend="void">void</link>        gdk_image_put_pixel             (<link linkend="GdkImage">GdkImage</link> *image,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y,
+                                             <link linkend="guint32">guint32</link> pixel);</programlisting>
+<para>
+Sets a pixel in a <link linkend="GdkImage"><type>GdkImage</type></link> to a given pixel value.
+</para><variablelist role="params">
+<varlistentry><term><parameter>image</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkImage"><type>GdkImage</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara>the x coordinate of the pixel to set.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara>the y coordinate of the pixel to set.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixel</parameter>&nbsp;:</term>
+<listitem><simpara>the pixel value to set.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-image-get-pixel"/>gdk_image_get_pixel ()</title>
+<indexterm><primary>gdk_image_get_pixel</primary></indexterm><programlisting><link linkend="guint32">guint32</link>     gdk_image_get_pixel             (<link linkend="GdkImage">GdkImage</link> *image,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);</programlisting>
+<para>
+Gets a pixel value at a specified position in a <link linkend="GdkImage"><type>GdkImage</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>image</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GdkImage"><type>GdkImage</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara>the x coordinate of the pixel to get.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara>the y coordinate of the pixel to get.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the pixel value at the given position.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<variablelist>
+
+<varlistentry>
+<term><link linkend="gdk-Bitmaps-and-Pixmaps">Bitmaps and Pixmaps</link></term>
+<listitem><para>
+Graphics which are stored on the X Windows server.
+Since these are stored on the server they can be drawn very quickly, and all
+of the <link linkend="gdk-Drawing-Primitives">Drawing Primitives</link> can be
+used to draw on them. Their main disadvantage is that manipulating individual
+pixels can be very slow.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><link linkend="gdk-GdkRGB">GdkRGB</link></term>
+<listitem><para>
+Built on top of <link linkend="GdkImage"><type>GdkImage</type></link>, this provides much more functionality,
+including the dithering of colors to produce better output on low-color
+displays.
+</para></listitem>
+</varlistentry>
+
+</variablelist>
+</para>
+</refsect1>
+
+</refentry>

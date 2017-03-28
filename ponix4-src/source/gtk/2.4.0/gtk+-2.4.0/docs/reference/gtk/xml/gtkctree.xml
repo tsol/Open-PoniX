@@ -1,0 +1,2641 @@
+<refentry id="GtkCTree">
+<refmeta>
+<refentrytitle>GtkCTree</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkCTree</refname><refpurpose>a widget displaying a hierarchical tree.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkCTree-struct">GtkCTree</link>;
+#define     <link linkend="GTK-CTREE-ROW-CAPS">GTK_CTREE_ROW</link>                   (_node_)
+#define     <link linkend="GTK-CTREE-NODE-CAPS">GTK_CTREE_NODE</link>                  (_node_)
+#define     <link linkend="GTK-CTREE-NODE-NEXT-CAPS">GTK_CTREE_NODE_NEXT</link>             (_nnode_)
+#define     <link linkend="GTK-CTREE-NODE-PREV-CAPS">GTK_CTREE_NODE_PREV</link>             (_pnode_)
+#define     <link linkend="GTK-CTREE-FUNC-CAPS">GTK_CTREE_FUNC</link>                  (_func_)
+enum        <link linkend="GtkCTreePos">GtkCTreePos</link>;
+enum        <link linkend="GtkCTreeLineStyle">GtkCTreeLineStyle</link>;
+enum        <link linkend="GtkCTreeExpanderStyle">GtkCTreeExpanderStyle</link>;
+enum        <link linkend="GtkCTreeExpansionType">GtkCTreeExpansionType</link>;
+<link linkend="void">void</link>        (<link linkend="GtkCTreeFunc">*GtkCTreeFunc</link>)                 (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkCTreeGNodeFunc">*GtkCTreeGNodeFunc</link>)            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="guint">guint</link> depth,
+                                             <link linkend="GNode">GNode</link> *gnode,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *cnode,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkCTreeCompareDragFunc">*GtkCTreeCompareDragFunc</link>)      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *source_node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_sibling);
+struct      <link linkend="GtkCTreeRow">GtkCTreeRow</link>;
+struct      <link linkend="GtkCTreeNode">GtkCTreeNode</link>;
+#define     <link linkend="GTK-TYPE-CTREE-NODE-CAPS">GTK_TYPE_CTREE_NODE</link>
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-ctree-new-with-titles">gtk_ctree_new_with_titles</link>       (<link linkend="gint">gint</link> columns,
+                                             <link linkend="gint">gint</link> tree_column,
+                                             <link linkend="gchar">gchar</link> *titles[]);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-ctree-new">gtk_ctree_new</link>                   (<link linkend="gint">gint</link> columns,
+                                             <link linkend="gint">gint</link> tree_column);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-insert-node">gtk_ctree_insert_node</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *sibling,
+                                             <link linkend="gchar">gchar</link> *text[],
+                                             <link linkend="guint8">guint8</link> spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_closed,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_closed,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_opened,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_opened,
+                                             <link linkend="gboolean">gboolean</link> is_leaf,
+                                             <link linkend="gboolean">gboolean</link> expanded);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-remove-node">gtk_ctree_remove_node</link>           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-insert-gnode">gtk_ctree_insert_gnode</link>        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *sibling,
+                                             <link linkend="GNode">GNode</link> *gnode,
+                                             <link linkend="GtkCTreeGNodeFunc">GtkCTreeGNodeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="GNode">GNode</link>*      <link linkend="gtk-ctree-export-to-gnode">gtk_ctree_export_to_gnode</link>       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GNode">GNode</link> *parent,
+                                             <link linkend="GNode">GNode</link> *sibling,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeGNodeFunc">GtkCTreeGNodeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-post-recursive">gtk_ctree_post_recursive</link>        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-post-recursive-to-depth">gtk_ctree_post_recursive_to_depth</link>
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-pre-recursive">gtk_ctree_pre_recursive</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-pre-recursive-to-depth">gtk_ctree_pre_recursive_to_depth</link>
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-is-viewable">gtk_ctree_is_viewable</link>           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-last">gtk_ctree_last</link>                (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-find-node-ptr">gtk_ctree_find_node_ptr</link>       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeRow">GtkCTreeRow</link> *ctree_row);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-find">gtk_ctree_find</link>                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *child);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-is-ancestor">gtk_ctree_is_ancestor</link>           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *child);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-find-by-row-data">gtk_ctree_find_by_row_data</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="GList">GList</link>*      <link linkend="gtk-ctree-find-all-by-row-data">gtk_ctree_find_all_by_row_data</link>  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-find-by-row-data-custom">gtk_ctree_find_by_row_data_custom</link>
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GCompareFunc">GCompareFunc</link> func);
+<link linkend="GList">GList</link>*      <link linkend="gtk-ctree-find-all-by-row-data-custom">gtk_ctree_find_all_by_row_data_custom</link>
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GCompareFunc">GCompareFunc</link> func);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-is-hot-spot">gtk_ctree_is_hot_spot</link>           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-move">gtk_ctree_move</link>                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_sibling);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-expand">gtk_ctree_expand</link>                (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-expand-recursive">gtk_ctree_expand_recursive</link>      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-expand-to-depth">gtk_ctree_expand_to_depth</link>       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-collapse">gtk_ctree_collapse</link>              (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-collapse-recursive">gtk_ctree_collapse_recursive</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-collapse-to-depth">gtk_ctree_collapse_to_depth</link>     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-toggle-expansion">gtk_ctree_toggle_expansion</link>      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-toggle-expansion-recursive">gtk_ctree_toggle_expansion_recursive</link>
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-select">gtk_ctree_select</link>                (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-select-recursive">gtk_ctree_select_recursive</link>      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-unselect">gtk_ctree_unselect</link>              (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-unselect-recursive">gtk_ctree_unselect_recursive</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-real-select-recursive">gtk_ctree_real_select_recursive</link> (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> state);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-text">gtk_ctree_node_set_text</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             const <link linkend="gchar">gchar</link> *text);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-pixmap">gtk_ctree_node_set_pixmap</link>       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-pixtext">gtk_ctree_node_set_pixtext</link>      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             const <link linkend="gchar">gchar</link> *text,
+                                             <link linkend="guint8">guint8</link> spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-node-info">gtk_ctree_set_node_info</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             const <link linkend="gchar">gchar</link> *text,
+                                             <link linkend="guint8">guint8</link> spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_closed,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_closed,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_opened,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_opened,
+                                             <link linkend="gboolean">gboolean</link> is_leaf,
+                                             <link linkend="gboolean">gboolean</link> expanded);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-shift">gtk_ctree_node_set_shift</link>        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gint">gint</link> vertical,
+                                             <link linkend="gint">gint</link> horizontal);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-selectable">gtk_ctree_node_set_selectable</link>   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gboolean">gboolean</link> selectable);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-node-get-selectable">gtk_ctree_node_get_selectable</link>   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="GtkCellType">GtkCellType</link> <link linkend="gtk-ctree-node-get-cell-type">gtk_ctree_node_get_cell_type</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-node-get-text">gtk_ctree_node_get_text</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gchar">gchar</link> **text);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-node-get-pixmap">gtk_ctree_node_get_pixmap</link>       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-node-get-pixtext">gtk_ctree_node_get_pixtext</link>      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gchar">gchar</link> **text,
+                                             <link linkend="guint8">guint8</link> *spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-ctree-get-node-info">gtk_ctree_get_node_info</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gchar">gchar</link> **text,
+                                             <link linkend="guint8">guint8</link> *spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap_closed,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask_closed,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap_opened,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask_opened,
+                                             <link linkend="gboolean">gboolean</link> *is_leaf,
+                                             <link linkend="gboolean">gboolean</link> *expanded);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-row-style">gtk_ctree_node_set_row_style</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkStyle">GtkStyle</link> *style);
+<link linkend="GtkStyle">GtkStyle</link>*   <link linkend="gtk-ctree-node-get-row-style">gtk_ctree_node_get_row_style</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-cell-style">gtk_ctree_node_set_cell_style</link>   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GtkStyle">GtkStyle</link> *style);
+<link linkend="GtkStyle">GtkStyle</link>*   <link linkend="gtk-ctree-node-get-cell-style">gtk_ctree_node_get_cell_style</link>   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-foreground">gtk_ctree_node_set_foreground</link>   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             const <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-background">gtk_ctree_node_set_background</link>   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             const <link linkend="GdkColor">GdkColor</link> *color);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-row-data">gtk_ctree_node_set_row_data</link>     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-set-row-data-full">gtk_ctree_node_set_row_data_full</link>
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-ctree-node-get-row-data">gtk_ctree_node_get_row_data</link>     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-node-moveto">gtk_ctree_node_moveto</link>           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gfloat">gfloat</link> row_align,
+                                             <link linkend="gfloat">gfloat</link> col_align);
+<link linkend="GtkVisibility">GtkVisibility</link> <link linkend="gtk-ctree-node-is-visible">gtk_ctree_node_is_visible</link>     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-indent">gtk_ctree_set_indent</link>            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gint">gint</link> indent);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-spacing">gtk_ctree_set_spacing</link>           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gint">gint</link> spacing);
+#define     <link linkend="gtk-ctree-set-reorderable">gtk_ctree_set_reorderable</link>       (t,r)
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-line-style">gtk_ctree_set_line_style</link>        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeLineStyle">GtkCTreeLineStyle</link> line_style);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-expander-style">gtk_ctree_set_expander_style</link>    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeExpanderStyle">GtkCTreeExpanderStyle</link> expander_style);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-drag-compare-func">gtk_ctree_set_drag_compare_func</link> (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeCompareDragFunc">GtkCTreeCompareDragFunc</link> cmp_func);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-sort-node">gtk_ctree_sort_node</link>             (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-sort-recursive">gtk_ctree_sort_recursive</link>        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);
+<link linkend="GtkCTreeNode">GtkCTreeNode</link>* <link linkend="gtk-ctree-node-nth">gtk_ctree_node_nth</link>            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="guint">guint</link> row);
+<link linkend="void">void</link>        <link linkend="gtk-ctree-set-show-stub">gtk_ctree_set_show_stub</link>         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gboolean">gboolean</link> show_stub);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----<link linkend="GtkWidget">GtkWidget</link>
+               +----<link linkend="GtkContainer">GtkContainer</link>
+                     +----<link linkend="GtkCList">GtkCList</link>
+                           +----GtkCTree
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkCTree implements
+ <link linkend="AtkImplementorIface">AtkImplementorIface</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkCTree--expander-style">expander-style</link>&quot;       <link linkend="GtkCTreeExpanderStyle">GtkCTreeExpanderStyle</link> : Read / Write
+  &quot;<link linkend="GtkCTree--indent">indent</link>&quot;               <link linkend="guint">guint</link>                : Read / Write
+  &quot;<link linkend="GtkCTree--line-style">line-style</link>&quot;           <link linkend="GtkCTreeLineStyle">GtkCTreeLineStyle</link>    : Read / Write
+  &quot;<link linkend="GtkCTree--n-columns">n-columns</link>&quot;            <link linkend="guint">guint</link>                : Read / Write / Construct Only
+  &quot;<link linkend="GtkCTree--show-stub">show-stub</link>&quot;            <link linkend="gboolean">gboolean</link>             : Read / Write
+  &quot;<link linkend="GtkCTree--spacing">spacing</link>&quot;              <link linkend="guint">guint</link>                : Read / Write
+  &quot;<link linkend="GtkCTree--tree-column">tree-column</link>&quot;          <link linkend="guint">guint</link>                : Read / Write / Construct Only
+</synopsis>
+</refsect1>
+
+<refsect1>
+<title>Signal Prototypes</title>
+<synopsis>
+
+&quot;<link linkend="GtkCTree-change-focus-row-expansion">change-focus-row-expansion</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeExpansionType">GtkCTreeExpansionType</link> expansion,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkCTree-tree-collapse">tree-collapse</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkCTree-tree-expand">tree-expand</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkCTree-tree-move">tree-move</link>&quot; <link linkend="void">void</link>        user_function      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_parent,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_sibling,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkCTree-tree-select-row">tree-select-row</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gint">gint</link> column,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+&quot;<link linkend="GtkCTree-tree-unselect-row">tree-unselect-row</link>&quot;
+            <link linkend="void">void</link>        user_function      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gint">gint</link> column,
+                                            <link linkend="gpointer">gpointer</link> user_data);
+</synopsis>
+</refsect1>
+
+
+<refsect1>
+<title>Description</title>
+<para>
+The <link linkend="GtkCTree"><type>GtkCTree</type></link> widget is used for showing a hierarchical tree 
+to the user, for example a directory tree.
+</para>
+<para>
+The tree is internally represented as a set of <link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link> structures.
+</para>
+<para>
+The interface has much in common with the <link linkend="GtkCList"><type>GtkCList</type></link> widget: rows (nodes)
+can be selected by the user etc.
+</para>
+<para> 
+Positions in the tree are often indicated by two arguments, a
+parent and a sibling, both <link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link> pointers. If the parent
+is <literal>NULL</literal>, the position is at the root of the tree and if the sibling
+is <literal>NULL</literal>, it will be the last child of parent, otherwise it will be
+inserted just before the sibling.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkCTree-struct"/>struct GtkCTree</title>
+<indexterm><primary>GtkCTree</primary></indexterm><programlisting>struct GtkCTree;</programlisting>
+<warning><para><literal>GtkCTree</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The <link linkend="GtkCTree-struct"><type>GtkCTree-struct</type></link> contains the following user-accessible fields.
+These fields should be considered read-only; to set the values,
+use the methods below.
+
+<informaltable pgwide="1" frame="none" role="struct">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry><link linkend="gint"><type>gint</type></link> <structfield>tree_indent</structfield>;</entry>
+<entry>The number of pixels each successive level of the tree is
+indented in the display.</entry>
+</row>
+
+<row>
+<entry><link linkend="gint"><type>gint</type></link> <structfield>tree_spacing</structfield>;</entry>
+<entry>The space in pixels between the graphical tree and the text in the
+node.</entry>
+</row>
+
+<row>
+<entry><link linkend="gint"><type>gint</type></link> <structfield>tree_column</structfield>;</entry>
+<entry>The index of the column for which the tree graphics is drawn. </entry>
+</row>
+
+<row>
+<entry><link linkend="GtkCTreeLineStyle"><type>GtkCTreeLineStyle</type></link> <structfield>line_style</structfield>;</entry>
+<entry>The style in which the lines in the tree graphics are drawn.</entry>
+</row>
+
+<row>
+<entry><link linkend="GtkCTreeExpanderStyle"><type>GtkCTreeExpanderStyle</type></link> <structfield>expander_style</structfield>;</entry>
+<entry>The style in which the expander buttons are drawn.</entry>
+</row>
+
+<row>
+<entry><link linkend="GtkCTreeExpanderStyle"><type>GtkCTreeExpanderStyle</type></link> <structfield>expander_style</structfield>;</entry>
+<entry>FIXME.</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-CTREE-ROW-CAPS"/>GTK_CTREE_ROW()</title>
+<indexterm><primary>GTK_CTREE_ROW</primary></indexterm><programlisting>#define GTK_CTREE_ROW(_node_) ((GtkCTreeRow *)(((GList *)(_node_))-&gt;data))
+</programlisting>
+<warning><para><literal>GTK_CTREE_ROW</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Used to get the <link linkend="GtkCTreeRow"><type>GtkCTreeRow</type></link> structure corresponding to the given <link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>_node_</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-CTREE-NODE-CAPS"/>GTK_CTREE_NODE()</title>
+<indexterm><primary>GTK_CTREE_NODE</primary></indexterm><programlisting>#define GTK_CTREE_NODE(_node_) ((GtkCTreeNode *)((_node_)))
+</programlisting>
+<warning><para><literal>GTK_CTREE_NODE</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>_node_</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-CTREE-NODE-NEXT-CAPS"/>GTK_CTREE_NODE_NEXT()</title>
+<indexterm><primary>GTK_CTREE_NODE_NEXT</primary></indexterm><programlisting>#define GTK_CTREE_NODE_NEXT(_nnode_) ((GtkCTreeNode *)(((GList *)(_nnode_))-&gt;next))
+</programlisting>
+<warning><para><literal>GTK_CTREE_NODE_NEXT</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>_nnode_</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-CTREE-NODE-PREV-CAPS"/>GTK_CTREE_NODE_PREV()</title>
+<indexterm><primary>GTK_CTREE_NODE_PREV</primary></indexterm><programlisting>#define GTK_CTREE_NODE_PREV(_pnode_) ((GtkCTreeNode *)(((GList *)(_pnode_))-&gt;prev))
+</programlisting>
+<warning><para><literal>GTK_CTREE_NODE_PREV</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>_pnode_</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-CTREE-FUNC-CAPS"/>GTK_CTREE_FUNC()</title>
+<indexterm><primary>GTK_CTREE_FUNC</primary></indexterm><programlisting>#define GTK_CTREE_FUNC(_func_) ((GtkCTreeFunc)(_func_))
+</programlisting>
+<warning><para><literal>GTK_CTREE_FUNC</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>_func_</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreePos"/>enum GtkCTreePos</title>
+<indexterm><primary>GtkCTreePos</primary></indexterm><programlisting>typedef enum
+{
+  GTK_CTREE_POS_BEFORE,
+  GTK_CTREE_POS_AS_CHILD,
+  GTK_CTREE_POS_AFTER
+} GtkCTreePos;
+</programlisting>
+<warning><para><literal>GtkCTreePos</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+A value specifying the position of a new node relative to an old one.
+
+<informaltable pgwide="1" frame="none" role="enum">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry>GTK_CTREE_POS_BEFORE</entry>
+<entry>As a sibling, before the specified node.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_POS_AS_CHILD</entry>
+<entry>As a child of the specified node.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_POS_AFTER</entry>
+<entry>As a sibling, after the specified node.</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeLineStyle"/>enum GtkCTreeLineStyle</title>
+<indexterm><primary>GtkCTreeLineStyle</primary></indexterm><programlisting>typedef enum
+{
+  GTK_CTREE_LINES_NONE,
+  GTK_CTREE_LINES_SOLID,
+  GTK_CTREE_LINES_DOTTED,
+  GTK_CTREE_LINES_TABBED
+} GtkCTreeLineStyle;
+</programlisting>
+<warning><para><literal>GtkCTreeLineStyle</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The appearance of the lines in the tree graphics.
+
+<informaltable pgwide="1" frame="none" role="enum">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry>GTK_CTREE_LINES_NONE</entry>
+<entry>No lines.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_LINES_SOLID</entry>
+<entry>Solid lines.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_LINES_DOTTED</entry>
+<entry>Dotted lines.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_LINES_TABBED</entry>
+<entry>FIXME.</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeExpanderStyle"/>enum GtkCTreeExpanderStyle</title>
+<indexterm><primary>GtkCTreeExpanderStyle</primary></indexterm><programlisting>typedef enum
+{
+  GTK_CTREE_EXPANDER_NONE,
+  GTK_CTREE_EXPANDER_SQUARE,
+  GTK_CTREE_EXPANDER_TRIANGLE,
+  GTK_CTREE_EXPANDER_CIRCULAR
+} GtkCTreeExpanderStyle;
+</programlisting>
+<warning><para><literal>GtkCTreeExpanderStyle</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The appearance of the expander buttons, i.e. the small buttons
+which expand or contract parts of the tree when pressed.
+
+
+<informaltable pgwide="1" frame="none" role="enum">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry>GTK_CTREE_EXPANDER_NONE</entry>
+<entry>No expanders.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANDER_SQUARE</entry>
+<entry>Square expanders.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANDER_TRIANGLE</entry>
+<entry>Triangular expanders.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANDER_CIRCULAR</entry>
+<entry>Round expanders.</entry>
+</row>
+
+</tbody></tgroup></informaltable>
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeExpansionType"/>enum GtkCTreeExpansionType</title>
+<indexterm><primary>GtkCTreeExpansionType</primary></indexterm><programlisting>typedef enum
+{
+  GTK_CTREE_EXPANSION_EXPAND,
+  GTK_CTREE_EXPANSION_EXPAND_RECURSIVE,
+  GTK_CTREE_EXPANSION_COLLAPSE,
+  GTK_CTREE_EXPANSION_COLLAPSE_RECURSIVE,
+  GTK_CTREE_EXPANSION_TOGGLE,
+  GTK_CTREE_EXPANSION_TOGGLE_RECURSIVE
+} GtkCTreeExpansionType;
+</programlisting>
+<warning><para><literal>GtkCTreeExpansionType</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+How to expand or collapse a part of a tree.
+
+<informaltable pgwide="1" frame="none" role="enum">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry>GTK_CTREE_EXPANSION_EXPAND</entry>
+<entry>Expand this node.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANSION_EXPAND_RECURSIVE</entry>
+<entry>Expand this node and everything below it in the hierarchy.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANSION_COLLAPSE</entry>
+<entry>Collapse this node.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANSION_COLLAPSE_RECURSIVE</entry>
+<entry>Collapse this node and everything below it in the hierarchy.</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANSION_TOGGLE</entry>
+<entry>Toggle this node (i.e. expand if collapsed and vice versa).</entry>
+</row>
+
+<row>
+<entry>GTK_CTREE_EXPANSION_TOGGLE_RECURSIVE</entry>
+<entry>Toggle this node and everything below it in the hierarchy.</entry>
+</row>
+
+
+</tbody></tgroup></informaltable>
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeFunc"/>GtkCTreeFunc ()</title>
+<indexterm><primary>GtkCTreeFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkCTreeFunc)                 (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>GtkCTreeFunc</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+A generic callback type to do something with a particular node.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>The <link linkend="GtkCTree"><type>GtkCTree</type></link> object.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The <link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link> in the tree.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>The user data associated with the node.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeGNodeFunc"/>GtkCTreeGNodeFunc ()</title>
+<indexterm><primary>GtkCTreeGNodeFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkCTreeGNodeFunc)            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="guint">guint</link> depth,
+                                             <link linkend="GNode">GNode</link> *gnode,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *cnode,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>GtkCTreeGNodeFunc</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>gnode</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cnode</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeCompareDragFunc"/>GtkCTreeCompareDragFunc ()</title>
+<indexterm><primary>GtkCTreeCompareDragFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkCTreeCompareDragFunc)      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *source_node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_sibling);</programlisting>
+<warning><para><literal>GtkCTreeCompareDragFunc</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>source_node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_parent</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_sibling</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeRow"/>struct GtkCTreeRow</title>
+<indexterm><primary>GtkCTreeRow</primary></indexterm><programlisting>struct GtkCTreeRow {
+
+  GtkCListRow row;
+  
+  GtkCTreeNode *parent;
+  GtkCTreeNode *sibling;
+  GtkCTreeNode *children;
+  
+  GdkPixmap *pixmap_closed;
+  GdkBitmap *mask_closed;
+  GdkPixmap *pixmap_opened;
+  GdkBitmap *mask_opened;
+  
+  guint16 level;
+  
+  guint is_leaf  : 1;
+  guint expanded : 1;
+};
+</programlisting>
+<warning><para><literal>GtkCTreeRow</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+A structure representing a single row in the tree graph.
+The values inside the structure should be considered read-only.
+This structure is derived from the <link linkend="GtkCListRow"><type>GtkCListRow</type></link> structure.
+
+<informaltable pgwide="1" frame="none" role="struct">
+<tgroup cols="2"><colspec colwidth="2*"/><colspec colwidth="8*"/>
+<tbody>
+
+<row>
+<entry><link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link> *<structfield>parent</structfield>;</entry>
+<entry>The parent node of the node corresponding to this row.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link> *<structfield>sibling</structfield>;</entry>
+<entry>The next sibling node of the node corresponding to this row.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="GtkCTreeNode"><type>GtkCTreeNode</type></link> *<structfield>children</structfield>;</entry>
+<entry>The first child node corresponding to this row; to access
+the other children, just use the siblings of that node.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="GdkPixmap"><type>GdkPixmap</type></link> *<structfield>pixmap_closed</structfield>;</entry>
+<entry> The pixmap to be shown when the node is collapsed.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="GdkBitmap"><type>GdkBitmap</type></link> *<structfield>mask_closed</structfield>;</entry>
+<entry> The mask for the above pixmap.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="GdkPixmap"><type>GdkPixmap</type></link> *<structfield>pixmap_opened</structfield>;</entry>
+<entry> The pixmap to be shown when the node is expanded.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="GdkBitmap"><type>GdkBitmap</type></link> *<structfield>mask_opened</structfield>;</entry>
+<entry> The mask for the above pixmap.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="guint16"><type>guint16</type></link> <structfield>level</structfield>;</entry>
+<entry>The level of this node in the tree.
+</entry>
+</row>
+
+
+<row>
+<entry><link linkend="guint"><type>guint</type></link> <structfield>is_leaf</structfield> : 1;</entry>
+<entry>Whether this row is a leaf.
+</entry>
+</row>
+
+<row>
+<entry><link linkend="guint"><type>guint</type></link> <structfield>expanded</structfield> : 1;</entry>
+<entry>Whether the children of this row are visible.
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCTreeNode"/>struct GtkCTreeNode</title>
+<indexterm><primary>GtkCTreeNode</primary></indexterm><programlisting>struct GtkCTreeNode {
+
+  GList list;
+};
+</programlisting>
+<warning><para><literal>GtkCTreeNode</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+This structure is opaque - you should use the
+macros <link linkend="GTK-CTREE-ROW-CAPS"><type>GTK_CTREE_ROW</type></link>, <link linkend="GTK-CTREE-NODE-NEXT-CAPS"><type>GTK_CTREE_NODE_NEXT</type></link> etc. as well
+as the functions below to access it.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-TYPE-CTREE-NODE-CAPS"/>GTK_TYPE_CTREE_NODE</title>
+<indexterm><primary>GTK_TYPE_CTREE_NODE</primary></indexterm><programlisting>#define GTK_TYPE_CTREE_NODE (gtk_ctree_node_get_type ())
+</programlisting>
+<warning><para><literal>GTK_TYPE_CTREE_NODE</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-new-with-titles"/>gtk_ctree_new_with_titles ()</title>
+<indexterm><primary>gtk_ctree_new_with_titles</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_ctree_new_with_titles       (<link linkend="gint">gint</link> columns,
+                                             <link linkend="gint">gint</link> tree_column,
+                                             <link linkend="gchar">gchar</link> *titles[]);</programlisting>
+<warning><para><literal>gtk_ctree_new_with_titles</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Create a new <link linkend="GtkCTree"><type>GtkCTree</type></link> widget with the given titles for the columns.
+</para><variablelist role="params">
+<varlistentry><term><parameter>columns</parameter>&nbsp;:</term>
+<listitem><simpara>Number of columns.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tree_column</parameter>&nbsp;:</term>
+<listitem><simpara>Which column has the tree graphic; 0 = leftmost.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>titles</parameter>&nbsp;:</term>
+<listitem><simpara>The titles for the columns.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The <link linkend="GtkCTree"><type>GtkCTree</type></link> widget.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-new"/>gtk_ctree_new ()</title>
+<indexterm><primary>gtk_ctree_new</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_ctree_new                   (<link linkend="gint">gint</link> columns,
+                                             <link linkend="gint">gint</link> tree_column);</programlisting>
+<warning><para><literal>gtk_ctree_new</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Create a new <link linkend="GtkCTree"><type>GtkCTree</type></link> widget.
+</para><variablelist role="params">
+<varlistentry><term><parameter>columns</parameter>&nbsp;:</term>
+<listitem><simpara>Number of columns.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tree_column</parameter>&nbsp;:</term>
+<listitem><simpara>Which columns has the tree graphic.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The new <link linkend="GtkCTree"><type>GtkCTree</type></link> widget.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-insert-node"/>gtk_ctree_insert_node ()</title>
+<indexterm><primary>gtk_ctree_insert_node</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_insert_node         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *sibling,
+                                             <link linkend="gchar">gchar</link> *text[],
+                                             <link linkend="guint8">guint8</link> spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_closed,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_closed,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_opened,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_opened,
+                                             <link linkend="gboolean">gboolean</link> is_leaf,
+                                             <link linkend="gboolean">gboolean</link> expanded);</programlisting>
+<warning><para><literal>gtk_ctree_insert_node</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Insert a new node to the tree. The position is specified through
+the parent-sibling notation, as explained in the introduction above.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>The <link linkend="GtkCTree"><type>GtkCTree</type></link> widget.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara>The parent node to be.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sibling</parameter>&nbsp;:</term>
+<listitem><simpara>The sibling node to be.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>The texts to be shown in each column.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>spacing</parameter>&nbsp;:</term>
+<listitem><simpara>The extra space between the pixmap and the text.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap_closed</parameter>&nbsp;:</term>
+<listitem><simpara>The pixmap to be used when the node is collapsed. Can be <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask_closed</parameter>&nbsp;:</term>
+<listitem><simpara>The mask for the above pixmap. Can be <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap_opened</parameter>&nbsp;:</term>
+<listitem><simpara>The pixmap to be used when the children are visible. Can be <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask_opened</parameter>&nbsp;:</term>
+<listitem><simpara>The mask for the above pixmap. Can be <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>is_leaf</parameter>&nbsp;:</term>
+<listitem><simpara>Whether this node is going to be a leaf.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expanded</parameter>&nbsp;:</term>
+<listitem><simpara>Whether this node should start out expanded or not.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-remove-node"/>gtk_ctree_remove_node ()</title>
+<indexterm><primary>gtk_ctree_remove_node</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_remove_node           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_remove_node</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Remove the node and all nodes underneath it from the tree.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>The widget.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node to be removed.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-insert-gnode"/>gtk_ctree_insert_gnode ()</title>
+<indexterm><primary>gtk_ctree_insert_gnode</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_insert_gnode        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *sibling,
+                                             <link linkend="GNode">GNode</link> *gnode,
+                                             <link linkend="GtkCTreeGNodeFunc">GtkCTreeGNodeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_insert_gnode</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sibling</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>gnode</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-export-to-gnode"/>gtk_ctree_export_to_gnode ()</title>
+<indexterm><primary>gtk_ctree_export_to_gnode</primary></indexterm><programlisting><link linkend="GNode">GNode</link>*      gtk_ctree_export_to_gnode       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GNode">GNode</link> *parent,
+                                             <link linkend="GNode">GNode</link> *sibling,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeGNodeFunc">GtkCTreeGNodeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_export_to_gnode</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>parent</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>sibling</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-post-recursive"/>gtk_ctree_post_recursive ()</title>
+<indexterm><primary>gtk_ctree_post_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_post_recursive        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_post_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Recursively apply a function to all nodes of the tree at or below a certain
+node. 
+The function is called for each node after it has been called
+for that node's children.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node where to start. <literal>NULL</literal> means to start at the root.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>The function to apply to each node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>A closure argument given to each invocation of the function.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-post-recursive-to-depth"/>gtk_ctree_post_recursive_to_depth ()</title>
+<indexterm><primary>gtk_ctree_post_recursive_to_depth</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_post_recursive_to_depth
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_post_recursive_to_depth</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Recursively apply a function to nodes up to a certain depth.
+The function is called for each node after it has been called
+for that node's children.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node where to start.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara>The maximum absolute depth for applying the function.  If depth is negative, this function just calls <link linkend="gtk-ctree-post-recursive"><type>gtk_ctree_post_recursive</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>The function to apply to each node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>A closure argument given to each invocation of the function.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-pre-recursive"/>gtk_ctree_pre_recursive ()</title>
+<indexterm><primary>gtk_ctree_pre_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_pre_recursive         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_pre_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Recursively apply a function to all nodes of the tree at or below a certain
+node.
+The function is called for each node after it has been called
+for its parent.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node where to start. <literal>NULL</literal> means to start at the root.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>The function to apply to each node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>A closure argument given to each invocation of the function.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-pre-recursive-to-depth"/>gtk_ctree_pre_recursive_to_depth ()</title>
+<indexterm><primary>gtk_ctree_pre_recursive_to_depth</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_pre_recursive_to_depth
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth,
+                                             <link linkend="GtkCTreeFunc">GtkCTreeFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_pre_recursive_to_depth</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Recursively apply a function to nodes up to a certain depth.
+The function is called for each node after it has been called
+for that node's children.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node where to start.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara>The maximum absolute depth for applying the function.  If depth is negative, this function just calls <link linkend="gtk-ctree-post-recursive"><type>gtk_ctree_post_recursive</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>The function to apply to each node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>A closure argument given to each invocation of the function.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-is-viewable"/>gtk_ctree_is_viewable ()</title>
+<indexterm><primary>gtk_ctree_is_viewable</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_is_viewable           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_is_viewable</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+This function checks whether the given node is viewable i.e. so that
+all of its parent nodes are expanded.  This is different from being
+actually visible: the node can be viewable but outside the scrolling
+area of the window.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>Whether the node is viewable.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-last"/>gtk_ctree_last ()</title>
+<indexterm><primary>gtk_ctree_last</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_last                (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_last</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Returns the last child of the last child of the last child...
+of the given node.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-find-node-ptr"/>gtk_ctree_find_node_ptr ()</title>
+<indexterm><primary>gtk_ctree_find_node_ptr</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_find_node_ptr       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeRow">GtkCTreeRow</link> *ctree_row);</programlisting>
+<warning><para><literal>gtk_ctree_find_node_ptr</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Finds the node pointer given a <link linkend="GtkCTreeRow"><type>GtkCTreeRow</type></link> structure.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ctree_row</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The node pointer.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-find"/>gtk_ctree_find ()</title>
+<indexterm><primary>gtk_ctree_find</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_find                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *child);</programlisting>
+<warning><para><literal>gtk_ctree_find</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node to start searching from. May be <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>child</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>True if <parameter>child</parameter> is on some level a child (grandchild...) of the <parameter>node</parameter>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-is-ancestor"/>gtk_ctree_is_ancestor ()</title>
+<indexterm><primary>gtk_ctree_is_ancestor</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_is_ancestor           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *child);</programlisting>
+<warning><para><literal>gtk_ctree_is_ancestor</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>child</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>True is <parameter>node</parameter> is an ancestor of <parameter>child</parameter>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-find-by-row-data"/>gtk_ctree_find_by_row_data ()</title>
+<indexterm><primary>gtk_ctree_find_by_row_data</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_find_by_row_data    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_find_by_row_data</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Finds a node in the tree under <parameter>node</parameter> that has the given user data pointer.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The node, or <literal>NULL</literal> if not found.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-find-all-by-row-data"/>gtk_ctree_find_all_by_row_data ()</title>
+<indexterm><primary>gtk_ctree_find_all_by_row_data</primary></indexterm><programlisting><link linkend="GList">GList</link>*      gtk_ctree_find_all_by_row_data  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_find_all_by_row_data</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Finds all nodes in the tree under <parameter>node</parameter> that have the given user data pointer.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A list of nodes that have the given data pointer.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-find-by-row-data-custom"/>gtk_ctree_find_by_row_data_custom ()</title>
+<indexterm><primary>gtk_ctree_find_by_row_data_custom</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_find_by_row_data_custom
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GCompareFunc">GCompareFunc</link> func);</programlisting>
+<warning><para><literal>gtk_ctree_find_by_row_data_custom</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Find the first node under <parameter>node</parameter> whose row data pointer fulfills 
+a custom criterion.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node where to start searching.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>User data for the criterion function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>The criterion function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The first node found.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-find-all-by-row-data-custom"/>gtk_ctree_find_all_by_row_data_custom ()</title>
+<indexterm><primary>gtk_ctree_find_all_by_row_data_custom</primary></indexterm><programlisting><link linkend="GList">GList</link>*      gtk_ctree_find_all_by_row_data_custom
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GCompareFunc">GCompareFunc</link> func);</programlisting>
+<warning><para><literal>gtk_ctree_find_all_by_row_data_custom</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Find all nodes under <parameter>node</parameter> whose row data pointer fulfills 
+a custom criterion.
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node where to start searching.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>User data for the criterion function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara>The criterion function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A list of all nodes found.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-is-hot-spot"/>gtk_ctree_is_hot_spot ()</title>
+<indexterm><primary>gtk_ctree_is_hot_spot</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_is_hot_spot           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gint">gint</link> x,
+                                             <link linkend="gint">gint</link> y);</programlisting>
+<warning><para><literal>gtk_ctree_is_hot_spot</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>True if the given coordinates lie on an expander button.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-move"/>gtk_ctree_move ()</title>
+<indexterm><primary>gtk_ctree_move</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_move                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_parent,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_sibling);</programlisting>
+<warning><para><literal>gtk_ctree_move</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Move a node in the tree to another location.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node to be moved.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_parent</parameter>&nbsp;:</term>
+<listitem><simpara>The new parent-to-be of the node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_sibling</parameter>&nbsp;:</term>
+<listitem><simpara>The new sibling-to-be of the node.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-expand"/>gtk_ctree_expand ()</title>
+<indexterm><primary>gtk_ctree_expand</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_expand                (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_expand</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Expand one node.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-expand-recursive"/>gtk_ctree_expand_recursive ()</title>
+<indexterm><primary>gtk_ctree_expand_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_expand_recursive      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_expand_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Expand one node and all nodes underneath.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-expand-to-depth"/>gtk_ctree_expand_to_depth ()</title>
+<indexterm><primary>gtk_ctree_expand_to_depth</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_expand_to_depth       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth);</programlisting>
+<warning><para><literal>gtk_ctree_expand_to_depth</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Expand a node and its children up to the depth given.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara>The (absolute) depth up to which to expand nodes.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-collapse"/>gtk_ctree_collapse ()</title>
+<indexterm><primary>gtk_ctree_collapse</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_collapse              (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_collapse</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Collapse one node.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-collapse-recursive"/>gtk_ctree_collapse_recursive ()</title>
+<indexterm><primary>gtk_ctree_collapse_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_collapse_recursive    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_collapse_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Collapse one node and all its subnodes.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-collapse-to-depth"/>gtk_ctree_collapse_to_depth ()</title>
+<indexterm><primary>gtk_ctree_collapse_to_depth</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_collapse_to_depth     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> depth);</programlisting>
+<warning><para><literal>gtk_ctree_collapse_to_depth</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Collapse a node and its children up to the depth given.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>depth</parameter>&nbsp;:</term>
+<listitem><simpara>The (absolute) depth up to which to collapse nodes.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-toggle-expansion"/>gtk_ctree_toggle_expansion ()</title>
+<indexterm><primary>gtk_ctree_toggle_expansion</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_toggle_expansion      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_toggle_expansion</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Toggle a node, i.e. if it is collapsed, expand it and vice versa.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-toggle-expansion-recursive"/>gtk_ctree_toggle_expansion_recursive ()</title>
+<indexterm><primary>gtk_ctree_toggle_expansion_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_toggle_expansion_recursive
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_toggle_expansion_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Toggle the expansion of a node and all its children.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-select"/>gtk_ctree_select ()</title>
+<indexterm><primary>gtk_ctree_select</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_select                (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_select</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Cause the given node to be selected and emit the appropriate signal.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-select-recursive"/>gtk_ctree_select_recursive ()</title>
+<indexterm><primary>gtk_ctree_select_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_select_recursive      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_select_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Cause the given node and its subnodes to be selected and emit the appropriate signal(s).
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-unselect"/>gtk_ctree_unselect ()</title>
+<indexterm><primary>gtk_ctree_unselect</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_unselect              (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_unselect</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Unselect the given node and emit the appropriate signal.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-unselect-recursive"/>gtk_ctree_unselect_recursive ()</title>
+<indexterm><primary>gtk_ctree_unselect_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_unselect_recursive    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_unselect_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Unselect the given node and its subnodes and emit the appropriate signal(s).
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-real-select-recursive"/>gtk_ctree_real_select_recursive ()</title>
+<indexterm><primary>gtk_ctree_real_select_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_real_select_recursive (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> state);</programlisting>
+<warning><para><literal>gtk_ctree_real_select_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The function that implements both <link linkend="gtk-ctree-select-recursive"><type>gtk_ctree_select_recursive</type></link> and
+<link linkend="gtk-ctree-unselect-recursive"><type>gtk_ctree_unselect_recursive</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>state</parameter>&nbsp;:</term>
+<listitem><simpara>True for selecting, false for unselecting.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-text"/>gtk_ctree_node_set_text ()</title>
+<indexterm><primary>gtk_ctree_node_set_text</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_text         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             const <link linkend="gchar">gchar</link> *text);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_text</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Set the text in a node.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>The column whose text to change.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>The new text.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-pixmap"/>gtk_ctree_node_set_pixmap ()</title>
+<indexterm><primary>gtk_ctree_node_set_pixmap</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_pixmap       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_pixmap</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-pixtext"/>gtk_ctree_node_set_pixtext ()</title>
+<indexterm><primary>gtk_ctree_node_set_pixtext</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_pixtext      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             const <link linkend="gchar">gchar</link> *text,
+                                             <link linkend="guint8">guint8</link> spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_pixtext</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>spacing</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-node-info"/>gtk_ctree_set_node_info ()</title>
+<indexterm><primary>gtk_ctree_set_node_info</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_node_info         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             const <link linkend="gchar">gchar</link> *text,
+                                             <link linkend="guint8">guint8</link> spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_closed,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_closed,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> *pixmap_opened,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> *mask_opened,
+                                             <link linkend="gboolean">gboolean</link> is_leaf,
+                                             <link linkend="gboolean">gboolean</link> expanded);</programlisting>
+<warning><para><literal>gtk_ctree_set_node_info</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Change the information. Most parameters correspond 
+to the parameters of <link linkend="gtk-ctree-insert-node"><type>gtk_ctree_insert_node</type></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>The text to be in the tree column.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>spacing</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap_closed</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask_closed</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap_opened</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask_opened</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>is_leaf</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expanded</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-shift"/>gtk_ctree_node_set_shift ()</title>
+<indexterm><primary>gtk_ctree_node_set_shift</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_shift        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gint">gint</link> vertical,
+                                             <link linkend="gint">gint</link> horizontal);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_shift</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Shift the given cell the given amounts in pixels.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>vertical</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>horizontal</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-selectable"/>gtk_ctree_node_set_selectable ()</title>
+<indexterm><primary>gtk_ctree_node_set_selectable</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_selectable   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gboolean">gboolean</link> selectable);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_selectable</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>selectable</parameter>&nbsp;:</term>
+<listitem><simpara>Whether this node can be selected by the user.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-selectable"/>gtk_ctree_node_get_selectable ()</title>
+<indexterm><primary>gtk_ctree_node_get_selectable</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_node_get_selectable   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_selectable</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>Whether this node can be selected by the user.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-cell-type"/>gtk_ctree_node_get_cell_type ()</title>
+<indexterm><primary>gtk_ctree_node_get_cell_type</primary></indexterm><programlisting><link linkend="GtkCellType">GtkCellType</link> gtk_ctree_node_get_cell_type    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_cell_type</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The type of the given cell.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-text"/>gtk_ctree_node_get_text ()</title>
+<indexterm><primary>gtk_ctree_node_get_text</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_node_get_text         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gchar">gchar</link> **text);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_text</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>If nonnull, the pointer to the text string is assigned to *<parameter>text</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>True if the given cell has text in it.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-pixmap"/>gtk_ctree_node_get_pixmap ()</title>
+<indexterm><primary>gtk_ctree_node_get_pixmap</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_node_get_pixmap       (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_pixmap</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara>If nonnull, the pointer to the pixmap is returned through this.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara>If nonnull, the pointer to the mask is returned through this.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>True if the given cell contains a pixmap.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-pixtext"/>gtk_ctree_node_get_pixtext ()</title>
+<indexterm><primary>gtk_ctree_node_get_pixtext</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_node_get_pixtext      (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gchar">gchar</link> **text,
+                                             <link linkend="guint8">guint8</link> *spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_pixtext</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Get the parameters of a cell containing both a pixmap and text.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>spacing</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-get-node-info"/>gtk_ctree_get_node_info ()</title>
+<indexterm><primary>gtk_ctree_get_node_info</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_ctree_get_node_info         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gchar">gchar</link> **text,
+                                             <link linkend="guint8">guint8</link> *spacing,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap_closed,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask_closed,
+                                             <link linkend="GdkPixmap">GdkPixmap</link> **pixmap_opened,
+                                             <link linkend="GdkBitmap">GdkBitmap</link> **mask_opened,
+                                             <link linkend="gboolean">gboolean</link> *is_leaf,
+                                             <link linkend="gboolean">gboolean</link> *expanded);</programlisting>
+<warning><para><literal>gtk_ctree_get_node_info</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Get information corresponding to a node.
+Any of the return parameters can be null. 
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>text</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>spacing</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap_closed</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask_closed</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>pixmap_opened</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mask_opened</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>is_leaf</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expanded</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-row-style"/>gtk_ctree_node_set_row_style ()</title>
+<indexterm><primary>gtk_ctree_node_set_row_style</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_row_style    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="GtkStyle">GtkStyle</link> *style);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_row_style</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Set the style of a row.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>style</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-row-style"/>gtk_ctree_node_get_row_style ()</title>
+<indexterm><primary>gtk_ctree_node_get_row_style</primary></indexterm><programlisting><link linkend="GtkStyle">GtkStyle</link>*   gtk_ctree_node_get_row_style    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_row_style</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Get the style of a row.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-cell-style"/>gtk_ctree_node_set_cell_style ()</title>
+<indexterm><primary>gtk_ctree_node_set_cell_style</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_cell_style   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="GtkStyle">GtkStyle</link> *style);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_cell_style</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Set the style of an individual cell.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>style</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-cell-style"/>gtk_ctree_node_get_cell_style ()</title>
+<indexterm><primary>gtk_ctree_node_get_cell_style</primary></indexterm><programlisting><link linkend="GtkStyle">GtkStyle</link>*   gtk_ctree_node_get_cell_style   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_cell_style</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Get the style of an individual cell.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-foreground"/>gtk_ctree_node_set_foreground ()</title>
+<indexterm><primary>gtk_ctree_node_set_foreground</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_foreground   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             const <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_foreground</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-background"/>gtk_ctree_node_set_background ()</title>
+<indexterm><primary>gtk_ctree_node_set_background</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_background   (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             const <link linkend="GdkColor">GdkColor</link> *color);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_background</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-row-data"/>gtk_ctree_node_set_row_data ()</title>
+<indexterm><primary>gtk_ctree_node_set_row_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_row_data     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_row_data</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Set the custom data associated with a node.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-set-row-data-full"/>gtk_ctree_node_set_row_data_full ()</title>
+<indexterm><primary>gtk_ctree_node_set_row_data_full</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_set_row_data_full
+                                            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<warning><para><literal>gtk_ctree_node_set_row_data_full</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+This is the full interface to setting row data, so that a destructor
+can be given for the data.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>The routine to be called when <parameter>data</parameter> is no longer needed.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-get-row-data"/>gtk_ctree_node_get_row_data ()</title>
+<indexterm><primary>gtk_ctree_node_get_row_data</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_ctree_node_get_row_data     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_node_get_row_data</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-moveto"/>gtk_ctree_node_moveto ()</title>
+<indexterm><primary>gtk_ctree_node_moveto</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_node_moveto           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gfloat">gfloat</link> row_align,
+                                             <link linkend="gfloat">gfloat</link> col_align);</programlisting>
+<warning><para><literal>gtk_ctree_node_moveto</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+This function makes the given column of the given node visible by
+scrolling.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node to be made visible.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>The column to be made visible.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>row_align</parameter>&nbsp;:</term>
+<listitem><simpara>Where in the window the row should appear.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>col_align</parameter>&nbsp;:</term>
+<listitem><simpara>Where in the window the column should appear.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-is-visible"/>gtk_ctree_node_is_visible ()</title>
+<indexterm><primary>gtk_ctree_node_is_visible</primary></indexterm><programlisting><link linkend="GtkVisibility">GtkVisibility</link> gtk_ctree_node_is_visible     (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_node_is_visible</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>True if the node is currently inside the bounds of the window.
+Note that this function can return true even if the node is not
+viewable, if the node's ancestor is visible.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-indent"/>gtk_ctree_set_indent ()</title>
+<indexterm><primary>gtk_ctree_set_indent</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_indent            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gint">gint</link> indent);</programlisting>
+<warning><para><literal>gtk_ctree_set_indent</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>indent</parameter>&nbsp;:</term>
+<listitem><simpara>The number of pixels to shift the levels of the tree.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-spacing"/>gtk_ctree_set_spacing ()</title>
+<indexterm><primary>gtk_ctree_set_spacing</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_spacing           (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gint">gint</link> spacing);</programlisting>
+<warning><para><literal>gtk_ctree_set_spacing</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+The spacing between the tree graphic and the actual node content.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>spacing</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-reorderable"/>gtk_ctree_set_reorderable()</title>
+<indexterm><primary>gtk_ctree_set_reorderable</primary></indexterm><programlisting>#define gtk_ctree_set_reorderable(t,r)                    gtk_clist_set_reorderable((GtkCList*) (t),(r))
+</programlisting>
+<warning><para><literal>gtk_ctree_set_reorderable</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>t</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>r</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-line-style"/>gtk_ctree_set_line_style ()</title>
+<indexterm><primary>gtk_ctree_set_line_style</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_line_style        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeLineStyle">GtkCTreeLineStyle</link> line_style);</programlisting>
+<warning><para><literal>gtk_ctree_set_line_style</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>line_style</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-expander-style"/>gtk_ctree_set_expander_style ()</title>
+<indexterm><primary>gtk_ctree_set_expander_style</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_expander_style    (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeExpanderStyle">GtkCTreeExpanderStyle</link> expander_style);</programlisting>
+<warning><para><literal>gtk_ctree_set_expander_style</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expander_style</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-drag-compare-func"/>gtk_ctree_set_drag_compare_func ()</title>
+<indexterm><primary>gtk_ctree_set_drag_compare_func</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_drag_compare_func (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeCompareDragFunc">GtkCTreeCompareDragFunc</link> cmp_func);</programlisting>
+<warning><para><literal>gtk_ctree_set_drag_compare_func</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+FIXME
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cmp_func</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-sort-node"/>gtk_ctree_sort_node ()</title>
+<indexterm><primary>gtk_ctree_sort_node</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_sort_node             (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_sort_node</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Sort the children of a node. See <link linkend="GtkCList"><type>GtkCList</type></link> for how to set the sorting
+criteria etc.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-sort-recursive"/>gtk_ctree_sort_recursive ()</title>
+<indexterm><primary>gtk_ctree_sort_recursive</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_sort_recursive        (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node);</programlisting>
+<warning><para><literal>gtk_ctree_sort_recursive</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Sort the descendants of a node. See <link linkend="GtkCList"><type>GtkCList</type></link> for how to set the sorting
+criteria etc.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-node-nth"/>gtk_ctree_node_nth ()</title>
+<indexterm><primary>gtk_ctree_node_nth</primary></indexterm><programlisting><link linkend="GtkCTreeNode">GtkCTreeNode</link>* gtk_ctree_node_nth            (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="guint">guint</link> row);</programlisting>
+<warning><para><literal>gtk_ctree_node_nth</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>row</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The node corresponding to the <parameter>row</parameter> th row.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-ctree-set-show-stub"/>gtk_ctree_set_show_stub ()</title>
+<indexterm><primary>gtk_ctree_set_show_stub</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_ctree_set_show_stub         (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                             <link linkend="gboolean">gboolean</link> show_stub);</programlisting>
+<warning><para><literal>gtk_ctree_set_show_stub</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>show_stub</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkCTree--expander-style"/>&quot;<literal>expander-style</literal>&quot; (<link linkend="GtkCTreeExpanderStyle">GtkCTreeExpanderStyle</link> : Read / Write)</term>
+<listitem>
+<para>
+The style of the expander buttons.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkCTree--indent"/>&quot;<literal>indent</literal>&quot; (<link linkend="guint">guint</link> : Read / Write)</term>
+<listitem>
+<para>
+The number of pixels to indent the tree levels.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkCTree--line-style"/>&quot;<literal>line-style</literal>&quot; (<link linkend="GtkCTreeLineStyle">GtkCTreeLineStyle</link> : Read / Write)</term>
+<listitem>
+<para>
+The style of the lines in the tree graphic.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkCTree--n-columns"/>&quot;<literal>n-columns</literal>&quot; (<link linkend="guint">guint</link> : Read / Write / Construct Only)</term>
+<listitem>
+<para>
+The number of columns in the tree.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkCTree--show-stub"/>&quot;<literal>show-stub</literal>&quot; (<link linkend="gboolean">gboolean</link> : Read / Write)</term>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkCTree--spacing"/>&quot;<literal>spacing</literal>&quot; (<link linkend="guint">guint</link> : Read / Write)</term>
+<listitem>
+<para>
+The number of pixels between the tree and the columns.
+</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkCTree--tree-column"/>&quot;<literal>tree-column</literal>&quot; (<link linkend="guint">guint</link> : Read / Write / Construct Only)</term>
+<listitem>
+<para>
+The column in which the actual tree graphic appears.
+</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+<refsect1>
+<title>Signals</title>
+<refsect2><title><anchor id="GtkCTree-change-focus-row-expansion"/>The &quot;change-focus-row-expansion&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeExpansionType">GtkCTreeExpansionType</link> expansion,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+The row which has the focus is either collapsed or expanded
+or toggled.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expansion</parameter>&nbsp;:</term>
+<listitem><simpara>What is being done.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkCTree-tree-collapse"/>The &quot;tree-collapse&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a node is collapsed.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkCTree-tree-expand"/>The &quot;tree-expand&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a node is expanded.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkCTree-tree-move"/>The &quot;tree-move&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_parent,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *new_sibling,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a node is moved.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node that is moved.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_parent</parameter>&nbsp;:</term>
+<listitem><simpara>The new parent of the node.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>new_sibling</parameter>&nbsp;:</term>
+<listitem><simpara>The new sibling of the node.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkCTree-tree-select-row"/>The &quot;tree-select-row&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gint">gint</link> column,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a row is selected.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node corresponding to the selected row.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>The column which was selected.
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2><refsect2><title><anchor id="GtkCTree-tree-unselect-row"/>The &quot;tree-unselect-row&quot; signal</title>
+<programlisting><link linkend="void">void</link>        user_function                  (<link linkend="GtkCTree">GtkCTree</link> *ctree,
+                                            <link linkend="GtkCTreeNode">GtkCTreeNode</link> *node,
+                                            <link linkend="gint">gint</link> column,
+                                            <link linkend="gpointer">gpointer</link> user_data);</programlisting>
+<para>
+Emitted when a node is unselected.
+</para><variablelist role="params">
+<varlistentry><term><parameter>ctree</parameter>&nbsp;:</term>
+<listitem><simpara>the object which received the signal.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>node</parameter>&nbsp;:</term>
+<listitem><simpara>The node  corresponding to the selected row.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&nbsp;:</term>
+<listitem><simpara>user data set when the signal handler was connected.</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+</refsect1>
+
+
+
+</refentry>

@@ -1,0 +1,69 @@
+.TH kacpimon 8 "Jan 2013"
+.\" Copyright (c) 2009-2013 Ted Felix (www.tedfelix.com)
+.SH NAME
+kacpimon \- Kernel ACPI Event Monitor
+.SH SYNOPSIS
+\fBkacpimon\fP
+.SH DESCRIPTION
+\fBkacpimon\fP is a monitor program that connects to three sources of ACPI 
+events:
+.IP
+1. /proc/acpi/event
+.br
+2. netlink
+.br
+3. the input layer (/dev/input/event*)
+.PP
+\fBkacpimon\fP then reports on what it sees while it is connected.
+.PP
+Use \fBkacpimon\fP to make sure your kernel is sending acpi-related events
+via the three sources mentioned above.
+.PP
+Since both \fBacpid\fP(8) and \fBkacpimon\fP connect to the same sources, be sure
+to stop \fBacpid\fP(8) before running kacpimon.  If you are using 
+\fBupstart\fP(7), use \fBinitctl\fP(8) to stop \fBacpid\fP(8).  If you are using 
+\fBsystemd\fP(1), use \fBsystemctl\fP(1) to stop \fBacpid\fP(8).  If you aren't
+using either of those, you can try \fBkillall\fP(1) to stop \fBacpid\fP(8).
+.PP
+Be sure to run \fBkacpimon\fP as root or else it won't be able to open
+/proc/acpi/event or the input layer:
+.IP
+sudo kacpimon
+.PP  
+If you want to pipe the output of \fBkacpimon\fP to a file, be sure to use
+the "Esc" key to exit rather than Ctrl-C.  Using Ctrl-C will cause
+output to be lost.
+.SH FILES
+.TP
+.I /proc/acpi/event
+kernel ACPI event file
+.TP
+.I /dev/input/event*
+input layer event files
+.SH SEE ALSO
+.BR acpi_listen (8),
+.BR acpid (8)
+.SH AUTHOR
+Ted Felix <www.tedfelix.com>
+.SH TODO
+\- Make kacpimon something that actually gets installed?
+.SH LICENSE
+kacpimon \- Kernel ACPI Event Monitor
+.br
+Copyright (C) 2009-2013  Ted Felix (www.tedfelix.com)
+.PP
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+Or visit www.gnu.org.
+

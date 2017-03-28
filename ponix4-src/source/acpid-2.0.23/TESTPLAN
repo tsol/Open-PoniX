@@ -1,0 +1,100 @@
+acpid Test Plan
+
+Suggestions
+
+- Run all these tests with valgrind to detect memory leaks.
+- It's best to test without a window manager running (such as GNOME or KDE) as
+  they tend to handle acpi events on their own and override acpid.  To bring 
+  down X on a system that is configured with a graphical login, there's usually
+  an "init" script you can run.  As an example, with Debian/GNOME, log off of 
+  your X/GNOME session, switch to another tty (e.g. Alt-Ctrl-F1), login, and do
+  this:
+      sudo /etc/init.d/gdm stop
+  It's different if you are using upstart:
+      sudo initctl stop gdm
+  And systemd requires a different incantation:
+      [anyone care to enlighten me?]
+  LightDM in Ubuntu 11.10 (and others) doesn't seem to care about the power 
+  button.  So no need to stop it.  Just log out.
+  Now X is out of the way and you can test from the console.
+- You can kill acpid with "sudo killall acpid".  Or if you are using upstart:
+      sudo initctl stop acpid
+  For systemd:
+      [anyone?]
+- To make testing more convenient, you can run acpid from a shell as 
+  "acpid -ld" to get maximum logging.  Use Ctrl-C to stop acpid.
+
+Normal Paths
+
+* proc fs, all events
+Start acpid against /proc/acpi/event (if it exists).
+Test each of the following events:
+1. Power Button
+2. Laptop Lid Switch
+3. Sleep Button
+4. Laptop AC Adapter
+5. Laptop Battery
+
+* input layer/netlink, all events
+Start acpid against the input layer and netlink.
+Test each of the following events:
+1. Power Button (tests ACPI -> input layer)
+2. Laptop Lid Switch (tests ACPI -> input layer)
+3. Sleep Button (tests ACPI -> input layer)
+4. Laptop AC Adapter (tests ACPI -> netlink)
+5. Laptop Battery (tests ACPI -> netlink)
+6. Special Keyboard Key(s)
+
+* input layer/netlink fallback
+Start acpid with a bogus events file specified via the options.
+  acpid -e /proc/acpi/bogus
+Make sure a connection is made via the input layer and netlink.
+
+* lockfile procfs
+Start acpid against the proc fs
+Try some events and make sure they are coming through.
+Create the lockfile.
+Try some events and make sure they do not come through.
+Remove the lockfile.
+Try some events and make sure they are coming through.
+
+* lockfile netlink
+Start acpid against input layer and netlink.
+Try some events and make sure they are coming through.
+Create the lockfile.
+Try some events and make sure they do not come through.
+Remove the lockfile.
+Try some events and make sure they are coming through.
+
+* USB disconnect
+Start acpid (input layer and netlink) with a second USB keyboard attached.
+Try some events and make sure they are coming through.
+Disconnect the second USB keyboard.
+Make sure acpid is still running.
+Try some events and make sure they are coming through.
+
+* USB connect
+Start acpid against input layer and netlink.
+Try some events and make sure they are coming through.
+Connect a second USB keyboard.
+Check logging to see if acpid has found the new keyboard.
+Try some events from the second USB keyboard and make sure they are coming 
+through.
+
+
+Debugging Paths
+
+* event logging
+Run acpid without the -l option and make sure no events are logged to syslog.
+Run acpid with the -l option and make sure events are logged to syslog.
+
+* debug mode
+Run acpid with the -d option and note that it runs in the foreground and 
+provides debugging info to the console.
+acpid also supports up to 4 debug levels in the event handler.  Might want 
+to try "-dddd" and see what happens.
+
+* foreground mode
+Run acpid with the -f option and note that it runs in the foreground.
+Run acpid without the -f option and note that it runs in the background.
+

@@ -1,0 +1,96 @@
+--- ../alsa-kernel/usb/quirks.c	2011-09-27 09:22:10.440753405 +0200
++++ quirks.c	2011-10-09 09:12:04.793207476 +0200
+@@ -1,3 +1,5 @@
++#define __NO_VERSION__
++#include "usbaudio.inc"
+ /*
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+@@ -162,7 +164,11 @@
+ 	}
+ 	alts = &iface->altsetting[fp->altset_idx];
+ 	fp->datainterval = snd_usb_parse_datainterval(chip, alts);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+ 	fp->maxpacksize = le16_to_cpu(get_endpoint(alts, 0)->wMaxPacketSize);
++#else
++	fp->maxpacksize = get_endpoint(alts, 0)->wMaxPacketSize;
++#endif
+ 	usb_set_interface(chip->dev, fp->iface, 0);
+ 	snd_usb_init_pitch(chip, fp->iface, alts, fp);
+ 	snd_usb_init_sample_rate(chip, fp->iface, alts, fp, fp->rate_max);
+@@ -233,7 +239,11 @@
+ 	fp->endpoint = get_endpoint(alts, 0)->bEndpointAddress;
+ 	fp->ep_attr = get_endpoint(alts, 0)->bmAttributes;
+ 	fp->datainterval = 0;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+ 	fp->maxpacksize = le16_to_cpu(get_endpoint(alts, 0)->wMaxPacketSize);
++#else
++	fp->maxpacksize = get_endpoint(alts, 0)->wMaxPacketSize;
++#endif
+ 
+ 	switch (fp->maxpacksize) {
+ 	case 0x120:
+@@ -335,8 +345,13 @@
+ 	struct usb_host_config *config = dev->actconfig;
+ 	int err;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+ 	if (le16_to_cpu(get_cfg_desc(config)->wTotalLength) == EXTIGY_FIRMWARE_SIZE_OLD ||
+ 	    le16_to_cpu(get_cfg_desc(config)->wTotalLength) == EXTIGY_FIRMWARE_SIZE_NEW) {
++#else
++	if (get_cfg_desc(config)->wTotalLength == EXTIGY_FIRMWARE_SIZE_OLD ||
++	    get_cfg_desc(config)->wTotalLength == EXTIGY_FIRMWARE_SIZE_NEW) {
++#endif
+ 		snd_printdd("sending Extigy boot sequence...\n");
+ 		/* Send message to force it to reconnect with full interface. */
+ 		err = snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev,0),
+@@ -348,8 +363,13 @@
+ 		if (err < 0) snd_printdd("error usb_get_descriptor: %d\n", err);
+ 		err = usb_reset_configuration(dev);
+ 		if (err < 0) snd_printdd("error usb_reset_configuration: %d\n", err);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
+ 		snd_printdd("extigy_boot: new boot length = %d\n",
+ 			    le16_to_cpu(get_cfg_desc(config)->wTotalLength));
++#else
++		snd_printdd("extigy_boot: new boot length = %d\n",
++			    get_cfg_desc(config)->wTotalLength);
++#endif
+ 		return -ENODEV; /* quit this anyway */
+ 	}
+ 	return 0;
+@@ -357,6 +377,8 @@
+ 
+ static int snd_usb_audigy2nx_boot_quirk(struct usb_device *dev)
+ {
++/* The pre-2.6.13 EHCI driver blows up when doing high speed iso transfers */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 13)
+ 	u8 buf = 1;
+ 
+ 	snd_usb_ctl_msg(dev, usb_rcvctrlpipe(dev, 0), 0x2a,
+@@ -368,6 +390,7 @@
+ 				1, 2000, NULL, 0);
+ 		return -ENODEV;
+ 	}
++#endif
+ 	return 0;
+ }
+ 
+@@ -376,6 +399,10 @@
+ 	int err;
+ 
+ 	if (dev->actconfig->desc.bConfigurationValue == 1) {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
++		snd_printk(KERN_INFO "usb-audio: "
++			   "Fast Track Pro needs to switch to config #2; set by udev or hotplug rules by yourself\n");
++#else
+ 		snd_printk(KERN_INFO "usb-audio: "
+ 			   "Fast Track Pro switching to config #2\n");
+ 		/* This function has to be available by the usb core module.
+@@ -389,6 +416,7 @@
+ 				    err);
+ 			return -ENODEV;
+ 		}
++#endif
+ 	} else
+ 		snd_printk(KERN_INFO "usb-audio: Fast Track Pro config OK\n");
+ 

@@ -1,0 +1,86 @@
+.TH xcb_query_pointer 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_query_pointer \- get pointer coordinates
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_query_pointer_cookie_t \fBxcb_query_pointer\fP(xcb_connection_t\ *\fIconn\fP, xcb_window_t\ \fIwindow\fP);
+.PP
+.SS Reply datastructure
+.nf
+.sp
+typedef struct xcb_query_pointer_reply_t {
+    uint8_t      \fIresponse_type\fP;
+    uint8_t      \fIsame_screen\fP;
+    uint16_t     \fIsequence\fP;
+    uint32_t     \fIlength\fP;
+    xcb_window_t \fIroot\fP;
+    xcb_window_t \fIchild\fP;
+    int16_t      \fIroot_x\fP;
+    int16_t      \fIroot_y\fP;
+    int16_t      \fIwin_x\fP;
+    int16_t      \fIwin_y\fP;
+    uint16_t     \fImask\fP;
+    uint8_t      \fIpad0\fP[2];
+} \fBxcb_query_pointer_reply_t\fP;
+.fi
+.SS Reply function
+.HP
+xcb_query_pointer_reply_t *\fBxcb_query_pointer_reply\fP(xcb_connection_t\ *\fIconn\fP, xcb_query_pointer_cookie_t\ \fIcookie\fP, xcb_generic_error_t\ **\fIe\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIwindow\fP 1i
+A window to check if the pointer is on the same screen as \fIwindow\fP (see the
+\fIsame_screen\fP field in the reply).
+.SH REPLY FIELDS
+.IP \fIresponse_type\fP 1i
+The type of this reply, in this case \fIXCB_QUERY_POINTER\fP. This field is also present in the \fIxcb_generic_reply_t\fP and can be used to tell replies apart from each other.
+.IP \fIsequence\fP 1i
+The sequence number of the last request processed by the X11 server.
+.IP \fIlength\fP 1i
+The length of the reply, in words (a word is 4 bytes).
+.IP \fIsame_screen\fP 1i
+If \fIsame_screen\fP is False, then the pointer is not on the same screen as the
+argument window, \fIchild\fP is None, and \fIwin_x\fP and \fIwin_y\fP are zero. If
+\fIsame_screen\fP is True, then \fIwin_x\fP and \fIwin_y\fP are the pointer coordinates
+relative to the argument window's origin, and child is the child containing the
+pointer, if any.
+.IP \fIroot\fP 1i
+The root window the pointer is logically on.
+.IP \fIchild\fP 1i
+The child window containing the pointer, if any, if \fIsame_screen\fP is true. If
+\fIsame_screen\fP is false, \fIXCB_NONE\fP is returned.
+.IP \fIroot_x\fP 1i
+The pointer X position, relative to \fIroot\fP.
+.IP \fIroot_y\fP 1i
+The pointer Y position, relative to \fIroot\fP.
+.IP \fIwin_x\fP 1i
+The pointer X coordinate, relative to \fIchild\fP, if \fIsame_screen\fP is true. Zero
+otherwise.
+.IP \fIwin_y\fP 1i
+The pointer Y coordinate, relative to \fIchild\fP, if \fIsame_screen\fP is true. Zero
+otherwise.
+.IP \fImask\fP 1i
+The current logical state of the modifier keys and the buttons. Note that the
+logical state of a device (as seen by means of the protocol) may lag the
+physical state if device event processing is frozen.
+.SH DESCRIPTION
+Gets the root window the pointer is logically on and the pointer coordinates
+relative to the root window's origin.
+.SH RETURN VALUE
+Returns an \fIxcb_query_pointer_cookie_t\fP. Errors have to be handled when calling the reply function \fIxcb_query_pointer_reply\fP.
+
+If you want to handle errors in the event loop instead, use \fIxcb_query_pointer_unchecked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_window_error_t\fP 1i
+The specified \fIwindow\fP does not exist.
+.SH SEE ALSO
+.BR xcb-requests (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

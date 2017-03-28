@@ -1,0 +1,182 @@
+.TH vncserver-virtual 1 "May 2012" "RealVNC Ltd" "VNC Server"
+.SH NAME
+vncserver-virtual \- start or stop VNC\(rg Server in Virtual-Mode.
+.SH SYNOPSIS
+.B vncserver-virtual
+.RI [: DISPLAY ]
+.RB [ -config
+.IR CONFIG-FILE ]
+.RI [ OPTION... ]
+.br
+.BI "vncserver-virtual \-kill :" DISPLAY
+.br
+.B vncserver-virtual \-help
+.br
+.B vncserver-virtual \-list
+.br
+.B vncserver-virtual \-test
+.SH DESCRIPTION
+.B vncserver-virtual
+is used to start or stop a VNC desktop. It is a configurable and user-friendly
+front-end to the \fBXvnc\fP(1) command.
+.SH OPTIONS
+.B vncserver-virtual
+can be run with no options. In this case it will choose the first
+available display number (usually :1), read the system configuration
+files from
+.IR /etc/vnc/config " and " /etc/vnc/config.custom ,
+read the user's configuration file from
+.I $HOME/.vnc/config
+and start a VNC desktop configured appropriately. Alternatively, the
+following options can be specified on the command-line.
+.TP
+.B :\fIDISPLAY\fP
+Start a VNC desktop on the specified display number. If the display is
+already in use then
+.B vncserver-virtual
+will print an error message and exit.
+.TP
+.BI "\-config " CONFIG-FILE
+Load
+.I CONFIG-FILE
+instead of \fI$HOME/.vnc/config\fP. Multiple
+.B -config
+options can be specified to load more than one configuration file in
+the order specified. The system configuration files are always read from
+.IR /etc/vnc/config " and " /etc/vnc/config.custom
+before any other configuration files.
+.TP
+.B \-kill :\fIDISPLAY\fP
+Shut down the VNC server running on :\fIdisplay\fP.
+.TP
+.B \-help
+Display a list of command-line options.
+.TP
+.B -list
+List the configuration variables.
+.TP
+.B -test
+Test mode. In this mode,
+.B vncserver-virtual
+terminates before starting or stopping any desktops, but after any
+validity checks have taken place. In addition, the appropriate
+command is printed to standard out. For example, the command-line
+
+.RS 12
+.B vncserver-virtual
+\-test :1 -config
+.I MYCONFIG
+.RE
+.br
+.IP
+verifies that display :1 is available and checks
+.I MYCONFIG
+for syntax errors before printing the appropriate Xvnc command-line
+and exiting.
+.LP
+In addition to these options, any unrecognised command-line options
+are passed directly to the Xvnc command.
+.SH X APPLICATIONS SCRIPT
+The
+.I $HOME/.vnc/xstartup
+script is run by
+.B vncserver-virtual
+and usually specifies a window manager and some applications that are
+run by default on any VNC desktops. If this file does not exist then
+.B vncserver-virtual
+uses the system default from
+.IR /etc/vnc/xstartup .
+The xstartup file can be edited to change the applications run at startup
+(but note that this will not affect an existing desktop).
+.SH CONFIGURATION FILES
+.B vncserver-virtual
+allows users to configure the command-line options passed to \fBXvnc\fP(1)
+using configuration files. By default,
+.B vncserver-virtual
+reads in three configuration files each time it is run. The first are the
+system configuration files,
+.IR /etc/vnc/config " and " /etc/vnc/config.custom ,
+followed the user's configuration file,
+.IR $HOME/.vnc/config .
+.LP
+Older versions of
+.B vncserver-virtual
+also used these configuration files to specify VNC parameters such as
+SecurityTypes as well as X server command-line options.  This is still
+supported, but should be considered deprecated. Use
+\fI/etc/vnc/config.d/Xvnc\fP or \fI~/.vnc/config.d/Xvnc\fP instead. See the
+\fBXvnc\fP(1) man page for details.
+.LP
+Each line in a configuration file is used to provide a default value for
+one of Xvnc's many command-line options.  These defaults can be overridden
+by a subsequent configuration file or on the
+.B vncserver-virtual
+command-line. Each line is treated as a command-line option to Xvnc
+subject to the following transformations:
+.RS 4
+.IP o 2
+Comments are stripped. A comment is introduced using the # character
+and extends to the end of the line.
+.IP o
+Whitespace at the beginning and end of both the option name and
+its value is stripped.
+.IP o
+Environment variables of the form $env or ${env} are expanded where
+they appear in the option value.
+.RE
+.LP
+Default values must be specified in the form that would be used on the
+command-line. For most options this is:
+
+.RS 4
+\-\fINAME\fP [\fIVALUE...\fP]
+.RE
+.LP
+Using this syntax, an option can be given any number of values,
+including zero. For example, the following are all valid:
+
+.RS 4
+\-screen 1 1280x1024x32
+.br
+\-extension GLX
+.br
+\-pn
+.RE
+.LP
+Some X server options are specified using a leading + instead of a -,
+or with no leading character at all. These should be specified in the
+form the X server expects them, for example:
+
+.RS 4
++extension
+.I NAME
+.br
+nologo
+.RE
+.SH ADDITIONAL FILES
+For each VNC desktop,
+.B vncserver-virtual
+creates two additional files in \fI$HOME/.vnc\fP:
+.TP
+\fIHOST\fP:\fIDISPLAY\fP.log 
+The log file for the VNC desktop and applications started in
+xstartup. If the VNC desktop fails to start then
+.B vncserver-virtual
+prints the contents of this log before exiting.
+.TP
+\fIHOST\fP:\fIDISPLAY\fP.pid
+Contains the process ID of the VNC desktop. This is used by the
+.B \-kill
+option.
+.SH SEE ALSO
+.BR vncviewer (1),
+.BR vncaddrbook (1),
+.BR vncpasswd (1),
+.BR vnclicense (1),
+.BR Xvnc (1),
+.BR vncserver-x11 (1),
+.BR vncinitconfig (1)
+.br
+http://www.realvnc.com
+.SH AUTHOR
+RealVNC Ltd.

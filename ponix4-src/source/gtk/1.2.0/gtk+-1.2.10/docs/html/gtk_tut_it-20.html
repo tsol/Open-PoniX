@@ -1,0 +1,859 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Scribble, Un semplice esempio di Programma di Disegno</TITLE>
+ <LINK HREF="gtk_tut_it-21.html" REL=next>
+ <LINK HREF="gtk_tut_it-19.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc20" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-21.html">Avanti</A>
+<A HREF="gtk_tut_it-19.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc20">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s20">20. Scribble, Un semplice esempio di Programma di Disegno</A></H2>
+
+<H2><A NAME="ss20.1">20.1 Panoramica</A>
+</H2>
+
+<P>In questa sezione, creeremo un semplice programma di disegno. Durante
+questo processo, esamineremo come gestire gli eventi generati dal mouse,
+come disegnare all'interno di una finestra e come disegnare in modo migliore
+usando una pixmap di supporto. Dopo averlo creato, lo amplieremo aggiungendo
+il supporto per i dispositivi XInput, per esempio le tavolette grafiche.
+Il GTK fornisce delle routine di supporto grazie alle quali risulta  piuttosto
+semplice ottenere informazioni estese, come la pressione o l'inclinazione.
+<P>
+<H2><A NAME="ss20.2">20.2 Gestione degli Eventi</A>
+</H2>
+
+<P>I segnali di GTK che abbiamo discusso finora si riferivano ad azioni di
+alto livello, ad esempio la selezione di un elemento di un men&ugrave;. Per&ograve;, a volte
+&egrave; utile sapere qualcosa su cose che si svolgono a livello pi&ugrave; basso livello,
+come possono essere il movimento del mouse o la pressione di un tasto.
+Ci sono segnali di GTK anche per questi <EM>eventi</EM> di basso livello.
+I gestori di questo tipo di segnali hanno un parametro caratteristico in pi&ugrave;,
+che &egrave; il puntatore ad una struttura che contiene informazioni riguardo
+all'evento. Per esempio, ai gestori di eventi che riguardano dei movimenti,
+si passa un puntatore ad una struttura GdkEventMotion, che &egrave; fatta (in parte)
+cos&igrave;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GdkEventMotion
+{
+  GdkEventType type;
+  GdkWindow *window;
+  guint32 time;
+  gdouble x;
+  gdouble y;
+  ...
+  guint state;
+  ...
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>type</CODE> avr&agrave; il valore del tipo di evento, in questo caso 
+<CODE>GDK_MOTION_NOTIFY</CODE>, <CODE>window</CODE> rappresenta la finestra in cui l'evento
+si &egrave; verificato. <CODE>x</CODE> e <CODE>y</CODE> forniscono le coordinate dell'evento e
+<CODE>state</CODE> specifica lo stato dei modificatori nel momento in cui l'evento
+si &egrave; verificato (cio&egrave;, specifica quali tasti modificatori e tasti del mouse
+erano premuti in quel momento). E' un OR bit per bit dei seguenti valori:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GDK_SHIFT_MASK  
+GDK_LOCK_MASK   
+GDK_CONTROL_MASK
+GDK_MOD1_MASK   
+GDK_MOD2_MASK   
+GDK_MOD3_MASK   
+GDK_MOD4_MASK   
+GDK_MOD5_MASK   
+GDK_BUTTON1_MASK
+GDK_BUTTON2_MASK
+GDK_BUTTON3_MASK
+GDK_BUTTON4_MASK
+GDK_BUTTON5_MASK
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>Come succede per gli altri segnali, per determinare cosa deve accadere in
+corrispondenza di un evento, si chiama <CODE>gtk_signal_connect()</CODE>. Ma
+&egrave; anche necessario far s&igrave; che GTK sappia di quali eventi vogliamo essere
+informati. A questo fine, chiamiamo la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void  gtk_widget_set_events (GtkWidget *widget, gint events);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Il secondo campo specifica gli eventi che ci interessano. Si tratta dell'OR
+bit per bit delle costanti che identificano i diversi tipi di eventi. La lista
+dei tipi di eventi &egrave; la seguente:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GDK_EXPOSURE_MASK
+GDK_POINTER_MOTION_MASK
+GDK_POINTER_MOTION_HINT_MASK
+GDK_BUTTON_MOTION_MASK     
+GDK_BUTTON1_MOTION_MASK    
+GDK_BUTTON2_MOTION_MASK    
+GDK_BUTTON3_MOTION_MASK    
+GDK_BUTTON_PRESS_MASK      
+GDK_BUTTON_RELEASE_MASK    
+GDK_KEY_PRESS_MASK         
+GDK_KEY_RELEASE_MASK       
+GDK_ENTER_NOTIFY_MASK      
+GDK_LEAVE_NOTIFY_MASK      
+GDK_FOCUS_CHANGE_MASK      
+GDK_STRUCTURE_MASK         
+GDK_PROPERTY_CHANGE_MASK   
+GDK_PROXIMITY_IN_MASK      
+GDK_PROXIMITY_OUT_MASK     
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Per chiamare <CODE>gtk_widget_set_events()</CODE>, si devono fare alcune osservazioni
+sottili. In primo luogo, la si deve chiamare prima che sia stata creata la
+finestra X per il widget GTK. In pratica, ci&ograve; significa che la si deve
+chiamare subito dopo aver creato il widget. In secondo luogo, il widget
+deve avere una finestra X associata. Molti widget, per ragioni di
+efficienza, non hanno una propria finetra, e vengono mostrati nella
+finestra madre. Questi widget sono:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkAlignment
+GtkArrow
+GtkBin
+GtkBox
+GtkImage
+GtkItem
+GtkLabel
+GtkPixmap
+GtkScrolledWindow
+GtkSeparator
+GtkTable
+GtkAspectFrame
+GtkFrame
+GtkVBox
+GtkHBox
+GtkVSeparator
+GtkHSeparator
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Per catturare degli eventi per questo tipo di widget, si deve fare uso 
+del widget EventBox. Si veda a questo proposito la sezione su
+<A HREF="gtk_tut_it-13.html#sec_The_EventBox_Widget">The EventBox Widget</A>.
+<P>
+<P>Per il nostro programma di disegno, vogliamo sapere quando il pulsante del
+mouse &egrave; premuto e quando viene mosso, quindi specificheremo
+<CODE>GDK_POINTER_MOTION_MASK</CODE> e <CODE>GDK_BUTTON_PRESS_MASK</CODE>. Vogliamo anche
+essere informati su quando &egrave; necessario ridisegnare la nostra finestra,
+quindi specifichiamo <CODE>GDK_EXPOSURE_MASK</CODE>. Anche se vogliamo essere
+avvertiti con un evento ``Configure'' se la dimensione della nostra finestra
+cambia, non &egrave; necessario specificare il flag <CODE>GDK_STRUCTURE_MASK</CODE>, dal
+momento che questo viene specificato automaticamente per tutte le finestre.
+<P>
+<P>Risulta, conunque, che specificando semplicemente <CODE>GDK_POINTER_MOTION_MASK</CODE>
+si crea un problema. Ci&ograve; infatti fa s&igrave; che il server aggiunga nella coda un
+un nuovo evento di movimento ogni volta che l'utente muovoe il mouse. Immaginate
+che ci vogliano 0.1 secondi per gestire uno di questi eventi, e che il server
+X metta in coda un nuovo evento ogni 0.05 secondi. Rimarremo ben presto indietro
+rispetto al disegno dell'utente. Se l'utente disegna per 5 secondi, ci metteremmo
+altri 5 secondi prima di finire dopo che l'utente ha rilasciato il pulsante del
+mouse! Vorremmo quindi che venga notificato un solo evento di movimento per
+ogni evento che processiamo. Il modo per farlo &egrave; di specificare 
+<CODE>GDK_POINTER_MOTION_HINT_MASK</CODE>. 
+<P>
+<P>Quando specifichiamo <CODE>GDK_POINTER_MOTION_HINT_MASK</CODE>, il server ci notifica
+un evento di movimento la prima volta che il puntatore si muove dopo essere
+entrato nella nostra finestra, oppure dopo ogni rilascio di un pulsante del
+mouse. Gli altri eventi di movimento verranno soppressi finch&eacute; non richiediamo
+esplicitamente la posizione del puntatore con la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkWindow*    gdk_window_get_pointer     (GdkWindow       *window,
+                                          gint            *x,
+                                          gint            *y,
+                                          GdkModifierType *mask);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>(c'&egrave; anche un'altra funzione, <CODE>gtk_widget_get_pointer()</CODE>, che ha
+un'interfaccia pi&ugrave; semplice, ma che non risulta molto utile dal momento
+che restituisce solo la posizione del puntatore, senza dettagli sullo
+sato dei pulsanti.)
+<P>
+<P>Quindi, il codice per assegnare gli eventi per la nostra finestra, avr&agrave; l'aspetto:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  gtk_signal_connect (GTK_OBJECT (drawing_area), "expose_event",
+                      (GtkSignalFunc) expose_event, NULL);
+  gtk_signal_connect (GTK_OBJECT(drawing_area),"configure_event",
+                      (GtkSignalFunc) configure_event, NULL);
+  gtk_signal_connect (GTK_OBJECT (drawing_area), "motion_notify_event",
+                      (GtkSignalFunc) motion_notify_event, NULL);
+  gtk_signal_connect (GTK_OBJECT (drawing_area), "button_press_event",
+                      (GtkSignalFunc) button_press_event, NULL);
+
+  gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK
+                         | GDK_LEAVE_NOTIFY_MASK
+                         | GDK_BUTTON_PRESS_MASK
+                         | GDK_POINTER_MOTION_MASK
+                         | GDK_POINTER_MOTION_HINT_MASK);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Teniamo per dopo i gestori di  ``expose_event'' e  ``configure_event''. Quelli di
+``motion_notify_event'' e ``button_press_event'' sono piuttosto semplici: 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static gint
+button_press_event (GtkWidget *widget, GdkEventButton *event)
+{
+  if (event->button == 1 &amp;&amp; pixmap != NULL)
+      draw_brush (widget, event->x, event->y);
+
+  return TRUE;
+}
+
+static gint
+motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
+{
+  int x, y;
+  GdkModifierType state;
+
+  if (event->is_hint)
+    gdk_window_get_pointer (event->window, &amp;x, &amp;y, &amp;state);
+  else
+    {
+      x = event->x;
+      y = event->y;
+      state = event->state;
+    }
+    
+  if (state &amp; GDK_BUTTON1_MASK &amp;&amp; pixmap != NULL)
+    draw_brush (widget, x, y);
+  
+  return TRUE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss20.3">20.3 Il widget Area di Disegno (DrawingArea) e il procedimento per Disegnare</A>
+</H2>
+
+<P>Vediamo ora il procedimento per disegnare sullo schermo. Il
+widget da usare &egrave; l'Area di Disegno (DrawingArea). Essenzialmente si
+tratta di una finestra X e nient'altro. E' una tela bianca su cui possimo
+disegnare tutto quello che vogliamo. Per crearne una usiamo la chiamata:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_drawing_area_new        (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Per specificare una dimensione predefinita, si puo fare:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void       gtk_drawing_area_size       (GtkDrawingArea      *darea,
+                                        gint                 width,
+                                        gint                 height);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Come &egrave; vero per tutti i widget, si pu&ograve; modificare questa dimensione
+predefinita, tramite la chamata a <CODE>gtk_widget_set_usize()</CODE>, e
+questa a sua volta pu&ograve; essere modificata dall'utente ridimensionando
+manualmente la finestra che contiene l'area di disegno.
+<P>
+<P>Si deve notare che nel momento in cui creiamo un widget DrawingArea, siamo
+<EM>completamente</EM> responsabili di disegnarne il contenuto. Se ad 
+esempio la nostra finestra viene prima nascosta e poi dinuovo portata in
+primo piano, otteniamo un evento di ``esposizione'' e doppiamo ridisegnare
+ci&ograve; che era stato precedente nascosto.
+<P>
+<P>Dover ricordare tutto quello che era disegnato sulla finestra in modo da
+poterlo ridisegnare successivamente, pu&ograve; essere, come minimo, noioso.
+In pi&ugrave;, pu&ograve; essere spiacevole dal punto di vista visivo, se delle porzioni
+dello schermo vengono prima cancellate e poi ridisegnate passo per passo.
+La soluzione per questo problema &egrave; di usare una <EM>pixmap di supporto</EM>.
+Invece di disegnare direttamente sullo schermo, disegnamo su un'iimagine
+conservata nella memoria del server ma che non viene mostrata; quindi, quando
+l'immagine cambia o ne vengono mostrate nuove porzioni, copiamo sullo schermo
+le parti corrispondenti.
+<P>
+<P>Per creare una ppixmap fuori dallo schermo, usiamo la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GdkPixmap* gdk_pixmap_new               (GdkWindow  *window,
+                                         gint        width,
+                                         gint        height,
+                                         gint        depth);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Il parametro <CODE>window</CODE>specifica una finestra GDK dalla quale questa
+pixmap prende alcune delle sue propriet&agrave;. <CODE>width</CODE> e <CODE>height</CODE>
+specificano le dimensioni della pixmap.  <CODE>depth</CODE> specifica la 
+<EM>profondit&agrave; di colore</EM>, cio&egrave; il numero di bit per ogni pixel, per
+la nuova pixmap. Se alla profondit&agrave; &egrave; assegnato il valore <CODE>-1</CODE>, questa
+verr&agrave; posta identica a quella di <CODE>window</CODE>.
+<P>
+<P>Creiamo la pixmap all'interno del gestore di ``configure_event''. Questo evento
+&egrave; generato ogni volta che la finestra cambia di dimensione, compreso il
+momento in cui viene creata per la prima volta.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* Pixmap di supporto per l'area di disegno */
+static GdkPixmap *pixmap = NULL;
+
+/* Creare una pixmap della dimensione appropriata */
+static gint
+configure_event (GtkWidget *widget, GdkEventConfigure *event)
+{
+  if (pixmap)
+    {
+      gdk_pixmap_destroy(pixmap);
+    }
+  pixmap = gdk_pixmap_new(widget->window,
+                          widget->allocation.width,
+                          widget->allocation.height,
+                          -1);
+  gdk_draw_rectangle (pixmap,
+                      widget->style->white_gc,
+                      TRUE,
+                      0, 0,
+                      widget->allocation.width,
+                      widget->allocation.height);
+
+  return TRUE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La chiamata a <CODE>gdk_draw_rectangle()</CODE> inizialmente rende bianca l'intera
+pixmap. Fra un momento ne riparleremo.
+<P>
+<P>Il gestore dell'evento ``esposizione'', copia quindi la porzione appropriata
+della pixmap sullo schermo (determiniamo qual &egrave; l'area da ridisegnare usando
+il campo event->area dell'evento di esposizione):
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* Ridisegna sullo schermo a partire dalla pixmap di supporto */
+static gint
+expose_event (GtkWidget *widget, GdkEventExpose *event)
+{
+  gdk_draw_pixmap(widget->window,
+                  widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+                  pixmap,
+                  event->area.x, event->area.y,
+                  event->area.x, event->area.y,
+                  event->area.width, event->area.height);
+
+  return FALSE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Abbiamo quindi visto come tenete aggiornato lo schermo con la nostra
+pixmap, ma come facciamo per disegnare delle cose interessanti sulla
+pixmap? Ci sono un bel po' di funzioni nella libreria GDK di GTK che
+servono per disegnare su superfici <EM>disegnabili</EM>. Una superficie
+disegnabile &egrave; semplicemente qualcosa su cui si pu&ograve; disegnare un'immagine.
+Pu&ograve; essere una finestra, una pixmap o una bitmap (un'immagine in bianco e
+nero). Abbiamo gi&agrave; visto sopra due di chiamate,
+<CODE>gdk_draw_rectangle()</CODE> and <CODE>gdk_draw_pixmap()</CODE>. La lista
+completa &egrave; la seguente:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gdk_draw_line ()
+gdk_draw_rectangle ()
+gdk_draw_arc ()
+gdk_draw_polygon ()
+gdk_draw_string ()
+gdk_draw_text ()
+gdk_draw_pixmap ()
+gdk_draw_bitmap ()
+gdk_draw_image ()
+gdk_draw_points ()
+gdk_draw_segments ()
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Per ulteriori dettagli su queste funzioni, vedete la documentazione di
+riferimento nei file header <CODE>&lt;gdk/gdk.h&gt;</CODE>.
+Tutte queste funzioni hanno i medesimi primi due argomenti. Il primo
+&egrave; la superficie disegnabili su cui disegnare, il secondo &egrave; un 
+<EM>contesto grafico</EM> (GC). 
+<P>
+<P>Un contesto grafico incapsula delle informazioni riguardo a cose come
+il colore di sfondo e di primo piano e lo spessore della linea.
+GDK ha un ampio insieme di funzioni per crare e modificare contesti grafici,
+ma per tenere le cose semplici useremo solo dei contesti grafici predefiniti.
+Ogni widget ha uno stile associato (che pu&ograve; essere modificato agendo su un
+file gtkrc). Questo, fra le altre cose, contiene un certo numero di contesti
+grafici. Alcuni esempi di come accedere a questi contesti grafici sono
+i seguenti:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+widget->style->white_gc
+widget->style->black_gc
+widget->style->fg_gc[GTK_STATE_NORMAL]
+widget->style->bg_gc[GTK_WIDGET_STATE(widget)]
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>I campi <CODE>fg_gc</CODE>, <CODE>bg_gc</CODE>, <CODE>dark_gc</CODE>, e
+<CODE>light_gc</CODE> sono indicizzati tramite un parametri di tipo
+<CODE>GtkStateType</CODE>, che pu&ograve; assumere i valori:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GTK_STATE_NORMAL,
+GTK_STATE_ACTIVE,
+GTK_STATE_PRELIGHT,
+GTK_STATE_SELECTED,
+GTK_STATE_INSENSITIVE
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Per esempio, per  <CODE>GTK_STATE_SELECTED</CODE> il colore di sfondo predefinito
+&egrave; blu scuro e quello di primo piano bianco.
+<P>
+<P>La nostra funzione <CODE>draw_brush()</CODE>, che efettivamente disegna sullo
+schermo, diventa quindi:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* Disegna un rettangolo sullo schermo */
+static void
+draw_brush (GtkWidget *widget, gdouble x, gdouble y)
+{
+  GdkRectangle update_rect;
+
+  update_rect.x = x - 5;
+  update_rect.y = y - 5;
+  update_rect.width = 10;
+  update_rect.height = 10;
+  gdk_draw_rectangle (pixmap,
+                      widget->style->black_gc,
+                      TRUE,
+                      update_rect.x, update_rect.y,
+                      update_rect.width, update_rect.height);
+  gtk_widget_draw (widget, &amp;update_rect);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Dopo aver disegnato il rettangolo sulla pixmap, chiamiamo la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void       gtk_widget_draw                (GtkWidget           *widget,
+                                           GdkRectangle        *area);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>che notifica a X che l'area data dal parametro <CODE>area</CODE> deve essere
+aggiornata. X poi generer&agrave; un evento di esposizione (che pu&ograve; essere combinato
+con le aree passate da diverse chiamate a <CODE>gtk_widget_draw()</CODE>) che
+far&agrave; s&igrave; che il nostro gestore dell'evento di esposizione, copi le porzioni
+rilevanti sullo schermo.
+<P>
+<P>Abbiamo a questo punto creato tutto il programma di disegno, tranne che
+per qualche dettaglio irrilevante come la creazione della finestra principale.
+Il codice sorgente completo &egrave; reperibile dove avete ottenuto questo tutorial,
+oppure da:
+<P>
+<A HREF="http://www.msc.cornell.edu/~otaylor/gtk-gimp/tutorial">http://www.msc.cornell.edu/~otaylor/gtk-gimp/tutorial</A><P>
+<H2><A NAME="ss20.4">20.4 Aggiungere il supporto per XInput</A>
+</H2>
+
+<P>Al giorno d'oggi &egrave; possibile acquistare dei dispositivi abbastanza a buon
+mercato, come tavolette grafice, che permettono di disegnare con una
+espressivit&agrave; artistica molto semplificata rispetto ad un mouse.
+Il modo pi&ugrave; semplice per usare questi dispositivi &egrave; di sostituirli
+semplicemente al mouse, ma in questo modo si perdono molti dei loro
+vantaggi, come:
+<P>
+<UL>
+<LI> Sensibilit&agrave; alla pressione</LI>
+<LI> Sensibilit&agrave; all'inclinazione</LI>
+<LI> Posizionamento infra-pixel</LI>
+<LI> Ingressi multipli (per esempio, uno stilo che contiene sia una ``matita''
+sia una ``gomma'')</LI>
+</UL>
+<P>Per ulteriori informazioni sulle estensioni XInput, vedere l'
+<A HREF="http://www.msc.cornell.edu/~otaylor/xinput/XInput-HOWTO.html">XInput-HOWTO</A>.
+<P>
+<P>Se esaminiamo, per esempio, la definizione completa della struttura
+GdkEventMotion, possiamo vedere che contiene dei campi per il supporto
+delle informazioni estese dai dispositivi.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GdkEventMotion
+{
+  GdkEventType type;
+  GdkWindow *window;
+  guint32 time;
+  gdouble x;
+  gdouble y;
+  gdouble pressure;
+  gdouble xtilt;
+  gdouble ytilt;
+  guint state;
+  gint16 is_hint;
+  GdkInputSource source;
+  guint32 deviceid;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>pressure</CODE> fornisce la pressione sotto forma di un numero decimale
+compreso fra 0 e 1. <CODE>xtilt</CODE> e <CODE>ytilt</CODE> possono assumere valori
+compresi fra -1 e 1, corrispondenti al grado di inclinazione in ciascuna
+direzione. <CODE>source</CODE> e <CODE>deviceid</CODE> specificano il dispositivo per il
+quale si &egrave; verificato l'evento in due modi distinti. <CODE>source</CODE>  da alcune
+semplici informazioni sul tipo di dispositivo, e pu&ograve; assumere i valori:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GDK_SOURCE_MOUSE
+GDK_SOURCE_PEN
+GDK_SOURCE_ERASER
+GDK_SOURCE_CURSOR
+</PRE>
+</CODE></BLOCKQUOTE>
+<P><CODE>deviceid</CODE> specifica invece un identificativo numerico univoco per il
+dispositivo. Questo pu&ograve; essere a sua volta utilizzato per avere ulteriori
+informazioni sul dispositivo tramite la chiamata a <CODE>gdk_input_list_devices()</CODE>
+(vedi sotto). Il valore speciale <CODE>GDK_CORE_POINTER</CODE> viene usato per identificare
+il dispositivo di puntamento principale (di solito il mouse).
+<P>
+<H3>Abilitare le informazioni estese</H3>
+
+<P>Per far s&igrave; che GTK sappia che ci interessano le informazioni estese dai
+dispositivi, basta aggiungere un'unica linea al nostro programma:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_widget_set_extension_events (drawing_area, GDK_EXTENSION_EVENTS_CURSOR);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Dando il valore <CODE>GDK_EXTENSION_EVENTS_CURSOR</CODE>, diciamo che ci interessano
+gli eventi relativi alle estensioni, ma solo se non dobbiamo disegnare da noi
+il nostro cursore. Si veda pi&ugrave; sotto alla sezione 
+<A HREF="#sec_Further_Sophistications">Ulteriori Sofisticazioni</A> per ulteriori
+informazioni sul modo si disegnare i cursori. Potremmo anche dare i valori
+<CODE>GDK_EXTENSION_EVENTS_ALL</CODE> se vogliamo disegnare il nostro cursore o
+<CODE>GDK_EXTENSION_EVENTS_NONE</CODE> se vogliamo tornare alle condizioni predefinite.
+<P>
+<P>Comunque, non finisce tutto qui. Non ci sono estensioni abilitate per difetto.
+Abbiamo bisogno di un meccanismo per permettere agli utenti l'abilitazione e
+la configurazione delle estensioni dei loro dispositivi, GTK fornisce il
+widget InputDialog per automatizzare questo processo. La seguente procedura
+mostra come gestire un widget InputDialog. Crea la finestra di dialogo nel
+caso non sia presente, mentre la porta in primo piano in caso contrario.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void
+input_dialog_destroy (GtkWidget *w, gpointer data)
+{
+  *((GtkWidget **)data) = NULL;
+}
+
+void
+create_input_dialog ()
+{
+  static GtkWidget *inputd = NULL;
+
+  if (!inputd)
+    {
+      inputd = gtk_input_dialog_new();
+
+      gtk_signal_connect (GTK_OBJECT(inputd), "destroy",
+                          (GtkSignalFunc)input_dialog_destroy, &amp;inputd);
+      gtk_signal_connect_object (GTK_OBJECT(GTK_INPUT_DIALOG(inputd)->close_button),
+                                 "clicked",
+                                 (GtkSignalFunc)gtk_widget_hide,
+                                 GTK_OBJECT(inputd));
+      gtk_widget_hide ( GTK_INPUT_DIALOG(inputd)->save_button);
+
+      gtk_widget_show (inputd);
+    }
+  else
+    {
+      if (!GTK_WIDGET_MAPPED(inputd))
+        gtk_widget_show(inputd);
+      else
+        gdk_window_raise(inputd->window);
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>(Notate come gestiamo questo dialogo. Con la connessione del segnale
+``destroy'' ci assicuriamo di non tenerci in giro il puntatore al dialogo
+dopo che lo abbiamo distrutto, cosa che potrebbe portare ad un errore di
+segmentazione.)
+<P>
+<P>L'InputDialog ha due pulsanti, ``Close'' e ``Save'', i quali non hanno alcuna
+azione predefinita assegnata ad essi. Nella funzione precedente, abbiamo
+fatto in modo che ``Close'' nasconda la finestra di dialogo, e abbiamo nascosto
+il pulsante ``Save'' dal momento che in questo programma non implementiamo il
+salvataggio delle opzioni di XInput.
+<P>
+<H3>Usare le informazioni estese</H3>
+
+<P>Una volta abilitato il dipositivo, possiamo usare le informazioni estese
+che si trovano nei corrispondenti campi delle strutture che descrivono gli
+eventi. A dire il vero, l'utilizzo di questi campi &egrave; sempre sicuro, perch&eacute;
+sono tutti posti per difetto a valori ragionevoli ancje quando la gestione
+degli eventi estesi non &egrave; abilitata.
+<P>
+<P>Un cambiamento che dobbiamo fare &egrave; di chiamare <CODE>gdk_input_window_get_pointer()</CODE>
+invece di <CODE>gdk_window_get_pointer</CODE>. Ci&ograve; si rende necessario perch&eacute;
+<CODE>gdk_window_get_pointer</CODE> non restituisce le informazioni esetese.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gdk_input_window_get_pointer     (GdkWindow       *window,
+                                       guint32         deviceid,
+                                       gdouble         *x,
+                                       gdouble         *y,
+                                       gdouble         *pressure,
+                                       gdouble         *xtilt,
+                                       gdouble         *ytilt,
+                                       GdkModifierType *mask);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Quando chiamiamo questa funzione, dobbiamo specificare l'identificativo
+del dispositivo e la finestra. Normalmente questo identificativo lo si
+ottiene dal campo <CODE>deviceid</CODE> della struttura dell'evento.
+Questa funzione restituir&agrave; valori ragionevoli nel caso che la gestione
+degli eventi estesi non sia attivata (in questo caso, <CODE>event->deviceid</CODE>
+avr&agrave; il valore <CODE>GDK_CORE_POINTER</CODE>).
+<P>Quindi, la struttura di base dei gestori degli eventi relativi alla
+pressione di bottoni e ai movomenti non cambia molto - abbiamo solo
+bisogno di aggiungere il codice necessario per tenere conto delle
+informazioni estese.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static gint
+button_press_event (GtkWidget *widget, GdkEventButton *event)
+{
+  print_button_press (event->deviceid);
+  
+  if (event->button == 1 &amp;&amp; pixmap != NULL)
+    draw_brush (widget, event->source, event->x, event->y, event->pressure);
+
+  return TRUE;
+}
+
+static gint
+motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
+{
+  gdouble x, y;
+  gdouble pressure;
+  GdkModifierType state;
+
+  if (event->is_hint)
+    gdk_input_window_get_pointer (event->window, event->deviceid,
+                                  &amp;x, &amp;y, &amp;pressure, NULL, NULL, &amp;state);
+  else
+    {
+      x = event->x;
+      y = event->y;
+      pressure = event->pressure;
+      state = event->state;
+    }
+    
+  if (state &amp; GDK_BUTTON1_MASK &amp;&amp; pixmap != NULL)
+    draw_brush (widget, event->source, x, y, pressure);
+  
+  return TRUE;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Avremo anche bisogno di fare qualcosa con queste nuove informazioni. La
+nostra nuova funzione <CODE>draw_brush</CODE> disegna con un colore diverso per
+ogni <CODE>event->source</CODE> e cambia la dimensione della linea in funzione
+della pressione.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* Disegna un rettangolo sullo schermo, con la dimensione dipendente
+   dalla pressione e il colore dipendente dal tipo di dispositivo */
+static void
+draw_brush (GtkWidget *widget, GdkInputSource source,
+            gdouble x, gdouble y, gdouble pressure)
+{
+  GdkGC *gc;
+  GdkRectangle update_rect;
+
+  switch (source)
+    {
+    case GDK_SOURCE_MOUSE:
+      gc = widget->style->dark_gc[GTK_WIDGET_STATE (widget)];
+      break;
+    case GDK_SOURCE_PEN:
+      gc = widget->style->black_gc;
+      break;
+    case GDK_SOURCE_ERASER:
+      gc = widget->style->white_gc;
+      break;
+    default:
+      gc = widget->style->light_gc[GTK_WIDGET_STATE (widget)];
+    }
+
+  update_rect.x = x - 10 * pressure;
+  update_rect.y = y - 10 * pressure;
+  update_rect.width = 20 * pressure;
+  update_rect.height = 20 * pressure;
+  gdk_draw_rectangle (pixmap, gc, TRUE,
+                      update_rect.x, update_rect.y,
+                      update_rect.width, update_rect.height);
+  gtk_widget_draw (widget, &amp;update_rect);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Trovare ulteriori informazioni su di un dispositivo</H3>
+
+<P>Come esempio del modo di trovare altre informazioni su di un dispositivo,
+il nostro programma stamper&agrave; il nome di ogni dispositivo che genera un
+evento di pressione di un pulsante. Per avere il nome di un dispositivo,
+chiamiamo la funzione
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GList *gdk_input_list_devices               (void);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>che restituisce una GList (un tipo di lista collegata che si trova nella
+libreria glib) di strutture di tipo GdkDeviceInfo. La definizione di
+GdkDeviceInfo &egrave; la seguente:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GdkDeviceInfo
+{
+  guint32 deviceid;
+  gchar *name;
+  GdkInputSource source;
+  GdkInputMode mode;
+  gint has_cursor;
+  gint num_axes;
+  GdkAxisUse *axes;
+  gint num_keys;
+  GdkDeviceKey *keys;
+};
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La maggior parte di questi campi rappresentano informazioni di configurazione
+che potete ignorare a meno che non implementiate il salvataggio della
+configurazione di un XInput. Quelle che ci interessano sono <CODE>name</CODE>, che
+&egrave; semplicemente il nome che X assegna al dispositivo, e <CODE>has_cursor</CODE>. Anche
+<CODE>has_cursor</CODE> non &egrave; informazione di configurazione, e indica, nel caso
+abbia valore ``falso'', che dobbiamo disegnare da soli il nostro cursore. Ma
+dal momento che abbiamo specificato <CODE>GDK_EXTENSION_EVENTS_CURSOR</CODE>,
+possiamo anche non preoccuparcene.
+<P>
+<P>
+<P>La nostra funzione <CODE>print_button_press()</CODE> scorre semplicemente la lista
+che &egrave; stata restituita finch&eacute; non trova il valore corretto, e poi stampa
+il nome del dispositivo.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+static void
+print_button_press (guint32 deviceid)
+{
+  GList *tmp_list;
+
+  /* gdk_input_list_devices restituisce una lista interna, cos&igrave; poi
+     non dobbiamo liberarla */
+  tmp_list = gdk_input_list_devices();
+
+  while (tmp_list)
+    {
+      GdkDeviceInfo *info = (GdkDeviceInfo *)tmp_list->data;
+
+      if (info->deviceid == deviceid)
+        {
+          printf("Button press on device '%s'\n", info->name);
+          return;
+        }
+
+      tmp_list = tmp_list->next;
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Questo completa i cambiamenti necessari per usare gli XInput nel nostro
+programma. Come per la prima versione, i sorgenti completi sono prelevabili
+da dove avete prelevato questo tutorial, oppure da:
+<P>
+<A HREF="http://www.msc.cornell.edu/~otaylor/gtk-gimp/tutorial">http://www.msc.cornell.edu/~otaylor/gtk-gimp/tutorial</A><P>
+<H3><A NAME="sec_Further_Sophistications"></A> Ulteriori sofisticazioni </H3>
+
+<P>Anche se ora il nostro programma supporta XInput pittosto bene, gli mancano
+alcune caratteristiche che probabilmente vorremmo mettere in una applicazione
+completa. In primo luogo, probabilmente all'utente non far&agrave; piacere dover
+configurare i propri dispositivi ogni volta che lanciano il programma, per
+cui dovremmo dare la possibilit&agrave; di salvare la configurazione dei dispositivi.
+Ci&ograve; pu&ograve; essere fatto scorrendo la lista restituita da <CODE>gdk_input_list_devices()</CODE>
+e scrivendo la configurazione su di un file.
+<P>
+<P>Per tornare allo stato salvato la prossima volta che il programma viene
+eseguito, GDK mette a disposizione delle funzioni per cambiare la configurazione
+dei dispositivi:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gdk_input_set_extension_events()
+gdk_input_set_source()
+gdk_input_set_mode()
+gdk_input_set_axes()
+gdk_input_set_key()
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>(La lista restituita da <CODE>gdk_input_list_devices()</CODE> non dovrebbe
+essere modificata direttamente.) Un esempio di come fare pu&ograve; essere
+trovato nel programma di disegno gsumi (disponibile da 
+<A HREF="http://www.msc.cornell.edu/~otaylor/gsumi/">http://www.msc.cornell.edu/~otaylor/gsumi/</A>). Sarebbe bello
+avere alla fine un modo standard di recuperare le informazioni per tutte
+le applicazioni. Questo probabilmente appartiene ad un livello un po'
+pi&ugrave; elevato ripetto a GTK, forse alla libreria GNOME.
+<P>
+<P>Un'altra notevole omissione a cui abbiamo accennato precedentemente &egrave; il
+fatto di non disegnare il cursore direttamente. Piattaforme diverse da
+XFree86 non permettono in questo momento di usare contemporaneamente un
+dispositivo sia come puntatore principale sia direttamente da una
+applicazione. Vedere  
+<A HREF="http://www.msc.cornell.edu/~otaylor/xinput/XInput-HOWTO.html">XInput-HOWTO</A> per ulteriori informazioni. Ci&ograve; significa che le
+applicazioni che vogliono rivolgersi al pubblico pi&ugrave; ampio dovranno prevedere
+di disegnare esse stesse il proprio cursore.
+<P>
+<P>Un'applicazione che voglia disegnare il proprio cursore dovr&agrave; fare due cose:
+determinare se il dispositivo corrente necessita che venga disegnato un
+cursore, e determinare se il dispositivo corrente &egrave; in prossimit&agrave;. (Se il
+dispositivo &egrave; una tavoletta grafica, un tocco di finezza &egrave; fare sparire
+il puntatore quando lo stilo viene sollevato dalla tavoletta. Quando c'&egrave;
+contatto fra lo stilo e la tavoletta, si dice che il dispositivo &egrave; ``in
+prossimit&agrave;".) La prima cosa viene fatta scorrendo la lista dei dispositivi,
+come abbiamo fatto per trovare il nome del dispositivo. La seconda cosa
+viene ottenuta selezionando gli eventi ``proximity_out''. Un esempio di
+disegno del proprio cursore si trova nel programma 'testinput' incluso nella
+distribuzione di GTK.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-21.html">Avanti</A>
+<A HREF="gtk_tut_it-19.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc20">Indice</A>
+</BODY>
+</HTML>

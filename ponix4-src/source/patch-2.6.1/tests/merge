@@ -1,0 +1,628 @@
+# Copyright (C) 2009 Free Software Foundation, Inc.
+#
+# Copying and distribution of this file, with or without modification,
+# in any medium, are permitted without royalty provided the copyright
+# notice and this notice are preserved.
+
+# Test the --merge option
+
+. $srcdir/test-lib.sh
+
+require_cat
+require_diff
+use_local_patch
+use_tmpdir
+
+# ==============================================================
+
+if ! patch --merge </dev/null 2>/dev/null ; then
+    echo "Merge support DISABLED; skipping this test"
+    exit
+fi
+
+# ==============================================================
+
+x2() {
+    body=`seq 1 $1`
+    shift
+    echo "$body" > a
+    sed=
+    while test $# -gt 0 -a "$1" != -- ; do
+	sed="$sed -e $1"
+	shift
+    done
+    echo "$body" | sed$sed -e b > b
+    shift
+    sed=
+    while test $# -gt 0 ; do
+	sed="$sed -e $1"
+	shift
+    done
+    echo "$body" | sed$sed -e b > c
+    output=`diff -u a b | patch $ARGS -f c`
+    status=$?
+    echo "$output" | sed -e '/^\(\|patching file c\)$/d'
+    cat c
+    test $status == 0 || echo "Status: $status"
+}
+
+x() {
+    ARGS="$ARGS --merge" x2 "$@"
+    echo
+    ARGS="$ARGS --merge=diff3" x2 "$@"
+}
+
+unset ARGS
+
+# ==============================================================
+
+check 'x 3' <<EOF
+1
+2
+3
+
+1
+2
+3
+EOF
+
+check 'x 3  2d' <<EOF
+1
+3
+
+1
+3
+EOF
+
+check 'x 2  2ib' <<EOF
+1
+b
+2
+
+1
+b
+2
+EOF
+
+check 'x 3  2ib -- 3ic' <<EOF
+Hunk #1 merged at 2.
+1
+b
+2
+c
+3
+
+Hunk #1 merged at 2.
+1
+b
+2
+c
+3
+EOF
+
+# ==============================================================
+
+check 'x 3  2c2b -- 2c2c' <<EOF
+Hunk #1 NOT MERGED at 2-6.
+1
+<<<<<<<
+2c
+=======
+2b
+>>>>>>>
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 2-8.
+1
+<<<<<<<
+2c
+|||||||
+2
+=======
+2b
+>>>>>>>
+3
+Status: 1
+EOF
+
+check 'x 3  2d -- 2d' <<EOF
+Hunk #1 already applied at 2.
+1
+3
+
+Hunk #1 already applied at 2.
+1
+3
+EOF
+
+check 'x 2  2ibc -- 2ibc' <<EOF
+Hunk #1 already applied at 2.
+1
+bc
+2
+
+Hunk #1 already applied at 2.
+1
+bc
+2
+EOF
+
+check 'x 4  2aa 2aa -- 2aa 2aa' <<EOF
+Hunk #1 already applied at 3-4.
+1
+2
+a
+a
+3
+4
+
+Hunk #1 already applied at 3-4.
+1
+2
+a
+a
+3
+4
+EOF
+
+# ==============================================================
+
+check 'x 4  2d -- 3d' <<EOF
+Hunk #1 NOT MERGED at 2-6.
+1
+<<<<<<<
+2
+=======
+3
+>>>>>>>
+4
+Status: 1
+
+Hunk #1 NOT MERGED at 2-9.
+1
+<<<<<<<
+2
+|||||||
+2
+3
+=======
+3
+>>>>>>>
+4
+Status: 1
+EOF
+
+check 'x 4  3d -- 2d' <<EOF
+Hunk #1 NOT MERGED at 2-6.
+1
+<<<<<<<
+3
+=======
+2
+>>>>>>>
+4
+Status: 1
+
+Hunk #1 NOT MERGED at 2-9.
+1
+<<<<<<<
+3
+|||||||
+2
+3
+=======
+2
+>>>>>>>
+4
+Status: 1
+EOF
+
+# ==============================================================
+
+check 'x 3  3ib -- 2d' <<EOF
+Hunk #1 NOT MERGED at 2-6.
+1
+<<<<<<<
+=======
+2
+b
+>>>>>>>
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 2-8.
+1
+<<<<<<<
+|||||||
+2
+=======
+2
+b
+>>>>>>>
+3
+Status: 1
+EOF
+
+check 'x 3  2d -- 3ib' <<EOF
+Hunk #1 NOT MERGED at 2-6.
+1
+<<<<<<<
+2
+b
+=======
+>>>>>>>
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 2-8.
+1
+<<<<<<<
+2
+b
+|||||||
+2
+=======
+>>>>>>>
+3
+Status: 1
+EOF
+
+# ==============================================================
+
+# (Note that the output here differs from the diff3 output:
+# patch does not have enough information to know that the "c"
+# on the last line is part of the conflict.
+
+check 'x 1  1cb -- 1cc' <<EOF
+Hunk #1 NOT MERGED at 1-4.
+<<<<<<<
+=======
+b
+>>>>>>>
+c
+Status: 1
+
+Hunk #1 NOT MERGED at 1-6.
+<<<<<<<
+|||||||
+1
+=======
+b
+>>>>>>>
+c
+Status: 1
+EOF
+
+check 'x 4  2ca 3cb -- 2ca 3cc' <<EOF
+Hunk #1 NOT MERGED at 3-7.
+1
+a
+<<<<<<<
+c
+=======
+b
+>>>>>>>
+4
+Status: 1
+
+Hunk #1 NOT MERGED at 2-11.
+1
+<<<<<<<
+a
+c
+|||||||
+2
+3
+=======
+a
+b
+>>>>>>>
+4
+Status: 1
+EOF
+
+check 'x 6  3c3b 4c4b -- 3c3c 4c4c' <<EOF
+Hunk #1 NOT MERGED at 3-9.
+1
+2
+<<<<<<<
+3c
+4c
+=======
+3b
+4b
+>>>>>>>
+5
+6
+Status: 1
+
+Hunk #1 NOT MERGED at 3-12.
+1
+2
+<<<<<<<
+3c
+4c
+|||||||
+3
+4
+=======
+3b
+4b
+>>>>>>>
+5
+6
+Status: 1
+EOF
+
+check 'x 4  2cb 3ca -- 2cc 3ca' <<EOF
+Hunk #1 NOT MERGED at 2-6.
+1
+<<<<<<<
+c
+=======
+b
+>>>>>>>
+a
+4
+Status: 1
+
+Hunk #1 NOT MERGED at 2-11.
+1
+<<<<<<<
+c
+a
+|||||||
+2
+3
+=======
+b
+a
+>>>>>>>
+4
+Status: 1
+EOF
+
+check 'x 3  2ib 3ib -- 2ic' <<EOF
+Hunk #1 NOT MERGED at 2-6, merged at 8.
+1
+<<<<<<<
+c
+=======
+b
+>>>>>>>
+2
+b
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 2-7, merged at 9.
+1
+<<<<<<<
+c
+|||||||
+=======
+b
+>>>>>>>
+2
+b
+3
+Status: 1
+EOF
+
+check 'x 3  2ib 3ib 3ib -- 2ic' <<EOF
+Hunk #1 NOT MERGED at 2-6, merged at 8-9.
+1
+<<<<<<<
+c
+=======
+b
+>>>>>>>
+2
+b
+b
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 2-7, merged at 9-10.
+1
+<<<<<<<
+c
+|||||||
+=======
+b
+>>>>>>>
+2
+b
+b
+3
+Status: 1
+EOF
+
+check 'x 9  4ca 5cb 6ca -- 4ca 5cc 6ca' <<EOF
+Hunk #1 NOT MERGED at 5-9.
+1
+2
+3
+a
+<<<<<<<
+c
+=======
+b
+>>>>>>>
+a
+7
+8
+9
+Status: 1
+
+Hunk #1 NOT MERGED at 4-16.
+1
+2
+3
+<<<<<<<
+a
+c
+a
+|||||||
+4
+5
+6
+=======
+a
+b
+a
+>>>>>>>
+7
+8
+9
+Status: 1
+EOF
+
+check 'x 3  2ib 3ib -- 1i0' <<EOF
+0
+1
+b
+2
+b
+3
+
+0
+1
+b
+2
+b
+3
+EOF
+
+check 'x 4  2ib 4ib -- 1i0 3ic' <<EOF
+Hunk #1 merged at 3,7.
+0
+1
+b
+2
+c
+3
+b
+4
+
+Hunk #1 merged at 3,7.
+0
+1
+b
+2
+c
+3
+b
+4
+EOF
+
+# ==============================================================
+
+check 'x 5  2,4d -- 3c3c' <<EOF
+Hunk #1 NOT MERGED at 2-7.
+1
+<<<<<<<
+2
+3c
+4
+=======
+>>>>>>>
+5
+Status: 1
+
+Hunk #1 NOT MERGED at 2-11.
+1
+<<<<<<<
+2
+3c
+4
+|||||||
+2
+3
+4
+=======
+>>>>>>>
+5
+Status: 1
+EOF
+
+check 'x 5  3c3c -- 2,4d' <<EOF
+Hunk #1 NOT MERGED at 2-7.
+1
+<<<<<<<
+=======
+2
+3c
+4
+>>>>>>>
+5
+Status: 1
+
+Hunk #1 NOT MERGED at 2-11.
+1
+<<<<<<<
+|||||||
+2
+3
+4
+=======
+2
+3c
+4
+>>>>>>>
+5
+Status: 1
+EOF
+
+# ==============================================================
+
+check 'x 3  1,2d -- 2ic' <<EOF
+Hunk #1 NOT MERGED at 1-6.
+<<<<<<<
+1
+c
+2
+=======
+>>>>>>>
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 1-9.
+<<<<<<<
+1
+c
+2
+|||||||
+1
+2
+=======
+>>>>>>>
+3
+Status: 1
+EOF
+
+check 'x 3  2ic -- 1,2d' <<EOF
+Hunk #1 NOT MERGED at 1-6.
+<<<<<<<
+=======
+1
+c
+2
+>>>>>>>
+3
+Status: 1
+
+Hunk #1 NOT MERGED at 1-9.
+<<<<<<<
+|||||||
+1
+2
+=======
+1
+c
+2
+>>>>>>>
+3
+Status: 1
+EOF

@@ -1,0 +1,37 @@
+#!/bin/sh
+# $Aumix: aumix/bootstrap,v 1.3 2010/05/06 03:31:02 trevor Exp $
+# After checking out the sources from CVS, run this script to prepare them for
+# compilation or distribution.
+
+# template for translations
+echo Generating po/aumix.pot.
+xgettext -a -f po/POTFILES.in -o po/aumix.pot
+
+echo Merging .po files with aumix.pot and generating .gmo files.
+cd po
+for ii in `echo *.po | sed -e 's/\.po//g'` ; do
+	mv $ii.po $ii.po.orig
+	LANG=C msgmerge -v $ii.po.orig aumix.pot -o $ii.po
+	msgfmt -o $ii.gmo $ii.po
+done
+
+# This file needs to exist because our po/Makefile.in.in is old.
+echo Creating empty po/remove-potcdate.sin file. This should be silent.
+touch remove-potcdate.sin
+cd ..
+
+# The presence of this file is checked by autoreconf. It is distributed
+# with GNU gettext, and has been omitted because of its size.
+echo Creating empty ABOUT-NLS file. This should be silent.
+touch ABOUT-NLS
+
+# generates the configure script and Makefile.in files
+echo Running autoreconf. This should be silent.
+autoreconf
+
+echo If that all worked, the sources should be ready to distribute.
+echo You may want to remove the CVS directories, backups of the .po files,
+echo and this script:
+echo "find * -type d -name CVS -exec rm -fr \{\} \;"
+echo "rm po/*.po.orig"
+echo rm bootstrap

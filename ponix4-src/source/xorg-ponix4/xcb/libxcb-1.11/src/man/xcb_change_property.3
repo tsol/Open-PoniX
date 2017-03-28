@@ -1,0 +1,93 @@
+.TH xcb_change_property 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_change_property \- Changes a window property
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_change_property\fP(xcb_connection_t\ *\fIconn\fP, uint8_t\ \fImode\fP, xcb_window_t\ \fIwindow\fP, xcb_atom_t\ \fIproperty\fP, xcb_atom_t\ \fItype\fP, uint8_t\ \fIformat\fP, uint32_t\ \fIdata_len\fP, const void\ *\fIdata\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fImode\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_PROP_MODE_REPLACE\fP 1i
+Discard the previous property value and store the new data.
+.IP \fIXCB_PROP_MODE_PREPEND\fP 1i
+Insert the new data before the beginning of existing data. The \fIformat\fP must
+match existing property value. If the property is undefined, it is treated as
+defined with the correct type and format with zero-length data.
+.IP \fIXCB_PROP_MODE_APPEND\fP 1i
+Insert the new data after the beginning of existing data. The \fIformat\fP must
+match existing property value. If the property is undefined, it is treated as
+defined with the correct type and format with zero-length data.
+.RE
+.RS 1i
+
+
+.RE
+.IP \fIwindow\fP 1i
+The window whose property you want to change.
+.IP \fIproperty\fP 1i
+The property you want to change (an atom).
+.IP \fItype\fP 1i
+The type of the property you want to change (an atom).
+.IP \fIformat\fP 1i
+Specifies whether the data should be viewed as a list of 8-bit, 16-bit or
+32-bit quantities. Possible values are 8, 16 and 32. This information allows
+the X server to correctly perform byte-swap operations as necessary.
+.IP \fIdata_len\fP 1i
+Specifies the number of elements (see \fIformat\fP).
+.IP \fIdata\fP 1i
+The property data.
+.SH DESCRIPTION
+Sets or updates a property on the specified \fIwindow\fP. Properties are for
+example the window title (\fIWM_NAME\fP) or its minimum size (\fIWM_NORMAL_HINTS\fP).
+Protocols such as EWMH also use properties - for example EWMH defines the
+window title, encoded as UTF-8 string, in the \fI_NET_WM_NAME\fP property.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_change_property_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_alloc_error_t\fP 1i
+The X server could not store the property (no memory?).
+.IP \fIxcb_atom_error_t\fP 1i
+\fIproperty\fP or \fItype\fP do not refer to a valid atom.
+.IP \fIxcb_match_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_value_error_t\fP 1i
+TODO: reasons?
+.IP \fIxcb_window_error_t\fP 1i
+The specified \fIwindow\fP does not exist.
+.SH EXAMPLE
+.nf
+.sp
+/*
+ * Sets the WM_NAME property of the window to "XCB Example".
+ *
+ */
+void my_example(xcb_connection *conn, xcb_window_t window) {
+    xcb_change_property(conn,
+        XCB_PROP_MODE_REPLACE,
+        window,
+        XCB_ATOM_WM_NAME,
+        XCB_ATOM_STRING,
+        8,
+        strlen("XCB Example"),
+        "XCB Example");
+    xcb_flush(conn);
+}
+.fi
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb-examples (3),
+.BR xcb_intern_atom (3),
+.BR xprop (1)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

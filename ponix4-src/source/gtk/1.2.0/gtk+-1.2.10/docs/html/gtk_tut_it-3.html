@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Proseguiamo</TITLE>
+ <LINK HREF="gtk_tut_it-4.html" REL=next>
+ <LINK HREF="gtk_tut_it-2.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc3" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-4.html">Avanti</A>
+<A HREF="gtk_tut_it-2.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc3">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s3">3. Proseguiamo</A></H2>
+
+<P>
+<P>
+<H2><A NAME="ss3.1">3.1 Tipi di Dato</A>
+</H2>
+
+<P>Ci sono alcune cose che avrete probabilmente notato nei precedenti esempi che
+hanno bisogno di una spiegazione. I gint, gchar ecc. che vedete sono tipi di dato
+(typedef) riferiti rispettivamente a int e char. Questo viene fatto per rimediare
+alle scomode dipendenze dalle dimensioni di semplici tipi di dato quando si fanno
+dei calcoli. Un buon esempio &egrave; ``gint32'' il quale sar&agrave; un tipo di
+dato riferito ad un intero a 32 bit per tutte le piattaforme, sia per gli x86 che
+per gli per gli alpha a 64 bit.
+I tipi di dato sono ben spiegati pi&ugrave; avanti e molto intuitivi. Sono definiti
+in glib/glib.h (il quale viene incluso da gtk.h).
+<P>Noterete anche la possibilit&agrave; di utilizzare un GtkWidget quando la funzione
+richiede un GtkObject. GTK &egrave; una libreria orienta agli oggetti ed un widget
+&egrave; un oggetto.
+<P>
+<H2><A NAME="ss3.2">3.2 Altri Dettagli sui Segnali</A>
+</H2>
+
+<P>Diamo un'altra occhiata alla dichiarazione della funzione gtk_signal_connect.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_signal_connect (GtkObject *object, gchar *name,
+                         GtkSignalFunc func, gpointer func_data);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Notate il valore di ritorno definito come gint? Questo &egrave; un identificatore
+per la vostra funzione di callback. Come detto sopra, si possono avere pi&ugrave;
+funzioni di ritorno per ogni segnale e per ogni ogetto a seconda delle
+necessit&agrave;, ed ognuna sar&agrave; eseguita in sequenza, nell'ordine in cui
+&egrave; stata collegata. 
+<P>Questo identificatore vi permette di rimuovere una funzione dalla lista delle 
+funzioni di ritorno tramite la seguente chiamata
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_signal_disconnect (GtkObject *object,
+                            gint id);
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Cos&igrave;, passando il widget da cui si vuole rimuovere il gestore di segnale e
+l'identificativo restituito da una delle funzioni signal_connect, si pu&ograve;
+rimuovere il gestore di segnale che si desidera dal widget.
+<P>Un'altra funzione, usata per rimuovere tutti i segnali di un widget in una volta
+sola &egrave;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_handlers_destroy (GtkObject *object);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa chiamata &egrave; abbastanza auto esplicativa. Semplicemente rimuove tutti
+i segnali collegati al widget che si passa alla funzione come argomento.
+<P>
+<H2><A NAME="ss3.3">3.3 Miglioriamo Hello World</A>
+</H2>
+
+<P>Diamo un'occhiata ad una versione migliorata di Hello World con altri esempi
+sulle callback. Questo ci introdurr&agrave; anche al nostro prossimo argomento,
+l'impacchettamento dei widget.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* helloworld2.c */
+#include &lt;gtk/gtk.h>
+
+/* La nostra funzione di callback migliorata. I dati passati a questa
+ * vengono stampati su stdout. */
+void callback (GtkWidget *widget, gpointer data)
+{
+    g_print ("Hello again - %s was pressed\n", (char *) data);
+}
+
+/* Un'altra callback */
+void delete_event (GtkWidget *widget, gpointer data)
+{
+    gtk_main_quit ();
+}
+
+int main (int argc, char *argv[])
+{
+    /* GtkWidget e' il tipo di dato per i widget */
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *box1;
+
+    /* Questa funzione e' invocata in tutte le applicazioni GTK, gli 
+       argomenti sono analizzati e restituiti all'applicazione. */
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* Crea una nuova finestra */
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    /* Questa e' una nuova chiamata. Assegna "Hello Buttons" come titolo 
+       della nostra finestra */
+    gtk_window_set_title (GTK_WINDOW (window), "Hello Buttons!");
+
+    /* Qui settiamo il gestore per il segnale "delete_event" che
+       immediatamente esce dalla applicazione.
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (delete_event), NULL);
+
+
+    /* predispone il bordo della finestra */
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+
+    /* creiamo una scatola dove mettere tutti i widget. Questa &egrave; descritta
+       dettagliatamente nella sezione "packing". La scatola non &egrave; realmente
+       visibile, &egrave; solamente usata per sistemare i widget. */
+    box1 = gtk_hbox_new(FALSE, 0);
+
+    /* Inseriamo la scatola nella finestra */
+    gtk_container_add (GTK_CONTAINER (window), box1);
+
+    /* Creiamo un nuovo bottone con etichetta "Button 1" */
+    button = gtk_button_new_with_label ("Button 1");
+
+    /* Quando il bottone e' premuto, noi invocheremo la funzione di callback,
+       con un puntatore alla stringa "button 1" come proprio argomento) */
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (callback), (gpointer) "button 1");
+
+    /* invece di aggiungerlo alla finestra, lo inseriamo nella scatola invisibile,
+       la quale e' stata inserita nella finstra. */
+    gtk_box_pack_start(GTK_BOX(box1), button, TRUE, TRUE, 0);
+
+    /* Ricordati sempre questo passo. Dice a GTK che la preparazione di questo 
+       bottone e' finita e che quindi puo' essere mostrato. */
+    gtk_widget_show(button);
+
+    /* Facciamo la stessa cosa per il secondo bottone. */
+    button = gtk_button_new_with_label ("Button 2");
+
+    /* Chiamiamo la stessa funzione ma passandogli un argomento differente,
+       gli passiamo un puntatore alla stringa "button 2" */
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (callback), (gpointer) "button 2");
+
+    gtk_box_pack_start(GTK_BOX(box1), button, TRUE, TRUE, 0);
+
+    /* L'ordine nel quale i bottoni sono visualizzati non e' realmente importante,
+       ma io ti raccomando di mostrare per ultima la finestra cosi' che tutto 
+       sia visualizzato in una volta sola */
+    gtk_widget_show(button);
+
+    gtk_widget_show(box1);
+
+    gtk_widget_show (window);
+
+    /* e ora ci mettiamo in gtk_main e aspettiamo che il diverimento inizi.
+    gtk_main ();
+
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Compilate questo programma usando gli stessi argomenti di link del nostro primo
+esempio. Noterete che questa volta non c'&egrave; un modo semplice per uscire
+dal programma, si deve usare il nostro window manager o la linea di comando per
+uccidere l'applicazione.
+Un buon esercizio per il lettore &egrave; quello di inserire un tezo bottone
+``quit'' che faccia uscire dal programma. Potete anche divertirvi  con le opzioni
+di gtk_box_pack_start() mentre leggete il prossimo capitolo. Provate a
+ridimensionare la finestra ed a osservare cosa succede.
+<P>Solo una piccola nota: c'&egrave; un'altra definizione di gtk_window_new() - 
+GTK_WINDOW_DIALOG. Questa interagisce con il window manager in un modo un po' 
+diverso, e dovrebbe essere usata per finestre temporanee.
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-4.html">Avanti</A>
+<A HREF="gtk_tut_it-2.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc3">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,1 @@
+../hw/xfree86/sdksyms.c

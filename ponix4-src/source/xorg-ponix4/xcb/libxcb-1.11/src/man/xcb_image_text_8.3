@@ -1,0 +1,57 @@
+.TH xcb_image_text_8 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_image_text_8 \- Draws text
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_void_cookie_t \fBxcb_image_text_8\fP(xcb_connection_t\ *\fIconn\fP, uint8_t\ \fIstring_len\fP, xcb_drawable_t\ \fIdrawable\fP, xcb_gcontext_t\ \fIgc\fP, int16_t\ \fIx\fP, int16_t\ \fIy\fP, const char\ *\fIstring\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIstring_len\fP 1i
+The length of the \fIstring\fP. Note that this parameter limited by 255 due to
+using 8 bits!
+.IP \fIdrawable\fP 1i
+The drawable (Window or Pixmap) to draw text on.
+.IP \fIgc\fP 1i
+The graphics context to use.
+
+The following graphics context components are used: plane-mask, foreground,
+background, font, subwindow-mode, clip-x-origin, clip-y-origin, and clip-mask.
+.IP \fIx\fP 1i
+The x coordinate of the first character, relative to the origin of \fIdrawable\fP.
+.IP \fIy\fP 1i
+The y coordinate of the first character, relative to the origin of \fIdrawable\fP.
+.IP \fIstring\fP 1i
+The string to draw. Only the first 255 characters are relevant due to the data
+type of \fIstring_len\fP.
+.SH DESCRIPTION
+Fills the destination rectangle with the background pixel from \fIgc\fP, then
+paints the text with the foreground pixel from \fIgc\fP. The upper-left corner of
+the filled rectangle is at [x, y - font-ascent]. The width is overall-width,
+the height is font-ascent + font-descent. The overall-width, font-ascent and
+font-descent are as returned by \fIxcb_query_text_extents\fP (TODO).
+
+Note that using X core fonts is deprecated (but still supported) in favor of
+client-side rendering using Xft.
+.SH RETURN VALUE
+Returns an \fIxcb_void_cookie_t\fP. Errors (if any) have to be handled in the event loop.
+
+If you want to handle errors directly with \fIxcb_request_check\fP instead, use \fIxcb_image_text_8_checked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_drawable_error_t\fP 1i
+The specified \fIdrawable\fP (Window or Pixmap) does not exist.
+.IP \fIxcb_g_context_error_t\fP 1i
+The specified graphics context does not exist.
+.IP \fIxcb_match_error_t\fP 1i
+TODO: reasons?
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb_image_text_16 (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

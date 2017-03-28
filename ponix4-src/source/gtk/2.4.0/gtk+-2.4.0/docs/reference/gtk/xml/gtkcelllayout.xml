@@ -1,0 +1,359 @@
+<refentry id="GtkCellLayout">
+<refmeta>
+<refentrytitle>GtkCellLayout</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkCellLayout</refname><refpurpose>An interface for packing cells</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkCellLayout-struct">GtkCellLayout</link>;
+struct      <link linkend="GtkCellLayoutIface">GtkCellLayoutIface</link>;
+<link linkend="void">void</link>        (<link linkend="GtkCellLayoutDataFunc">*GtkCellLayoutDataFunc</link>)        (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-pack-start">gtk_cell_layout_pack_start</link>      (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="gboolean">gboolean</link> expand);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-pack-end">gtk_cell_layout_pack_end</link>        (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="gboolean">gboolean</link> expand);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-reorder">gtk_cell_layout_reorder</link>         (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="gint">gint</link> position);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-clear">gtk_cell_layout_clear</link>           (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-set-attributes">gtk_cell_layout_set_attributes</link>  (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             ...);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-add-attribute">gtk_cell_layout_add_attribute</link>   (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             const <link linkend="gchar">gchar</link> *attribute,
+                                             <link linkend="gint">gint</link> column);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-set-cell-data-func">gtk_cell_layout_set_cell_data_func</link>
+                                            (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="GtkCellLayoutDataFunc">GtkCellLayoutDataFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> func_data,
+                                             <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-cell-layout-clear-attributes">gtk_cell_layout_clear_attributes</link>
+                                            (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GInterface">GInterface</link>
+   +----GtkCellLayout
+</synopsis>
+
+</refsect1>
+
+<refsect1>
+<title>Prerequisites</title>
+<para>
+GtkCellLayout requires
+ <link linkend="GObject">GObject</link>.</para>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Known Implementations</title>
+<para>
+GtkCellLayout is implemented by
+ <link linkend="GtkEntryCompletion">GtkEntryCompletion</link>,  <link linkend="GtkTreeViewColumn">GtkTreeViewColumn</link>,  <link linkend="GtkComboBox">GtkComboBox</link> and  <link linkend="GtkComboBoxEntry">GtkComboBoxEntry</link>.</para>
+
+</refsect1>
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="GtkCellLayout"><type>GtkCellLayout</type></link> is an interface to be implemented by all objects which
+want to provide a <link linkend="GtkTreeViewColumn-like"><type>GtkTreeViewColumn-like</type></link> API for packing cells, setting
+attributes and data funcs. 
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkCellLayout-struct"/>struct GtkCellLayout</title>
+<indexterm><primary>GtkCellLayout</primary></indexterm><programlisting>struct GtkCellLayout;</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCellLayoutIface"/>struct GtkCellLayoutIface</title>
+<indexterm><primary>GtkCellLayoutIface</primary></indexterm><programlisting>struct GtkCellLayoutIface {
+
+  GTypeInterface g_iface;
+
+  /* Virtual Table */
+  void (* pack_start)         (GtkCellLayout         *cell_layout,
+                               GtkCellRenderer       *cell,
+                               gboolean               expand);
+  void (* pack_end)           (GtkCellLayout         *cell_layout,
+                               GtkCellRenderer       *cell,
+                               gboolean               expand);
+  void (* clear)              (GtkCellLayout         *cell_layout);
+  void (* add_attribute)      (GtkCellLayout         *cell_layout,
+                               GtkCellRenderer       *cell,
+                               const gchar           *attribute,
+                               gint                   column);
+  void (* set_cell_data_func) (GtkCellLayout         *cell_layout,
+                               GtkCellRenderer       *cell,
+                               GtkCellLayoutDataFunc  func,
+                               gpointer               func_data,
+                               GDestroyNotify         destroy);
+  void (* clear_attributes)   (GtkCellLayout         *cell_layout,
+                               GtkCellRenderer       *cell);
+  void (* reorder)            (GtkCellLayout         *cell_layout,
+                               GtkCellRenderer       *cell,
+                               gint                   position);
+};
+</programlisting>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkCellLayoutDataFunc"/>GtkCellLayoutDataFunc ()</title>
+<indexterm><primary>GtkCellLayoutDataFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkCellLayoutDataFunc)        (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="GtkTreeModel">GtkTreeModel</link> *tree_model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+A function which should set the value of <parameter>cell_layout</parameter>'s cell renderer(s)
+as appropriate. 
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara>the cell renderer whose value is to be set
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>tree_model</parameter>&nbsp;:</term>
+<listitem><simpara>the model
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> indicating the row to set the value for
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>user data passed to <link linkend="gtk-cell-layout-set-cell-data-func"><function>gtk_cell_layout_set_cell_data_func()</function></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-pack-start"/>gtk_cell_layout_pack_start ()</title>
+<indexterm><primary>gtk_cell_layout_pack_start</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_pack_start      (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="gboolean">gboolean</link> expand);</programlisting>
+<para>
+Packs the <parameter>cell</parameter> into the beginning of <parameter>cell_layout</parameter>. If <parameter>expand</parameter> is <literal>FALSE</literal>,
+then the <parameter>cell</parameter> is allocated no more space than it needs. Any unused space
+is divided evenly between cells for which <parameter>expand</parameter> is <literal>TRUE</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expand</parameter>&nbsp;:</term>
+<listitem><simpara> <literal>TRUE</literal> if <parameter>cell</parameter> is to be given extra space allocated to <parameter>cell_layout</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-pack-end"/>gtk_cell_layout_pack_end ()</title>
+<indexterm><primary>gtk_cell_layout_pack_end</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_pack_end        (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="gboolean">gboolean</link> expand);</programlisting>
+<para>
+Adds the <parameter>cell</parameter> to the end of <parameter>cell_layout</parameter>. If <parameter>expand</parameter> is <literal>FALSE</literal>, then the
+<parameter>cell</parameter> is allocated no more space than it needs. Any unused space is
+divided evenly between cells for which <parameter>expand</parameter> is <literal>TRUE</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>expand</parameter>&nbsp;:</term>
+<listitem><simpara> <literal>TRUE</literal> if <parameter>cell</parameter> is to be given extra space allocated to <parameter>cell_layout</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-reorder"/>gtk_cell_layout_reorder ()</title>
+<indexterm><primary>gtk_cell_layout_reorder</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_reorder         (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="gint">gint</link> position);</programlisting>
+<para>
+Re-inserts <parameter>cell</parameter> at <parameter>position</parameter>. Note that <parameter>cell</parameter> has already to be packed
+into <parameter>cell_layout</parameter> for this to function properly.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link> to reorder.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>position</parameter>&nbsp;:</term>
+<listitem><simpara> New position to insert <parameter>cell</parameter> at.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-clear"/>gtk_cell_layout_clear ()</title>
+<indexterm><primary>gtk_cell_layout_clear</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_clear           (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout);</programlisting>
+<para>
+Unsets all the mappings on all renderers on <parameter>cell_layout</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-set-attributes"/>gtk_cell_layout_set_attributes ()</title>
+<indexterm><primary>gtk_cell_layout_set_attributes</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_set_attributes  (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             ...);</programlisting>
+<para>
+Sets the attributes in list as the attributes of <parameter>cell_layout</parameter>. The
+attributes should be in attribute/column order, as in
+<link linkend="gtk-cell-layout-add-attribute"><function>gtk_cell_layout_add_attribute()</function></link>. All existing attributes are removed, and
+replaced with the new attributes.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>...</parameter>&nbsp;:</term>
+<listitem><simpara> A <literal>NULL</literal>-terminated list of attributes.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-add-attribute"/>gtk_cell_layout_add_attribute ()</title>
+<indexterm><primary>gtk_cell_layout_add_attribute</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_add_attribute   (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             const <link linkend="gchar">gchar</link> *attribute,
+                                             <link linkend="gint">gint</link> column);</programlisting>
+<para>
+Adds an attribute mapping to the list in <parameter>cell_layout</parameter>. The <parameter>column</parameter> is the
+column of the model to get a value from, and the <parameter>attribute</parameter> is the
+parameter on <parameter>cell</parameter> to be set from the value. So for example if column 2
+of the model contains strings, you could have the "text" attribute of a
+<link linkend="GtkCellRendererText"><type>GtkCellRendererText</type></link> get its values from column 2.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>attribute</parameter>&nbsp;:</term>
+<listitem><simpara> An attribute on the renderer.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara> The column position on the model to get the attribute from.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-set-cell-data-func"/>gtk_cell_layout_set_cell_data_func ()</title>
+<indexterm><primary>gtk_cell_layout_set_cell_data_func</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_set_cell_data_func
+                                            (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell,
+                                             <link linkend="GtkCellLayoutDataFunc">GtkCellLayoutDataFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> func_data,
+                                             <link linkend="GDestroyNotify">GDestroyNotify</link> destroy);</programlisting>
+<para>
+Sets the <link linkend="GtkCellLayoutDataFunc"><type>GtkCellLayoutDataFunc</type></link> to use for <parameter>cell_layout</parameter>. This function
+is used instead of the standard attributes mapping for setting the
+column value, and should set the value of <parameter>cell_layout</parameter>'s cell renderer(s)
+as appropriate. <parameter>func</parameter> may be <literal>NULL</literal> to remove and older one.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GtkCellLayoutDataFunc"><type>GtkCellLayoutDataFunc</type></link> to use.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func_data</parameter>&nbsp;:</term>
+<listitem><simpara> The user data for <parameter>func</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> The destroy notification for <parameter>func_data</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-cell-layout-clear-attributes"/>gtk_cell_layout_clear_attributes ()</title>
+<indexterm><primary>gtk_cell_layout_clear_attributes</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_cell_layout_clear_attributes
+                                            (<link linkend="GtkCellLayout">GtkCellLayout</link> *cell_layout,
+                                             <link linkend="GtkCellRenderer">GtkCellRenderer</link> *cell);</programlisting>
+<para>
+Clears all existing attributes previously set with
+<link linkend="gtk-cell-layout-set-attributes"><function>gtk_cell_layout_set_attributes()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>cell_layout</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellLayout"><type>GtkCellLayout</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>cell</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkCellRenderer"><type>GtkCellRenderer</type></link> to clear the attribute mapping on.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

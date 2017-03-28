@@ -1,0 +1,495 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Widget non documentati</TITLE>
+ <LINK HREF="gtk_tut_it-13.html" REL=next>
+ <LINK HREF="gtk_tut_it-11.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc12" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-13.html">Avanti</A>
+<A HREF="gtk_tut_it-11.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc12">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s12">12. Widget non documentati</A></H2>
+
+<P>Per questi sarebbe utile il contributo degli autori! :) Prendete in
+considerazione la possibilit&agrave; di contribuire al nostro tutorial.
+<P>Se dovete usare uno di questi widget non documentati, vi suggeriamo
+caldamente di dare un'occhiata ai loro rispettivi file header nella 
+distribuzione di GTK. I nomi delle funzioni di GTK sono molto descrittivi.
+Non appena si capisce come funzionano le cose, non &egrave; 
+difficile dedurre il modo d'uso di un widget semplicemente guardando la
+dichiarazione di funzione associata ad esso. Aggiungendo a questo qualche
+spunto tratto dal codice di altri non dovrebbero esserci problemi.
+<P>Quando avrete raggiunto una comprensione globale di tutte le funzioni
+di un widget non documentato, considerate la possibilit&agrave; di scrivere
+un tutorial su di esso, in modo che altri possano beneficiare del
+vostro lavoro.
+<P>
+<H2><A NAME="ss12.1">12.1 Controlli di intervallo (Range Controls)</A>
+</H2>
+
+<H2><A NAME="ss12.2">12.2 Anteprime</A>
+</H2>
+
+<P>Le anteprime servono a un certo numero di cose in GIMP/GTK. La pi&ugrave;
+importante &egrave; questa: a risoluzioni molto alte le immagini possono
+facilmente occupare diverse decine di megabyte di memoria; ogni operazione
+su immagini cos&igrave; grosse pu&ograve; richiedere molto tempo. Se per la
+scelta di una data modifica vi occorrono 5-10 tentativi (cio&egrave; 10-20
+passi, poich&eacute; &egrave; necessario ripristinare l'originale se si 
+&egrave; commesso un errore), possono volerci letteralmente delle ore per
+fare quella giusta - se non si rimane a corto di memoria prima! Coloro che
+hanno passato ore in camera oscura conoscono la sensazione. In questi casi
+le anteprime sono utilissime!
+<P>Ma la seccatura dell'attesa non &egrave; l'unico caso. Spesso &egrave; utile
+confrontare la versione precedente con la successiva affiancandole, o almeno
+alternandole. Se si sta lavorando con grandi immagini e ritardi di una decina
+di secondi un confronto efficace &egrave; quantomeno difficile da fare.
+Per immagini di 30 mega (4 pollici per 6 pollici, 600 punti per pollice, 24 bit)
+tale confronto risulta impraticabile per la maggior parte degli utenti. In
+questo caso le anteprime sono di grande aiuto!  
+<P>Ma c'&egrave; di pi&ugrave;. Con le anteprime &egrave; possibile scrivere
+plug-in per ottenere addirittura anteprime di anteprime (per esempio, la
+simulazione del pacchetto di filtri). Questi plug-in possono cos&igrave;
+fornire un certo numero di anticipazioni di quel che si otterrebbe applicando
+certe opzioni. Un simile approccio funziona come una tavolozza di anteprime,
+ed &egrave; molto efficace per piccoli cambiamenti!  
+<P>Non &egrave; finita. Per alcuni plug-in pu&ograve; essere necessario un
+intervento umano in tempo reale specifico per ogni immagine. Nel plug-in 
+SuperNova, ad esempio, vengono chieste le coordinate del centro della
+futura supernova. Il modo pi&ugrave; semplice per fare questo &egrave;
+senza dubbio quello di mostrare un'anteprima all'utente chiedendogli di
+selezionare interattivamente il centro.
+<P>Infine, un paio di applicazioni tipiche. Le anteprime possono essere usate
+anche quando non si sta lavorando con grandi immagini. Per esempio, sono 
+utili quando si stanno calcolando dei pattern complicati (date un'occhiata
+al venerabile plug in ``Diffraction'' e a molti altri!). Altro esempio:
+date un'occhiata al plug-in di rotazione della mappa dei colori (in allestimento).
+Le anteprime possono anche essere usate per visualizzare in un plug-in
+piccoli logo o, addirittura, l'immagine dell'Autore!
+<P>Quando non usare le anteprime
+<P>Le anteprime non vanno usate per grafici, disegni ecc., poich&eacute; per 
+queste cose GDK &egrave; molto pi&ugrave; veloce. Le anteprime vanno usate
+solo per immagini derivate da un'elaborazione!
+<P>Le anteprime possono essere inserite dappertutto. In un vbox, in un hbox,
+in una tabella, in un bottone, ecc. Sicuramente per&ograve; hanno il loro
+look migliore se bordate con delle cornici (frame). Le anteprime non hanno
+bordi propri e appaiono piatte senza (naturalmente, se quel che si vuole
+&egrave; proprio un aspetto piatto...). I bordi possono essere creati con
+delle cornici.
+<P>[Image][Image]
+<P>Le anteprime sono per molti aspetti simili agli altri widget in GTK (con
+tutto ci&ograve; che questo implica), con l'eccezione di avere una
+caratteristica in pi&ugrave;: &egrave; necessario che siano riempite con
+qualche tipo di immagine! Inizialmente parleremo solo dell'aspetto GTK 
+delle anteprime e successivamente discuteremo di come riempirle.
+<P>Semplicemente:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+                              /* Crea un widget di anteprima,
+                                 inizializzane le dimensioni
+                                 e visualizzalo */
+GtkWidget *preview;
+preview=gtk_preview_new(GTK_PREVIEW_COLOR)
+                              /* Alternativamente:
+                              GTK_PREVIEW_GRAYSCALE);*/
+gtk_preview_size (GTK_PREVIEW (preview), WIDTH, HEIGHT);
+gtk_widget_show(preview);
+my_preview_rendering_function(preview);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Come gi&agrave; detto, le anteprime hanno un buon aspetto dentro le cornici,
+quindi:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *create_a_preview(int        Width,
+                            int        Height,
+                            int        Colorfulness)
+{
+  GtkWidget *preview;
+  GtkWidget *frame;
+  
+  frame = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_IN);
+  gtk_container_border_width (GTK_CONTAINER(frame),0);
+  gtk_widget_show(frame);
+
+  preview=gtk_preview_new (Colorfulness?GTK_PREVIEW_COLOR
+                                       :GTK_PREVIEW_GRAYSCALE);
+  gtk_preview_size (GTK_PREVIEW (preview), Width, Height);
+  gtk_container_add(GTK_CONTAINER(frame),preview);
+  gtk_widget_show(preview);
+
+  my_preview_rendering_function(preview);
+  return frame;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa &egrave; una semplice anteprima. Questa funzione restituisce la cornice
+``madre'', in modo che sia possibile metterla in qualche altro posto nella vostra
+interfaccia. Naturalmente &egrave; possibile passare alla routine la cornice
+madre come parametro. In molte situazioni, comunque, il contenuto di un'anteprima
+viene aggiornato continuamente dall'applicazione; in questi casi potreste 
+preferire passare alla funzione ``create_a_preview()'' un puntatore 
+all'anteprima, ottenendone cos&igrave; il controllo dopo.
+<P>Un'avvertimento pi&ugrave; importante che potrebbe un giorno risparmiarvi 
+tanto tempo perso: a volte &egrave; preferibile etichettare le anteprime;
+ad esempio, &egrave; possibile etichettare l'anteprima contenente l'immagine 
+originale come ``Originale'' e quella contenente l'immagine modificata come 
+``Modificata''. Potrebbe capitarvi di impacchettare in un vbox l'anteprima
+insieme con l'etichetta associata. L'insidia inattesa sta nel fatto che se
+l'etichetta &egrave; pi&ugrave; ampia dell'anteprima (cosa che pu&ograve;
+accadere per una variet&agrave; di motivi da voi non prevedibili, come il
+fatto che la dimensione dell'anteprima viene decisa dinamicamente, o la
+dimensione del font), la cornice si espande e non risulta pi&ugrave;
+perfettamente aderente all'anteprima. Questo stesso problema probabilmente
+pu&ograve; verificarsi anche in altre situazioni.
+<P>[Image]
+<P>La soluzione &egrave; quella di mettere l'anteprima e l'etichetta in una
+tabella 2x1 e di legarle insieme chiamando la funzione gtk_table_attach con
+i seguenti parametri (questa &egrave; una delle varianti possibili,
+naturalmente; l'importante &egrave; che non ci sia GTK_FILL nella seconda
+gtk_table_attach):
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_table_attach(GTK_TABLE(table),label,0,1,0,1,
+                 0,
+                 GTK_EXPAND|GTK_FILL,
+                 0,0);
+gtk_table_attach(GTK_TABLE(table),frame,0,1,1,2,
+                 GTK_EXPAND,
+                 GTK_EXPAND,
+                 0,0);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Ed ecco il risultato:
+<P>[Image]
+<P>Altri suggerimenti
+<P>La maniera pi&ugrave; semplice per rendere cliccabile un'anteprima &egrave; 
+quella di metterla dentro un bottone. Questo ha anche l'effetto di aggiungere 
+un bel bordo attorno all'anteprima, il che rende superfluo metterla in una 
+cornice.
+<P>Questo &egrave; tutto per quel che riguarda GTK.
+<P>
+<P>Completare un'anteprima
+<P>Per impratichirci con le basi del completamento delle anteprime, creiamo
+il seguente disegno (trovato per tentativi):
+<P>[Image]
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void
+my_preview_rendering_function(GtkWidget     *preview)
+{
+#define SIZE 100
+#define HALF (SIZE/2)
+
+  guchar *row=(guchar *) malloc(3*SIZE); /* 3 bits per dot */
+  gint i, j;                             /* Coordinates    */
+  double r, alpha, x, y;
+
+  if (preview==NULL) return; /* Di solito aggiungo questo per  */  
+                             /* evitare piantamenti stupidi.   */
+                             /* Probabilmente bisognerebbe     */
+                             /* assicurarsi che tutto sia stato*/
+                             /* inizializzato con successo     */
+  for (j=0; j &lt; ABS(cos(2*alpha)) ) {    /* Siamo dentro la sagoma?   */
+                                         /* glib.h contiene ABS(x).   */
+        row[i*3+0] = sqrt(1-r)*255;      /* Definisce il Rosso        */
+        row[i*3+1] = 128;                /* Definisce il Verde        */
+        row[i*3+2] = 224;                /* Definisce il Blu          */
+      }                                  /* "+0" &egrave; per allineamento   */
+      else {
+        row[i*3+0] = r*255;
+        row[i*3+1] = ABS(sin((float)i/SIZE*2*PI))*255;
+        row[i*3+2] = ABS(sin((float)j/SIZE*2*PI))*255;
+      }
+    }
+    gtk_preview_draw_row( GTK_PREVIEW(preview),row,0,j,SIZE);
+    /* Inserisce "row" in "preview" a partire del punto avente */
+    /* coordinate (0,j) prima colonna, j-esima riga, per SIZE  */
+    /* pixel verso destra */
+  }
+
+  free(row); /* libera un po' di memoria */
+  gtk_widget_draw(preview,NULL); /* indovina cosa fa questo? */
+  gdk_flush(); /* e questo? */
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+
+Coloro che non usano GIMP probabilmente hanno gi&agrave; visto abbastanza
+per fare molte cose. Per gli utenti GIMP c'&egrave; ancora qualcosa da
+aggiungere.
+<P>Anteprima dell'immagine
+<P>Probabilmente &egrave; opportuno tenere pronta una versione ridotta dell'immagine,
+grande quanto basta per riempire l'anteprima. Questo pu&ograve; essere fatto
+selezionando un pixel ogni n, dove n &egrave; il rapporto tra la dimensione
+dell'immagine e la dimensione dell'anteprima. Tutte le operazioni successive
+(compreso il riempimento dell'anteprima) sono fatte solo sul ridotto numero
+di pixel selezionati. Di seguito &egrave; riportata un'implementazione della
+riduzione dell'immagine (si tenga presente che ho preso solo lezioni basilari 
+di C!).
+<P>
+<P>(ATTENZIONE: CODICE NON VERIFICATO!!!)
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+
+typedef struct {
+  gint      width;
+  gint      height;
+  gint      bbp;
+  guchar    *rgb;
+  guchar    *mask;
+} ReducedImage;
+
+enum {
+  SELECTION_ONLY,
+  SELCTION_IN_CONTEXT,
+  ENTIRE_IMAGE
+};
+
+ReducedImage *Reduce_The_Image(GDrawable *drawable,
+                               GDrawable *mask,
+                               gint LongerSize,
+                               gint Selection)
+{
+  /* Questa funzione riduce l'immagine alla dimens. scelta per l'anteprima */
+  /* La dimensione dell'anteprima &egrave; determinata da LongerSize, cio&egrave; la pi&ugrave; */
+  /* grande delle dimensioni. Funziona solo per immagini RGB!              */
+  gint RH, RW;          /* Altezza ridotta e larghezza ridotta             */
+  gint width, height;   /* Larghezza e altezza dell'area da ridurre        */
+  gint bytes=drawable->bpp;
+  ReducedImage *temp=(ReducedImage *)malloc(sizeof(ReducedImage));
+
+  guchar *tempRGB, *src_row, *tempmask, *src_mask_row,R,G,B;
+  gint i, j, whichcol, whichrow, x1, x2, y1, y2;
+  GPixelRgn srcPR, srcMask;
+  gint NoSelectionMade=TRUE; /* Assumiamo di trattare l'intera immagine    */                                         
+
+  gimp_drawable_mask_bounds (drawable->id, &amp;x1, &amp;y1, &amp;x2, &amp;y2);
+  width  = x2-x1;
+  height = y2-y1;
+  /* Se c'&egrave; una SELEZIONE, ne abbiamo avuto gli estremi! */
+
+  if (width != drawable->width &amp;&amp; height != drawable->height)
+    NoSelectionMade=FALSE;
+  /* Controlliamo se l'utente ha una selezione attiva. Questo         */
+  /* diventer&agrave; importante dopo, alla creazione di una maschera ridotta */
+
+  /* Se si vuole l'anteprima dell'immagine intera, annulla quanto sopra */
+  /* Naturalmente, in assenza di una selezione, questo non cambia nulla */
+  if (Selection==ENTIRE_IMAGE) {
+    x1=0;
+    x2=drawable->width;
+    y1=0;
+    y2=drawable->height;
+  }
+
+  /* Se si vuole l'anteprima di una selezione con parte dell'area   */
+  /* circostante bisogna espanderla un po'.                         */
+  if (Selection==SELECTION_IN_CONTEXT) {
+    x1=MAX(0,                x1-width/2.0);
+    x2=MIN(drawable->width,  x2+width/2.0);
+    y1=MAX(0,                y1-height/2.0);
+    y2=MIN(drawable->height, y2+height/2.0);
+  }
+
+  /* Cos&igrave; si determinano larghezza e altezza dell'area da ridurre.   */
+  width  = x2-x1;
+  height = y2-y1;
+
+  /* Le linee seguenti determinano quale dimensione deve essere  il  */
+  /* lato pi&ugrave; lungo. L'idea &egrave; presa dal plug-in supernova. Ritengo   */
+  /* che avrei potuto pensarci da solo, ma la verit&agrave; va detta.       */
+  /* Brutta cosa il plagio!                                          */
+  if (width>height) {
+    RW=LongerSize;
+    RH=(float) height * (float) LongerSize/ (float) width;
+  }
+  else {
+    RH=LongerSize;
+    RW=(float)width * (float) LongerSize/ (float) height;
+  }
+
+  /* L'intera immagine viene "stirata" in una stringa! */
+  tempRGB   = (guchar *) malloc(RW*RH*bytes);
+  tempmask  = (guchar *) malloc(RW*RH);
+
+  gimp_pixel_rgn_init (&amp;srcPR, drawable, x1, y1, width, height, FALSE, FALSE);
+  gimp_pixel_rgn_init (&amp;srcMask, mask, x1, y1, width, height, FALSE, FALSE);
+
+  /* Prendine abbastanza da contenere una riga di immagine e una di maschera */
+  src_row       = (guchar *) malloc (width*bytes);
+  src_mask_row  = (guchar *) malloc (width);
+
+  for (i=0; i &lt; RH; i++) {
+    whichrow=(float)i*(float)height/(float)RH;
+    gimp_pixel_rgn_get_row (&amp;srcPR, src_row, x1, y1+whichrow, width);
+    gimp_pixel_rgn_get_row (&amp;srcMask, src_mask_row, x1, y1+whichrow, width);
+
+    for (j=0; j &lt; RW; j++) {
+      whichcol=(float)j*(float)width/(float)RW;
+
+      /* Nessuna selezione = tutti i punti sono completamente selezionati */
+      if (NoSelectionMade)
+        tempmask[i*RW+j]=255;
+      else
+        tempmask[i*RW+j]=src_mask_row[whichcol];
+
+      /* Aggiungi la riga alla lunga stringa che ora contiene l'immagine */
+      tempRGB[i*RW*bytes+j*bytes+0]=src_row[whichcol*bytes+0];
+      tempRGB[i*RW*bytes+j*bytes+1]=src_row[whichcol*bytes+1];
+      tempRGB[i*RW*bytes+j*bytes+2]=src_row[whichcol*bytes+2];
+
+      /* Mantieni anche la trasparenza (alpha) */
+      if (bytes==4)
+        tempRGB[i*RW*bytes+j*bytes+3]=src_row[whichcol*bytes+3];
+    }
+  }
+  temp->bpp=bytes;
+  temp->width=RW;
+  temp->height=RH;
+  temp->rgb=tempRGB;
+  temp->mask=tempmask;
+  return temp;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>La seguente &egrave; una funzione di anteprima che usa lo stesso tipo
+ReducedImage! Si noti che usa una finta trasparenza - se ne &egrave; presente 
+una, tramite fake_transparency che &egrave; definita come segue:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint fake_transparency(gint i, gint j)
+{
+  if ( ((i%20)- 10) * ((j%20)- 10)>0   )
+    return 64;
+  else
+    return 196;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+
+E adesso la funzione per l'anteprima:
+<BLOCKQUOTE><CODE>
+<PRE>
+void
+my_preview_render_function(GtkWidget     *preview,
+                           gint          changewhat,
+                           gint          changewhich)
+{
+  gint Inten, bytes=drawable->bpp;
+  gint i, j, k;
+  float partial;
+  gint RW=reduced->width;
+  gint RH=reduced->height;
+  guchar *row=malloc(bytes*RW);;
+
+
+  for (i=0; i &lt; RH; i++) {
+    for (j=0; j &lt; RW; j++) {
+
+      row[j*3+0] = reduced->rgb[i*RW*bytes + j*bytes + 0];
+      row[j*3+1] = reduced->rgb[i*RW*bytes + j*bytes + 1];
+      row[j*3+2] = reduced->rgb[i*RW*bytes + j*bytes + 2];
+
+      if (bytes==4)
+        for (k=0; k&lt;3; k++) {
+          float transp=reduced->rgb[i*RW*bytes+j*bytes+3]/255.0;
+          row[3*j+k]=transp*a[3*j+k]+(1-transp)*fake_transparency(i,j);
+        }
+    }
+    gtk_preview_draw_row( GTK_PREVIEW(preview),row,0,i,RW);
+  }
+
+  free(a);
+  gtk_widget_draw(preview,NULL);
+  gdk_flush();
+}
+
+Funzioni Applicabili
+
+guint           gtk_preview_get_type           (void);
+/* No idea */
+void            gtk_preview_uninit             (void);
+/* No idea */
+GtkWidget*      gtk_preview_new                (GtkPreviewType   type);
+/* Descritta precedentemente */
+void            gtk_preview_size               (GtkPreview      *preview,
+                                                gint             width,
+                                                gint             height);
+/* Permette di ridimensionare un'anteprima esistente */
+/* Pare che un bug in GTK renda disordinato questo   */
+/* processo. Un modo di rimettere le cose a posto    */
+/* &egrave; quello di ridimensionare manualmente            */
+/* la finestra contenente l'anteprima dopo aver      */
+/* ridimensionato l'anteprima.                       */
+
+void            gtk_preview_put                (GtkPreview      *preview,
+                                                GdkWindow       *window,
+                                                GdkGC           *gc,
+                                                gint             srcx,
+                                                gint             srcy,
+                                                gint             destx,
+                                                gint             desty,
+                                                gint             width,
+                                                gint             height);
+/* No idea */
+
+void            gtk_preview_put_row            (GtkPreview      *preview,
+                                                guchar          *src,
+                                                guchar          *dest,
+                                                gint             x,
+                                                gint             y,
+                                                gint             w);
+/* No idea */
+
+void            gtk_preview_draw_row           (GtkPreview      *preview,
+                                                guchar          *data,
+                                                gint             x,
+                                                gint             y,
+                                                gint             w);
+/* Descritta nel testo */
+
+void            gtk_preview_set_expand         (GtkPreview      *preview,
+                                                gint             expand);
+/* No idea */
+
+/* Nessun indizio per le seguenti, ma  dovrebbero  */
+/* essere standard per la maggior parte dei widget */
+void            gtk_preview_set_gamma          (double           gamma);
+void            gtk_preview_set_color_cube     (guint            nred_shades,
+                                                guint            ngreen_shades,
+                                                guint            nblue_shades,
+                                                guint            ngray_shades);
+void            gtk_preview_set_install_cmap   (gint             install_cmap);
+void            gtk_preview_set_reserved       (gint             nreserved);
+GdkVisual*      gtk_preview_get_visual         (void);
+GdkColormap*    gtk_preview_get_cmap           (void);
+GtkPreviewInfo* gtk_preview_get_info           (void);
+
+E' tutto!
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss12.3">12.3 Curve</A>
+</H2>
+
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-13.html">Avanti</A>
+<A HREF="gtk_tut_it-11.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc12">Indice</A>
+</BODY>
+</HTML>

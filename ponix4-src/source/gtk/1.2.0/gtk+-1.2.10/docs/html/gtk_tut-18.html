@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Advanced Event and Signal Handling</TITLE>
+ <LINK HREF="gtk_tut-19.html" REL=next>
+ <LINK HREF="gtk_tut-17.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc18" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-19.html">Next</A>
+<A HREF="gtk_tut-17.html">Previous</A>
+<A HREF="gtk_tut.html#toc18">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="sec_Adv_Events_and_Signals"></A> <A NAME="s18">18. Advanced Event and Signal Handling</A></H2>
+
+<H2><A NAME="ss18.1">18.1 Signal Functions</A>
+</H2>
+
+<H3>Connecting and Disconnecting Signal Handlers</H3>
+
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+guint gtk_signal_connect( GtkObject     *object,
+                          const gchar   *name,
+                          GtkSignalFunc  func,
+                          gpointer       func_data );
+
+guint gtk_signal_connect_after( GtkObject     *object,
+                                const gchar   *name,
+                                GtkSignalFunc  func,
+                                gpointer       func_data );
+
+guint gtk_signal_connect_object( GtkObject     *object,
+                                 const gchar   *name,
+                                 GtkSignalFunc  func,
+                                 GtkObject     *slot_object );
+
+guint gtk_signal_connect_object_after( GtkObject     *object,
+                                       const gchar   *name,
+                                       GtkSignalFunc  func,
+                                       GtkObject     *slot_object );
+
+guint gtk_signal_connect_full( GtkObject          *object,
+                               const gchar        *name,
+                               GtkSignalFunc       func,
+                               GtkCallbackMarshal  marshal,
+                               gpointer            data,
+                               GtkDestroyNotify    destroy_func,
+                               gint                object_signal,
+                               gint                after );
+
+guint gtk_signal_connect_interp( GtkObject          *object,
+                                 const gchar        *name,
+                                 GtkCallbackMarshal  func,
+                                 gpointer            data,
+                                 GtkDestroyNotify    destroy_func,
+                                 gint                after );
+
+void gtk_signal_connect_object_while_alive( GtkObject     *object,
+                                            const gchar   *signal,
+                                            GtkSignalFunc  func,
+                                            GtkObject     *alive_object );
+
+void gtk_signal_connect_while_alive( GtkObject     *object,
+                                     const gchar   *signal,
+                                     GtkSignalFunc  func,
+                                     gpointer       func_data,
+                                     GtkObject     *alive_object );
+
+void gtk_signal_disconnect( GtkObject *object,
+                            guint      handler_id );
+
+void gtk_signal_disconnect_by_func( GtkObject     *object,
+                                    GtkSignalFunc  func,
+                                    gpointer       data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Blocking and Unblocking Signal Handlers</H3>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_signal_handler_block( GtkObject *object,
+                               guint      handler_id);
+
+void gtk_signal_handler_block_by_func( GtkObject     *object,
+                                       GtkSignalFunc  func,
+                                       gpointer       data );
+
+void gtk_signal_handler_block_by_data( GtkObject *object,
+                                       gpointer   data );
+
+void gtk_signal_handler_unblock( GtkObject *object,
+                                 guint      handler_id );
+
+void gtk_signal_handler_unblock_by_func( GtkObject     *object,
+                                         GtkSignalFunc  func,
+                                         gpointer       data );
+
+void gtk_signal_handler_unblock_by_data( GtkObject *object,
+                                         gpointer   data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H3>Emitting and Stopping Signals</H3>
+
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_signal_emit( GtkObject *object,
+                      guint      signal_id,
+                      ... );
+
+void gtk_signal_emit_by_name( GtkObject   *object,
+                              const gchar *name,
+                              ... );
+
+void gtk_signal_emitv( GtkObject *object,
+                       guint      signal_id,
+                       GtkArg    *params );
+
+void gtk_signal_emitv_by_name( GtkObject   *object,
+                               const gchar *name,
+                               GtkArg      *params );
+
+guint gtk_signal_n_emissions( GtkObject *object,
+                              guint      signal_id );
+
+guint gtk_signal_n_emissions_by_name( GtkObject   *object,
+                                      const gchar *name );
+
+void gtk_signal_emit_stop( GtkObject *object,
+                           guint      signal_id );
+
+void gtk_signal_emit_stop_by_name( GtkObject   *object,
+                                   const gchar *name );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss18.2">18.2 Signal Emission and Propagation</A>
+</H2>
+
+<P>Signal emission is the process whereby GTK runs all handlers for a
+specific object and signal.
+<P>First, note that the return value from a signal emission is the return
+value of the <EM>last</EM> handler executed. Since event signals are
+all of type <CODE>GTK_RUN_LAST</CODE>, this will be the default (GTK supplied)
+handler, unless you connect with gtk_signal_connect_after().
+<P>The way an event (say "button_press_event") is handled, is:
+<UL>
+<LI>Start with the widget where the event occured.
+</LI>
+<LI>Emit the generic "event" signal. If that signal handler returns
+a value of TRUE, stop all processing.
+</LI>
+<LI>Otherwise, emit a specific, "button_press_event" signal. If that
+returns TRUE, stop all processing.
+</LI>
+<LI>Otherwise, go to the widget's parent, and repeat the above two
+steps.
+</LI>
+<LI>Continue until some signal handler returns TRUE, or until the
+top-level widget is reached.</LI>
+</UL>
+<P>Some consequences of the above are:
+<UL>
+<LI>Your handler's return value will have no effect if there is a
+default handler, unless you connect with gtk_signal_connect_after().
+</LI>
+<LI>To prevent the default handler from being run, you need to
+connect with gtk_signal_connect() and use
+gtk_signal_emit_stop_by_name() - the return value only affects whether
+the signal is propagated, not the current emission.</LI>
+</UL>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-19.html">Next</A>
+<A HREF="gtk_tut-17.html">Previous</A>
+<A HREF="gtk_tut.html#toc18">Contents</A>
+</BODY>
+</HTML>

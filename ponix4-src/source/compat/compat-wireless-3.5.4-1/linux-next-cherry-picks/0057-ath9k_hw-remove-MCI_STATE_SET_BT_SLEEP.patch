@@ -1,0 +1,46 @@
+From 9330969b8fd1304fdcb7c1825f1528eea38d321c Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Tue, 12 Jun 2012 20:18:23 +0530
+Subject: [PATCH 57/57] ath9k_hw: remove MCI_STATE_SET_BT_SLEEP
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |    3 ---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h |    1 -
+ drivers/net/wireless/ath/ath9k/mci.c        |    2 +-
+ 3 files changed, 1 insertion(+), 5 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1191,9 +1191,6 @@ u32 ar9003_mci_state(struct ath_hw *ah,
+ 			   AR_MCI_RX_REMOTE_SLEEP) ?
+ 			MCI_BT_SLEEP : MCI_BT_AWAKE;
+ 		break;
+-	case MCI_STATE_SET_BT_SLEEP:
+-		mci->bt_state = MCI_BT_SLEEP;
+-		break;
+ 	case MCI_STATE_SET_BT_AWAKE:
+ 		mci->bt_state = MCI_BT_AWAKE;
+ 		ar9003_mci_send_coex_version_query(ah, true);
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -189,7 +189,6 @@ enum mci_bt_state {
+ /* Type of state query */
+ enum mci_state_type {
+ 	MCI_STATE_ENABLE,
+-	MCI_STATE_SET_BT_SLEEP,
+ 	MCI_STATE_SET_BT_AWAKE,
+ 	MCI_STATE_SET_BT_CAL_START,
+ 	MCI_STATE_SET_BT_CAL,
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -455,7 +455,7 @@ void ath_mci_intr(struct ath_softc *sc)
+ 		if ((mci_hw->bt_state == MCI_BT_AWAKE) &&
+ 		    (ar9003_mci_state(ah, MCI_STATE_REMOTE_SLEEP) !=
+ 		     MCI_BT_AWAKE))
+-			ar9003_mci_state(ah, MCI_STATE_SET_BT_SLEEP);
++			mci_hw->bt_state = MCI_BT_SLEEP;
+ 	}
+ 
+ 	if ((mci_int & AR_MCI_INTERRUPT_RX_INVALID_HDR) ||

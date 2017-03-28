@@ -1,0 +1,93 @@
+#!/usr/bin/make -f
+
+# rules
+#
+# Robert Jordens <rjo@gmx.de>
+#
+# This software may be used and distributed according to the terms
+# of the GNU General Public License, incorporated herein by reference.
+#
+# $Id: rules,v 1.4 2002/08/06 15:38:28 rjordens Exp $
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=3
+
+# These are used for cross-compiling and for saving the configure script
+# from having to guess our platform (since we know it already)
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -g
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+configure: Makefile.am
+	-rm -f aclocal.m4 INSTALL COPYING install-sh Makefile.in configure \
+		missing mkinstalldirs src/config.h.in src/Makefile.in \
+		src/stamp-h.in config.h.in
+	aclocal
+	automake --add-missing --copy
+	autoheader
+	autoconf
+
+config.status: configure
+	dh_testdir
+	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info 
+
+build: build-stamp
+
+build-stamp:  config.status
+	dh_testdir
+	$(MAKE)
+	/usr/bin/docbook-to-man debian/alsamixergui.sgml > debian/alsamixergui.1
+	touch build-stamp
+
+clean: 
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp debian/alsamixergui.1
+	-$(MAKE) distclean
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	$(MAKE) install prefix=$(CURDIR)/debian/alsamixergui/usr
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installdebconf	
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman debian/alsamixergui.1
+	dh_installinfo
+#	dh_undocumented
+	dh_installchangelogs ChangeLog
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install 

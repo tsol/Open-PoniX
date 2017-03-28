@@ -1,0 +1,60 @@
+From 83c7a52dcce256fc20cd43dbf6866e3e05f2bf71 Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Date: Mon, 4 Jun 2012 16:27:25 +0530
+Subject: [PATCH 09/57] ath9k_hw: Fix AR_RTC_KEEP_AWAKE usage
+
+The default value that is being programmed to AR_RTC_KEEP_AWAKE
+is 0x2, there is no need to program it manually in various
+functions.
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |    1 -
+ drivers/net/wireless/ath/ath9k/hw.c         |   11 -----------
+ 2 files changed, 12 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -330,7 +330,6 @@ void ar9003_mci_set_full_sleep(struct at
+ 	}
+ 
+ 	mci->ready = false;
+-	REG_WRITE(ah, AR_RTC_KEEP_AWAKE, 0x2);
+ }
+ 
+ static void ar9003_mci_disable_interrupt(struct ath_hw *ah)
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -1444,9 +1444,6 @@ static bool ath9k_hw_set_reset_reg(struc
+ 		break;
+ 	}
+ 
+-	if (ah->caps.hw_caps & ATH9K_HW_CAP_MCI)
+-		REG_WRITE(ah, AR_RTC_KEEP_AWAKE, 0x2);
+-
+ 	return ret;
+ }
+ 
+@@ -2179,10 +2176,6 @@ bool ath9k_hw_setpower(struct ath_hw *ah
+ 	switch (mode) {
+ 	case ATH9K_PM_AWAKE:
+ 		status = ath9k_hw_set_power_awake(ah, setChip);
+-
+-		if (ah->caps.hw_caps & ATH9K_HW_CAP_MCI)
+-			REG_WRITE(ah, AR_RTC_KEEP_AWAKE, 0x2);
+-
+ 		break;
+ 	case ATH9K_PM_FULL_SLEEP:
+ 		if (ah->caps.hw_caps & ATH9K_HW_CAP_MCI)
+@@ -2192,10 +2185,6 @@ bool ath9k_hw_setpower(struct ath_hw *ah
+ 		ah->chip_fullsleep = true;
+ 		break;
+ 	case ATH9K_PM_NETWORK_SLEEP:
+-
+-		if (ah->caps.hw_caps & ATH9K_HW_CAP_MCI)
+-			REG_WRITE(ah, AR_RTC_KEEP_AWAKE, 0x2);
+-
+ 		ath9k_set_power_network_sleep(ah, setChip);
+ 		break;
+ 	default:

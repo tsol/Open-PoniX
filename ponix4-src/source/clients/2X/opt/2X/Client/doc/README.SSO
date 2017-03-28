@@ -1,0 +1,25 @@
+Install pam_2xclient.so module to have Single Sign On for 2X Client.
+
+The module always returns true and uses authentication token provided by 
+higher level authentication module.
+Please note that when higher authentication module has configuration
+SUFFICIENT, it will return on success immediately and pam_2xclient.so
+wont be called. Please change SUFFICIENT to REQUIRED.
+
+To install 2X Client PAM module, add two lines to your session manager
+service (eg. /etc/pam.d/gdm):
+
+auth	   optional pam_2xclient.so
+password   optional pam_2xclient.so
+
+Module arguments:
+
+debug	Debug trace will be written to /tmp/pam_2xclient.log.
+	If the file cannot be open then syslog will be used.
+	You can use debug argument with all module types.
+	EG. session optional pam_2xclient.so debug
+
+<service_list> The module creates SSO cookie only for well known session services.
+	You can change the list of services to allow:
+	EG. auth optional pam_2xclient.so gdm kde kdm-kde4
+

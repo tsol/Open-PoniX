@@ -1,0 +1,57 @@
+From 83bfea42190b72acc1a1653bc10b21e741490087 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Sun, 1 Jul 2012 19:53:55 +0530
+Subject: [PATCH] ath9k_hw: fix AR9462 2g5g switch on full reset
+
+On full reset, mci reset will put LNA update on 2G mode. And
+Whenever 2g5g_switch is forced at the end of full reset, lna
+update should not be skipped. Not doing so, is affecting WLAN
+rx and causing beacon loss when BTCOEX is enabled on AR9462.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1015,12 +1015,9 @@ void ar9003_mci_2g5g_switch(struct ath_h
+ 		return;
+ 
+ 	if (mci->is_2g) {
+-		if (!force) {
+-			ar9003_mci_send_2g5g_status(ah, true);
+-
+-			ar9003_mci_send_lna_transfer(ah, true);
+-			udelay(5);
+-		}
++		ar9003_mci_send_2g5g_status(ah, true);
++		ar9003_mci_send_lna_transfer(ah, true);
++		udelay(5);
+ 
+ 		REG_CLR_BIT(ah, AR_MCI_TX_CTRL,
+ 			    AR_MCI_TX_CTRL_DISABLE_LNA_UPDATE);
+@@ -1030,10 +1027,8 @@ void ar9003_mci_2g5g_switch(struct ath_h
+ 		if (!(mci->config & ATH_MCI_CONFIG_DISABLE_OSLA))
+ 			ar9003_mci_osla_setup(ah, true);
+ 	} else {
+-		if (!force) {
+-			ar9003_mci_send_lna_take(ah, true);
+-			udelay(5);
+-		}
++		ar9003_mci_send_lna_take(ah, true);
++		udelay(5);
+ 
+ 		REG_SET_BIT(ah, AR_MCI_TX_CTRL,
+ 			    AR_MCI_TX_CTRL_DISABLE_LNA_UPDATE);
+@@ -1041,8 +1036,7 @@ void ar9003_mci_2g5g_switch(struct ath_h
+ 			    AR_BTCOEX_CTRL_BT_OWN_SPDT_CTRL);
+ 
+ 		ar9003_mci_osla_setup(ah, false);
+-		if (!force)
+-			ar9003_mci_send_2g5g_status(ah, true);
++		ar9003_mci_send_2g5g_status(ah, true);
+ 	}
+ }
+ 

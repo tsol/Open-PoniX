@@ -1,0 +1,44 @@
+If you intend to work on any of these issues, please contact 
+Federico Mena-Quintero (federico@helixcode.com).
+
+* The loaders don't deal with exhausted memory conditions very
+  gracefully.  For example, around io-jpeg.c:466:
+
+	context->pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 
+					 FALSE,
+					 8, 
+					 cinfo->image_width,
+					 cinfo->image_height);
+
+	if (context->pixbuf == NULL) {
+		/* Failed to allocate memory */
+		g_error ("Couldn't allocate gdkpixbuf");
+	}
+
+  This should *not* abort the program, but return an error condition
+  to the loader instead.
+
+  We do not have very good error reporting overall in the loading
+  functions, either the synchronous file loaders or the progressive
+  loaders.  We should figure out some common errors (out of memory,
+  file not found, corrupted data, incomplete data, etc.) and add
+  return values for them.  Yes, this means yet another API change.
+  Live with it.
+
+* The pixops functions could use better sanity checks.
+
+* The XPM loader currently needs a connection to an X display so that
+  it can XParseColor().  We could use an X color spec parser like the
+  one in libgr/netpbm; this parses color specifications without going
+  through X.  It has to do some ugly stuff to find rgb.txt; we want
+  something nicer than the hack they have there.
+
+* We could use some functions for doing full affine transformations,
+  without using libart.
+
+* gnome-canvas-pixbuf needs to be optimized.
+
+* We need a good stress-test suite!!!  Some nongraphical regression
+  tests for `make check' would be nice.
+
+* We need complete programmer's documentation.  

@@ -1,0 +1,1 @@
+../../alsa-kernel/include/seq_kernel.h

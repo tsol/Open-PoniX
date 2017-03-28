@@ -1,0 +1,21 @@
+/*
+ *
+ *  Copyright (C) 2007-2014 SimplyCore, LLC
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ *
+ */
+
+#ifndef IIllIll
+#define IIllIll
+#include "apitypes.h"
+static int lIIllIIl(const IIIlIl vid,const IIIlIl IIlIIl,const IIIlIl lIIIllI,
+const lllIl lIlIIIl,const lllIl IllIlIl,const lllIl IlIIIlI,const void*IlllIIII)
+{IIIll(
+"\x75\x73\x62\x64\x5f\x69\x73\x5f\x61\x75\x74\x6f\x73\x68\x61\x72\x69\x6e\x67\x5f\x61\x6c\x6c\x6f\x77\x65\x64\x3a\x20\x76\x69\x64\x20\x25\x30\x34\x78\x20\x70\x69\x64\x20\x25\x30\x34\x78\x20\x72\x65\x76\x20\x25\x30\x34\x78\x20\x63\x6c\x61\x73\x73\x20\x25\x30\x32\x78\x20\x73\x75\x62\x63\x6c\x61\x73\x73\x20\x25\x30\x32\x78\x20\x70\x72\x6f\x74\x6f\x63\x6f\x6c\x20\x25\x30\x32\x78" "\n"
+,vid,IIlIIl,lIIIllI,lIlIIIl,IllIlIl,IlIIIlI);return(0xc26+4429-0x1d72);}
+#endif 
+

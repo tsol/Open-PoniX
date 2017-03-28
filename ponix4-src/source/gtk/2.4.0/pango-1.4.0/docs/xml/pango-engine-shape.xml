@@ -1,0 +1,178 @@
+<refentry id="PangoEngineShape">
+<refmeta>
+<refentrytitle>PangoEngineShape</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>PANGO Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>PangoEngineShape</refname><refpurpose>Rendering-system dependent script engines</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+
+
+struct      <link linkend="PangoEngineShape-struct">PangoEngineShape</link>;
+struct      <link linkend="PangoEngineShapeClass">PangoEngineShapeClass</link>;
+#define     <link linkend="PANGO-ENGINE-TYPE-SHAPE-CAPS">PANGO_ENGINE_TYPE_SHAPE</link>
+#define     <link linkend="PANGO-ENGINE-SHAPE-DEFINE-TYPE-CAPS">PANGO_ENGINE_SHAPE_DEFINE_TYPE</link>  (name, prefix, class_init, instance_init)
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="PangoEngine">PangoEngine</link>
+         +----PangoEngineShape
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="PangoEngineShape-struct"/>struct PangoEngineShape</title>
+<indexterm><primary>PangoEngineShape</primary></indexterm><programlisting>struct PangoEngineShape;</programlisting>
+<para>
+The <link linkend="PangoEngineShape"><type>PangoEngineShape</type></link> class is implemented by engines that
+customize the rendering-system dependent part of the
+Pango pipeline for a particular script or language.
+A <link linkend="PangoEngineShape"><type>PangoEngineShape</type></link> implementation is then specific to both
+a particular rendering system or group of rendering systems
+and to a particular script. For instance, there is one
+<link linkend="PangoEngineShape"><type>PangoEngineShape</type></link> implementation to handling shaping Arabic
+for Fontconfig-based backends.</para>
+<para>
+</para></refsect2>
+<refsect2>
+<title><anchor id="PangoEngineShapeClass"/>struct PangoEngineShapeClass</title>
+<indexterm><primary>PangoEngineShapeClass</primary></indexterm><programlisting>struct PangoEngineShapeClass {
+
+  void (*script_shape) (PangoEngineShape *engine,
+			PangoFont        *font,
+			const char       *text,
+			int               length,
+			PangoAnalysis    *analysis,
+			PangoGlyphString *glyphs);
+  PangoCoverageLevel (*covers)   (PangoEngineShape *engine,
+				  PangoFont        *font,
+				  PangoLanguage    *language,
+				  gunichar          wc);
+};
+</programlisting>
+<para>
+Class structure for <link linkend="PangoEngineShape"><type>PangoEngineShape</type></link></para>
+<para>
+
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="void">void</link> (*<structfield>script_shape</structfield>) (PangoEngineShape *engine,
+			PangoFont        *font,
+			const char       *text,
+			int               length,
+			PangoAnalysis    *analysis,
+			PangoGlyphString *glyphs)</term>
+<listitem><simpara> Given a font, a piece of text, and a <link linkend="PangoAnalysis"><type>PangoAnalysis</type></link>
+  structure, converts characters to glyphs and positions the
+  resulting glyphs. The results are stored in the <link linkend="PangoGlyphString"><type>PangoGlyphString</type></link>
+  that is passed in. (The implementation should resize it
+  appropriately using <link linkend="pango-glyph-string-set-size"><function>pango_glyph_string_set_size()</function></link>). All fields
+  of the <parameter>log_clusters</parameter> and <parameter>glyphs</parameter> array must be filled in, with
+  the exception that Pango will automatically generate
+  <literal>glyphs->glyphs[i].attr.is_cluster_start</literal>
+  using the <parameter>log_clusters</parameter> array. Each input character must occur in one
+  of the output logical clusters;
+  if no rendering is desired for a character, this may involve
+  inserting glyphs with the <link linkend="PangoGlyph"><type>PangoGlyph</type></link> ID 0, which is guaranteed never
+  to render.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="PangoCoverageLevel">PangoCoverageLevel</link> (*<structfield>covers</structfield>) (PangoEngineShape *engine,
+				  PangoFont        *font,
+				  PangoLanguage    *language,
+				  gunichar          wc)</term>
+<listitem><simpara> Returns the characters that this engine can cover
+  with a given font for a given language. If not overridden, the default
+  implementation simply returns the coverage information for the
+  font itself unmodified.
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="PANGO-ENGINE-TYPE-SHAPE-CAPS"/>PANGO_ENGINE_TYPE_SHAPE</title>
+<indexterm><primary>PANGO_ENGINE_TYPE_SHAPE</primary></indexterm><programlisting>#define PANGO_ENGINE_TYPE_SHAPE "PangoEngineShape"
+</programlisting>
+<para>
+A string constant defining the engine type
+for <firstterm>shaping engines</firstterm>.
+These engines derive from <link linkend="PangoEngineShape"><type>PangoEngineShape</type></link>.
+</para></refsect2>
+<refsect2>
+<title><anchor id="PANGO-ENGINE-SHAPE-DEFINE-TYPE-CAPS"/>PANGO_ENGINE_SHAPE_DEFINE_TYPE()</title>
+<indexterm><primary>PANGO_ENGINE_SHAPE_DEFINE_TYPE</primary></indexterm><programlisting>#define     PANGO_ENGINE_SHAPE_DEFINE_TYPE(name, prefix, class_init, instance_init)</programlisting>
+<para>
+Outputs the necessary code for GObject type registration for a
+<link linkend="PangoEngineShape"><type>PangoEngineShape</type></link> class defined in a module. Two static symbols
+are defined.
+</para>
+<para>
+<programlisting>
+ static GType <replaceable>prefix</replaceable>_type;
+ static void <replaceable>prefix</replaceable>_register_type (GTypeModule module);
+</programlisting>
+</para>
+<para>
+The <function><replaceable>prefix</replaceable><link linkend="register-type"><function>_register_type()</function></link></function>
+function should be called in your <link linkend="script-engine-init"><function>script_engine_init()</function></link> function for
+each type that your module implements, and then your <link linkend="script-engine-create"><function>script_engine_create()</function></link>
+function can create instances of the object as follows:
+</para>
+<para>
+<informalexample><programlisting>
+ PangoEngine *engine = g_object_new (<replaceable>prefix</replaceable>_type, NULL);
+</programlisting></informalexample></para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>name</parameter>&nbsp;:</term>
+<listitem><simpara> Name of the the type to register (for example:, <literal>ArabicEngineFc</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>prefix</parameter>&nbsp;:</term>
+<listitem><simpara> Prefix for symbols that will be defined (for example:, <literal>arabic_engine_fc</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>class_init</parameter>&nbsp;:</term>
+<listitem><simpara> Class initialization function for the new type, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>instance_init</parameter>&nbsp;:</term>
+<listitem><simpara> Instance initialization function for the new type, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

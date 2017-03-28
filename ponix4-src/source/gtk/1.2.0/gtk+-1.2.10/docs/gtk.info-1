@@ -1,0 +1,1081 @@
+This is gtk.info, produced by makeinfo version 4.0 from gtk.texi.
+
+   This file documents GTK, the GIMP Toolkit
+
+   Copyright (C) 1996 Peter Mattis Copyright (C) 1997 Peter Mattis
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions, except that this permission notice may be stated in a
+translation approved by Peter Mattis.
+
+INFO-DIR-SECTION User Interface Toolkit
+START-INFO-DIR-ENTRY
+* GTK: (gtk).		The GIMP Toolkit
+END-INFO-DIR-ENTRY
+
+
+File: gtk.info,  Node: Top,  Next: Copying,  Prev: (dir),  Up: (dir)
+
+The GIMP Toolkit
+****************
+
+   This is edition 1.0 of the GTK documentation, 23 August 1998.
+
+* Menu:
+
+* Copying::                     Your rights.
+* Overview::                    What is GTK?
+* Types::
+* Objects::
+* Signals::                     Signals overview.
+* Widgets::                     Widget overview.
+* Other Objects::               Utility objects.
+* Miscellaneous::               Initialization, exit and other features.
+* Examples::                    Using GTK.
+* Object Implementation::       Object internals.
+* Signal Implementation::       Signal internals.
+* Widget Implementation::       Widget internals.
+* Function Index::              Index of functions.
+* Concept Index::               Index of concepts.
+
+
+File: gtk.info,  Node: Copying,  Next: Overview,  Prev: Top,  Up: Top
+
+Copying
+*******
+
+   GTK is "free"; this means that everyone is free to use it and free
+to redistribute it on a free basis. GTK is not in the public domain; it
+is copyrighted and there are restrictions on its distribution, but
+these restrictions are designed to permit everything that a good
+cooperating citizen would want to do. What is not allowed is to try to
+prevent others from further sharing any version of GTK that they might
+get from you.
+
+   Specifically, we want to make sure that you have the right to give
+away copies of GTK, that you receive source code or else can get it if
+you want it, that you can change GTK or use pieces of it in new free
+programs, and that you know you can do these things.
+
+   To make sure that everyone has such rights, we have to forbid you to
+deprive anyone else of these rights. For example, if you distribute
+copies of GTK, you must give the recipients all the rights that you
+have. You must make sure that they, too, receive or can get the source
+code. And you must tell them their rights.
+
+   Also, for our own protection, we must make certain that everyone
+finds out that there is no warranty for GTK. If GTK is modified by
+someone else and passed on, we want their recipients to know that what
+they have is not what we distributed, so that any problems introduced
+by others will no reflect on our reputation.
+
+   The precise conditions of the licenses for GTK are found in the
+General Public Licenses that accompany it.
+
+
+File: gtk.info,  Node: Overview,  Next: Types,  Prev: Copying,  Up: Top
+
+What is GTK?
+************
+
+   GTK is a library for creating graphical user interfaces similar to
+the Motif "look and feel". It is designed to be small and efficient, but
+still flexible enough to allow the programmer freedom in the interfaces
+created. GTK allows the programmer to use a variety of standard user
+interface widgets (*note Widgets::) such as push, radio and check
+buttons, menus, lists and frames. It also provides several "container"
+widgets which can be used to control the layout of the user interface
+elements.
+
+   GTK provides some unique features. (At least, I know of no other
+widget library which provides them). For example, a button does not
+contain a label, it contains a child widget, which in most instances
+will be a label. However, the child widget can also be a pixmap, image
+or any combination possible the programmer desires. This flexibility is
+adhered to throughout the library.
+
+   To make life easier for you, GTK presents this flexibility in a
+uniform framework.  Specifically, it implements its own support for
+object oriented programming that is well adapted to the purposes of a
+user interface toolkit and it aims at providing a reasonable sane and
+disciplined programming interface.  This uniformity and discipline is
+intended to make it easy and reliable to access GTK from languages other
+than C.  Especially more dynamic languages like Perl, Python or Scheme
+will find amble support, and in fact, bindings to these languages
+already exist.
+
+
+File: gtk.info,  Node: Types,  Next: Objects,  Prev: Overview,  Up: Top
+
+Types
+*****
+
+                                 Other kid's games are all such a bore!
+                    They've gotta have rules and they gotta keep score!
+
+                                          - Calvin about CalvinBall(tm)
+
+   GTK implements a semi-simple type system with an associated class
+mechanism for widgets and several other useful objects.  This type
+system is intended to be general enough to allow both a smooth binding
+of dynamically typed languages to Gtk, as well as to serve for a
+rigorous and formalistic definition of the larger part of the Gtk API.
+
+   The classes for the individual widgets are by far the most important
+part of this type system, but before we get to them, we describe the
+basics of the type system itself.  This is mostly of interest for widget
+writers and language binders, so you might want to skip ahead to the
+next chapter, which talks about the object oriented stuff.
+
+* Menu:
+
+* Type introduction::
+* Basics::
+* Simple types::
+* Enumerations and flags::
+* Strings::
+* Boxed types::
+* Callbacks::
+* Composite types::
+
+
+File: gtk.info,  Node: Type introduction,  Next: Basics,  Prev: Types,  Up: Types
+
+Introduction to the Type System
+===============================
+
+   Gtk defines its own system of types, much like a computer language
+defines what types it supports.  Of course, the Gtk type system is build
+on top of the types that C provides, so it includes members like `int',
+`long' and `float'.  But, compared to C, it allows only few carefully
+selected types and specifies a lot of restrictions on the way you can
+use values of these types.  For example, there is no general facility
+for specifying _pointer to X_.  Instead, we take a more higher level
+approach and define such things as `string', which is just like a
+`char*' but with additional rules about how to manage the memory that
+it points to.
+
+   The type system has two purposes: to define a formal system with
+which to describe the various exported features of Gtk; and to
+implement this system at run-time so that we get sound and flexible
+"dynamic" types for the dynamic languages that want to interface with
+Gtk.
+
+   Let me restate this with different words, because I think it is
+important to understand this idea.  We will see in a moment that the
+type system is indeed well defined and all this detail is implemented
+with functions and data structures in Gtk.  For example, every type (and
+there can be any number of them) can be represented with a unique
+integer and Gtk has support for the necessary bookkeeping for this.
+Every type also has a name and there are functions for converting
+between the name of a type and its unique number.  Maybe more useful,
+there is a big discriminated union that can be used to pass around a
+value of any representable type, together with its precise type.
+
+   This is the run-time or dynamic side of the type system.  Mostly,
+you do not need to use it when you don't want to.  The compile-time or
+static side of the type system can is used to statically define the
+programming interface of Gtk.  For example, suppose there is function
+`gtk_foo' in the Gtk API that has a prototype
+
+     char *gtk_foo (char *);
+
+   This looks like it does something with strings.  But what does it do
+with the memory of the string that has been passed in, and what are we
+supposed or allowed to do with the memory that the returned pointer
+points to?  The more restricted type `string' from the Gtk type system
+can be used to be more precise.  In fact, the definition of `string'
+below includes the rule that when a `string' is passed to a function,
+that function is not allowed to retain a pointer into the string beyond
+the life time of that function call.  So we are safe to deallocate it
+or override it when the function has returned.  Likewise, the
+definition specifies that the memory of a `string' that is returned
+from a function becomes the sole property of the calling function.  The
+calling function is responsible for deallocating it eventually and it
+can be sure that nobody else scribbles in it.  When `gtk_foo' really
+obeys these rules, we can say that it takes one argument, which is a
+`string', and it returns a `string'.
+
+   Now we can understand why it makes sense to have a more restrictive
+type system than that of C.  With it, it is possible to be more precise
+and we actually have a framework where we can be sure that as long as we
+stay inside this framework we are not gratuitously causing trouble for
+languages that are more disciplined than C.  Of course, you are not
+restricted to making all your interfaces expressible within the
+framework.  There are valid reasons for breaking it, for performance or
+simply for convenience.  But please try to provide all the functionality
+of your module in such a way that it can be described with this type
+system and treat the non-conforming functions as additional goodies that
+are nice to have but not essential.  The reward is an instant
+accessibility of your code from a huge number of scripting and extension
+languages such as Perl, Python, and Guile.
+
+   These formal specifications of the Gtk interface are contained in
+special declarations in the header files of Gtk.  They are ignored by
+the C compiler, but can be used by other language processors.  For extra
+convenience, these declarations are also available in a more condensed
+form that is easier to parse.  Tools for generating bindings of Gtk to
+other languages can read these declarations and--because all the
+important details are defined--automatically generate the bulk of the
+needed glue code.  It is also possible to feed these declarations into a
+running application (an interface builder, say) and thus make it aware
+of new widgets and functions without recompiling anything.
+
+   The run-time side of the type system is also somewhat introspective.
+This means that you can query Gtk about all the members of an
+enumeration for example.  Gtk provides tools that help you provide this
+introspection for your definitions also.
+
+   Types are not enough to completely specify an interface, so GTK also
+has "modes".  A mode specifies what happens to a value when it crosses a
+module boundary; it can be `in', `out', or `inout'.  Most fundamental
+types (and their derived types) support only mode `in'.  The modes
+`out' and `inout' can only be used with the composite types: lists and
+vectors.  When argument of these types are marked as `out' or `inout'
+it means that the called module is allowed to change the contents of
+the composite value and that these changes need to be propagated back
+to the originator of the value.  Mode `out' means that the argument has
+no meaningful value at the beginning and should not be read.  Mode `in'
+specifies that the called module is not allowed to change the value in
+any way.
+
+   The type system allows for an unbounded number of types.  Every
+widget is a type for example and you can add new widget types at any
+time without confusing the run-time implementation of the type system.
+Nevertheless, all types are derived from a certain "fundamental" type,
+and there are only a small and finite number of fundamental types.  We
+only specify rules for the fundamental types and all other types
+inherit these rules from their fundamental type.  For example, `int' is
+a fundamental type, as is `GtkObject'.  All widgets derive from
+`GtkObject' and so the rules for `GtkObject' apply to all widgets as
+well.
+
+   This derivation defines a type hierarchy, but this hierarchy is not
+completely general.  You can't derive from `int' for example, and you
+can only have one level of derivation from `enum'.  The fundamental
+type `GtkObject', however, is the basis for the large and deep
+hierarchy of widget types.
+
+   The individual fundamental types are defined and explained in the
+following sections.  Here is a complete list of them:
+
+`none'
+     The not-a-value type, similar to `void'.
+
+`char'
+     A character.  Internationalization issues are still undecided.
+
+`bool'
+     True or false.
+
+`byte, ubyte, int, uint, long, ulong, float, double'
+     The usual assortment of scalar types.
+
+`string'
+     A string.  Internationalization issues are still undecided.
+
+`enum, flags'
+     Enumerations with a fixed set of literals.  Either used to express
+     a single choice from this set or to individually turn on and off
+     several flags.
+
+`boxed'
+     A pointer to an opaque structure that can be copied and destroyed.
+
+`callback'
+     A pointer to a function with enough extra information so that it
+     can also be used for functions written in languages completely
+     different from C.
+
+`GtkObject'
+     A pointer to a GtkObject or derived type.  The fun starts here.
+
+`args, slist, dlist, cvec, tvec'
+     An assortment of composite types like linked lists and counted or
+     zero-terminated arrays.
+
+`pointer, signal, c_callback'
+     Obsolete types.
+
+
+File: gtk.info,  Node: Basics,  Next: Simple types,  Prev: Type introduction,  Up: Types
+
+Basic Concepts
+==============
+
+   The basis for the type system are the fundamental types.  At
+run-time, they are represented by members of the `GtkFundamentalType'
+enumeration.  For the static declarations, they are identified with a
+unique name.
+
+ - Enumeration: GtkFundamentalType
+     This enumeration contains a member for each defined fundamental
+     type.  Most members are listed along with the description of their
+     semantics, but one is listed here:
+
+    `GTK_TYPE_INVALID'
+          No valid type is derived from this.  Use `GTK_TYPE_INVALID' to
+          express exceptional situations.  This member does not really
+          correspond to a fundamental type and thus there is no name
+          for it.
+
+ - Data type: GtkType
+     The type `GtkType' holds the run-time representation of a type.  It
+     is an integer of a certain size.  The follwing macros are defined
+     to access the basic properties of a `GtkType':
+
+      - Macro: unsigned int GTK_TYPE_SEQNO (GtkType type)
+          Returns the sequence number of TYPE.  The sequence numbers are
+          guaranteed to be dense, i.e., you can use them to index a
+          table and the table need not be much larger than the number
+          of different GtkTypes that you might encounter.
+
+      - Macro: GtkFundamentalType GTK_FUNDAMENTAL_TYPE (GtkType type)
+          Returns the fundamental type of TYPE.
+
+     Both macros simply access different bit-fields of a `GtkType', so
+     they are very efficient.
+
+   New types are registered with the `gtk_type_unique' function.  Any
+kind oftype can be registered with `gtk_type_unique' but there are
+convenience functions for most fundamental types.  Each fundamental type
+has its own interpretation of the rules below and these convenience
+functions should be used to automatically get the type registration
+right.  So, don't be put off by the apparent complexity of the interface
+to `gtk_type_unique'.  You will be using it only for new widgets, and
+there the rules are simple.
+
+   The `GtkTypeInfo' structure is used to communicate information to
+`gtk_type_unique' as opposed to passing in large numbers of parameters.
+
+     typedef struct _GtkTypeInfo GtkTypeInfo;
+     
+     struct _GtkTypeInfo
+     {
+       gchar *type_name;
+       guint object_size;
+       guint class_size;
+       GtkClassInitFunc class_init_func;
+       GtkObjectInitFunc object_init_func;
+       gpointer reserved_1;
+       gpointer reserved_2;
+       GtkClassInitFunc base_class_init_func;
+     }
+
+   * The `type_name' field refers to the name of the type.  This is the
+     same name that is used in the static definitions.  It is
+     convention for the type name to be closely related to the name of
+     the underlying C type. For example, the type name of the
+     `GtkObject' structure is "GtkObject", and the name of the
+     `GtkWindowType' enumeration is "GtkWindowType".  Note that the C
+     type corresponding to "GtkObject" is really a pointer to a
+     `GtkObject' struct, but the name has no "*" in it.
+
+   * The `object_size' field refers to the size in bytes of the C
+     structure for types that have such a structure. The easiest (and
+     portable) means of computing this size is by using the C `sizeof'
+     operator. For instance, the sizeof of the `GtkObject' structure is
+     computed by doing `sizeof (GtkObject)'.  When the type has no
+     associated structure or when you do not want to support the
+     `gtk_type_new' function for the new type, set `object_size' to 0.
+     Only types derived from GTK_TYPE_OBJECT can be handled by
+     `gtk_type_new', anyway.
+
+   * The `class_size' field refers to the size in bytes of the C
+     structure for the class.  Again, the `sizeof' operator should be
+     used to compute this value.  If you don't want to have a class
+     structure for this type, set the field to 0.  `gtk_type_class'
+     will then always return `NULL'.
+
+   * The `class_init_func' and `base_class_init_func' fields are
+     callbacks which are used by the type mechanism to initialize class
+     specific fields. The single argument these functions take is a
+     pointer to a class structure.  When you do not need one or both of
+     them, set the corresponding field to `NULL'.  The
+     `class_init_func' will be called at most once, right after the
+     class structure of size `class_size' has been allocated.  The
+     interaction between `class_init_func' and `base_class_init_func'
+     is only really useful for the full-fledged object system.  It is
+     described there *note Objects::.
+
+   * The `object_init_func' field is a callback which is used by the
+     type mechanism to initialize object specific fields for structures
+     that have been allocated via `gtk_type_new'. The single argument
+     this functions takes is a pointer to an object structure.  If you
+     do not want any special object initialization to take place, set
+     this to `NULL'.  All object initialization functions for all types
+     that are part of the inheritance chain are called, starting with
+     the most basic type.
+
+
+ - Function: guint gtk_type_unique (GtkType PARENT_TYPE, GtkTypeInfo
+          *TYPE_INFO)
+     The PARENT_TYPE is simply the new types parent type. If
+     PARENT_TYPE is GTK_TYPE_INVALID, then the new type is a new
+     fundamental type.  You should never register new fundamental types.
+     TYPE_INFO is a pointer to a structure which contains necessary
+     information for construction of the new type.
+
+     You can only register a specific name once.
+
+ - Function: gchar* gtk_type_name (GtkType TYPE)
+     The returned string is the name of TYPE as specified to
+     `gtk_type_unique'.
+
+ - Function: GtkType gtk_type_from_name (guchar *NAME)
+     Return the type associated with NAME. If there is no type
+     associated with NAME, then GTK_TYPE_INVALID will be returned.
+
+ - Function: GtkType gtk_type_parent (GtkType TYPE)
+     Returns the parent type of TYPE or GTK_TYPE_INVALID if TYPE is a
+     fundamental type.
+
+ - Function: gpointer gtk_type_class (GtkType TYPE)
+     Returns the initialized class structure for TYPE. The class
+     structure is actually created and initialized the first time it is
+     needed.  Refer to *note Objects:: for details on how this
+     initialization works for GTK_TYPE_OBJECT derived types.
+
+     The returned structure is shared by all objects of TYPE and, as
+     such, should not be modified.
+
+ - Function: gpointer gtk_type_new (GtkType TYPE)
+     Returns a new instance of an TYPE object.  This works only for
+     GTK_TYPE_OBJECT derived types.  Please see *note Objects::.
+
+ - Function: void gtk_type_describe_heritage (GtkType TYPE)
+     Prints the type heritage for TYPE. The heritage for a type
+     includes the type and all its parent types up the type tree.
+
+ - Function: void gtk_type_describe_tree (GtkType TYPE, gboolean
+          SHOW_SIZE)
+     Prints the type tree which starts at TYPE. SHOW_SIZE is a boolean
+     which determines whether type sizes are printed.
+
+ - Function: gboolean gtk_type_is_a (GtkType TYPE, GtkType IS_A_TYPE)
+     A predicate function which determines whether the relation TYPE
+     is_a IS_A_TYPE is true.
+
+   Values of all types can be handled uniformly by storing them into a
+`GtkArg' structure.  The `GtkArg' has the following fields:
+
+`gchar *name'
+     This can be used to give the value represented by this `GtkArg'
+     structure a name.  It is not used much.
+
+`GtkType type'
+     The type of this value.
+
+`union d'
+     A big union that has (at least conceptually) one member for each
+     fundamental type.  You should not access these members directly.
+     Rather, use the `GTK_VALUE_*' macros.  There is one macro for each
+     fundamental type, and its name is derived from the name of the
+     GtkFundamentalType enumeration members simply by replacing
+     "Gtk_TYPE" with "GTK_VALUE".  All `GTK_VALUE_*' macros take a
+     `GtkArg' structure as their only parameter (_not_ a pointer) and
+     evaluate to a lvalue.
+
+   For example, the accessor for the fundamental type GTK_TYPE_INT is
+called GTK_VALUE_INT and you could use it like this:
+
+     GtkArg value;
+     
+     value.name = NULL;
+     value.type = GTK_TYPE_INT;
+     GTK_VALUE_INT(value) = 7;
+
+
+File: gtk.info,  Node: Simple types,  Next: Enumerations and flags,  Prev: Basics,  Up: Types
+
+Simple Types
+============
+
+   The Gtk type system has a full set of the usual simple types:
+integers, floating point numbers, but also boolean and character.  You
+can not derive new types from these.
+
+Enum               Name         Description
+GTK_TYPE_NONE      "void"       A type without value.
+GTK_TYPE_CHAR      "char"       A 8-bit unsigned number
+                                representing a character.  Numbers
+                                    between 0 and 127 are ASCII,
+                                the rest is undefined.
+GTK_TYPE_BOOL      "gboolean"   The boolean type.  It is some
+                                small integer where the number 0
+                                   represents false and 1 is
+                                true.  No other values are
+                                allowed.
+GTK_TYPE_INT       "gint"       A signed integer with at least 32
+                                bits.
+GTK_TYPE_UINT      "guint"      A unsigned integer with at least
+                                32 bits.
+GTK_TYPE_LONG      "glong"      A signed integer with at least 32
+                                bits.
+GTK_TYPE_ULONG     "gulong"     A unsigned integer with at least
+                                32 bits.  This is large enough to
+                                    hold a coerced pointer.
+GTK_TYPE_FLOAT     "gfloat"     A single precision floating point
+                                number.
+GTK_TYPE_DOUBLE    "gfloat"     A souble precision floating point
+                                number.
+GTK_TYPE_POINTER   "gpointer"   A untyped pointer.  Do not use
+                                this if you can avoid it.
+
+   The values of these types are all represented `directly' with the C
+types that are indicated in the `name' column above.  *note Boxed
+types:: for a discussion of this.
+
+
+File: gtk.info,  Node: Enumerations and flags,  Next: Strings,  Prev: Simple types,  Up: Types
+
+Enumerations and Flags
+======================
+
+
+File: gtk.info,  Node: Strings,  Next: Boxed types,  Prev: Enumerations and flags,  Up: Types
+
+Strings
+=======
+
+
+File: gtk.info,  Node: Boxed types,  Next: Callbacks,  Prev: Strings,  Up: Types
+
+Boxed Types
+===========
+
+
+File: gtk.info,  Node: Callbacks,  Next: Composite types,  Prev: Boxed types,  Up: Types
+
+Callbacks
+=========
+
+
+File: gtk.info,  Node: Composite types,  Prev: Callbacks,  Up: Types
+
+Composite Types
+===============
+
+
+File: gtk.info,  Node: Objects,  Next: Signals,  Prev: Types,  Up: Top
+
+Objects
+*******
+
+Object functions
+================
+
+   The GtkObject type is the root of the type hierarchy used by GTK. It
+provides a minimal set of fields used to implement the actual object,
+class and signal mechanisms, as well as several utility routines which
+make dealing with objects easier.
+
+   For the adventurous, see *Note Object Implementation::.
+
+ - Function: guint gtk_object_get_type (void)
+     Returns the `GtkObject' type identifier.
+
+ - Function: void gtk_object_class_add_signals (GtkObjectClass *CLASS,
+          gint *SIGNALS, gint NSIGNALS)
+     Adds SIGNALS to the `signals' field in the GtkObjectClass
+     structure CLASS. *Note Signals::.
+
+ - Function: GtkObject* gtk_object_new (guint TYPE, ...)
+
+ - Function: GtkObject* gtk_object_newv (guint TYPE, guint NARGS,
+          GtkArg *ARGS)
+
+ - Function: void gtk_object_ref (GtkObject *OBJECT);
+
+ - Function: void gtk_object_unref (GtkObject *OBJECT);
+
+ - Function: void gtk_object_getv (GtkObject *OBJECT, guint NARGS,
+          GtkArg *ARGS)
+
+ - Function: void gtk_object_set (GtkObject *OBJECT, ...)
+
+ - Function: void gtk_object_setv (GtkObject *OBJECT, guint NARGS,
+          GtkArg *ARGS)
+
+ - Function: GtkArg* gtk_object_query_args (GtkType CLASS_TYPE, guint
+          *NARGS)
+
+ - Function: void gtk_object_add_arg_type (gchar *ARG_NAME, GtkType
+          ARG_TYPE, guint ARG_ID)
+
+ - Function: GtkType gtk_object_get_arg_type (gchar *ARG_NAME)
+
+ - Function: void gtk_object_destroy (GtkObject *OBJECT)
+     Performs checks to make sure it is alright to destroy OBJECT and
+     then emits the `destroy' signal. The check which is performed is to
+     make sure OBJECT is not already processing another signal. If this
+     were the case then destroying the object immediately would
+     undoubtedly cause problems as the other signal would not be able
+     to tell the object was destroyed. The solution is that if OBJECT
+     is processing another signal we mark OBJECT is needing to be
+     destroyed. When we finish processing of the other signal we check
+     whether the object needs to be destroyed.
+
+   The GtkObject type provides a mechanism for associating arbitrary
+amounts of data with an object. The data is associated with the object
+using a character string key. The functions `gtk_object_set_data',
+`gtk_object_get_data', and `gtk_object_remove_data' are the interface
+to this mechanism. Two other routines, `gtk_object_set_user_data' and
+`gtk_object_get_user_data', exist as convenience functions which simply
+use the same mechanism.
+
+ - Function: void gtk_object_set_data (GtkObject *OBJECT, const char
+          *KEY, gpointer DATA)
+     Associate DATA with KEY in the data list of OBJECT.
+
+ - Function: gpointer gtk_object_get_data (GtkObject *OBJECT, const
+          char *KEY)
+     Retrieve the data associated with KEY in the data list of OBJECT.
+
+ - Function: void gtk_object_remove_data (GtkObject *OBJECT, const char
+          *KEY)
+     Remove the data associated with KEY in the data list of OBJECT.
+
+ - Function: void gtk_object_set_user_data (GtkObject *OBJECT, gpointer
+          DATA)
+     Sets DATA into the `user_data' field of OBJECT.
+
+ - Function: gpointer gtk_object_get_user_data (GtkObject *OBJECT)
+     Returns the `user_data' field of OBJECT.
+
+   The GtkObject type also provides a mechanism for specifying
+initialization values for fields. This general mechanism is called
+object value stacks. The reason for using value stacks is that they can
+simplify the life of the programmer. For instance, by default widgets
+are non-visible when created. However, the "visible" value for widgets
+may be specified so that widgets are made visible when created. (FIXME:
+unfinished).
+
+ - Function: void gtk_object_value_stack_new (guint OBJECT_TYPE, const
+          gchar *VALUE_ID, GtkParamType VALUE_TYPE)
+
+ - Function: void gtk_object_push_value (guint OBJECT_TYPE, const gchar
+          *VALUE_ID, ...)
+     Push a value on the value stack specified by OBJECT_TYPE and
+     VALUE_ID. The type of value is implicitly given in the context of
+     OBJECT_TYPE and VALUE_ID. (That is, it is not specified explicitly
+     in the function call). Only a single extra argument is expected
+     which is the data which is to be placed on the stack.
+
+ - Function: void gtk_object_pop_value (guint OBJECT_TYPE, const gchar
+          *VALUE_ID)
+     Pop a value of the value stack specified by OBJECT_TYPE and
+     VALUE_ID.
+
+ - Function: gint gtk_object_peek_value (guint OBJECT_TYPE, const gchar
+          *VALUE_ID, gpointer DATA)
+     Peek at the value on the top of the value stack specified by
+     OBJECT_TYPE and VALUE_ID. The DATA argument is interpreted as the
+     location of where to place the "peeked" data. For instance, if the
+     peeked data is of type `GTK_PARAM_POINTER', then DATA will be a
+     pointer to a pointer. If the value stack is empty or does not
+     exist or an error occurs, `gtk_object_peek_value' will return
+     `FALSE'. On success it will return `TRUE'.
+
+
+File: gtk.info,  Node: Signals,  Next: Widgets,  Prev: Objects,  Up: Top
+
+Signals Overview
+****************
+
+   Signals are GTK's method for objects to perform callbacks. A signal
+is an event which occurs upon an object. The programmer can connect to a
+signal of an object which involves specifying a function to be called
+when that signal is emitted in the specified object.
+
+   When a signal is emitted, both the class function associated with the
+signal (when it was defined) and all signal handlers installed for that
+signal on the particular object emitting the signal are called. The
+widget programmer can specify whether the class function is to be called
+before after or both before and after the signal handlers installed by
+the widget user. The widget user can, however, specify that their signal
+handler is to be run after the class function (using the "_after"
+signal connection routines). Any signal handling function can emit the
+same signal on the same object while it is running causing that signal
+emission to either restart or to run recursively. Additionally, signal
+emission can be terminated prematurely. While both such abilities are
+rarely used, they do allow for greater flexibility in regards to
+signals. For instance, a programmer can attach to the key press event
+signal and intercept all tab key presses from a widget. This particular
+example is used in the file selection dialog to implement tab completion
+of filenames and prevent the entry widget from inserting the tab into
+its buffer.
+
+   Signals are selected using either an integer identifier or a
+character string name. It is convention to name the signal the same as
+the class function which is associated with it. There are two versions
+of most of the signal functions, one which takes an integer identifier
+and one which takes a character string name for the signal.
+
+ - Function: gint gtk_signal_new (gchar *NAME, GtkSignalRunType
+          RUN_TYPE, gint OBJECT_TYPE, gint FUNCTION_OFFSET,
+          GtkSignalMarshaller MARSHALLER, GtkParamType RETURN_VAL, gint
+          NPARAMS, ...)
+     Create a new signal and give it the character string identifier
+     NAME. NAME needs to be unique in the context of OBJECT_TYPE's
+     branch of the class hierarchy. That is, OBJECT_TYPE cannot create
+     a signal type with the same name as a signal type created by one
+     of its parent types.
+
+     RUN_TYPE specifies whether the class function should be run before
+     (`GTK_RUN_FIRST'), after (`GTK_RUN_LAST') or both before and after
+     normal signal handlers (`GTK_RUN_BOTH'). Additionally, the
+     `GTK_RUN_NO_RECURSE' value can be or'ed with any of those values to
+     specify that the signal should not be recursive. By default,
+     emitting the same signal on the same widget will cause the signal
+     to be emitted twice. However, if the `GTK_RUN_NO_RECURSE' flag is
+     specified, emitting the same signal on the same widget will cause
+     the current signal emission to be restarted. This allows the
+     widget programmer to specify the semantics of signal emission on a
+     per signal basis. (The `GTK_RUN_NO_RECURSE' flag is used by the
+     GtkAdjustment widget).
+
+     The FUNCTION_OFFSET is the byte offset from the start of the class
+     structure to the class function field within the class structure.
+     The easiest means to compute this offset is by using the
+     `GTK_SIGNAL_OFFSET' macro which takes the class structure type as
+     the first argument and the field as the second argument. For
+     example, `GTK_SIGNAL_OFFSET (GtkObjectClass, destroy)' will give
+     the offset of the `destroy' class function within the
+     `GtkObjectClass'. Note: An offset is specified instead of an
+     absolute location since there will be multiple instances of a class
+     structure being referenced. (The `GtkWidgetClass' structure "is a"
+     `GtkObjectClass' structure, etc.)
+
+     The MARSHALLER function is used to invoke a signal handler. Since
+     signal handlers may take different parameters and return values
+     and a general mechanism for invoking them is not apparent, the
+     approach of making the signal creator responsible for invoking the
+     signal handler was taken. (FIXME: unfinished).
+
+     The RETURN_VAL and NPARAMS and the remaining arguments specify the
+     return value and the arguments to the signal handler respectively.
+     Note: There is an implicit first argument to every signal handler
+     which is the widget the signal has been emitted from. The variable
+     argument list (...) specifies the types of the arguments. These
+     can be one of `GTK_PARAM_CHAR', `GTK_PARAM_SHORT',
+     `GTK_PARAM_INT', `GTK_PARAM_LONG', `GTK_PARAM_POINTER' or
+     `GTK_PARAM_FUNCTION'. It is undefined to specify `GTK_PARAM_NONE'
+     as an argument type, however it is OK to use `GTK_PARAM_NONE' for
+     RETURN_VAL. (This corresponds to returning a `void').
+
+     `gtk_signal_new' returns the integer identifier of the newly
+     created signal. Signal identifiers start numbering at 1 and
+     increase upwards. A value of -1 will be returned if an error
+     occurs.
+
+     *Note:* `gtk_signal_new' is only needed by widget writers. A
+     normal user of GTK will never needed to invoke this function.
+
+ - Function: gint gtk_signal_lookup (gchar *NAME, gint OBJECT_TYPE)
+     Returns the integer identifier for the signal referenced by NAME
+     and OBJECT_TYPE. If OBJECT_TYPE does not define the signal NAME,
+     then the signal is looked for in OBJECT_TYPE's parent type
+     recursively.
+
+ - Function: gchar* gtk_signal_name (gint SIGNAL_NUM)
+
+ - Function: gint gtk_signal_emit (GtkObject *OBJECT, gint SIGNAL_TYPE,
+          ...)
+     Emit the signal specified by the integer identifier SIGNAL_TYPE
+     from OBJECT. If an error occurs, `gtk_signal_emit' will return
+     `FALSE' and will return `TRUE' on success. The signal definition
+     determines the parameters passed in the variable argument list
+     (`...'). For example, if the signal is defined as:
+
+            gint (* event) (GtkWidget *widget, GdkEvent *event);
+
+     Then a call to emit the "event" signal would look like:
+
+            GdkEvent event;
+            gint return_val;
+            ...
+            gtk_signal_emit (some_object,
+                             gtk_signal_lookup ("event",
+                               GTK_OBJECT_TYPE (some_object)),
+                             &event, &return_val);
+
+     Notice that the `widget' argument is implicit in that the first
+     argument to every signal is a type derived from `GtkObject'. The
+     RETURN_VAL argument is actually a pointer to the return value type
+     since the signal mechanism needs to be able to place the return
+     value in an actual location. And lastly, the `gtk_signal_lookup'
+     call is normally avoided by using the `gtk_signal_emit_by_name'
+     function instead. `gtk_signal_emit' is normally used internally by
+     widgets which know the signal identifier (since they defined the
+     signal) and can therefore side-step the cost of calling
+     `gtk_signal_lookup'.
+
+ - Function: gint gtk_signal_emit_by_name (GtkObject *OBJECT, gchar
+          *NAME, ...)
+     Similar to `gtk_signal_emit' except that the signal is referenced
+     by NAME instead of by its integer identifier.
+
+ - Function: void gtk_signal_emit_stop (GtkObject *OBJECT, gint
+          SIGNAL_TYPE)
+     Stop the emission of the signal SIGNAL_TYPE on OBJECT. SIGNAL_TYPE
+     is the integer identifier for the signal and can be determined
+     using the function `gtk_signal_lookup'. Alternatively, the function
+     `gtk_signal_emit_stop_by_name' can be used to refer to the signal
+     by name. Attempting to stop the emission of a signal that isn't
+     being emitted does nothing.
+
+ - Function: void gtk_signal_emit_stop_by_name (GtkObject *OBJECT,
+          gchar *NAME)
+     Similar to `gtk_signal_emit_stop' except that the signal is
+     referenced by NAME instead of by its integer identifier.
+
+ - Function: gint gtk_signal_connect (GtkObject *OBJECT, gchar *NAME,
+          GtkSignalFunc FUNC, gpointer FUNC_DATA)
+     Connects a signal handling function to a signal emitting object.
+     FUNC is connected to the signal NAME emitted by OBJECT. The
+     arguments and returns type of FUNC should match the arguments and
+     return type of the signal NAME. However, FUNC may take the extra
+     argument of FUNC_DATA. Due to the C calling convention it is OK to
+     ignore the extra argument. (It is OK to ignore all the arguments
+     in fact).
+
+     `gtk_signal_connect' returns an integer identifier for the
+     connection which can be used to refer to it in the future.
+     Specifically it is useful for removing the connection and/or
+     blocking it from being used.
+
+ - Function: gint gtk_signal_connect_after (GtkObject *OBJECT, gchar
+          *NAME, GtkSignalFunc FUNC, gpointer FUNC_DATA)
+     Similar to `gtk_signal_connect' except the signal handler is
+     connected in the "after" slot. This allows a signal handler to be
+     guaranteed to run after other signal handlers connected to the same
+     signal on the same object and after the class function associated
+     with the signal.
+
+     Like `gtk_signal_connect', `gtk_signal_connect_after' returns an
+     integer identifier which can be used to refer to the connection.
+
+ - Function: gint gtk_signal_connect_object (GtkObject *OBJECT, gchar
+          *NAME, GtkSignalFunc FUNC, GtkObject *SLOT_OBJECT)
+     Connects FUNC to the signal NAME emitted by OBJECT. Similar to
+     `gtk_signal_connect' with the difference that SLOT_OBJECT is
+     passed as the first parameter to FUNC instead of the signal
+     emitting object. This can be useful for connecting a signal
+     emitted by one object to a signal in another object. A common
+     usage is to connect the "destroy" signal of dialog to the "clicked"
+     signal emitted by a "close" button in the dialog. That is, the
+     "clicked" signal emitted by the button will caused the "destroy"
+     signal to be emitted for the dialog. This is also the "right" way
+     to handle closing of a dialog since the "destroy" signal will be
+     sent if the dialog is deleted using a window manager function and
+     this enables the two methods of closing the window to be handled
+     by the same mechanism. Returns an integer identifier which can be
+     used to refer to the connection.
+
+ - Function: gint gtk_signal_connect_object_after (GtkObject *OBJECT,
+          gchar *NAME, GtkSignalFunc FUNC, GtkObject *SLOT_OBJECT)
+     Similar to `gtk_signal_connect_object' except the signal handler is
+     connected in the "after" slot. This allows a signal handler to be
+     guaranteed to run after other signal handlers connected to the same
+     signal on the same object and after the class function associated
+     with the signal. Returns an integer identifier which can be used
+     to refer to the connection.
+
+ - Function: gint gtk_signal_connect_interp (GtkObject *OBJECT, gchar
+          *NAME, GtkCallbackMarshal FUNC, gpointer DATA,
+          GtkDestroyNotify DESTROY_FUNC, gint AFTER)
+
+ - Function: void gtk_signal_disconnect (GtkObject *OBJECT, gint ID)
+     Disconnects a signal handler from an object. The signal handler is
+     identified by the integer ID which is returned by the
+     `gtk_signal_connect*' family of functions.
+
+ - Function: void gtk_signal_disconnect_by_data (GtkObject *OBJECT,
+          gpointer DATA)
+     Disconnects a signal handler from an object. The signal handler is
+     identified by the DATA argument specified as the FUNC_DATA
+     argument to the `gtk_signal_connect*' family of functions. For the
+     `gtk_signal_connect_object*' functions, DATA refers to the
+     SLOT_OBJECT.
+
+     *Note:* This will remove all signal handlers connected to OBJECT
+     which were connected using DATA as their FUNC_DATA argument.
+     Multiple signal handlers may be disconnected with this call.
+
+ - Function: void gtk_signal_handler_block (GtkObject *OBJECT, gint ID)
+     Blocks calling of a signal handler during signal emission. The
+     signal handler is identified by the integer ID which is returned
+     by the `gtk_signal_connect*' family of functions. If the signal is
+     already blocked no change is made.
+
+ - Function: void gtk_signal_handler_block_by_data (GtkObject *OBJECT,
+          gint DATA)
+     Blocks calling of a signal handler during signal emission. The
+     signal handler is identified by the DATA argument specified as the
+     FUNC_DATA argument to the `gtk_signal_connect*' family of
+     functions. For the `gtk_signal_connect_object*' functions, DATA
+     refers to the SLOT_OBJECT. If the signal is already blocked no
+     change is made.
+
+     *Note:* This will block all signal handlers connected to OBJECT
+     which were connected using DATA as their FUNC_DATA argument.
+     Multiple signal handlers may be blocked with this call.
+
+ - Function: void gtk_signal_handler_unblock (GtkObject *OBJECT, gint
+          ID)
+     Unblocks calling of a signal handler during signal emission. The
+     signal handler is identified by the integer ID which is returned
+     by the `gtk_signal_connect*' family of functions. If the signal is
+     already unblocked no change is made.
+
+ - Function: void gtk_signal_handler_unblock_by_data (GtkObject
+          *OBJECT, gint DATA)
+     Unblocks calling of a signal handler during signal emission. The
+     signal handler is identified by the DATA argument specified as the
+     FUNC_DATA argument to the `gtk_signal_connect*' family of
+     functions. For the `gtk_signal_connect_object*' functions, DATA
+     refers to the SLOT_OBJECT. If the signal is already unblocked no
+     change is made.
+
+     *Note:* This will unblock all signal handlers connected to OBJECT
+     which were connected using DATA as their FUNC_DATA argument.
+     Multiple signal handlers may be unblocked with this call.
+
+ - Function: void gtk_signal_handlers_destroy (GtkObject *OBJECT)
+     Destroy all of the signal handlers connected to OBJECT. There
+     should normally never be reason to call this function as it is
+     called automatically when OBJECT is destroyed.
+
+ - Function: void gtk_signal_default_marshaller (GtkObject *OBJECT,
+          GtkSignalFunc FUNC, gpointer FUNC_DATA, GtkSignalParam
+          *PARAMS)
+     `gtk_signal_new' requires a callback in order to actually call a
+     signal handler for a particular signal. The vast majority of
+     signals are of the particular form:
+
+            (* std_signal) (gpointer std_arg);
+
+     `gtk_signal_default_marshaller' is a signal marshaller which
+     marshals arguments for a signal of that form.
+
+ - Function: void gtk_signal_set_funcs (GtkSignalMarshal MARSHAL_FUNC,
+          GtkSignalDestroy DESTROY_FUN)
+
+
+File: gtk.info,  Node: Widgets,  Next: Other Objects,  Prev: Signals,  Up: Top
+
+Widget Overview
+***************
+
+   Widgets are the general term used to describe user interface
+objects. A widget defines a class interface that all user interface
+objects conform to. This interface allows a uniform method for dealing
+with operations common to all objects such as hiding and showing, size
+requisition and allocation and events.
+
+   The common interface that widgets must adhere to is described by the
+GtkWidget and GtkWidgetClass structure. For the purposes of using GTK
+these structures can be considered read-only and, for the most part,
+opaque.
+
+   All widget creation routines in GTK return pointers to GtkWidget
+structures. In reality, all widget creation routines create structures
+that can be viewed as equivalent to the GtkWidget structure, but often
+have contain additional information. *Note Object Implementation::.
+
+   The widgets available for use are implemented in a hierarchy. Several
+widgets exist solely as common bases for more specific widgets. For
+example, it is not possible to create a ruler widget itself, but the
+ruler widget provides a base and functionality common to the horizontal
+and vertical rulers.
+
+   The available widgets (in alphabetical order):
+
+* Menu:
+
+* GtkAlignment::                The alignment widget.
+* GtkArrow::                    The arrow widget.
+* GtkAspectFrame::              The aspect frame widget.
+* GtkBin::                      The bin widget.
+* GtkBox::                      The box widget.
+* GtkButtonBox::                The button box widget.
+* GtkButton::                   The button widget.
+* GtkCheckButton::              The check button widget.
+* GtkCheckMenuItem::            The check menu item widget.
+* GtkCList::                    The compound list widget.
+* GtkColorSelection::           The color selector widget.
+* GtkCombo::                    The combo box widget.
+* GtkContainer::                The container widget.
+* GtkCTree::                    The multi-column tree widget.
+* GtkCurve::                    The curve widget.
+* GtkGammaCurve::               The gamma curve widget.
+* GtkDialog::                   The dialog widget.
+* GtkDrawingArea::              The drawing area widget.
+* GtkEntry::                    The entry widget.
+* GtkEventBox::                 The event box widget.
+* GtkFileSelection::            The file selection dialog widget.
+* GtkFixed::                    The fixed widget.
+* GtkFrame::                    The frame widget.
+* GtkGamma::                    The gamma widget.
+* GtkHBox::                     The horizontal box widget.
+* GtkHButtonBox::               The horizontal button box widget.
+* GtkHPaned::                   The horizontal paned widget.
+* GtkHRuler::                   The horizontal ruler widget.
+* GtkHScale::                   The horizontal scale widget.
+* GtkHScrollbar::               The horizontal scrollbar widget.
+* GtkHSeparator::               The horizontal separator widget.
+* GtkImage::                    The image widget.
+* GtkInputDialog::              The input dialog widget.
+* GtkItem::                     The item widget.
+* GtkLabel::                    The label widget.
+* GtkList::                     The list widget.
+* GtkListItem::                 The list item widget.
+* GtkMenu::                     The menu widget.
+* GtkMenuBar::                  The menu bar widget.
+* GtkMenuItem::                 The menu item widget.
+* GtkMenuShell::                The menu shell widget.
+* GtkMisc::                     The misc widget.
+* GtkNotebook::                 The notebook widget.
+* GtkOptionMenu::               The option menu widget.
+* GtkPaned::                    The paned widget.
+* GtkPixmap::                   The pixmap widget.
+* GtkPreview::                  The preview widget.
+* GtkProgressBar::              The progress bar widget.
+* GtkRadioButton::              The radio button widget.
+* GtkRadioMenuItem::            The radio menu item widget.
+* GtkRange::                    The range widget.
+* GtkRuler::                    The ruler widget.
+* GtkScale::                    The scale widget.
+* GtkScrollbar::                The scrollbar widget.
+* GtkScrolledWindow::           The scrolled window widget.
+* GtkSeparator::                The separator widget.
+* GtkStatusbar::                The statusbar widget.
+* GtkTable::                    The table widget.
+* GtkText::                     The text widget.
+* GtkToggleButton::             The toggle button widget.
+* GtkToolbar::                  The tool bar widget.
+* GtkTooltips::                 The tool tips widget.
+* GtkTree::                     The tree widget.
+* GtkTreeItem::                 The tree item widget.
+* GtkVBox::                     The vertical box widget.
+* GtkVButtonBox::               The vertical button box widget.
+* GtkViewport::                 The viewport widget.
+* GtkVPaned::                   The vertical paned widget.
+* GtkVRuler::                   The vertical ruler widget.
+* GtkVScale::                   The vertical scale widget.
+* GtkVScrollbar::               The vertical scrollbar widget.
+* GtkVSeparator::               The vertical separator widget.
+* GtkWidget::                   The base widget type.
+* GtkWindow::                   The window widget.
+

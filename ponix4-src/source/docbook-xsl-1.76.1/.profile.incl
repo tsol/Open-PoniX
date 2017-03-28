@@ -1,0 +1,43 @@
+# /source/docbook-xsl-1.76.1/tools/bin is not in PATH, so add it
+if [ "${PATH#*/source/docbook-xsl-1.76.1/tools/bin*}" = "$PATH" ]; then
+  PATH="/source/docbook-xsl-1.76.1/tools/bin:$PATH"
+  export PATH
+fi
+if [ -z "$XML_CATALOG_FILES" ]; then
+  XML_CATALOG_FILES="/source/docbook-xsl-1.76.1/catalog.xml"
+else
+  # /source/docbook-xsl-1.76.1/catalog.xml is not in XML_CATALOG_FILES, so add it
+  if [ "${XML_CATALOG_FILES#*/source/docbook-xsl-1.76.1/catalog.xml*}" = "$XML_CATALOG_FILES" ]; then
+    XML_CATALOG_FILES="/source/docbook-xsl-1.76.1/catalog.xml $XML_CATALOG_FILES"
+  fi
+fi
+# /etc/xml/catalog exists but is not in XML_CATALOG_FILES, so add it
+if [ -f /etc/xml/catalog ] &&   [ "${XML_CATALOG_FILES#*/etc/xml/catalog*}" = "$XML_CATALOG_FILES" ]; then
+  XML_CATALOG_FILES="$XML_CATALOG_FILES /etc/xml/catalog"
+fi
+export XML_CATALOG_FILES
+
+if [ -z "$SGML_CATALOG_FILES" ]; then
+  SGML_CATALOG_FILES="/source/docbook-xsl-1.76.1/catalog"
+else
+  # /source/docbook-xsl-1.76.1/catalog is not in SGML_CATALOG_FILES, so add it
+  if [ "${SGML_CATALOG_FILES#*/source/docbook-xsl-1.76.1/catalog}" = "$SGML_CATALOG_FILES" ]; then
+    SGML_CATALOG_FILES="/source/docbook-xsl-1.76.1/catalog:$SGML_CATALOG_FILES"
+  fi
+fi
+# /etc/sgml/catalog exists but is not in SGML_CATALOG_FILES, so add it
+if [ -f /etc/sgml/catalog ] &&   [ "${SGML_CATALOG_FILES#*/etc/sgml/catalog*}" = "$SGML_CATALOG_FILES" ]; then
+  SGML_CATALOG_FILES="$SGML_CATALOG_FILES:/etc/sgml/catalog"
+fi
+export SGML_CATALOG_FILES
+
+
+if [ -z "$CLASSPATH" ]; then
+  CLASSPATH="/root/.resolver"
+else
+  # /root/.resolver is not in CLASSPATH, so add it
+  if [ "${CLASSPATH#*/root/.resolver*}" = "$CLASSPATH" ]; then
+    CLASSPATH="/root/.resolver:$CLASSPATH"
+  fi
+fi
+export CLASSPATH

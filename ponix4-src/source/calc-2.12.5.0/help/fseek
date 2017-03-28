@@ -1,0 +1,93 @@
+NAME
+    fseek - set a file position
+
+SYNOPSIS
+    fseek(fd, offset [, whence])
+
+TYPES
+    fd		open file stream
+    pos		integer
+    whence	0, 1 or 2, defaulting to 0
+
+    return	null or error value
+
+DESCRIPTION
+    This function sets the file position indicator for the stream by
+    adding offset to zero, the current value, or the size of the
+    file, according as whence is 0, 1 or 2.  The effect is equivalent to
+    moving the signed distance offset from the beginning, the current
+    position, or the end of the file.
+
+    The function also clears the end-of-file flag and flushes any
+    buffered data waiting to be output to the stream.
+
+    An implementation-defined error occurs if the effect would be to
+    give a negative value to the position indicator; on some systems, the
+    file position will be set to end-of-file.
+
+    The file position indicator may have a value greater than the file
+    size.  If characters are then written to the file, the gap is
+    filled by null ('\0') characters.
+
+EXAMPLE
+    ; fd = fopen("/tmp/curds", "w")
+    ; fputs(fd, "0123456789abcdef")
+    ; freopen(fd, "r")
+    ; fsize(fd)
+	16
+    ; fseek(fd, 5)
+    ; fgets(fd)
+	"56789abcdef"
+    ; fseek(fd, 0)
+    ; fscanf(fd, "%*5c")
+	0
+    ; fseek(fd, 5, 1)
+    ; fgets(fd)
+	"abcdef"
+    ; ftell(fd)
+	16
+    ; fseek(fd, -5, 2)
+    ; fgets(fd)
+	"bcdef"
+    ; fseek(fd, -2)
+	System error 22
+    ; ftell(fd)
+	16
+
+    The results for the last four lines may be different for different systems.
+
+LIMITS
+    Some details of the operation of this function may be implementation-
+    dependent, particularly for older systems.
+
+LINK LIBRARY
+    none
+
+SEE ALSO
+    ftell, fgetpos, fsetpos, rewind, strerror
+
+## Copyright (C) 1999  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: fseek,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/fseek,v $
+##
+## Under source code control:	1995/03/04 11:33:20
+## File existed as early as:	1995
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>MIT-SHM(The MIT Shared Memory Extension)</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1" /><meta name="description" content="This document briefly describes how to use the MIT-SHM shared memory extension. I have tried to make it accurate, but it would not surprise me if some errors remained. If you find anything wrong, do let me know and I will incorporate the corrections. Meanwhile, please take this document &quot;as is&quot; (eman improvement over what was there before, but certainly not the definitive word.)" /><style xmlns="" type="text/css">/*
+ * Copyright (c) 2011 Gaetan Nadon
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * Shared stylesheet for X.Org documentation translated to HTML format
+ * http://www.sagehill.net/docbookxsl/UsingCSS.html
+ * http://www.w3schools.com/css/default.asp
+ * https://addons.mozilla.org/en-US/firefox/addon/web-developer/developers
+ * https://addons.mozilla.org/en-US/firefox/addon/font-finder/
+ */
+
+/*
+ * The sans-serif fonts are considered more legible on a computer screen
+ * http://dry.sailingissues.com/linux-equivalents-verdana-arial.html
+ *
+ */
+body {
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, Arial, Sans-serif;
+  /* In support of using "em" font size unit, the w3c recommended method */
+  font-size: 100%;
+}
+
+/*
+ * Selection: all elements requiring mono spaced fonts.
+ *
+ * The family names attempt to match the proportionally spaced font
+ * family names such that the same font name is used for both.
+ * We'd like to use Bitstream, for example, in both proportionally and
+ * mono spaced font text.
+ */
+.command,
+.errorcode,
+.errorname,
+.errortype,
+.filename,
+.funcsynopsis,
+.function,
+.parameter,
+.programlisting,
+.property,
+.screen,
+.structname,
+.symbol,
+.synopsis,
+.type
+{
+  font-family:  "Bitstream Vera Sans Mono", "DejaVu Sans Mono", Courier, "Liberation Mono", Monospace;
+}
+
+/*
+ * Books have a title page, a preface, some chapters and appendices,
+ * a glossary, an index and a bibliography, in that order.
+ *
+ * An Article has no preface and no chapters. It has sections, appendices,
+ * a glossary, an index and a bibliography.
+ */
+
+/*
+ * Selection: book main title and subtitle
+ */
+div.book>div.titlepage h1.title,
+div.book>div.titlepage h2.subtitle {
+  text-align: center;
+}
+
+/*
+ * Selection: article main title and subtitle
+ */
+div.article>div.titlepage h2.title,
+div.article>div.titlepage h3.subtitle,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title {
+  text-align: center;
+}
+
+/*
+ * Selection: various types of authors and collaborators, individuals or corporate
+ *
+ * These authors are not always contained inside an authorgroup.
+ * They can be contained inside a lot of different parent types where they might
+ * not be centered.
+ * Reducing the margin at the bottom makes a visual separation between authors
+ * We specify here the ones on the title page, others may be added based on merit.
+ */
+div.titlepage .authorgroup,
+div.titlepage .author,
+div.titlepage .collab,
+div.titlepage .corpauthor,
+div.titlepage .corpcredit,
+div.titlepage .editor,
+div.titlepage .othercredit {
+  text-align: center;
+  margin-bottom: 0.25em;
+}
+
+/*
+ * Selection: the affiliation of various types of authors and collaborators,
+ * individuals or corporate.
+ */
+div.titlepage .affiliation {
+  text-align: center;
+}
+
+/*
+ * Selection: product release information (X Version 11, Release 7)
+ *
+ * The releaseinfo element can be contained inside a lot of different parent
+ * types where it might not be centered.
+ * We specify here the one on the title page, others may be added based on merit.
+ */
+div.titlepage p.releaseinfo {
+  font-weight: bold;
+  text-align: center;
+}
+
+/*
+ * Selection: publishing date
+ */
+div.titlepage .pubdate {
+  text-align: center;
+}
+
+/*
+ * The legal notices are displayed in smaller sized fonts
+ * Justification is only supported in IE and therefore not requested.
+ *
+ */
+.legalnotice {
+  font-size: small;
+  font-style: italic;
+}
+
+/*
+ * For documentation having multiple licenses, the copyright and legalnotice
+ * elements sequence cannot instantiated multiple times.
+ * The copyright notice and license text are therefore coded inside a legalnotice
+ * element. The role attribute on the paragraph is used to allow styling of the
+ * copyright notice text which should not be italicized.
+ */
+p.multiLicensing {
+  font-style: normal;
+  font-size: medium;
+}
+
+/*
+ * Selection: book or article main ToC title
+ * A paragraph is generated for the title rather than a level 2 heading.
+ * We do not want to select chapters sub table of contents, only the main one
+ */
+div.book>div.toc>p,
+div.article>div.toc>p {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/*
+ * Selection: major sections of a book or an article
+ *
+ * Unlike books, articles do not have a titlepage element for appendix.
+ * Using the selector "div.titlepage h2.title" would be too general.
+ */
+div.book>div.preface>div.titlepage h2.title,
+div.book>div.chapter>div.titlepage h2.title,
+div.article>div.sect1>div.titlepage h2.title,
+div.article>div.section>div.titlepage h2.title,
+div.book>div.appendix>div.titlepage h2.title,
+div.article>div.appendix h2.title,
+div.glossary>div.titlepage h2.title,
+div.index>div.titlepage h2.title,
+div.bibliography>div.titlepage h2.title {
+   /* Add a border top over the major parts, just like printed books */
+   /* The Gray color is already used for the ruler over the main ToC. */
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: Gray;
+  /* Put some space between the border and the title */
+  padding-top: 0.2em;
+  text-align: center;
+}
+
+/*
+ * A Screen is a verbatim environment for displaying text that the user might
+ * see on a computer terminal. It is often used to display the results of a command.
+ *
+ * http://www.css3.info/preview/rounded-border/
+ */
+.screen {
+  background: #e0ffff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #B0C4DE;
+  border-radius: 1.0em;
+  /* Browser's vendor properties prior to CSS 3 */
+  -moz-border-radius: 1.0em;
+  -webkit-border-radius: 1.0em;
+  -khtml-border-radius: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 1.0em;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis program listings with a light shade of gray similar to what
+ * DocBook XSL guide does: http://www.sagehill.net/docbookxsl/ProgramListings.html
+ * Found many C API docs on the web using like shades of gray.
+ */
+.programlisting {
+  background: #F4F4F4;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  padding: 0.5em;
+}
+
+/*
+ * Emphasis functions synopsis using a darker shade of gray.
+ * Add a border such that it stands out more.
+ * Set the padding so the text does not touch the border.
+ */
+.funcsynopsis, .synopsis {
+  background: #e6e6fa;
+  border-width: 1px;
+  border-style: solid;
+  border-color: Gray;
+  clear: both;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+
+/*
+ * Selection: paragraphs inside synopsis
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in synopsis
+ */
+.funcsynopsis p,
+.synopsis p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Selection: variable lists, informal tables and tables
+ *
+ * Note the parameter name "variablelist.as.table" in xorg-xhtml.xsl
+ * A table with rows and columns is constructed inside div.variablelist
+ *
+ * Set the left margin so it is indented to the right
+ * Display informal tables with single line borders
+ */
+table {
+  margin-left: 0.5em;
+  border-collapse: collapse;
+}
+
+/*
+ * Selection: paragraphs inside tables
+ *
+ * Removes the default browser margin, let the container set the padding.
+ * Paragraphs are not always used in tables
+ */
+td p {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Add some space between the left and right column.
+ * The vertical alignment helps the reader associate a term
+ * with a multi-line definition.
+ */
+td, th {
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  vertical-align: top;
+}
+
+.warning {
+  border: 1px solid red;
+  background: #FFFF66;
+  padding-left: 0.5em;
+}
+</style></head><body><div class="book" title="MIT-SHM(The MIT Shared Memory Extension)"><div class="titlepage"><div><div><h1 class="title"><a id="shm"></a>MIT-SHM(The MIT Shared Memory Extension)</h1></div><div><h2 class="subtitle">How the shared memory extension works</h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Jonathan</span> <span class="surname">Corbet</span></h3><div class="affiliation"><span class="orgname">National Center for Atmospheric Research<br /></span> <span class="orgdiv">Atmospheric Technology Division<br /></span></div><code class="email">&lt;<a class="email" href="mailto:corbet@ncar.ucar.edu">corbet@ncar.ucar.edu</a>&gt;</code></div><div class="editor"><h4 class="editedby">Edited by</h4><h3 class="editor"><span class="firstname">Keith</span> <span class="surname">Packard</span></h3><div class="affiliation"><span class="orgname">MIT X Consortium<br /></span></div></div></div></div><div><p class="releaseinfo">X Version 11, Release 7.7</p></div><div><p class="releaseinfo">Version 1.0</p></div><div><p class="copyright">Copyright © 1991 X Consortium</p></div><div><div class="legalnotice" title="Legal Notice"><a id="id2885930"></a><p>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+</p><p>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+</p><p>
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p><p>
+Except as contained in this notice, the name of the X Consortium shall not be
+used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization from the X Consortium.
+</p><p>X Window System is a trademark of The OpenGroup.</p></div></div><div><div class="abstract" title="Abstract"><p>
+This document briefly describes how to use the MIT-SHM shared memory
+extension.  I have tried to make it accurate, but it would not surprise me
+if some errors remained.  If you find anything wrong, do let me know and I
+will incorporate the corrections.  Meanwhile, please take this document "as
+is" (eman improvement over what was there before, but certainly not the
+definitive word.)
+</p></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span class="chapter"><a href="#REQUIREMENTS">1. REQUIREMENTS</a></span></dt><dt><span class="chapter"><a href="#WHAT_IS_PROVIDED">2. WHAT IS PROVIDED</a></span></dt><dt><span class="chapter"><a href="#HOW_TO_USE_THE_SHARED_MEMORY_EXTENSION">3. HOW TO USE THE SHARED MEMORY EXTENSION</a></span></dt><dt><span class="chapter"><a href="#USE_OF_SHARED_MEMORY_XIMAGES">4. USE OF SHARED MEMORY XIMAGES</a></span></dt><dt><span class="chapter"><a href="#USE_OF_SHARED_MEMORY_PIXMAPS">5. USE OF SHARED MEMORY PIXMAPS</a></span></dt></dl></div><div class="chapter" title="Chapter 1. REQUIREMENTS"><div class="titlepage"><div><div><h2 class="title"><a id="REQUIREMENTS"></a>Chapter 1. REQUIREMENTS</h2></div></div></div><p>
+The shared memory extension is provided only by some X servers.  To find out
+if your server supports the extension, use xdpyinfo(1).  In particular, to
+be able to use this extension, your system must provide the SYSV shared
+memory primitives.  There is not an mmap-based version of this extension.
+To use shared memory on Sun systems, you must have built your kernel with
+SYSV shared memory enabled -- which is not the default configuration.
+Additionally, the shared memeory maximum size will need to be increased on
+both Sun and Digital systems; the defaults are far too small for any useful
+work.
+</p></div><div class="chapter" title="Chapter 2. WHAT IS PROVIDED"><div class="titlepage"><div><div><h2 class="title"><a id="WHAT_IS_PROVIDED"></a>Chapter 2. WHAT IS PROVIDED</h2></div></div></div><p>
+The basic capability provided is that of shared memory XImages.  This is
+essentially a version of the ximage interface where the actual image data
+is stored in a shared memory segment, and thus need not be moved through
+the Xlib interprocess communication channel.  For large images, use of this
+facility can result in some real performance increases.
+</p><p>
+Additionally, some implementations provided shared memory pixmaps.  These
+are 2 dimensional arrays of pixels in a format specified by the X server,
+where the image data is stored in the shared memory segment.  Through use of
+shared memory pixmaps, it is possible to change the contents of these
+pixmaps without using any Xlib routines at all.  Shared memory pixmaps can
+only be supported when the X server can use regular virtual memory for
+pixmap data; if the pixmaps are stored in some magic graphics hardware, your
+application will not be able to share them with the server.  Xdpyinfo(1)
+doesn't print this particular nugget of information.
+</p></div><div class="chapter" title="Chapter 3. HOW TO USE THE SHARED MEMORY EXTENSION"><div class="titlepage"><div><div><h2 class="title"><a id="HOW_TO_USE_THE_SHARED_MEMORY_EXTENSION"></a>Chapter 3. HOW TO USE THE SHARED MEMORY EXTENSION</h2></div></div></div><p>
+Code which uses the shared memory extension must include a number of header
+files:
+</p><pre class="literallayout">
+#include &lt;X11/Xlib.h&gt;          /* of course */
+#include &lt;sys/ipc.h&gt;
+#include &lt;sys/shm.h&gt;
+#include &lt;X11/extensions/XShm.h&gt;
+</pre><p>
+Of course, if the system you are building on does not support shared
+memory, the file XShm.h may not be present.  You may want to make
+liberal use of #ifdefs.
+</p><p>
+Any code which uses the shared memory extension should first check to see
+that the server provides the extension.  You could always be running over
+the net, or in some other environment where the extension will not work.
+To perform this check, call either
+</p><div class="funcsynopsis"><a id="XShmQueryExtension"></a><p><code class="funcdef">Status <strong>fsfuncXShmQueryExtension</strong>(</code>Display <var class="pdparam">*display</var><code>)</code>;</p></div><p>
+or
+</p><div class="funcsynopsis"><a id="XShmQueryVersion"></a><p><code class="funcdef">Status <strong>fsfuncXShmQueryVersion</strong>(</code>Display <var class="pdparam">*display</var>, int <var class="pdparam">*major</var>, int <var class="pdparam">*minor</var>, Bool <var class="pdparam">*pixmaps</var><code>)</code>;</p></div><p>
+Where "display" is, of course, the display on which you are running.  If
+the shared memory extension may be used, the return value from either
+function will be True; otherwise your program should operate using
+conventional Xlib calls.  When the extension is available,
+\fCXShmQueryVersion\fP also returns "major" and "minor" which are the
+version numbers of the extension implementation, and "pixmaps" which is
+True iff shared memory pixmaps are supported.
+</p></div><div class="chapter" title="Chapter 4. USE OF SHARED MEMORY XIMAGES"><div class="titlepage"><div><div><h2 class="title"><a id="USE_OF_SHARED_MEMORY_XIMAGES"></a>Chapter 4. USE OF SHARED MEMORY XIMAGES</h2></div></div></div><p>
+The basic sequence of operations for shared memory XImages is as follows:
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
+Create the shared memory XImage structure
+    </p></li><li class="listitem"><p>
+Create a shared memory segment to store the image data
+    </p></li><li class="listitem"><p>
+Inform the server about the shared memory segment
+    </p></li><li class="listitem"><p>
+Use the shared memory XImage, much like a normal one.
+    </p></li></ol></div><p>
+To create a shared memory XImage, use:
+</p><div class="funcsynopsis"><a id="XShmCreateImage"></a><p><code class="funcdef">XImage <strong>fsfunc*XShmCreateImage</strong>(</code>Display <var class="pdparam">*display</var>, Visual <var class="pdparam">*visual</var>, unsigned int <var class="pdparam">depth</var>, int <var class="pdparam">format</var>, char <var class="pdparam">*data</var>, XShmSegmentInfo <var class="pdparam">*shminfo</var>, unsigned int <var class="pdparam">width</var>, unsigned int <var class="pdparam">height</var><code>)</code>;</p></div><p>
+Most of the arguments are the same as for XCreateImage; I will not go
+through them here.  Note, however, that there are no "offset", "bitmap_pad",
+or "bytes_per_line" arguments.  These quantities will be defined by the
+server itself, and your code needs to abide by them.  Unless you have already
+allocated the shared memory segment (see below), you should pass in NULL for
+the "data" pointer.
+</p><p>
+There is one additional argument: "shminfo", which is a pointer to a
+structure of type XShmSegmentInfo.  You must allocate one of these
+structures such that it will have a lifetime at least as long as that of
+the shared memory XImage.  There is no need to initialize this structure
+before the call to XShmCreateImage.
+</p><p>
+The return value, if all goes well, will be an XImage structure, which you
+can use for the subsequent steps.
+</p><p>
+The next step is to create the shared memory segment.  This is
+best done after the creation of the XImage, since you need to make use of
+the information in that XImage to know how much memory to allocate.  To
+create the segment, you need a call like:
+</p><pre class="literallayout">
+shminfo.shmid = shmget (IPC_PRIVATE,
+          image-&gt;bytes_per_line * image-&gt;height, IPC_CREAT|0777);
+</pre><p>
+(assuming that you have called your shared memory XImage "image").  You
+should, of course, follow the Rules and do error checking on all of these
+system calls.  Also, be sure to use the bytes_per_line field, not the width
+you used to create the XImage as they may well be different.
+</p><p>
+Note that the shared memory ID returned by the system is stored in the
+shminfo structure.  The server will need that ID to attach itself to the
+segment.
+</p><p>
+Also note that, on many systems for security reasons, the X server
+will only accept to attach to the shared memory segment if it's
+readable and writeable by "other". On systems where the X server is
+able to determine the uid of the X client over a local transport, the
+shared memory segment can be readable and writeable only by the uid of
+the client.
+</p><p>
+Next, attach this shared memory segment to your process:
+</p><p>
+shminfo.shmaddr = image-&gt;data = shmat (shminfo.shmid, 0, 0);
+</p><p>
+The address returned by shmat should be stored in *both* the XImage
+structure and the shminfo structure.
+</p><p>
+To finish filling in the shminfo structure, you need to decide how you want
+the server to attach to the shared memory segment, and set the "readOnly"
+field as follows.  Normally, you would code:
+</p><p>
+shminfo.readOnly = False;
+</p><p>
+If you set it to True, the server will not be able to write to this
+segment, and thus XShmGetImage calls will fail.
+</p><p>
+Finally, tell the server to attach to your shared memory segment with:
+</p><pre class="literallayout">
+Status XShmAttach (display, shminfo);
+</pre><p>
+If all goes well, you will get a non-zero status back, and your XImage is
+ready for use.
+</p><p>
+To write a shared memory XImage into an X drawable, use XShmPutImage:
+</p><div class="funcsynopsis"><a id="XShmPutImage"></a><p><code class="funcdef">Status <strong>fsfuncXShmPutImage </strong>(</code>Display <var class="pdparam">*display</var>, Drawable <var class="pdparam">d</var>, GC <var class="pdparam">gc</var>, XImage <var class="pdparam">*image</var>, int <var class="pdparam">src_x</var>, int <var class="pdparam">src_y</var>, int <var class="pdparam">dest_x</var>, int <var class="pdparam">dest_y</var>, unsigned int <var class="pdparam">width</var>, unsigned int <var class="pdparam">height</var>, bool <var class="pdparam">send_event</var><code>)</code>;</p></div><p>
+The interface is identical to that of XPutImage, so I will spare my fingers
+and not repeat that documentation here.  There is one additional parameter,
+however, called "send_event".  If this parameter is passed as True, the
+server will generate a "completion" event when the image write is complete;
+thus your program can know when it is safe to begin manipulating the shared
+memory segment again.
+</p><p>
+The completion event has type XShmCompletionEvent, which is defined as the
+following:
+</p><pre class="literallayout">
+typedef struct {
+    int type;              /* of event */
+    unsigned long serial;  /* # of last request processed */
+    Bool send_event;       /* true if came from a SendEvent request */
+    Display *display;      /* Display the event was read from */
+    Drawable drawable;     /* drawable of request */
+    int major_code;        /* ShmReqCode */
+    int minor_code;        /* X_ShmPutImage */
+    ShmSeg shmseg;         /* the ShmSeg used in the request */
+    unsigned long offset;  /* the offset into ShmSeg used */
+} XShmCompletionEvent;
+</pre><p>
+The event type value that will be used can be determined at run time with a
+line of the form:
+</p><p>
+int CompletionType = XShmGetEventBase (display) + ShmCompletion;
+</p><p>
+If you modify the shared memory segment before the arrival of the
+completion event, the results you see on the screen may be inconsistent.
+</p><p>
+To read image data into a shared memory XImage, use the following:
+</p><div class="funcsynopsis"><a id="XShmGetImage"></a><p><code class="funcdef">Status <strong>fsfuncXShmGetImage </strong>(</code>Display <var class="pdparam">*display</var>, Drawable <var class="pdparam">d</var>, XImage <var class="pdparam">*image</var>, int <var class="pdparam">x</var>, int <var class="pdparam">y</var>, unsigned long <var class="pdparam">plane_mask</var><code>)</code>;</p></div><p>
+Where "display" is the display of interest, "d" is the source drawable,
+"image" is the destination XImage, "x" and "y" are the offsets within
+"d", and "plane_mask" defines which planes are to be read.
+</p><p>
+To destroy a shared memory XImage, you should first instruct the server to
+detach from it, then destroy the segment itself, as follows:
+</p><pre class="literallayout">
+XShmDetach (display, shminfo);
+XDestroyImage (image);
+shmdt (shminfo.shmaddr);
+shmctl (shminfo.shmid, IPC_RMID, 0);
+</pre></div><div class="chapter" title="Chapter 5. USE OF SHARED MEMORY PIXMAPS"><div class="titlepage"><div><div><h2 class="title"><a id="USE_OF_SHARED_MEMORY_PIXMAPS"></a>Chapter 5. USE OF SHARED MEMORY PIXMAPS</h2></div></div></div><p>
+Unlike X images, for which any image format is usable, the shared memory
+extension supports only a single format (i.e. XYPixmap or ZPixmap) for the
+data stored in a shared memory pixmap.  This format is independent of the
+depth of the image (for 1-bit pixmaps it doesn't really matter what this
+format is) and independent of the screen.  Use XShmPixmapFormat to get the
+format for the server:
+</p><div class="funcsynopsis"><a id="XShmPixmapFormat"></a><p><code class="funcdef">int <strong>fsfuncXShmPixmapFormat</strong>(</code>Display <var class="pdparam">*display</var><code>)</code>;</p></div><p>
+If your application can deal with the server pixmap data format (including
+bits-per-pixel et al.), create a shared memory segment and "shminfo"
+structure in exactly the same way as is listed above for shared memory
+XImages.  While it is, not strictly necessary to create an XImage first,
+doing so incurs little overhead and will give you an appropriate
+bytes_per_line value to use.
+</p><p>
+Once you have your shminfo structure filled in, simply call:
+</p><div class="funcsynopsis"><a id="XShmCreatePixmap"></a><p><code class="funcdef">Pixmap <strong>fsfuncXShmCreatePixmap</strong>(</code>Display <var class="pdparam">*display</var>, Drawable <var class="pdparam">d</var>, char <var class="pdparam">*data</var>, XShmSegmentInfo <var class="pdparam">*shminfo</var>, unsigned int <var class="pdparam">width</var>, unsigned int <var class="pdparam">height</var>, unsigned int <var class="pdparam">depth</var><code>)</code>;</p></div><p>
+The arguments are all the same as for XCreatePixmap, with two additions:
+"data" and "shminfo".  The second of the two is the same old shminfo
+structure that has been used before.  The first is the pointer to the shared
+memory segment, and should be the same as the shminfo.shmaddr field.  I am
+not sure why this is a separate parameter.
+</p><p>
+If everything works, you will get back a pixmap, which you can manipulate in
+all of the usual ways, with the added bonus of being able to tweak its
+contents directly through the shared memory segment.  Shared memory pixmaps
+are destroyed in the usual manner with XFreePixmap, though you should detach
+and destroy the shared memory segment itself as shown above.
+</p></div></div></body></html>

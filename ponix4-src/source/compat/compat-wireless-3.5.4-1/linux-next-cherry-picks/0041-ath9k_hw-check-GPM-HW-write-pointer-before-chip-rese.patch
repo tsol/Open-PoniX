@@ -1,0 +1,73 @@
+From 3863495b86d8ee8e7e70a328de5b88d555d7305a Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 11 Jun 2012 12:19:32 +0530
+Subject: [PATCH 41/57] ath9k_hw: check GPM HW write pointer before chip reset
+
+Both "MAC Warm Reset" and "MCI Reset Rx" will reset GPM HW write_ptr.
+We should check software cached write_ptr against HW write_ptr before
+reset. Otherwise the pending DMA data will be lost.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |   18 ++++++++++++++++++
+ drivers/net/wireless/ath/ath9k/ar9003_mci.h |    1 +
+ drivers/net/wireless/ath/ath9k/hw.c         |    3 +++
+ 3 files changed, 22 insertions(+)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -893,6 +893,9 @@ void ar9003_mci_reset(struct ath_hw *ah,
+ 		udelay(100);
+ 	}
+ 
++	/* Check pending GPM msg before MCI Reset Rx */
++	ar9003_mci_state(ah, MCI_STATE_CHECK_GPM_OFFSET, NULL);
++
+ 	regval |= SM(1, AR_MCI_COMMAND2_RESET_RX);
+ 	REG_WRITE(ah, AR_MCI_COMMAND2, regval);
+ 	udelay(1);
+@@ -1190,6 +1193,21 @@ u32 ar9003_mci_state(struct ath_hw *ah,
+ 		value = MS(REG_READ(ah, AR_MCI_GPM_1), AR_MCI_GPM_WRITE_PTR);
+ 		mci->gpm_idx = value;
+ 		break;
++	case MCI_STATE_CHECK_GPM_OFFSET:
++		/*
++		 * This should only be called before "MAC Warm Reset" or
++		 * "MCI Reset Rx".
++		 */
++		value = MS(REG_READ(ah, AR_MCI_GPM_1), AR_MCI_GPM_WRITE_PTR);
++		if (mci->gpm_idx == value)
++			break;
++		ath_dbg(common, MCI,
++			"GPM cached write pointer mismatch %d %d\n",
++			mci->gpm_idx, value);
++		mci->query_bt = true;
++		mci->need_flush_btinfo = true;
++		mci->gpm_idx = 0;
++		break;
+ 	case MCI_STATE_NEXT_GPM_OFFSET:
+ 	case MCI_STATE_LAST_GPM_OFFSET:
+ 		/*
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.h
+@@ -190,6 +190,7 @@ enum mci_bt_state {
+ enum mci_state_type {
+ 	MCI_STATE_ENABLE,
+ 	MCI_STATE_INIT_GPM_OFFSET,
++	MCI_STATE_CHECK_GPM_OFFSET,
+ 	MCI_STATE_NEXT_GPM_OFFSET,
+ 	MCI_STATE_LAST_GPM_OFFSET,
+ 	MCI_STATE_BT,
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -1360,6 +1360,9 @@ static bool ath9k_hw_set_reset(struct at
+ 		}
+ 	}
+ 
++	if (ath9k_hw_mci_is_enabled(ah))
++		ar9003_mci_state(ah, MCI_STATE_CHECK_GPM_OFFSET, NULL);
++
+ 	REG_WRITE(ah, AR_RTC_RC, rst_flags);
+ 
+ 	REGWRITE_BUFFER_FLUSH(ah);

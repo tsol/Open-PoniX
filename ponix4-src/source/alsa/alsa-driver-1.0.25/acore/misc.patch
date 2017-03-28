@@ -1,0 +1,123 @@
+--- ../alsa-kernel/core/misc.c	2011-06-10 15:36:34.870352164 +0200
++++ misc.c	2011-06-10 15:49:50.133251884 +0200
+@@ -1,3 +1,9 @@
++#define __NO_VERSION__
++#include "adriver.h"
++#ifndef KERN_DEFAULT
++#define KERN_DEFAULT	""
++#endif
++
+ /*
+  *  Misc and compatibility things
+  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+@@ -43,7 +49,7 @@
+ {
+ 	if (res) {
+ 		release_resource(res);
+-		kfree(res);
++		kfree_nocheck(res);
+ 	}
+ }
+ 
+@@ -58,6 +64,25 @@
+ 	else
+ 		return path;
+ }
++/* print file and line with a certain printk prefix */
++static int print_snd_pfx(unsigned int level, const char *path, int line,
++			 const char *format)
++{
++	const char *file = sanity_file_name(path);
++	char tmp[] = "<0>";
++	const char *pfx = level ? KERN_DEBUG : KERN_DEFAULT;
++	int ret = 0;
++
++	if (format[0] == '<' && format[2] == '>') {
++		tmp[1] = format[1];
++		pfx = tmp;
++		ret = 1;
++	}
++	printk("%sALSA %s:%d: ", pfx, file, line);
++	return ret;
++}
++#else
++#define print_snd_pfx(level, path, line, format)	0
+ #endif
+ 
+ #if defined(CONFIG_SND_DEBUG) || defined(CONFIG_SND_VERBOSE_PRINTK)
+@@ -65,10 +90,12 @@
+ 		  const char *format, ...)
+ {
+ 	va_list args;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+ #ifdef CONFIG_SND_VERBOSE_PRINTK
+ 	struct va_format vaf;
+ 	char verbose_fmt[] = KERN_DEFAULT "ALSA %s:%d %pV";
+ #endif
++#endif
+ 
+ #ifdef CONFIG_SND_DEBUG	
+ 	if (debug < level)
+@@ -76,6 +103,11 @@
+ #endif
+ 
+ 	va_start(args, format);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
++	if (print_snd_pfx(level, path, line, format))
++		format += 3; /* skip the printk level-prefix */
++	vprintk(format, args);
++#else
+ #ifdef CONFIG_SND_VERBOSE_PRINTK
+ 	vaf.fmt = format;
+ 	vaf.va = &args;
+@@ -89,6 +121,7 @@
+ 	vprintk(format, args);
+ #endif
+ 	va_end(args);
++#endif /* < 2.6.36 */
+ }
+ EXPORT_SYMBOL_GPL(__snd_printk);
+ #endif
+@@ -138,9 +171,42 @@
+ const struct snd_pci_quirk *
+ snd_pci_quirk_lookup(struct pci_dev *pci, const struct snd_pci_quirk *list)
+ {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 3, 0)
+ 	return snd_pci_quirk_lookup_id(pci->subsystem_vendor,
+ 				       pci->subsystem_device,
+ 				       list);
++#else
++	unsigned short subsystem_vendor, subsystem_device;
++	pci_read_config_word(pci, PCI_SUBSYSTEM_VENDOR_ID, &subsystem_vendor);
++	pci_read_config_word(pci, PCI_SUBSYSTEM_ID, &subsystem_device);
++	return snd_pci_quirk_lookup_id(subsystem_vendor,
++				       subsystem_device,
++				       list);
++#endif
+ }
+ EXPORT_SYMBOL(snd_pci_quirk_lookup);
+ #endif
++
++/* just for compatibility reason */
++void snd_verbose_printk(const char *file, int line, const char *format, ...)
++{
++	va_list args;
++	va_start(args, format);
++	if (print_snd_pfx(0, file, line, format))
++		format += 3; /* skip the printk level-prefix */
++	vprintk(format, args);
++	va_end(args);
++}
++EXPORT_SYMBOL(snd_verbose_printk);
++
++void snd_verbose_printd(const char *file, int line, const char *format, ...)
++{
++	va_list args;
++	va_start(args, format);
++	if (print_snd_pfx(1, file, line, format))
++		format += 3; /* skip the printk level-prefix */
++	vprintk(format, args);
++	va_end(args);
++
++}
++EXPORT_SYMBOL(snd_verbose_printd);

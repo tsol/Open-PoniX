@@ -1,0 +1,126 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Pango Text Attribute Markup</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="Pango Reference Manual"><link rel="up" href="pango.html" title="Basic Pango Interfaces"><link rel="previous" href="pango-Tab-Stops.html" title="Tab Stops"><link rel="next" href="pango-Layout-Objects.html" title="Layout Objects"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="pango-Tab-Stops.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="pango.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Pango Reference Manual</th><td><a accesskey="n" href="pango-Layout-Objects.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="PangoMarkupFormat"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Pango Text Attribute Markup</span></h2><p>Pango Text Attribute Markup &#8212; Simple
+markup language to encode text with attributes</p></div><div class="refsect1" lang="en"><h2>Pango Text Attribute Markup Language</h2><p>
+Frequently, you want to display some text to the user with attributes
+applied to part of the text (for example, you might want bold or
+italicized words). With the base Pango interfaces, you could create a
+<a href="pango-Text-Attributes.html#PangoAttrList">PangoAttrList</a> and apply it to the
+text; the problem is that you'd need to apply attributes to some
+numeric range of characters, for example "characters 12-17." This is
+broken from an internationalization standpoint; once the text is
+translated, the word you wanted to italicize could be in a different
+position.
+</p><p>
+The solution is to include the text attributes in the string to be
+translated. Pango provides this feature with a small markup language.
+You can parse a marked-up string into the string text plus a
+<a href="pango-Text-Attributes.html#PangoAttrList">PangoAttrList</a> using the function 
+<a href="pango-Text-Attributes.html#pango-parse-markup">pango_parse_markup()</a>.
+</p><p>
+A simple example of a marked-up string might be:
+<tt class="literal">"&lt;span foreground="blue" size="100"&gt;Blue text&lt;/span&gt; is &lt;i&gt;cool&lt;/i&gt;!"</tt>
+</p><p>
+The root tag of a marked-up document is &lt;markup&gt;, but <a href="pango-Text-Attributes.html#pango-parse-markup">pango_parse_markup()</a> allows you to
+omit this tag, so you will most likely never need to use it. The most
+general markup tag is &lt;span&gt;, then there are some convenience
+tags. &lt;span&gt; has the following attributes:
+</p><div class="variablelist"><p class="title"><b>&lt;span&gt; attributes</b></p><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term">font_desc</span></td><td><p>
+A font description string, such as "Sans Italic 12"; note that any other 
+span attributes will override this description. So if you have "Sans
+Italic" and also a style="normal" attribute, you will get Sans normal,
+not italic.
+</p></td></tr><tr><td><span class="term">font_family</span></td><td><p>
+A font family name
+</p></td></tr><tr><td><span class="term">face</span></td><td><p>
+Synonym for font_family
+</p></td></tr><tr><td><span class="term">size</span></td><td><p>
+Font size in 1000ths of a point, one of the absolute sizes 
+'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
+'xx-large', or one of the relative sizes 'smaller' or 'larger'.
+</p></td></tr><tr><td><span class="term">style</span></td><td><p>
+One of 'normal', 'oblique', 'italic'
+</p></td></tr><tr><td><span class="term">weight</span></td><td><p>
+One of 'ultralight', 'light', 'normal', 'bold', 'ultrabold', 'heavy',
+or a numeric weight
+</p></td></tr><tr><td><span class="term">variant</span></td><td><p>
+'normal' or 'smallcaps'
+</p></td></tr><tr><td><span class="term">stretch</span></td><td><p>
+One of 'ultracondensed', 'extracondensed', 'condensed',
+'semicondensed', 'normal', 'semiexpanded', 'expanded',
+'extraexpanded', 'ultraexpanded'
+</p></td></tr><tr><td><span class="term">foreground</span></td><td><p>
+An RGB color specification such as '#00FF00' or a color name such as 
+'red'
+</p></td></tr><tr><td><span class="term">background</span></td><td><p>
+An RGB color specification such as '#00FF00' or a color name such as 
+'red'
+</p></td></tr><tr><td><span class="term">underline</span></td><td><p>
+One of 'single', 'double', 'low', 'none'
+</p></td></tr><tr><td><span class="term">rise</span></td><td><p>
+Vertical displacement, in 10000ths of an em. Can be negative for 
+subscript, positive for superscript.
+</p></td></tr><tr><td><span class="term">strikethrough</span></td><td><p>
+'true' or 'false' whether to strike through the text
+</p></td></tr><tr><td><span class="term">fallback</span></td><td><p>
+'true' or 'false' whether to enable fallback. If disabled, then characters
+will only be used from the closest matching font on the system. No fallback
+will be done to other fonts on the system that might contain the characters
+in the text.  Fallback is enabled by default. Most applications should not
+disable fallback.
+</p></td></tr><tr><td><span class="term">lang</span></td><td><p>
+A language code, indicating the text language
+</p></td></tr></tbody></table></div><p>
+
+</p><p>
+The following convenience tags are provided:
+
+</p><div class="variablelist"><p class="title"><b>Convenience tags</b></p><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term">b</span></td><td><p>
+Bold
+</p></td></tr><tr><td><span class="term">big</span></td><td><p>
+Makes font relatively larger, equivalent to &lt;span size="larger"&gt;
+</p></td></tr><tr><td><span class="term">i</span></td><td><p>
+Italic
+</p></td></tr><tr><td><span class="term">s</span></td><td><p>
+Strikethrough
+</p></td></tr><tr><td><span class="term">sub</span></td><td><p>
+Subscript
+</p></td></tr><tr><td><span class="term">sup</span></td><td><p>
+Superscript
+</p></td></tr><tr><td><span class="term">small</span></td><td><p>
+Makes font relatively smaller, equivalent to &lt;span size="smaller"&gt;
+</p></td></tr><tr><td><span class="term">tt</span></td><td><p>
+Monospace font
+</p></td></tr><tr><td><span class="term">u</span></td><td><p>
+Underline
+</p></td></tr></tbody></table></div><p>
+
+</p></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="pango-Tab-Stops.html"><b>&lt;&lt; Tab Stops</b></a></td><td align="right"><a accesskey="n" href="pango-Layout-Objects.html"><b>Layout Objects &gt;&gt;</b></a></td></tr></table></body></html>

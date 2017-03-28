@@ -1,0 +1,90 @@
+/*
+ * qtime - Display time as English sentence
+ *
+ * Copyright (C) 1999  Klaus Alexander Seistrup and Landon Curt Noll
+ *
+ * Written by: Klaus Alexander Seistrup <kseis@magnetic-ink.dk>
+ * With mods by: Landon Curt Noll <http://www.isthe.com/chongo/>
+ *
+ * Calc is open software; you can redistribute it and/or modify it under
+ * the terms of the version 2.1 of the GNU Lesser General Public License
+ * as published by the Free Software Foundation.
+ *
+ * Calc is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+ * Public License for more details.
+ *
+ * A copy of version 2.1 of the GNU Lesser General Public License is
+ * distributed with calc under the filename COPYING-LGPL.  You should have
+ * received a copy with calc; if not, write to Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @(#) $Revision: 30.1 $
+ * @(#) $Id: qtime.cal,v 30.1 2007/03/16 11:09:54 chongo Exp $
+ * @(#) $Source: /usr/local/src/bin/calc/cal/RCS/qtime.cal,v $
+ *
+ * Under source code control:	1999/10/13 04:10:33
+ * File existed as early as:	1999
+ *
+ * chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+ * Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/
+ */
+
+/*
+ * usage:
+ *	qtime(utc_hr_offset)
+ *
+ *	utc_hr_offset	Offset from UTC in hours.
+ *
+ * See:
+ *	http://www.magnetic-ink.dk/download/qtime.html
+ *
+ * for examples of qtime() written on other languages.
+ */
+
+
+/*
+ * qtime - Display time as English sentence
+ */
+define qtime(utc_hr_offset)
+{
+	static mat hr[12] = {
+	  "twelve", "one", "two", "three", "four", "five",
+	  "six", "seven", "eight", "nine", "ten", "eleven"
+	};
+	static mat mn[7] = {
+	  "", "five ", "ten ", "a quarter ", "twenty ", "twenty-five ", "half "
+	};
+	static mat ny[5] = {
+	  "nearly ", "almost ", "", "just after ", "after "
+	};
+	static mat up[3] = {
+	  "to ", "", "past "
+	};
+	local adj_mins = (((time() + utc_hr_offset*3600) % 86400) + 30)//60+27;
+	local hours = (adj_mins // 60) % 12;
+	local minutes = adj_mins % 60;
+	local almost =	minutes % 5;
+	local divisions = (minutes // 5) - 5;
+	local to_past_idx =	 divisions > 0 ? 1 : 0;
+
+	if (divisions < 0) {
+		divisions = -divisions;
+		to_past_idx = -1;
+	}
+	++to_past_idx;
+
+	/*
+	 * Print the English sentence
+	 *
+	 * We avoid forward and back quotes just to show that the char()
+	 * builtin function can be used in conjunction with a printf.
+	 */
+	printf("It%cs %s%s%s%s",
+	       char(0x27), ny[almost], mn[divisions],
+	       up[to_past_idx], hr[hours]);
+	if (divisions == 0)
+		printf(" o%cclock", char(0x27));
+	print ".";
+}

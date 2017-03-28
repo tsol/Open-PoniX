@@ -1,0 +1,32 @@
+From 88033318e119bbf4647db4d50ad549fc86e0acf0 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Wed, 12 Sep 2012 18:59:19 +0530
+Subject: [PATCH] ath9k_hw: move 2g5g switch before nfcal start
+
+During fast channel change, perform 2g5g_switch before starting
+noisefloor calibration to avoid nfload timeout.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/hw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -1733,12 +1733,12 @@ static int ath9k_hw_do_fastcc(struct ath
+ 	if (!ret)
+ 		goto fail;
+ 
+-	ath9k_hw_loadnf(ah, ah->curchan);
+-	ath9k_hw_start_nfcal(ah, true);
+-
+ 	if (ath9k_hw_mci_is_enabled(ah))
+ 		ar9003_mci_2g5g_switch(ah, false);
+ 
++	ath9k_hw_loadnf(ah, ah->curchan);
++	ath9k_hw_start_nfcal(ah, true);
++
+ 	if (AR_SREV_9271(ah))
+ 		ar9002_hw_load_ani_reg(ah, chan);
+ 

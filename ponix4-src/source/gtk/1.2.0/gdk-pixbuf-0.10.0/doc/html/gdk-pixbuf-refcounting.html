@@ -1,0 +1,1012 @@
+<HTML
+><HEAD
+><TITLE
+>Reference Counting and Memory Mangement</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.54"><LINK
+REL="HOME"
+TITLE="The gdk-pixbuf Library"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="API Reference"
+HREF="r27.html"><LINK
+REL="PREVIOUS"
+TITLE="The GdkPixbuf Structure"
+HREF="gdk-pixbuf-gdk-pixbuf.html"><LINK
+REL="NEXT"
+TITLE="File Loading"
+HREF="gdk-pixbuf-file-loading.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> Library</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="gdk-pixbuf-gdk-pixbuf.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="r27.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="gdk-pixbuf-file-loading.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+><A
+NAME="GDK-PIXBUF-REFCOUNTING"
+>Reference Counting and Memory Mangement</A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN252"
+></A
+><H2
+>Name</H2
+>Reference Counting and Memory Mangement&nbsp;--&nbsp;Functions to perform reference counting and memory management on a
+<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>.</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN256"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+void        (<A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFDESTROYNOTIFY"
+>*GdkPixbufDestroyNotify</A
+>)       (<GTKDOCLINK
+HREF="GUCHAR"
+>guchar</GTKDOCLINK
+> *pixels,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> data);
+void        (<A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFLASTUNREF"
+>*GdkPixbufLastUnref</A
+>)           (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> data);
+<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-REF"
+>gdk_pixbuf_ref</A
+>                  (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);
+void        <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-UNREF"
+>gdk_pixbuf_unref</A
+>                (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);
+void        <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-SET-LAST-UNREF-HANDLER"
+>gdk_pixbuf_set_last_unref_handler</A
+>
+                                            (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf,
+                                             <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFLASTUNREF"
+>GdkPixbufLastUnref</A
+> last_unref_fn,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> last_unref_fn_data);
+void        <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-FINALIZE"
+>gdk_pixbuf_finalize</A
+>             (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN276"
+></A
+><H2
+>Description</H2
+><P
+>    <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structures are reference counted.  This means that
+    an application can share a single pixbuf among many parts of the
+    code.  When a piece of the program needs to keep a pointer to a
+    pixbuf, it should add a reference to it.  When it no longer needs
+    the pixbuf, it should subtract a reference.  The pixbuf will be
+    destroyed when its reference count drops to zero.  Newly-created
+    <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structures start with a reference count of one.
+  </P
+><P
+>    <I
+CLASS="EMPHASIS"
+>Finalizing</I
+> a pixbuf means to free its pixel
+    data and to free the <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structure itself.  Most of the
+    library functions that create <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structures create the
+    pixel data by themselves and define the way it should be freed;
+    you do not need to worry about those.  The only function that lets
+    you specify how to free the pixel data is
+    <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>().  Since you pass it a pre-allocated
+    pixel buffer, you must also specify a way to free that data.  This
+    is done with a function of type <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFDESTROYNOTIFY"
+>GdkPixbufDestroyNotify</A
+>.  When a
+    pixbuf created with <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>() is finalized, your
+    destroy notification function will be called, and it is its
+    responsibility to free the pixel array.
+  </P
+><P
+>    As an extension to traditional reference counting, <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>
+    structures support defining a handler for the last unref
+    operation.  If <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-UNREF"
+>gdk_pixbuf_unref</A
+>() is called on a <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>
+    structure that has a reference count of 1, i.e. its last
+    reference, then the pixbuf's last unref handler function will be
+    called.  It is up to this function to determine whether to
+    finalize the pixbuf using <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-FINALIZE"
+>gdk_pixbuf_finalize</A
+>() or to just
+    continue execution.  This can be used to implement a pixbuf cache
+    efficiently; please see the programmer's documentation for
+    details.
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN293"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN295"
+></A
+><H3
+><A
+NAME="GDKPIXBUFDESTROYNOTIFY"
+></A
+>GdkPixbufDestroyNotify ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        (*GdkPixbufDestroyNotify)       (<GTKDOCLINK
+HREF="GUCHAR"
+>guchar</GTKDOCLINK
+> *pixels,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>    A function of this type is responsible for freeing the pixel array
+    of a pixbuf.  The <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>() function lets you
+    pass in a pre-allocated pixel array so that a pixbuf can be
+    created from it; in this case you will need to pass in a function
+    of <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFDESTROYNOTIFY"
+>GdkPixbufDestroyNotify</A
+> so that the pixel data can be freed
+    when the pixbuf is finalized.
+  </P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixels</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The pixel array of the pixbuf that is being finalized.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>User closure data.
+&#13;</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN317"
+></A
+><H3
+><A
+NAME="GDKPIXBUFLASTUNREF"
+></A
+>GdkPixbufLastUnref ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        (*GdkPixbufLastUnref)           (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>    A function of this type can be used to override the default
+    operation when a pixbuf loses its last reference, i.e. when
+    <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-UNREF"
+>gdk_pixbuf_unref</A
+>() is called on a <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> structure that has a
+    reference count of 1.  This function should determine whether to
+    finalize the pixbuf by calling <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-FINALIZE"
+>gdk_pixbuf_finalize</A
+>(), or whether
+    to just resume normal execution.  The last unref handler for a
+    <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> can be set using the
+    <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-SET-LAST-UNREF-HANDLER"
+>gdk_pixbuf_set_last_unref_handler</A
+>() function.  By default, pixbufs
+    will be finalized automatically if no last unref handler has been
+    defined.
+  </P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The pixbuf that is losing its last reference.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>User closure data.
+&#13;</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN342"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-REF"
+></A
+>gdk_pixbuf_ref ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>*  gdk_pixbuf_ref                  (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Adds a reference to a pixbuf.  It must be released afterwards using
+<A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-UNREF"
+>gdk_pixbuf_unref</A
+>().</P
+><P
+>&#13;  </P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A pixbuf.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> The same as the <TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+> argument.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN365"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-UNREF"
+></A
+>gdk_pixbuf_unref ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        gdk_pixbuf_unref                (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Removes a reference from a pixbuf.  If this is the last reference for the
+<TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>, then its last unref handler function will be called; if no handler
+has been defined, then the pixbuf will be finalized.</P
+><P
+>See also: <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-SET-LAST-UNREF-HANDLER"
+>gdk_pixbuf_set_last_unref_handler</A
+>().</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A pixbuf.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN384"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-SET-LAST-UNREF-HANDLER"
+></A
+>gdk_pixbuf_set_last_unref_handler ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        gdk_pixbuf_set_last_unref_handler
+                                            (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf,
+                                             <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFLASTUNREF"
+>GdkPixbufLastUnref</A
+> last_unref_fn,
+                                             <GTKDOCLINK
+HREF="GPOINTER"
+>gpointer</GTKDOCLINK
+> last_unref_fn_data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the handler function for the <TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>'s last unref handler.  When
+<A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-UNREF"
+>gdk_pixbuf_unref</A
+>() is called on this pixbuf and it has a reference count of
+1, i.e. its last reference, then the last unref handler will be called.  This
+function should determine whether to finalize the pixbuf or just continue.
+If it wishes to finalize the pixbuf, it should do so by calling
+<A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-FINALIZE"
+>gdk_pixbuf_finalize</A
+>().</P
+><P
+>See also: <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-FINALIZE"
+>gdk_pixbuf_finalize</A
+>().</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A pixbuf.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>last_unref_fn</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Handler function for the last unref.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>last_unref_fn_data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> Closure data to pass to the last unref handler function.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN415"
+></A
+><H3
+><A
+NAME="GDK-PIXBUF-FINALIZE"
+></A
+>gdk_pixbuf_finalize ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        gdk_pixbuf_finalize             (<GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+> *pixbuf);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Finalizes a pixbuf by calling its destroy notification function to free the
+pixel data and freeing the pixbuf itself.  This function is meant to be
+called only from within a <A
+HREF="gdk-pixbuf-refcounting.html#GDKPIXBUFLASTUNREF"
+>GdkPixbufLastUnref</A
+> handler function, and the
+specified <TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+> must have a reference count of 1, i.e. its last reference.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixbuf</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A pixbuf with a reference count of 1.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN433"
+></A
+><H2
+>See Also</H2
+><P
+>    <GTKDOCLINK
+HREF="GDKPIXBUF"
+>GdkPixbuf</GTKDOCLINK
+>, <A
+HREF="gdk-pixbuf-creating.html#GDK-PIXBUF-NEW-FROM-DATA"
+>gdk_pixbuf_new_from_data</A
+>().
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="gdk-pixbuf-gdk-pixbuf.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="r27.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="gdk-pixbuf-file-loading.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>The GdkPixbuf Structure</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>File Loading</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

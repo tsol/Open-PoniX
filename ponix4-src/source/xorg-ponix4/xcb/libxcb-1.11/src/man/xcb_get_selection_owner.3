@@ -1,0 +1,57 @@
+.TH xcb_get_selection_owner 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_get_selection_owner \- Gets the owner of a selection
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_get_selection_owner_cookie_t \fBxcb_get_selection_owner\fP(xcb_connection_t\ *\fIconn\fP, xcb_atom_t\ \fIselection\fP);
+.PP
+.SS Reply datastructure
+.nf
+.sp
+typedef struct xcb_get_selection_owner_reply_t {
+    uint8_t      \fIresponse_type\fP;
+    uint8_t      \fIpad0\fP;
+    uint16_t     \fIsequence\fP;
+    uint32_t     \fIlength\fP;
+    xcb_window_t \fIowner\fP;
+} \fBxcb_get_selection_owner_reply_t\fP;
+.fi
+.SS Reply function
+.HP
+xcb_get_selection_owner_reply_t *\fBxcb_get_selection_owner_reply\fP(xcb_connection_t\ *\fIconn\fP, xcb_get_selection_owner_cookie_t\ \fIcookie\fP, xcb_generic_error_t\ **\fIe\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.IP \fIselection\fP 1i
+The selection.
+.SH REPLY FIELDS
+.IP \fIresponse_type\fP 1i
+The type of this reply, in this case \fIXCB_GET_SELECTION_OWNER\fP. This field is also present in the \fIxcb_generic_reply_t\fP and can be used to tell replies apart from each other.
+.IP \fIsequence\fP 1i
+The sequence number of the last request processed by the X11 server.
+.IP \fIlength\fP 1i
+The length of the reply, in words (a word is 4 bytes).
+.IP \fIowner\fP 1i
+The current selection owner window.
+.SH DESCRIPTION
+Gets the owner of the specified selection.
+
+TODO: briefly explain what a selection is.
+.SH RETURN VALUE
+Returns an \fIxcb_get_selection_owner_cookie_t\fP. Errors have to be handled when calling the reply function \fIxcb_get_selection_owner_reply\fP.
+
+If you want to handle errors in the event loop instead, use \fIxcb_get_selection_owner_unchecked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+.IP \fIxcb_atom_error_t\fP 1i
+\fIselection\fP does not refer to a valid atom.
+.SH SEE ALSO
+.BR xcb-requests (3),
+.BR xcb_set_selection_owner (3)
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

@@ -1,0 +1,880 @@
+<refentry id="GtkItemFactory">
+<refmeta>
+<refentrytitle>GtkItemFactory</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkItemFactory</refname><refpurpose>A factory for menus</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkItemFactory-struct">GtkItemFactory</link>;
+<link linkend="void">void</link>        (<link linkend="GtkPrintFunc">*GtkPrintFunc</link>)                 (<link linkend="gpointer">gpointer</link> func_data,
+                                             const <link linkend="gchar">gchar</link> *str);
+<link linkend="gchar">gchar</link>*      (<link linkend="GtkTranslateFunc">*GtkTranslateFunc</link>)             (const <link linkend="gchar">gchar</link> *path,
+                                             <link linkend="gpointer">gpointer</link> func_data);
+<link linkend="void">void</link>        (<link linkend="GtkItemFactoryCallback">*GtkItemFactoryCallback</link>)       ();
+<link linkend="void">void</link>        (<link linkend="GtkItemFactoryCallback1">*GtkItemFactoryCallback1</link>)      (<link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_action,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="void">void</link>        (<link linkend="GtkItemFactoryCallback2">*GtkItemFactoryCallback2</link>)      (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_action);
+struct      <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link>;
+struct      <link linkend="GtkItemFactoryItem">GtkItemFactoryItem</link>;
+<link linkend="GtkItemFactory">GtkItemFactory</link>* <link linkend="gtk-item-factory-new">gtk_item_factory_new</link>        (<link linkend="GType">GType</link> container_type,
+                                             const <link linkend="gchar">gchar</link> *path,
+                                             <link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-construct">gtk_item_factory_construct</link>      (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GType">GType</link> container_type,
+                                             const <link linkend="gchar">gchar</link> *path,
+                                             <link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-add-foreign">gtk_item_factory_add_foreign</link>    (<link linkend="GtkWidget">GtkWidget</link> *accel_widget,
+                                             const <link linkend="gchar">gchar</link> *full_path,
+                                             <link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifiers);
+<link linkend="GtkItemFactory">GtkItemFactory</link>* <link linkend="gtk-item-factory-from-widget">gtk_item_factory_from_widget</link>
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);
+G_CONST_RETURN <link linkend="gchar">gchar</link>* <link linkend="gtk-item-factory-path-from-widget">gtk_item_factory_path_from_widget</link>
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-item-factory-get-item">gtk_item_factory_get_item</link>       (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             const <link linkend="gchar">gchar</link> *path);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-item-factory-get-widget">gtk_item_factory_get_widget</link>     (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             const <link linkend="gchar">gchar</link> *path);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-item-factory-get-widget-by-action">gtk_item_factory_get_widget_by_action</link>
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> action);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-item-factory-get-item-by-action">gtk_item_factory_get_item_by_action</link>
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> action);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-create-item">gtk_item_factory_create_item</link>    (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entry,
+                                             <link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_type);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-create-items">gtk_item_factory_create_items</link>   (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entries,
+                                             <link linkend="gpointer">gpointer</link> callback_data);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-create-items-ac">gtk_item_factory_create_items_ac</link>
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entries,
+                                             <link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_type);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-delete-item">gtk_item_factory_delete_item</link>    (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             const <link linkend="gchar">gchar</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-delete-entry">gtk_item_factory_delete_entry</link>   (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entry);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-delete-entries">gtk_item_factory_delete_entries</link> (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entries);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-popup">gtk_item_factory_popup</link>          (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> x,
+                                             <link linkend="guint">guint</link> y,
+                                             <link linkend="guint">guint</link> mouse_button,
+                                             <link linkend="guint32">guint32</link> time_);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-popup-with-data">gtk_item_factory_popup_with_data</link>
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="gpointer">gpointer</link> popup_data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy,
+                                             <link linkend="guint">guint</link> x,
+                                             <link linkend="guint">guint</link> y,
+                                             <link linkend="guint">guint</link> mouse_button,
+                                             <link linkend="guint32">guint32</link> time_);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-item-factory-popup-data">gtk_item_factory_popup_data</link>     (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory);
+<link linkend="gpointer">gpointer</link>    <link linkend="gtk-item-factory-popup-data-from-widget">gtk_item_factory_popup_data_from_widget</link>
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="GtkItemFactory">GtkItemFactory</link>* <link linkend="gtk-item-factory-from-path">gtk_item_factory_from_path</link>  (const <link linkend="gchar">gchar</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-create-menu-entries">gtk_item_factory_create_menu_entries</link>
+                                            (<link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkMenuEntry">GtkMenuEntry</link> *entries);
+<link linkend="void">void</link>        <link linkend="gtk-item-factories-path-delete">gtk_item_factories_path_delete</link>  (const <link linkend="gchar">gchar</link> *ifactory_path,
+                                             const <link linkend="gchar">gchar</link> *path);
+<link linkend="void">void</link>        <link linkend="gtk-item-factory-set-translate-func">gtk_item_factory_set_translate_func</link>
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GtkTranslateFunc">GtkTranslateFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> notify);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----<link linkend="GtkObject">GtkObject</link>
+         +----GtkItemFactory
+</synopsis>
+
+</refsect1>
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+<link linkend="GtkItemFactory"><type>GtkItemFactory</type></link> has been deprecated in favour of <link linkend="GtkUIManager"><type>GtkUIManager</type></link>.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkItemFactory-struct"/>struct GtkItemFactory</title>
+<indexterm><primary>GtkItemFactory</primary></indexterm><programlisting>struct GtkItemFactory;</programlisting>
+<warning><para><literal>GtkItemFactory</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkPrintFunc"/>GtkPrintFunc ()</title>
+<indexterm><primary>GtkPrintFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkPrintFunc)                 (<link linkend="gpointer">gpointer</link> func_data,
+                                             const <link linkend="gchar">gchar</link> *str);</programlisting>
+<warning><para><literal>GtkPrintFunc</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>func_data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>str</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkTranslateFunc"/>GtkTranslateFunc ()</title>
+<indexterm><primary>GtkTranslateFunc</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*      (*GtkTranslateFunc)             (const <link linkend="gchar">gchar</link> *path,
+                                             <link linkend="gpointer">gpointer</link> func_data);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func_data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkItemFactoryCallback"/>GtkItemFactoryCallback ()</title>
+<indexterm><primary>GtkItemFactoryCallback</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkItemFactoryCallback)       ();</programlisting>
+<warning><para><literal>GtkItemFactoryCallback</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkItemFactoryCallback1"/>GtkItemFactoryCallback1 ()</title>
+<indexterm><primary>GtkItemFactoryCallback1</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkItemFactoryCallback1)      (<link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_action,
+                                             <link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<warning><para><literal>GtkItemFactoryCallback1</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>callback_data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_action</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkItemFactoryCallback2"/>GtkItemFactoryCallback2 ()</title>
+<indexterm><primary>GtkItemFactoryCallback2</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkItemFactoryCallback2)      (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_action);</programlisting>
+<warning><para><literal>GtkItemFactoryCallback2</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_data</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_action</parameter>&nbsp;:</term>
+<listitem><simpara>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkItemFactoryEntry"/>struct GtkItemFactoryEntry</title>
+<indexterm><primary>GtkItemFactoryEntry</primary></indexterm><programlisting>struct GtkItemFactoryEntry {
+
+  gchar *path;
+  gchar *accelerator;
+
+  GtkItemFactoryCallback callback;
+  guint			 callback_action;
+
+  /* possible values:
+   * NULL		-&gt; "&lt;Item&gt;"
+   * ""			-&gt; "&lt;Item&gt;"
+   * "&lt;Title&gt;"		-&gt; create a title item
+   * "&lt;Item&gt;"		-&gt; create a simple item
+   * "&lt;ImageItem&gt;"	-&gt; create an item holding an image
+   * "&lt;StockItem&gt;"	-&gt; create an item holding a stock image
+   * "&lt;CheckItem&gt;"	-&gt; create a check item
+   * "&lt;ToggleItem&gt;"	-&gt; create a toggle item
+   * "&lt;RadioItem&gt;"	-&gt; create a radio item
+   * &lt;path&gt;		-&gt; path of a radio item to link against
+   * "&lt;Separator&gt;"	-&gt; create a separator
+   * "&lt;Tearoff&gt;"	-&gt; create a tearoff separator
+   * "&lt;Branch&gt;"		-&gt; create an item to hold sub items
+   * "&lt;LastBranch&gt;"	-&gt; create a right justified item to hold sub items
+   */
+  gchar		 *item_type;
+
+  /* Extra data for some item types:
+   *  ImageItem  -&gt; pointer to inlined pixbuf stream
+   *  StockItem  -&gt; name of stock item
+   */
+  gconstpointer extra_data;
+};
+</programlisting>
+<warning><para><literal>GtkItemFactoryEntry</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkItemFactoryItem"/>struct GtkItemFactoryItem</title>
+<indexterm><primary>GtkItemFactoryItem</primary></indexterm><programlisting>struct GtkItemFactoryItem {
+
+  gchar *path;
+  GSList *widgets;
+};
+</programlisting>
+<warning><para><literal>GtkItemFactoryItem</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-new"/>gtk_item_factory_new ()</title>
+<indexterm><primary>gtk_item_factory_new</primary></indexterm><programlisting><link linkend="GtkItemFactory">GtkItemFactory</link>* gtk_item_factory_new        (<link linkend="GType">GType</link> container_type,
+                                             const <link linkend="gchar">gchar</link> *path,
+                                             <link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);</programlisting>
+<warning><para><literal>gtk_item_factory_new</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates a new <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>.
+</para>
+<para>
+Beware that the returned object does not have a floating reference.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>container_type</parameter>&nbsp;:</term>
+<listitem><simpara> the kind of menu to create; can be
+   <link linkend="GTK-TYPE-MENU-BAR-CAPS"><type>GTK_TYPE_MENU_BAR</type></link>, <link linkend="GTK-TYPE-MENU-CAPS"><type>GTK_TYPE_MENU</type></link> or <link linkend="GTK-TYPE-OPTION-MENU-CAPS"><type>GTK_TYPE_OPTION_MENU</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> the factory path of the new item factory, a string of the form 
+   <literal>"&lt;name&gt;"</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> to which the accelerators for the
+   menu items will be added, or <literal>NULL</literal> to create a new one
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-construct"/>gtk_item_factory_construct ()</title>
+<indexterm><primary>gtk_item_factory_construct</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_construct      (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GType">GType</link> container_type,
+                                             const <link linkend="gchar">gchar</link> *path,
+                                             <link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group);</programlisting>
+<warning><para><literal>gtk_item_factory_construct</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Initializes an item factory.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>container_type</parameter>&nbsp;:</term>
+<listitem><simpara> the kind of menu to create; can be
+   <link linkend="GTK-TYPE-MENU-BAR-CAPS"><type>GTK_TYPE_MENU_BAR</type></link>, <link linkend="GTK-TYPE-MENU-CAPS"><type>GTK_TYPE_MENU</type></link> or <link linkend="GTK-TYPE-OPTION-MENU-CAPS"><type>GTK_TYPE_OPTION_MENU</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> the factory path of <parameter>ifactory</parameter>, a string of the form 
+   <literal>"&lt;name&gt;"</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkAccelGroup"><type>GtkAccelGroup</type></link> to which the accelerators for the
+   menu items will be added, or <literal>NULL</literal> to create a new one
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-add-foreign"/>gtk_item_factory_add_foreign ()</title>
+<indexterm><primary>gtk_item_factory_add_foreign</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_add_foreign    (<link linkend="GtkWidget">GtkWidget</link> *accel_widget,
+                                             const <link linkend="gchar">gchar</link> *full_path,
+                                             <link linkend="GtkAccelGroup">GtkAccelGroup</link> *accel_group,
+                                             <link linkend="guint">guint</link> keyval,
+                                             <link linkend="GdkModifierType">GdkModifierType</link> modifiers);</programlisting>
+<warning><para><literal>gtk_item_factory_add_foreign</literal> is deprecated and should not be used in newly-written code. The recommended API for this purpose are the functions 
+<link linkend="gtk-menu-item-set-accel-path"><function>gtk_menu_item_set_accel_path()</function></link> and <link linkend="gtk-widget-set-accel-path"><function>gtk_widget_set_accel_path()</function></link>; don't 
+use <link linkend="gtk-item-factory-add-foreign"><function>gtk_item_factory_add_foreign()</function></link> in new code, since it is likely to
+be removed in the future.</para></warning>
+<para>
+Installs an accelerator for <parameter>accel_widget</parameter> in <parameter>accel_group</parameter>, that causes
+the ::activate signal to be emitted if the accelerator is activated.
+</para>
+<para>
+This function can be used to make widgets participate in the accel
+saving/restoring functionality provided by <link linkend="gtk-accel-map-save"><function>gtk_accel_map_save()</function></link> and
+<link linkend="gtk-accel-map-load"><function>gtk_accel_map_load()</function></link>, even if they haven't been created by an item
+factory.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>accel_widget</parameter>&nbsp;:</term>
+<listitem><simpara>     widget to install an accelerator on 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>full_path</parameter>&nbsp;:</term>
+<listitem><simpara>	      the full path for the <parameter>accel_widget</parameter> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>accel_group</parameter>&nbsp;:</term>
+<listitem><simpara>      the accelerator group to install the accelerator in
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>keyval</parameter>&nbsp;:</term>
+<listitem><simpara>           key value of the accelerator
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>modifiers</parameter>&nbsp;:</term>
+<listitem><simpara>        modifier combination of the accelerator
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-from-widget"/>gtk_item_factory_from_widget ()</title>
+<indexterm><primary>gtk_item_factory_from_widget</primary></indexterm><programlisting><link linkend="GtkItemFactory">GtkItemFactory</link>* gtk_item_factory_from_widget
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<warning><para><literal>gtk_item_factory_from_widget</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the item factory from which a widget was created.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a widget
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the item factory from which <parameter>widget</parameter> was created, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-path-from-widget"/>gtk_item_factory_path_from_widget ()</title>
+<indexterm><primary>gtk_item_factory_path_from_widget</primary></indexterm><programlisting>G_CONST_RETURN <link linkend="gchar">gchar</link>* gtk_item_factory_path_from_widget
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<warning><para><literal>gtk_item_factory_path_from_widget</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+If <parameter>widget</parameter> has been created by an item factory, returns the full path
+to it. (The full path of a widget is the concatenation of the factory 
+path specified in <link linkend="gtk-item-factory-new"><function>gtk_item_factory_new()</function></link> with the path specified in the 
+<link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link> from which the widget was created.)</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a widget
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the full path to <parameter>widget</parameter> if it has been created by an item
+  factory, <literal>NULL</literal> otherwise. This value is owned by GTK+ and must not be
+  modified or freed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-get-item"/>gtk_item_factory_get_item ()</title>
+<indexterm><primary>gtk_item_factory_get_item</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_item_factory_get_item       (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             const <link linkend="gchar">gchar</link> *path);</programlisting>
+<warning><para><literal>gtk_item_factory_get_item</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the menu item which corresponds to <parameter>path</parameter>. 
+</para>
+<para>
+If the widget corresponding to <parameter>path</parameter> is a menu item which opens a 
+submenu, then the item is returned. If you are interested in the submenu, 
+use <link linkend="gtk-item-factory-get-widget"><function>gtk_item_factory_get_widget()</function></link> instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> the path to the menu item
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the menu item for the given path, or <literal>NULL</literal> if <parameter>path</parameter> doesn't
+  lead to a menu item
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-get-widget"/>gtk_item_factory_get_widget ()</title>
+<indexterm><primary>gtk_item_factory_get_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_item_factory_get_widget     (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             const <link linkend="gchar">gchar</link> *path);</programlisting>
+<warning><para><literal>gtk_item_factory_get_widget</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the widget which corresponds to <parameter>path</parameter>. 
+</para>
+<para>
+If the widget corresponding to <parameter>path</parameter> is a menu item which opens a 
+submenu, then the submenu is returned. If you are interested in the menu 
+item, use <link linkend="gtk-item-factory-get-item"><function>gtk_item_factory_get_item()</function></link> instead.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> the path to the widget
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the widget for the given path, or <literal>NULL</literal> if <parameter>path</parameter> doesn't lead
+  to a widget
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-get-widget-by-action"/>gtk_item_factory_get_widget_by_action ()</title>
+<indexterm><primary>gtk_item_factory_get_widget_by_action</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_item_factory_get_widget_by_action
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> action);</programlisting>
+<warning><para><literal>gtk_item_factory_get_widget_by_action</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the widget which was constructed from the <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link>
+with the given <parameter>action</parameter>.
+</para>
+<para>
+If there are multiple items with the same action, the result is 
+undefined.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>action</parameter>&nbsp;:</term>
+<listitem><simpara> an action as specified in the <parameter>callback_action</parameter> field
+  of <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the widget which corresponds to the given action, or <literal>NULL</literal>
+  if no widget was found
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-get-item-by-action"/>gtk_item_factory_get_item_by_action ()</title>
+<indexterm><primary>gtk_item_factory_get_item_by_action</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_item_factory_get_item_by_action
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> action);</programlisting>
+<warning><para><literal>gtk_item_factory_get_item_by_action</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the menu item which was constructed from the first 
+<link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link> with the given <parameter>action</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>action</parameter>&nbsp;:</term>
+<listitem><simpara> an action as specified in the <parameter>callback_action</parameter> field
+  of <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the menu item which corresponds to the given action, or <literal>NULL</literal>
+  if no menu item was found
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-create-item"/>gtk_item_factory_create_item ()</title>
+<indexterm><primary>gtk_item_factory_create_item</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_create_item    (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entry,
+                                             <link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_type);</programlisting>
+<warning><para><literal>gtk_item_factory_create_item</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates an item for <parameter>entry</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>entry</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link> to create an item for
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_data</parameter>&nbsp;:</term>
+<listitem><simpara> data passed to the callback function of <parameter>entry</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_type</parameter>&nbsp;:</term>
+<listitem><simpara> 1 if the callback function of <parameter>entry</parameter> is of type
+   <link linkend="GtkItemFactoryCallback1"><type>GtkItemFactoryCallback1</type></link>, 2 if it is of type <link linkend="GtkItemFactoryCallback2"><type>GtkItemFactoryCallback2</type></link> 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-create-items"/>gtk_item_factory_create_items ()</title>
+<indexterm><primary>gtk_item_factory_create_items</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_create_items   (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entries,
+                                             <link linkend="gpointer">gpointer</link> callback_data);</programlisting>
+<warning><para><literal>gtk_item_factory_create_items</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates the menu items from the <parameter>entries</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_entries</parameter>&nbsp;:</term>
+<listitem><simpara> the length of <parameter>entries</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>entries</parameter>&nbsp;:</term>
+<listitem><simpara> an array of <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link><!-- -->s whose <parameter>callback</parameter> members
+   must by of type <link linkend="GtkItemFactoryCallback1"><type>GtkItemFactoryCallback1</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_data</parameter>&nbsp;:</term>
+<listitem><simpara> data passed to the callback functions of all entries
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-create-items-ac"/>gtk_item_factory_create_items_ac ()</title>
+<indexterm><primary>gtk_item_factory_create_items_ac</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_create_items_ac
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entries,
+                                             <link linkend="gpointer">gpointer</link> callback_data,
+                                             <link linkend="guint">guint</link> callback_type);</programlisting>
+<warning><para><literal>gtk_item_factory_create_items_ac</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates the menu items from the <parameter>entries</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_entries</parameter>&nbsp;:</term>
+<listitem><simpara> the length of <parameter>entries</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>entries</parameter>&nbsp;:</term>
+<listitem><simpara> an array of <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link><!-- -->s 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_data</parameter>&nbsp;:</term>
+<listitem><simpara> data passed to the callback functions of all entries
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>callback_type</parameter>&nbsp;:</term>
+<listitem><simpara> 1 if the callback functions in <parameter>entries</parameter> are of type
+   <link linkend="GtkItemFactoryCallback1"><type>GtkItemFactoryCallback1</type></link>, 2 if they are of type <link linkend="GtkItemFactoryCallback2"><type>GtkItemFactoryCallback2</type></link> 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-delete-item"/>gtk_item_factory_delete_item ()</title>
+<indexterm><primary>gtk_item_factory_delete_item</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_delete_item    (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             const <link linkend="gchar">gchar</link> *path);</programlisting>
+<warning><para><literal>gtk_item_factory_delete_item</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deletes the menu item which was created for <parameter>path</parameter> by the given
+item factory.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> a path
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-delete-entry"/>gtk_item_factory_delete_entry ()</title>
+<indexterm><primary>gtk_item_factory_delete_entry</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_delete_entry   (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entry);</programlisting>
+<warning><para><literal>gtk_item_factory_delete_entry</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deletes the menu item which was created from <parameter>entry</parameter> by the given
+item factory.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>entry</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-delete-entries"/>gtk_item_factory_delete_entries ()</title>
+<indexterm><primary>gtk_item_factory_delete_entries</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_delete_entries (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkItemFactoryEntry">GtkItemFactoryEntry</link> *entries);</programlisting>
+<warning><para><literal>gtk_item_factory_delete_entries</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deletes the menu items which were created from the <parameter>entries</parameter> by the given
+item factory.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_entries</parameter>&nbsp;:</term>
+<listitem><simpara> the length of <parameter>entries</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>entries</parameter>&nbsp;:</term>
+<listitem><simpara> an array of <link linkend="GtkItemFactoryEntry"><type>GtkItemFactoryEntry</type></link><!-- -->s 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-popup"/>gtk_item_factory_popup ()</title>
+<indexterm><primary>gtk_item_factory_popup</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_popup          (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="guint">guint</link> x,
+                                             <link linkend="guint">guint</link> y,
+                                             <link linkend="guint">guint</link> mouse_button,
+                                             <link linkend="guint32">guint32</link> time_);</programlisting>
+<warning><para><literal>gtk_item_factory_popup</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Pops up the menu constructed from the item factory at (<parameter>x</parameter>, <parameter>y</parameter>).
+</para>
+<para>
+The <parameter>mouse_button</parameter> parameter should be the mouse button pressed to initiate
+the menu popup. If the menu popup was initiated by something other than
+a mouse button press, such as a mouse button release or a keypress,
+<parameter>mouse_button</parameter> should be 0.
+</para>
+<para>
+The <parameter>time_</parameter> parameter should be the time stamp of the event that
+initiated the popup. If such an event is not available, use
+<link linkend="gtk-get-current-event-time"><function>gtk_get_current_event_time()</function></link> instead.
+</para>
+<para>
+The operation of the <parameter>mouse_button</parameter> and the <parameter>time_</parameter> parameter is the same
+as the <parameter>button</parameter> and <parameter>activation_time</parameter> parameters for <link linkend="gtk-menu-popup"><function>gtk_menu_popup()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link> of type <link linkend="GTK-TYPE-MENU-CAPS"><type>GTK_TYPE_MENU</type></link> (see <link linkend="gtk-item-factory-new"><function>gtk_item_factory_new()</function></link>)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara> the x position 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara> the y position
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mouse_button</parameter>&nbsp;:</term>
+<listitem><simpara> the mouse button which was pressed to initiate the popup
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>time_</parameter>&nbsp;:</term>
+<listitem><simpara> the time at which the activation event occurred
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-popup-with-data"/>gtk_item_factory_popup_with_data ()</title>
+<indexterm><primary>gtk_item_factory_popup_with_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_popup_with_data
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="gpointer">gpointer</link> popup_data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy,
+                                             <link linkend="guint">guint</link> x,
+                                             <link linkend="guint">guint</link> y,
+                                             <link linkend="guint">guint</link> mouse_button,
+                                             <link linkend="guint32">guint32</link> time_);</programlisting>
+<warning><para><literal>gtk_item_factory_popup_with_data</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Pops up the menu constructed from the item factory at (<parameter>x</parameter>, <parameter>y</parameter>). Callbacks
+can access the <parameter>popup_data</parameter> while the menu is posted via 
+<link linkend="gtk-item-factory-popup-data"><function>gtk_item_factory_popup_data()</function></link> and <link linkend="gtk-item-factory-popup-data-from-widget"><function>gtk_item_factory_popup_data_from_widget()</function></link>.
+</para>
+<para>
+The <parameter>mouse_button</parameter> parameter should be the mouse button pressed to initiate
+the menu popup. If the menu popup was initiated by something other than
+a mouse button press, such as a mouse button release or a keypress,
+<parameter>mouse_button</parameter> should be 0.
+</para>
+<para>
+The <parameter>time_</parameter> parameter should be the time stamp of the event that
+initiated the popup. If such an event is not available, use
+<link linkend="gtk-get-current-event-time"><function>gtk_get_current_event_time()</function></link> instead.
+</para>
+<para>
+The operation of the <parameter>mouse_button</parameter> and the <parameter>time_</parameter> parameters is the same
+as the <parameter>button</parameter> and <parameter>activation_time</parameter> parameters for <link linkend="gtk-menu-popup"><function>gtk_menu_popup()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link> of type <link linkend="GTK-TYPE-MENU-CAPS"><type>GTK_TYPE_MENU</type></link> (see <link linkend="gtk-item-factory-new"><function>gtk_item_factory_new()</function></link>)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>popup_data</parameter>&nbsp;:</term>
+<listitem><simpara> data available for callbacks while the menu is posted
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkDestroyNotify"><type>GtkDestroyNotify</type></link> function to be called on <parameter>popup_data</parameter> when
+ the menu is unposted
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>x</parameter>&nbsp;:</term>
+<listitem><simpara> the x position 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>y</parameter>&nbsp;:</term>
+<listitem><simpara> the y position
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mouse_button</parameter>&nbsp;:</term>
+<listitem><simpara> the mouse button which was pressed to initiate the popup
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>time_</parameter>&nbsp;:</term>
+<listitem><simpara> the time at which the activation event occurred
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-popup-data"/>gtk_item_factory_popup_data ()</title>
+<indexterm><primary>gtk_item_factory_popup_data</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_item_factory_popup_data     (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory);</programlisting>
+<warning><para><literal>gtk_item_factory_popup_data</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the <parameter>popup_data</parameter> which was passed to 
+<link linkend="gtk-item-factory-popup-with-data"><function>gtk_item_factory_popup_with_data()</function></link>. This data is available until the menu
+is popped down again.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <parameter>popup_data</parameter> associated with <parameter>ifactory</parameter>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-popup-data-from-widget"/>gtk_item_factory_popup_data_from_widget ()</title>
+<indexterm><primary>gtk_item_factory_popup_data_from_widget</primary></indexterm><programlisting><link linkend="gpointer">gpointer</link>    gtk_item_factory_popup_data_from_widget
+                                            (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<warning><para><literal>gtk_item_factory_popup_data_from_widget</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Obtains the <parameter>popup_data</parameter> which was passed to 
+<link linkend="gtk-item-factory-popup-with-data"><function>gtk_item_factory_popup_with_data()</function></link>. This data is available until the menu
+is popped down again.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a widget
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <parameter>popup_data</parameter> associated with the item factory from
+  which <parameter>widget</parameter> was created, or <literal>NULL</literal> if <parameter>widget</parameter> wasn't created
+  by an item factory
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-from-path"/>gtk_item_factory_from_path ()</title>
+<indexterm><primary>gtk_item_factory_from_path</primary></indexterm><programlisting><link linkend="GtkItemFactory">GtkItemFactory</link>* gtk_item_factory_from_path  (const <link linkend="gchar">gchar</link> *path);</programlisting>
+<warning><para><literal>gtk_item_factory_from_path</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Finds an item factory which has been constructed using the 
+<literal>"&lt;name&gt;"</literal> prefix of <parameter>path</parameter> as the <parameter>path</parameter> argument 
+for <link linkend="gtk-item-factory-new"><function>gtk_item_factory_new()</function></link>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> a string starting with a factory path of the form 
+  <literal>"&lt;name&gt;"</literal>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link> created for the given factory path, or <literal>NULL</literal> 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-create-menu-entries"/>gtk_item_factory_create_menu_entries ()</title>
+<indexterm><primary>gtk_item_factory_create_menu_entries</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_create_menu_entries
+                                            (<link linkend="guint">guint</link> n_entries,
+                                             <link linkend="GtkMenuEntry">GtkMenuEntry</link> *entries);</programlisting>
+<warning><para><literal>gtk_item_factory_create_menu_entries</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Creates the menu items from the <parameter>entries</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>n_entries</parameter>&nbsp;:</term>
+<listitem><simpara> the length of <parameter>entries</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>entries</parameter>&nbsp;:</term>
+<listitem><simpara> an array of <link linkend="GtkMenuEntry"><type>GtkMenuEntry</type></link><!-- -->s 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factories-path-delete"/>gtk_item_factories_path_delete ()</title>
+<indexterm><primary>gtk_item_factories_path_delete</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factories_path_delete  (const <link linkend="gchar">gchar</link> *ifactory_path,
+                                             const <link linkend="gchar">gchar</link> *path);</programlisting>
+<warning><para><literal>gtk_item_factories_path_delete</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Deletes all widgets constructed from the specified path.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory_path</parameter>&nbsp;:</term>
+<listitem><simpara> a factory path to prepend to <parameter>path</parameter>. May be <literal>NULL</literal> if <parameter>path</parameter>
+  starts with a factory path
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>path</parameter>&nbsp;:</term>
+<listitem><simpara> a path 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-item-factory-set-translate-func"/>gtk_item_factory_set_translate_func ()</title>
+<indexterm><primary>gtk_item_factory_set_translate_func</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_item_factory_set_translate_func
+                                            (<link linkend="GtkItemFactory">GtkItemFactory</link> *ifactory,
+                                             <link linkend="GtkTranslateFunc">GtkTranslateFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> notify);</programlisting>
+<warning><para><literal>gtk_item_factory_set_translate_func</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Sets a function to be used for translating the path elements before they
+are displayed.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>ifactory</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkItemFactory"><type>GtkItemFactory</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> the <link linkend="GtkTranslateFunc"><type>GtkTranslateFunc</type></link> function to be used to translate path elements 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> data to pass to <parameter>func</parameter> and <parameter>notify</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>notify</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkDestroyNotify"><type>GtkDestroyNotify</type></link> function to be called when <parameter>ifactory</parameter> is 
+  destroyed and when the translation function is changed again
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

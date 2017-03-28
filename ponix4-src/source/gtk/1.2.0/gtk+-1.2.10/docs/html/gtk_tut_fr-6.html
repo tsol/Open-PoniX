@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>Didacticiel: Widgets boutons</TITLE>
+ <LINK HREF="gtk_tut_fr-7.html" REL=next>
+ <LINK HREF="gtk_tut_fr-5.html" REL=previous>
+ <LINK HREF="gtk_tut_fr.html#toc6" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_fr-7.html">Page suivante</A>
+<A HREF="gtk_tut_fr-5.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc6">Table des matières</A>
+<HR NOSHADE>
+<H2><A NAME="s6">6. Widgets boutons</A></H2>
+
+<P>
+<H2><A NAME="ss6.1">6.1 Boutons normaux</A>
+</H2>
+
+<P>On a déjà presque vu tout ce qu'il y avait à voir sur le widget
+bouton. Il est très simple. Cependant, il y a deux façons de créer un
+bouton. On peut utiliser <EM>gtk_button_new_with_label()</EM> pour créer
+un bouton avec un label, ou <EM>gtk_button_new()</EM> pour créer un bouton
+vide. Dans ce dernier cas, c'est à vous de placer un label ou un
+pixmap sur celui-ci. Pour ce faire, créez une boîte, puis placez vos
+objets dans celle-ci en utilisant la fonction habituelle
+<EM>gtk_box_pack_start</EM>, utilisez alors <EM>gtk_container_add</EM> pour
+placer la boîte dans le bouton.
+<P>Voici un exemple d'utilisation de <EM>gtk_button_new()</EM> pour créer un
+bouton contenant une image et un label. J'ai séparé du reste le code
+qui crée une boîte pour que vous puissiez l'utiliser dans vos
+programmes.
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+#include &lt;gtk/gtk.h>
+
+
+/* Création d'une hbox avec une image et un label. Cette fonction 
+ * retourne la boîte... */
+
+GtkWidget *xpm_label_box (GtkWidget *parent, gchar *xpm_filename, 
+                          gchar *label_text)
+{
+    GtkWidget *box1;
+    GtkWidget *label;
+    GtkWidget *pixmapwid;
+    GdkPixmap *pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+
+    /* Création de la boite pour un xpm et un label */
+
+    box1 = gtk_hbox_new (FALSE, 0);
+    gtk_container_border_width (GTK_CONTAINER (box1), 2);
+
+    /* Choix d'un style de bouton... Je suppose que c'est pour obtenir
+     * la couleur du fond. Si quelqu'un connaît la vraie raison, qu'il
+     * m'éclaire sur ce point. */
+
+    style = gtk_widget_get_style(parent);
+
+    /* Chargement de xpm pour créer une image */
+
+    pixmap = gdk_pixmap_create_from_xpm (parent->window, &amp;mask,
+                                         &amp;style->bg[GTK_STATE_NORMAL],
+                                         xpm_filename);
+    pixmapwid = gtk_pixmap_new (pixmap, mask);
+
+    /* Création d'un label  */
+
+    label = gtk_label_new (label_text);
+
+    /* placement de l'image et du label dans la boîte */
+
+    gtk_box_pack_start (GTK_BOX (box1),
+                        pixmapwid, FALSE, FALSE, 3);
+
+    gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 3);
+
+    gtk_widget_show(pixmapwid);
+    gtk_widget_show(label);
+
+    return (box1);
+}
+
+/* Notre fonction de rappel habituelle */
+
+void callback (GtkWidget *widget, gpointer *data)
+{
+    g_print ("Bonjour - %s a été pressé\n", (char *) data);
+}
+
+
+int main (int argc, char *argv[])
+{
+    /* GtkWidget est le type utilisé pour déclarer les widgets */
+
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *box1;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* Création d'une fenêtre */
+
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    gtk_window_set_title (GTK_WINDOW (window), "Pixmap'd Buttons!");
+
+    /* Il est préférable de faire cela pour toutes les fenêtres */
+
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+
+    /* Configuration du bord de la fenêtre */
+
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+
+    /* Création d'un bouton */
+
+    button = gtk_button_new ();
+
+    /* Vous devriez être habitué à voir ces fonctions maintenant */
+
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (callback), (gpointer) "cool button");
+
+    /* Appel de notre fonction de création de boîte */
+
+    box1 = xpm_label_box(window, "info.xpm", "cool button");
+
+    /* Placement et affichage de tous nos widgets */
+
+    gtk_widget_show(box1);
+
+    gtk_container_add (GTK_CONTAINER (button), box1);
+
+    gtk_widget_show(button);
+
+    gtk_container_add (GTK_CONTAINER (window), button);
+
+    gtk_widget_show (window);
+
+    /* Le reste est dans gtk_main */
+    gtk_main ();
+
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La fonction <EM>xpm_label_box()</EM> peut être utilisée pour placer des
+xpms et des labels sur tout widget qui peut être container.
+<P>
+<H2><A NAME="ss6.2">6.2 Boutons commutateurs</A>
+</H2>
+
+<P>Les boutons commutateurs ressemblent beaucoup aux boutons normaux, sauf
+qu'ils seront toujours alternativement dans un état ou dans un
+autre. Le changement d'état s'effectue par un click. Ils peuvent être
+enfoncés et, lorsqu'on clique dessus, ils se relèvent.  Re-cliquez,
+et ils se renfoncent.
+<P>Les boutons commutateurs sont la base des cases à cocher ou des boutons
+radio, donc la plupart des appels utilisés pour les boutons commutateurs
+sont hérités par les cases à cocher et les boutons radio. J'insisterai
+là dessus quand nous les aborderons.
+<P>Création d'un bouton commutateur : 
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_toggle_button_new (void);
+
+GtkWidget* gtk_toggle_button_new_with_label (gchar *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Comme vous pouvez l'imaginer, elles fonctionnent comme celles des
+boutons normaux. La première crée un bouton commutateur vide et la
+deuxième un bouton commutateur contenant déjà un label.
+<P>Pour récupérer l'état d'un commutateur et cela comprend aussi les
+cases à cocher et les boutons radio, on utilise une macro comme nous
+le montrons dans l'exemple qui suit et qui teste l'état du commutateur
+dans une fonction de rappel. Le signal qui nous intéresse et qui est
+émis par les boutons commutateurs (ce qui comprend aussi les cases à
+cocher et les boutons radio), est le signal "toggled". Pour vérifier
+l'état de ces boutons, on configure un gestionnaire de signal qui
+capture "toggled" et utilise la macro pour déterminer l'état. La
+fonction de rappel ressemblera à ceci&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void rappel_bouton_commutateur (GtkWidget *widget, gpointer data)
+{
+    if (GTK_TOGGLE_BUTTON(widget)->active) 
+    {
+        /* Si l'on est ici, c'est que le bouton est relâché. */
+    
+    } else {
+    
+        /* le bouton est enfoncé */
+    }
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<P>L'appel qui suit peut être utilisé pour configurer l'état d'un bouton
+commutateur et de ses descendants, les cases à cocher et les boutons
+radio. On lui passe notre bouton en premier paramètre et TRUE ou
+FALSE pour spécifier s'il doit être relâché ou enfoncé. Par défaut, il
+est relâché (FALSE).
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_set_state (GtkToggleButton *toggle_button,
+                                  gint state);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>On notera que lorsqu'on utilise cette fonction, et que l'état est
+modifié, cela force le bouton à émettre un signal "clicked".
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_toggled (GtkToggleButton *toggle_button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Cet appel ne fait que commuter le bouton et émettre le signal "toggled".
+<P>
+<H2><A NAME="ss6.3">6.3 Cases à cocher</A>
+</H2>
+
+<P>Les cases à cocher héritent de nombreuses propriétés et fonctions des
+boutons commutateurs, mais ont un aspect différent. Au lieu d'être des
+boutons contenant du texte, ce sont de petits carrés avec un texte sur
+leur droite. Il sont souvent utilisés pour valider ou non des options
+dans les applications.
+<P>Les deux fonctions de création sont identiques à celles des boutons normaux.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_check_button_new (void);
+
+GtkWidget* gtk_check_button_new_with_label (gchar *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La fonction <EM>new_with_label</EM> crée une case à cocher avec un texte à
+coté d'elle.
+<P>La vérification de l'état d'une case à cocher est identique à celle
+des boutons commutateurs.
+<P>
+<H2><A NAME="ss6.4">6.4 Boutons radio</A>
+</H2>
+
+<P>Les boutons radio ressemblent aux cases à cocher sauf qu'ils sont
+groupés de façon à ce qu'un seul d'entre-eux puisse être sélectionné à
+un moment donné. Ils sont utilisés par les applications lorsqu'il
+s'agit d'effectuer un choix dans une liste d'options.
+<P>La création d'un bouton radio s'effectue grâce à l'un des appels
+suivants&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_radio_button_new (GSList *group);
+
+GtkWidget* gtk_radio_button_new_with_label (GSList *group,
+                                            gchar *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>On notera le paramètre supplémentaire de ces fonctions. Elles
+nécessitent un groupe pour réaliser correctement leur tâche. Le
+premier appel doit passer NULL au premier paramètre puis on peut créer un
+groupe en utilisant&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GSList* gtk_radio_button_group (GtkRadioButton *radio_button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>On passe alors ce groupe en premier paramètre des appels suivants aux fonctions de création.  Il est préférable, aussi, de préciser quel bouton doit être choisi par défaut avec la fonction&nbsp;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_set_state (GtkToggleButton *toggle_button,
+                                  gint state);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Celle-ci est décrite dans la section sur les boutons commutateurs et fonctionne
+exactement de la même façon.
+<P>[Mettre ici un exemple d'utilisation de tout cela car je crois que cela ferait
+beaucoup de bien...]
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_fr-7.html">Page suivante</A>
+<A HREF="gtk_tut_fr-5.html">Page précédente</A>
+<A HREF="gtk_tut_fr.html#toc6">Table des matières</A>
+</BODY>
+</HTML>

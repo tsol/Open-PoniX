@@ -1,0 +1,174 @@
+#!/bin/bash
+
+DEFAULT_TARGET='view-log.tar.gz'
+
+function printError()
+{
+   echo >&2 "${0##*/}: $1"
+}
+
+function Usage()
+{
+   cat <<EOF
+Usage: ${0##*/} [PATH]
+
+This scripts locates the latest log file generated from the
+VMware View Client.  The log file will be packaged into a new
+file at the location given by PATH.
+
+OPTIONS:
+   --help:                      Shows this help message.
+   -u|--user <username>         Selects the username to collect files for.
+
+EOF
+}
+
+# Check whether need to copy the PCoIP log and copy logs
+# Directory name may have space, and file name have the wildcard character.
+# So if use quotes to enclose the file name, ls command won't find it, and must
+# put the file name outside of the quotes. So 4 arguments are needed.
+function cpPCoIPLog()
+{
+   local cmpLogDir="$1"
+   local cmpLogGlob="$2"
+   local destViewLogFile="$3"
+   local destTargetDir="$4"
+   # In one connection, there are maybe more than one PCoIP/mks
+   # logs and all should be collected. Use the most recently
+   # view log's first line to get the view log's create time,
+   # and then compare it with the mtime of
+   # PCoIP/mks log, if PCoIP/mks is newer, just collect it.
+
+   local destViewLogTime=$(date -d "$(head -n 1 "$destViewLogFile" | sed -e 's/: vmware-view.*$//')" "+%s")
+   for logFile in $(ls -t "$cmpLogDir"/$cmpLogGlob 2>/dev/null) ; do
+       local cmpLogTime=$(stat -c %Y "$logFile")
+       if [ $cmpLogTime -lt $destViewLogTime ] ; then
+           return
+       fi
+       if ! cp "$logFile" "$destTargetDir" ; then
+           printError "Unable to copy log file $logFile to $destTargetDir."
+           exit 1
+       fi
+   done
+}
+
+target="$DEFAULT_TARGET"
+username="$USER"
+
+while [ $# -ne 0 ]; do
+   arg=$1
+   shift
+   case $arg in
+   --help)
+      Usage
+      exit
+      ;;
+   -u|--user)
+      username="$1"
+      shift
+      ;;
+   --)
+      target="$@"
+      shift $#
+      ;;
+   *)
+      if [ ${arg:0:1} == '-' ] ; then
+         printError "Unknown argument: $arg."
+         exit 1
+      else
+         target="$arg"
+      fi
+      ;;
+   esac
+done
+
+if [ ! -n "${TMPDIR}" ] ; then
+   export TMPDIR=/tmp
+fi
+
+logDirectory="$TMPDIR/vmware-$username"
+
+# Find the directory that logs are stored.
+if [ ! -d "$TMPDIR/vmware-$username/" ] ; then
+   printError "The log directory $logDirectory does not exist."
+   exit 1
+fi
+
+viewLogGlob="vmware-view-[0-9]*.log"
+# Ensure at least one log file exists.
+if ! ls "$TMPDIR/vmware-$username"/$viewLogGlob &>/dev/null ; then
+   printError "No log found in $logDirectory."
+   exit 1
+fi
+
+# Find the most 'recent' log and zip it.
+tarFileName=$(basename $target)
+targetDirectory="${tarFileName%.tar.gz}"
+
+# Create a temporary directory in which to work.
+if ! tmpdir=$(mktemp -d) ; then
+   printError "Failed to create temporary directory."
+   exit 1
+fi
+if ! mkdir "$tmpdir/$targetDirectory" ; then
+   printError "Failed to create $tmpdir/$targetDirectory."
+   exit 1
+fi
+
+fileToCp=$(ls -t "$logDirectory"/$viewLogGlob | head -n 1)
+if [ -z "$fileToCp" ] ; then
+   printError "Unable to locate log file in $logDirectory."
+   exit 1
+fi
+if ! cp "$fileToCp" "$tmpdir/$targetDirectory" ; then
+   printError "Unable to copy log file $fileToCp to $tmpdir/$targetDirectory."
+   exit 1
+fi
+
+viewLogFile=$fileToCp
+
+# Find most recent USB client log and zip it. Note that this may not correlate
+# with the most current View client log however in practice it is unlikely
+# if USB client logs exist on the system.
+
+usbLogGlob="vmware-view-usb*-[0-9]*.log"
+
+usbLogFile=$(ls -t "$logDirectory"/$usbLogGlob 2>/dev/null | head -n 1)
+if [ ! -z $usbLogFile ] ; then
+   if ! cp "$usbLogFile" "$tmpdir/$targetDirectory" ; then
+      printError "Unable to copy log file $usbLogFile to $tmpdir/$targetDirectory."
+      exit 1
+   fi
+fi
+
+# Move PCoIP logs to the temp directory
+pcoipLogDir="$TMPDIR/teradici-$username"
+pcoipLogGlob="pcoip_client_*.txt*"
+mksLogGlob="*mks-[0-9]*.log"
+
+# Copy the mks logs
+cpPCoIPLog "$logDirectory" "$mksLogGlob" "$viewLogFile" "$tmpdir/$targetDirectory"
+
+# Copy the pcoip_client logs
+cpPCoIPLog "$pcoipLogDir" "$pcoipLogGlob" "$viewLogFile" "$tmpdir/$targetDirectory"
+
+# Move VDP Service logs to the temp directory
+vdpServiceGlob="vmware-vdpServiceClient-[0-9]*.log"
+
+# Copy the vdpServiceClient logs
+cpPCoIPLog "$logDirectory" "$vdpServiceGlob" "$viewLogFile" "$tmpdir/$targetDirectory"
+
+# Move into the temp directory to prevent tar from prepending the
+# temp directory on the target directory.
+pushd "$tmpdir" >/dev/null
+tar czf $tarFileName "$targetDirectory"
+tarResult=$?
+popd >/dev/null
+if [ $tarResult -eq 0 ] ; then
+   mv "$tmpdir/$tarFileName" $target
+else
+   printError "Unable to make $target."
+fi
+
+rm -rf "$tmpdir"
+exit 0

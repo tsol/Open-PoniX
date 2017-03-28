@@ -1,0 +1,43 @@
+From 305dd09f8ce05cc8a8cce4e790a6d3d02e5c4f1d Mon Sep 17 00:00:00 2001
+From: Bala Shanmugam <bkamatch@qca.qualcomm.com>
+Date: Mon, 18 Jun 2012 11:36:58 +0530
+Subject: [PATCH 67/90] ath9k: fix incorrect profile type manupulation
+
+Two MCI interrupts are generated while adding A2DP and headset profiles
+with different types and same connection handle. While disconnecting,
+only one MCI interrupt is generated with last added profile type value
+for both profiles.
+
+While adding second profile type decrement first one.
+
+Signed-off-by: Bala Shanmugam <bkamatch@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/mci.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -233,8 +233,21 @@ static void ath_mci_process_profile(stru
+ 	struct ath_mci_profile_info *entry = NULL;
+ 
+ 	entry = ath_mci_find_profile(mci, info);
+-	if (entry)
++	if (entry) {
++		/*
++		 * Two MCI interrupts are generated while connecting to
++		 * headset and A2DP profile, but only one MCI interrupt
++		 * is generated with last added profile type while disconnecting
++		 * both profiles.
++		 * So while adding second profile type decrement
++		 * the first one.
++		 */
++		if (entry->type != info->type) {
++			DEC_PROF(mci, entry);
++			INC_PROF(mci, info);
++		}
+ 		memcpy(entry, info, 10);
++	}
+ 
+ 	if (info->start) {
+ 		if (!entry && !ath_mci_add_profile(common, mci, info))

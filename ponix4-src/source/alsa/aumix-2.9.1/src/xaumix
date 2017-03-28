@@ -1,0 +1,122 @@
+#!/bin/sh
+# $Aumix: aumix/src/xaumix,v 1.2 2002/03/28 09:37:27 trevor Exp $
+# xaumix:  run aumix in ncurses mode in a terminal emulator under X
+# copyright (C) 1999 Paul Slootman
+#
+# This file is part of aumix.
+#
+# Aumix is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# Aumix is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# aumix; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+# Suite 330, Boston, MA 02111-1307, USA.
+
+set -e
+GEOMETRY='-geometry 79x${LINES}'
+NAME='-n aumix'
+SCHEME='-C ansi'
+TITLE='-T aumix'
+XTERM=
+
+# Are we under X11?
+if test -z "$DISPLAY"; then
+	exec aumix
+	exit 1
+fi
+# from gzexe:  add colon to internal field separator because PATH
+# is colon-delimited
+IFS=${IFS= 	}
+saveifs=$IFS
+IFS=${IFS}:
+# Test for GNOME before KDE:  I flipped a coin. --Trevor
+if xprop -root | grep -q '^GNOME_SM_PROXY'; then
+	for dir in $PATH; do
+# Although gnome-terminal works, it gives error messages:
+# 	Gdk-WARNING **: locale not supported by C library
+# 	GnomeUI-WARNING **: Could not open help topics file NULL
+		if test -x $dir/gnome-terminal; then
+			GEOMETRY='--geometry 79x${LINES}'
+			NAME="--name=aumix"
+			TITLE="-t aumix"
+			XTERM="$dir/gnome-terminal --name aumix"
+			break
+		fi
+	done
+fi
+if xprop -root | grep -q 'Unnamed Desktop'; then
+	for dir in $PATH; do
+		if test -x $dir/kvt; then
+			GEOMETRY='-vt_geometry 79x${LINES}'
+			SCHEME="-C xterm"
+			TITLE="-caption aumix"
+			XTERM="$dir/kvt -no_scrollbar -sl 0"
+			break
+		fi
+# This one doesn't do color.  Also it gives an error message:
+# 	TEScreen.C(172) : setRegion(0,64) : bad range.
+#	if test -f $HOME/.kde/share/config/konsolerc; then
+#		if test -x $dir/konsole; then
+#			GEOMETRY=""
+#'-vt_sz 79x{LINES}' doesn't work
+#			SCHEME="-C xterm"
+#			TITLE="-caption aumix"
+#			XTERM="$dir/konsole -sl 0 -nowelcome"
+#			break
+#		fi
+		done
+fi
+if test -z "$XTERM"; then
+	for dir in $PATH; do
+		if test -x $dir/xterm; then
+			XTERM="$dir/xterm -rv +sb"
+			break
+		fi
+		if test -x $dir/rxvt; then
+			XTERM="$dir/rxvt -rv +sb"
+			break
+		fi
+		if test -x $dir/aterm; then
+			XTERM="$dir/aterm -rv +sb"
+			break
+		fi
+		if test -x $dir/kterm; then
+			XTERM="$dir/kterm"
+			break
+		fi
+		if test -x $dir/wterm; then
+			XTERM="$dir/wterm -name aumix -rv +sb"
+			break
+		fi
+		if test -x $dir/Eterm; then
+			GEOMETRY='-g 79x${LINES}'
+			XTERM="$dir/Eterm --scrollbar=0 --term-name xterm"
+			break
+		fi
+# need to check geometry option for eterm
+# Is this the same as Eterm ("Enlightened Terminal Emulator
+# for X Windows[sic]")?
+		if test -x $dir/eterm; then
+			GEOMETRY=""
+			SCHEME="-C xterm"
+			XTERM="$dir/eterm"
+			break
+		fi
+	done
+fi
+IFS=$saveifs
+if test -z "$XTERM"; then
+	echo "xaumix:  no terminal emulator found" >&2
+        exit 1
+fi
+LINES=`aumix -q | wc -l`
+LINES=`expr $LINES + 1`
+eval GEOMETRY=\"$GEOMETRY\"
+exec $XTERM $GEOMETRY $TITLE $NAME -e aumix $SCHEME
+exit 1

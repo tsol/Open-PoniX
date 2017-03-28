@@ -1,0 +1,474 @@
+<refentry id="GtkTreeModelFilter">
+<refmeta>
+<refentrytitle>GtkTreeModelFilter</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>GtkTreeModelFilter</refname><refpurpose>A GtkTreeModel which hides parts of an underlying tree model</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+struct      <link linkend="GtkTreeModelFilter-struct">GtkTreeModelFilter</link>;
+<link linkend="gboolean">gboolean</link>    (<link linkend="GtkTreeModelFilterVisibleFunc">*GtkTreeModelFilterVisibleFunc</link>)
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        (<link linkend="GtkTreeModelFilterModifyFunc">*GtkTreeModelFilterModifyFunc</link>) (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GValue">GValue</link> *value,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="GtkTreeModel">GtkTreeModel</link>* <link linkend="gtk-tree-model-filter-new">gtk_tree_model_filter_new</link>     (<link linkend="GtkTreeModel">GtkTreeModel</link> *child_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *root);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-set-visible-func">gtk_tree_model_filter_set_visible_func</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreeModelFilterVisibleFunc">GtkTreeModelFilterVisibleFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-set-modify-func">gtk_tree_model_filter_set_modify_func</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="gint">gint</link> n_columns,
+                                             <link linkend="GType">GType</link> *types,
+                                             <link linkend="GtkTreeModelFilterModifyFunc">GtkTreeModelFilterModifyFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-set-visible-column">gtk_tree_model_filter_set_visible_column</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="gint">gint</link> column);
+<link linkend="GtkTreeModel">GtkTreeModel</link>* <link linkend="gtk-tree-model-filter-get-model">gtk_tree_model_filter_get_model</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-convert-child-iter-to-iter">gtk_tree_model_filter_convert_child_iter_to_iter</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *filter_iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *child_iter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-convert-iter-to-child-iter">gtk_tree_model_filter_convert_iter_to_child_iter</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *child_iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *filter_iter);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-model-filter-convert-child-path-to-path">gtk_tree_model_filter_convert_child_path_to_path</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *child_path);
+<link linkend="GtkTreePath">GtkTreePath</link>* <link linkend="gtk-tree-model-filter-convert-path-to-child-path">gtk_tree_model_filter_convert_path_to_child_path</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *filter_path);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-refilter">gtk_tree_model_filter_refilter</link>  (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter);
+<link linkend="void">void</link>        <link linkend="gtk-tree-model-filter-clear-cache">gtk_tree_model_filter_clear_cache</link>
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter);
+
+
+</synopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Object Hierarchy</title>
+<synopsis>
+
+  <link linkend="GObject">GObject</link>
+   +----GtkTreeModelFilter
+</synopsis>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>Implemented Interfaces</title>
+<para>
+GtkTreeModelFilter implements
+ <link linkend="GtkTreeModel">GtkTreeModel</link> and  <link linkend="GtkTreeDragSource">GtkTreeDragSource</link>.</para>
+
+</refsect1>
+
+
+<refsect1>
+<title>Properties</title>
+<synopsis>
+
+  &quot;<link linkend="GtkTreeModelFilter--child-model">child-model</link>&quot;          <link linkend="GtkTreeModel">GtkTreeModel</link>         : Read / Write / Construct Only
+  &quot;<link linkend="GtkTreeModelFilter--virtual-root">virtual-root</link>&quot;         <link linkend="GtkTreePath">GtkTreePath</link>          : Read / Write / Construct Only
+</synopsis>
+</refsect1>
+
+
+
+<refsect1>
+<title>Description</title>
+<para>
+A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link> is a tree model which wraps another tree model,
+and can do the following things:
+<itemizedlist>
+<listitem><para>
+Filter specific rows, based on data from a "visible column", a column
+storing booleans indicating whether the row should be filtered or not,
+or based on the return value of a "visible function", which gets a
+model, iter and user_data and returns a boolean indicating whether the
+row should be filtered or not.
+</para></listitem>
+<listitem><para>
+Modify the "appearance" of the model, using a modify function. 
+This is extremely powerful and allows for just changing
+some values and also for creating a completely different model based on
+the given child model. 
+</para></listitem>
+<listitem><para>
+Set a different root node, also known as a "virtual root". You can pass in 
+a <link linkend="GtkTreePath"><type>GtkTreePath</type></link> indicating the root node for the filter at construction time.
+</para></listitem>
+</itemizedlist>
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="GtkTreeModelFilter-struct"/>struct GtkTreeModelFilter</title>
+<indexterm><primary>GtkTreeModelFilter</primary></indexterm><programlisting>struct GtkTreeModelFilter;</programlisting>
+<para>
+The GtkTreeModelFilter struct contains only private fields.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeModelFilterVisibleFunc"/>GtkTreeModelFilterVisibleFunc ()</title>
+<indexterm><primary>GtkTreeModelFilterVisibleFunc</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    (*GtkTreeModelFilterVisibleFunc)
+                                            (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+A function which decides whether the row indicated by <parameter>iter</parameter> is visible.
+</para><variablelist role="params">
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara>the <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to the row whose visibility is determined
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>user data given to <link linkend="gtk-tree-model-filter-set-visible-func"><function>gtk_tree_model_filter_set_visible_func()</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>Whether the row indicated by <parameter>iter</parameter> is visible.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkTreeModelFilterModifyFunc"/>GtkTreeModelFilterModifyFunc ()</title>
+<indexterm><primary>GtkTreeModelFilterModifyFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkTreeModelFilterModifyFunc) (<link linkend="GtkTreeModel">GtkTreeModel</link> *model,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *iter,
+                                             <link linkend="GValue">GValue</link> *value,
+                                             <link linkend="gint">gint</link> column,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+A function which calculates display values from raw values in the model.
+It must fill <parameter>value</parameter> with the display value for the column <parameter>column</parameter> in the 
+row indicated by <parameter>iter</parameter>. 
+</para>
+<para>
+Since this function is called for each data access, it's not a
+particularly efficient operation.
+</para><variablelist role="params">
+<varlistentry><term><parameter>model</parameter>&nbsp;:</term>
+<listitem><simpara>the <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>iter</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to the row whose display values are determined
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>value</parameter>&nbsp;:</term>
+<listitem><simpara>A <link linkend="GValue"><type>GValue</type></link> which is already initialized for with the correct type for 
+  the column <parameter>column</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara>the column whose display value is determined
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>user data given to <link linkend="gtk-tree-model-filter-set-modify-func"><function>gtk_tree_model_filter_set_modify_func()</function></link>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-new"/>gtk_tree_model_filter_new ()</title>
+<indexterm><primary>gtk_tree_model_filter_new</primary></indexterm><programlisting><link linkend="GtkTreeModel">GtkTreeModel</link>* gtk_tree_model_filter_new     (<link linkend="GtkTreeModel">GtkTreeModel</link> *child_model,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *root);</programlisting>
+<para>
+Creates a new <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>, with <parameter>child_model</parameter> as the child_model
+and <parameter>root</parameter> as the virtual root.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>child_model</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>root</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A new <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-set-visible-func"/>gtk_tree_model_filter_set_visible_func ()</title>
+<indexterm><primary>gtk_tree_model_filter_set_visible_func</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_set_visible_func
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreeModelFilterVisibleFunc">GtkTreeModelFilterVisibleFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<para>
+Sets the visible function used when filtering the <parameter>filter</parameter> to be <parameter>func</parameter>. The
+function should return <literal>TRUE</literal> if the given row should be visible and
+<literal>FALSE</literal> otherwise.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilterVisibleFunc"><type>GtkTreeModelFilterVisibleFunc</type></link>, the visible function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> User data to pass to the visible function, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> Destroy notifier of <parameter>data</parameter>, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-set-modify-func"/>gtk_tree_model_filter_set_modify_func ()</title>
+<indexterm><primary>gtk_tree_model_filter_set_modify_func</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_set_modify_func
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="gint">gint</link> n_columns,
+                                             <link linkend="GType">GType</link> *types,
+                                             <link linkend="GtkTreeModelFilterModifyFunc">GtkTreeModelFilterModifyFunc</link> func,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<para>
+With the <parameter>n_columns</parameter> and <parameter>types</parameter> parameters, you give an array of column
+types for this model (which will be exposed to the parent model/view).
+The <parameter>func</parameter>, <parameter>data</parameter> and <parameter>destroy</parameter> parameters are for specifying the modify
+function. The modify function will get called for <emphasis>each</emphasis>
+data access, the goal of the modify function is to return the data which 
+should be displayed at the location specified using the parameters of the 
+modify function.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>n_columns</parameter>&nbsp;:</term>
+<listitem><simpara> The number of columns in the filter model.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>types</parameter>&nbsp;:</term>
+<listitem><simpara> The <link linkend="GType"><type>GType</type></link><!-- -->s of the columns.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilterModifyFunc"><type>GtkTreeModelFilterModifyFunc</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> User data to pass to the modify function, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara> Destroy notifier of <parameter>data</parameter>, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-set-visible-column"/>gtk_tree_model_filter_set_visible_column ()</title>
+<indexterm><primary>gtk_tree_model_filter_set_visible_column</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_set_visible_column
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="gint">gint</link> column);</programlisting>
+<para>
+Sets <parameter>column</parameter> of the child_model to be the column where <parameter>filter</parameter> should
+look for visibility information. <parameter>columns</parameter> should be a column of type
+<literal>G_TYPE_BOOLEAN</literal>, where <literal>TRUE</literal> means that a row is visible, and <literal>FALSE</literal>
+if not.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>column</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="gint"><type>gint</type></link> which is the column containing the visible information.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-get-model"/>gtk_tree_model_filter_get_model ()</title>
+<indexterm><primary>gtk_tree_model_filter_get_model</primary></indexterm><programlisting><link linkend="GtkTreeModel">GtkTreeModel</link>* gtk_tree_model_filter_get_model
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter);</programlisting>
+<para>
+Returns a pointer to the child model of <parameter>filter</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A pointer to a <link linkend="GtkTreeModel"><type>GtkTreeModel</type></link>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-convert-child-iter-to-iter"/>gtk_tree_model_filter_convert_child_iter_to_iter ()</title>
+<indexterm><primary>gtk_tree_model_filter_convert_child_iter_to_iter</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_convert_child_iter_to_iter
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *filter_iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *child_iter);</programlisting>
+<para>
+Sets <parameter>filter_iter</parameter> to point to the row in <parameter>filter</parameter> that corresponds to the
+row pointed at by <parameter>child_iter</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>filter_iter</parameter>&nbsp;:</term>
+<listitem><simpara> An uninitialized <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>child_iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to a row on the child model.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-convert-iter-to-child-iter"/>gtk_tree_model_filter_convert_iter_to_child_iter ()</title>
+<indexterm><primary>gtk_tree_model_filter_convert_iter_to_child_iter</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_convert_iter_to_child_iter
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *child_iter,
+                                             <link linkend="GtkTreeIter">GtkTreeIter</link> *filter_iter);</programlisting>
+<para>
+Sets <parameter>child_iter</parameter> to point to the row pointed to by <parameter>filter_iter</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>child_iter</parameter>&nbsp;:</term>
+<listitem><simpara> An uninitialized <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>filter_iter</parameter>&nbsp;:</term>
+<listitem><simpara> A valid <link linkend="GtkTreeIter"><type>GtkTreeIter</type></link> pointing to a row on <parameter>filter</parameter>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-convert-child-path-to-path"/>gtk_tree_model_filter_convert_child_path_to_path ()</title>
+<indexterm><primary>gtk_tree_model_filter_convert_child_path_to_path</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_model_filter_convert_child_path_to_path
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *child_path);</programlisting>
+<para>
+Converts <parameter>child_path</parameter> to a path relative to <parameter>filter</parameter>. That is, <parameter>child_path</parameter>
+points to a path in the child model. The rerturned path will point to the
+same row in the filtered model. If <parameter>child_path</parameter> isn't a valid path on the
+child model, then <literal>NULL</literal> is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>child_path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to convert.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly allocated <link linkend="GtkTreePath"><type>GtkTreePath</type></link>, or <literal>NULL</literal>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-convert-path-to-child-path"/>gtk_tree_model_filter_convert_path_to_child_path ()</title>
+<indexterm><primary>gtk_tree_model_filter_convert_path_to_child_path</primary></indexterm><programlisting><link linkend="GtkTreePath">GtkTreePath</link>* gtk_tree_model_filter_convert_path_to_child_path
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter,
+                                             <link linkend="GtkTreePath">GtkTreePath</link> *filter_path);</programlisting>
+<para>
+Converts <parameter>filter_path</parameter> to a path on the child model of <parameter>filter</parameter>. That is,
+<parameter>filter_path</parameter> points to a location in <parameter>filter</parameter>. The returned path will
+point to the same location in the model not being filtered. If <parameter>filter_path</parameter>
+does not point to a location in the child model, <literal>NULL</literal> is returned.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>filter_path</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreePath"><type>GtkTreePath</type></link> to convert.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly allocated <link linkend="GtkTreePath"><type>GtkTreePath</type></link>, or <literal>NULL</literal>.
+
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-refilter"/>gtk_tree_model_filter_refilter ()</title>
+<indexterm><primary>gtk_tree_model_filter_refilter</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_refilter  (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter);</programlisting>
+<para>
+Emits ::row_changed for each row in the child model, which causes
+the filter to re-evaluate whether a row is visible or not.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-tree-model-filter-clear-cache"/>gtk_tree_model_filter_clear_cache ()</title>
+<indexterm><primary>gtk_tree_model_filter_clear_cache</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_tree_model_filter_clear_cache
+                                            (<link linkend="GtkTreeModelFilter">GtkTreeModelFilter</link> *filter);</programlisting>
+<para>
+This function should almost never be called. It clears the <parameter>filter</parameter>
+of any cached iterators that haven't been reffed with
+<link linkend="gtk-tree-model-ref-node"><function>gtk_tree_model_ref_node()</function></link>. This might be useful if the child model
+being filtered is static (and doesn't change often) and there has been
+a lot of unreffed access to nodes. As a side effect of this function,
+all unreffed itters will be invalid.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>filter</parameter>&nbsp;:</term>
+<listitem><simpara> A <link linkend="GtkTreeModelFilter"><type>GtkTreeModelFilter</type></link>.
+</simpara></listitem></varlistentry>
+</variablelist><para>Since  2.4
+</para></refsect2>
+
+</refsect1>
+<refsect1>
+<title>Properties</title>
+<variablelist>
+<varlistentry><term><anchor id="GtkTreeModelFilter--child-model"/>&quot;<literal>child-model</literal>&quot; (<link linkend="GtkTreeModel">GtkTreeModel</link> : Read / Write / Construct Only)</term>
+<listitem>
+<para>The model for the filtermodel to filter.</para>
+</listitem></varlistentry>
+<varlistentry><term><anchor id="GtkTreeModelFilter--virtual-root"/>&quot;<literal>virtual-root</literal>&quot; (<link linkend="GtkTreePath">GtkTreePath</link> : Read / Write / Construct Only)</term>
+<listitem>
+<para>The virtual root (relative to the child model) for this filtermodel.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+<link linkend="GtkTreeModelSort"><type>GtkTreeModelSort</type></link>
+</para>
+</refsect1>
+
+</refentry>

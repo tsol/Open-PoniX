@@ -1,0 +1,474 @@
+<HTML
+><HEAD
+><TITLE
+>Differences between Imlib and gdk-pixbuf</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.52"><LINK
+REL="HOME"
+TITLE="The gdk-pixbuf Library"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Porting applications from Imlib to gdk-pixbuf"
+HREF="a2605.html"><LINK
+REL="PREVIOUS"
+TITLE="Porting applications from Imlib to gdk-pixbuf"
+HREF="a2605.html"><LINK
+REL="NEXT"
+TITLE="Converting Applications to gdk-pixbuf"
+HREF="x2676.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> Library</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="a2605.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="book1.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="a2605.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="x2676.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN2624"
+>Differences between <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> and <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+></A
+></H1
+><P
+>	Generally, applications that use <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> do not have to be
+	changed extensively to use <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+>; its simple and
+	flexible API makes things easy.  This section describes the
+	differences between <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> and <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+>; you should take
+	these into account when modifying your applications to use
+	<SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+>.
+      </P
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2634"
+>Initialization</A
+></H2
+><P
+>	  The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> library does not need to be intialized.
+	  However, if you intend to use the rendering functions or
+	  anything else from the <SPAN
+CLASS="APPLICATION"
+>GdkRGB</SPAN
+>
+	  library, you should call <TT
+CLASS="FUNCTION"
+>gdk_rgb_init()</TT
+>
+	  after calling <TT
+CLASS="FUNCTION"
+>gtk_init()</TT
+> or
+	  <TT
+CLASS="FUNCTION"
+>gnome_init()</TT
+> in your program.
+	</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>	    In GNOME applications you normally don't need to
+	    initialize <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+>, as <TT
+CLASS="FUNCTION"
+>gnome_init()</TT
+>
+	    calls <TT
+CLASS="FUNCTION"
+>gdk_imlib_init()</TT
+> automatically.
+	  </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2647"
+>Memory management</A
+></H2
+><P
+>	  The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> library provides a simple, well-defined
+	  memory management mechanism for images in the form of
+	  reference counting.  This makes it very convenient to use
+	  for large-scale applications that need to share images
+	  between different parts of the program.  In stark contrast,
+	  <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> has a terribly complex mechanism of an image and
+	  pixmap cache which makes it very hard for applications to
+	  share image structures between different parts of the
+	  program.  Unfortunately this mechanism makes things very
+	  prone to memory leaks and tricky bugs.
+	</P
+><P
+>	  The basic principle in <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> is that when you obtain
+	  a new <A
+HREF="gdk-pixbuf-gdk-pixbuf.html#GDKPIXBUF"
+>GdkPixbuf</A
+> structure,
+	  it is created with an initial reference count of 1.  When
+	  another part of the program wants to keep a reference to the
+	  pixbuf, it should call <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-REF"
+>gdk_pixbuf_ref()</A
+>; this will
+	  increase the reference count by 1.  When some part of the
+	  program does not need to keep a reference to a pixbuf
+	  anymore and wants to release the pixbuf, it should call
+	  <A
+HREF="gdk-pixbuf-refcounting.html#GDK-PIXBUF-UNREF"
+>gdk_pixbuf_unref()</A
+>;
+	  this will decrease the reference count by 1.  When the
+	  reference count drops to zero, the pixbuf gets destroyed or
+	  <I
+CLASS="EMPHASIS"
+>finalized</I
+> and its memory is freed.
+	</P
+><P
+>	  For applications that need to implement a cache of loaded
+	  images, <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> provides a way to hook to the last
+	  unreference operation of a pixbuf; instead of finalizing the
+	  pixbuf, the user-installed hook can decide to keep it around
+	  in a cache instead.
+	</P
+><P
+>	  Finally, <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> does not provide a cache of rendered
+	  pixmaps.  This is unnecessary for most applications, since
+	  the scaling and rendering functions are quite fast and
+	  applications may need to use subtly different values each
+	  time they call these functions, for example, to take into
+	  account dithering and zooming offsets.
+	</P
+><P
+>	  Most applications will simply need to call
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_ref()</TT
+> when they want to keep
+	  an extra reference to a pixbuf, and then
+	  <TT
+CLASS="FUNCTION"
+>gdk_pixbuf_unref()</TT
+> when they are done
+	  with it.
+	</P
+></DIV
+><BR
+CLEAR="all"><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2665"
+>The Rendering Process</A
+></H2
+><P
+>	  The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> library has the policy of always rendering
+	  pixbufs to Gdk drawables you provide; it will not create
+	  them for you.  This is in general more flexible than
+	  <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+>'s policy of always creating a pixmap and making you
+	  use that instead.
+	</P
+><P
+>	  The disadvantage of always having a pixmap created for you
+	  is that it wastes memory in the X server if you intend to
+	  copy that rendered data onto another drawable, for example,
+	  the final destination window or a temporary pixmap for
+	  drawing.  This is the most common case, unfortunately, so
+	  the <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> policy introduces unnecessary copying.
+	</P
+><P
+>	  Also, <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> can only render pixmaps that are the whole
+	  size of the source image; you cannot render just a subset
+	  region of the image.  This is inconvenient for applications
+	  that need to render small portions at a time, such as
+	  applications that do scrolling.  Since the whole image must
+	  be rendered at a time, this can lead to performance and
+	  memory usage problems.
+	</P
+><P
+>	  The <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+> library lets you render any rectangular
+	  region from an image onto any drawable that you provide.
+	  This lets the application have fine control the way images
+	  are rendered.
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="a2605.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="book1.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="a2605.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="x2676.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Porting applications from <SPAN
+CLASS="APPLICATION"
+>Imlib</SPAN
+> to <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+></B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Converting Applications to <SPAN
+CLASS="APPLICATION"
+>gdk-pixbuf</SPAN
+></B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

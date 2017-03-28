@@ -1,0 +1,105 @@
+# Makefile.in -- input for the src directory's Makefile
+# $Id: Makefile.in,v 1.42 2003/08/14 07:12:53 jsh Exp $
+#
+# Copyright (C) 1999 John Harper <john@dcs.warwick.ac.uk>
+#
+# This file is part of sawfish.
+#
+# sawfish is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# sawfish is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sawfish; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+include ../Makedefs
+
+top_builddir=..
+top_srcdir=@top_srcdir@
+srcdir=@srcdir@
+
+SRCS :=	colors.c cursors.c display.c events.c fonts.c frames.c flippers.c \
+	functions.c images.c keys.c main.c multihead.c pixmap-cache.c \
+	property-cache.c server.c session.c stacking-list.c windows.c
+OBJS := $(SRCS:.c=.o)
+
+DL_SRCS := gradient.c x.c selection.c
+DL_OBJS := $(DL_SRCS:%.c=%.la) client.la
+DL_DSTS = sawfish/wm/util/gradient.la sawfish/wm/util/x.la sawfish/wm/util/selection.la
+DL_DIRS = sawfish/wm/util
+
+INSTALL_HDRS = sawfish.h sawfish_subrs.h libclient.h server.h keys.h build.h
+
+override CFLAGS := $(CFLAGS) $(REP_CFLAGS) $(IMAGE_CFLAGS) $(X11_CFLAGS) $(PANGO_CFLAGS) 
+
+all : sawfish libclient.o $(DL_OBJS) .libexec gtk-style
+
+sawfish : $(OBJS) $(LIBOBJS)
+	$(rep_LIBTOOL) --mode=link --tag=CC $(CC) -export-dynamic $(LDFLAGS) \
+	  -o sawfish $(OBJS) $(LIBOBJS) $(REP_LIBS) $(PANGO_LIBS) \
+	  $(IMAGE_LIBS) $(X11_LIBS) $(EXTRA_X11_LIBS) $(LIBS) $(XRANDR_LIBS)
+
+%.la : %.lo
+	$(rep_DL_LD) $(LDFLAGS) -o $@ $<
+
+libclient_.lo : libclient.c
+	$(rep_LIBTOOL) --mode=compile --tag=CC $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+client.la : client.lo libclient_.lo
+	$(rep_DL_LD) $(LDFLAGS) -o $@ $^ $(X11_LIBS) $(REP_LIBS) $(LIBS) $(XRANDR_LIBS)
+
+gtk-style : gtk-style.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(GTK_CFLAGS) $(LDFLAGS) -o $@ $< $(GTK_LIBS) $(LIBS) $(XRANDR_LIBS)
+
+install : all installdirs
+	for p in sawfish; do \
+	  $(rep_LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)${bindir}; \
+	done
+	$(rep_DL_INSTALL) gtk-style $(DESTDIR)${sawfishexecdir}
+	$(foreach x,$(DL_DSTS),\
+	  $(rep_LIBTOOL) --mode=install $(INSTALL_PROGRAM) \
+	  $(notdir $(x)) $(DESTDIR)$(sawfishexecdir)/$(dir $(x));)
+	$(rep_INSTALL_ALIASES) -c $(srcdir) $(DESTDIR)$(sawfishexecdir)
+	$(rep_LIBTOOL) --mode=install $(INSTALL_PROGRAM) client.la $(DESTDIR)$(repexecdir)/sawfish/
+	for i in $(INSTALL_HDRS); do \
+	  $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir)/sawfish/; \
+	done
+	$(INSTALL_DATA) $(top_srcdir)/config.h $(DESTDIR)$(includedir)/sawfish/sawfish_config.h
+
+uninstall :
+	for p in sawfish; do \
+	  $(rep_LIBTOOL) --mode=uninstall rm -f $(DESTDIR)${bindir}/$$p; \
+	done
+	rm -f $(DESTDIR)$(bindir)/sawfish-client
+	$(rep_DL_UNINSTALL) -f $(DESTDIR)${sawfishexecdir}/gtk-style
+	for dl in $(DL_DSTS); do \
+	  $(rep_LIBTOOL) --mode=uninstall rm -f $(DESTDIR)${sawfishexecdir}/$$dl; \
+	done
+	$(rep_DL_UNINSTALL) -f $(DESTDIR)$(repexecdir)/sawfish/client.la
+	rm -rf $(DESTDIR)$(includedir)/sawfish/
+
+installdirs : $(top_srcdir)/mkinstalldirs
+	$(SHELL) $< $(DESTDIR)$(bindir) $(DESTDIR)$(repexecdir)/sawfish \
+	  $(foreach x,$(DL_DIRS),$(DESTDIR)$(sawfishexecdir)/$(x)) \
+	  $(DESTDIR)$(includedir)/sawfish/
+
+.libexec : $(DL_OBJS)
+	$(SHELL) $(srcdir)/fake-libexec
+
+clean :
+	rm -f *~ *.o *.lo *.la *.jlc build.h core
+
+distclean: gitclean
+
+gitclean : clean
+	rm -f .*.d sawfish sawfish-about.jl Makefile gtk-style
+	rm -rf .libs .libexec
+
+-include $(SRCS:%.c=.%.d) $(DL_SRCS:%.c=.%.d)

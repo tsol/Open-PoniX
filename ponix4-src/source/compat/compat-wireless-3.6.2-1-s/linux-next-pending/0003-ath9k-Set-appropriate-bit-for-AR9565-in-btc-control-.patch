@@ -1,0 +1,33 @@
+From cd8098a5ee084ea3b41f2891e0a5340271988f0d Mon Sep 17 00:00:00 2001
+From: Bala Shanmugam <bkamatch@qca.qualcomm.com>
+Date: Mon, 15 Oct 2012 15:29:47 +0530
+Subject: [PATCH 03/11] ath9k: Set appropriate bit for AR9565 in btc control register
+
+Signed-off-by: Bala Shanmugam <bkamatch@qca.qualcomm.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -850,11 +850,18 @@ int ar9003_mci_reset(struct ath_hw *ah,
+ 		 SM(1, AR_BTCOEX_CTRL_WBTIMER_EN) |
+ 		 SM(1, AR_BTCOEX_CTRL_PA_SHARED) |
+ 		 SM(1, AR_BTCOEX_CTRL_LNA_SHARED) |
+-		 SM(2, AR_BTCOEX_CTRL_NUM_ANTENNAS) |
+-		 SM(3, AR_BTCOEX_CTRL_RX_CHAIN_MASK) |
+ 		 SM(0, AR_BTCOEX_CTRL_1_CHAIN_ACK) |
+ 		 SM(0, AR_BTCOEX_CTRL_1_CHAIN_BCN) |
+ 		 SM(0, AR_BTCOEX_CTRL_ONE_STEP_LOOK_AHEAD_EN);
++	if (AR_SREV_9565(ah)) {
++		regval |= SM(1, AR_BTCOEX_CTRL_NUM_ANTENNAS) |
++			  SM(1, AR_BTCOEX_CTRL_RX_CHAIN_MASK);
++		REG_RMW_FIELD(ah, AR_BTCOEX_CTRL2,
++			      AR_BTCOEX_CTRL2_TX_CHAIN_MASK, 0x1);
++	} else {
++		regval |= SM(2, AR_BTCOEX_CTRL_NUM_ANTENNAS) |
++			  SM(3, AR_BTCOEX_CTRL_RX_CHAIN_MASK);
++	}
+ 
+ 	REG_WRITE(ah, AR_BTCOEX_CTRL, regval);
+ 

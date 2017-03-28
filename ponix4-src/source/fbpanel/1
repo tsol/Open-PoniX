@@ -1,0 +1,274 @@
+./README:	 o menu      - menu with text and images
+./panel/misc.h:void menu_pos(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, GtkWidget *widget);
+./panel/misc.c:            nwwt->menu = 1;
+./panel/misc.c:menu_pos(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, GtkWidget *widget)
+./panel/misc.c:    w = GTK_WIDGET(menu)->requisition.width;
+./panel/misc.c:    h = GTK_WIDGET(menu)->requisition.height;
+./panel/panel.h:    unsigned int menu : 1;
+Binary file ./panel/misc.o matches
+Binary file ./panel/fbpanel matches
+Binary file ./plugins/taskbar/taskbar.so matches
+Binary file ./plugins/taskbar/taskbar.o matches
+./plugins/taskbar/taskbar.c:    GtkWidget *hbox, *bar, *space, *menu;
+./plugins/taskbar/taskbar.c:    task *menutask;
+./plugins/taskbar/taskbar.c:        tk->tb->menutask = tk;
+./plugins/taskbar/taskbar.c:        gtk_menu_popup (GTK_MENU (tk->tb->menu), NULL, NULL,
+./plugins/taskbar/taskbar.c:              (GtkMenuPositionFunc)menu_pos,
+./plugins/taskbar/taskbar.c:menu_close_window(GtkWidget *widget, taskbar_priv *tb)
+./plugins/taskbar/taskbar.c:    DBG("win %x\n", tb->menutask->win);
+./plugins/taskbar/taskbar.c:    //XKillClient(GDK_DISPLAY(), tb->menutask->win);
+./plugins/taskbar/taskbar.c:    Xclimsgwm(tb->menutask->win, a_WM_PROTOCOLS, a_WM_DELETE_WINDOW);
+./plugins/taskbar/taskbar.c:menu_raise_window(GtkWidget *widget, taskbar_priv *tb)
+./plugins/taskbar/taskbar.c:    DBG("win %x\n", tb->menutask->win);
+./plugins/taskbar/taskbar.c:    XMapRaised(GDK_DISPLAY(), tb->menutask->win);
+./plugins/taskbar/taskbar.c:menu_iconify_window(GtkWidget *widget, taskbar_priv *tb)
+./plugins/taskbar/taskbar.c:    DBG("win %x\n", tb->menutask->win);
+./plugins/taskbar/taskbar.c:    XIconifyWindow (GDK_DISPLAY(), tb->menutask->win, DefaultScreen(GDK_DISPLAY()));
+./plugins/taskbar/taskbar.c:taskbar_make_menu(taskbar_priv *tb)
+./plugins/taskbar/taskbar.c:    GtkWidget *mi, *menu;
+./plugins/taskbar/taskbar.c:    menu = gtk_menu_new ();
+./plugins/taskbar/taskbar.c:    mi = gtk_image_menu_item_new_with_label ("Raise");
+./plugins/taskbar/taskbar.c:    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi),
+./plugins/taskbar/taskbar.c:    gtk_menu_shell_append (GTK_MENU_SHELL (menu), mi);
+./plugins/taskbar/taskbar.c:    g_signal_connect(G_OBJECT(mi), "activate", (GCallback)menu_raise_window, tb);
+./plugins/taskbar/taskbar.c:    mi = gtk_image_menu_item_new_with_label ("Iconify");
+./plugins/taskbar/taskbar.c:    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi),
+./plugins/taskbar/taskbar.c:    gtk_menu_shell_append (GTK_MENU_SHELL (menu), mi);
+./plugins/taskbar/taskbar.c:    g_signal_connect(G_OBJECT(mi), "activate", (GCallback)menu_iconify_window, tb);
+./plugins/taskbar/taskbar.c:    mi = gtk_separator_menu_item_new();
+./plugins/taskbar/taskbar.c:    gtk_menu_shell_append (GTK_MENU_SHELL (menu), mi);
+./plugins/taskbar/taskbar.c:    //mi = gtk_menu_item_new_with_label ("Close Window");
+./plugins/taskbar/taskbar.c:    mi = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLOSE, NULL);
+./plugins/taskbar/taskbar.c:    gtk_menu_shell_append (GTK_MENU_SHELL (menu), mi);
+./plugins/taskbar/taskbar.c:    g_signal_connect(G_OBJECT(mi), "activate", (GCallback)menu_close_window, tb);
+./plugins/taskbar/taskbar.c:    RET(menu);
+./plugins/taskbar/taskbar.c:    tb->menu = taskbar_make_menu(tb);
+./plugins/taskbar/taskbar.c:    gtk_widget_destroy(tb->menu);
+./plugins/menu/system_menu.c~:systemmenu_changed(time_t btime)
+./plugins/menu/system_menu.c~:xconf_new_from_systemmenu()
+./plugins/menu/system_menu.c~:    /* Create category menus */
+./plugins/menu/system_menu.c~:    xc = xconf_new("systemmenu", NULL);
+./plugins/menu/system_menu.c~:        mxc = xconf_new("menu", NULL);
+Binary file ./plugins/menu/menu.o matches
+./plugins/menu/menu.c:    GtkWidget *menu, *bg;
+./plugins/menu/menu.c:    gboolean has_system_menu;
+./plugins/menu/menu.c:} menu_priv;
+./plugins/menu/menu.c:xconf *xconf_new_from_systemmenu();
+./plugins/menu/menu.c:gboolean systemmenu_changed(time_t btime);
+./plugins/menu/menu.c:static void menu_create(plugin_instance *p); 
+./plugins/menu/menu.c:static void menu_destroy(menu_priv *m);
+./plugins/menu/menu.c:static gboolean check_system_menu(plugin_instance *p);
+./plugins/menu/menu.c:menu_expand_xc(xconf *xc, menu_priv *m)
+./plugins/menu/menu.c:    xconf *nxc, *cxc, *smenu_xc;
+./plugins/menu/menu.c:        if (!strcmp(cxc->name, "systemmenu"))
+./plugins/menu/menu.c:            smenu_xc = xconf_new_from_systemmenu();
+./plugins/menu/menu.c:            xconf_append_sons(nxc, smenu_xc);
+./plugins/menu/menu.c:            xconf_del(smenu_xc, FALSE);
+./plugins/menu/menu.c:            m->has_system_menu = TRUE;
+./plugins/menu/menu.c:        xconf_append(nxc, menu_expand_xc(cxc, m));
+./plugins/menu/menu.c:menu_create_separator()
+./plugins/menu/menu.c:    return gtk_separator_menu_item_new();
+./plugins/menu/menu.c:/* Creates menu item. Text and image are read from xconf. Action
+./plugins/menu/menu.c: * depends on @menu. If @menu is NULL, action is to execute external
+./plugins/menu/menu.c: * command. Otherwise it is to pop up @menu menu */
+./plugins/menu/menu.c:menu_create_item(xconf *xc, GtkWidget *menu, menu_priv *m)
+./plugins/menu/menu.c:    mi = gtk_image_menu_item_new_with_label(name ? name : "");
+./plugins/menu/menu.c:            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi),
+./plugins/menu/menu.c:    if (menu)
+./plugins/menu/menu.c:        gtk_menu_item_set_submenu(GTK_MENU_ITEM(mi), menu);
+./plugins/menu/menu.c:/* Creates menu and optionally button to pop it up.
+./plugins/menu/menu.c: * If @ret_menu is TRUE, then a menu is returned. Otherwise,
+./plugins/menu/menu.c: * button is created, linked to a menu and returned instead. */
+./plugins/menu/menu.c:menu_create_menu(xconf *xc, gboolean ret_menu, menu_priv *m)
+./plugins/menu/menu.c:    GtkWidget *mi, *menu;
+./plugins/menu/menu.c:    menu = gtk_menu_new ();
+./plugins/menu/menu.c:    gtk_container_set_border_width(GTK_CONTAINER(menu), 0);
+./plugins/menu/menu.c:            mi = menu_create_separator();
+./plugins/menu/menu.c:            mi = menu_create_item(nxc, NULL, m);
+./plugins/menu/menu.c:        else if (!strcmp(nxc->name, "menu"))
+./plugins/menu/menu.c:            mi = menu_create_menu(nxc, FALSE, m);
+./plugins/menu/menu.c:        gtk_menu_shell_append(GTK_MENU_SHELL(menu), mi);
+./plugins/menu/menu.c:    gtk_widget_show_all(menu);
+./plugins/menu/menu.c:    return (ret_menu) ? menu : menu_create_item(xc, menu, m);
+./plugins/menu/menu.c:menu_unmap(GtkWidget *menu, plugin_instance *p)
+./plugins/menu/menu.c:menu_create(plugin_instance *p)
+./plugins/menu/menu.c:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c:    if (m->menu)
+./plugins/menu/menu.c:        menu_destroy(m);
+./plugins/menu/menu.c:    m->xc = menu_expand_xc(p->xc, m);
+./plugins/menu/menu.c:    m->menu = menu_create_menu(m->xc, TRUE, m);
+./plugins/menu/menu.c:    g_signal_connect(G_OBJECT(m->menu), "unmap", 
+./plugins/menu/menu.c:        G_CALLBACK(menu_unmap), p);
+./plugins/menu/menu.c:    if (m->has_system_menu) 
+./plugins/menu/menu.c:        m->tout = g_timeout_add(30000, (GSourceFunc) check_system_menu, p);
+./plugins/menu/menu.c:menu_destroy(menu_priv *m)
+./plugins/menu/menu.c:    if (m->menu) {
+./plugins/menu/menu.c:        gtk_widget_destroy(m->menu);
+./plugins/menu/menu.c:        m->menu = NULL;
+./plugins/menu/menu.c:        m->has_system_menu = FALSE;
+./plugins/menu/menu.c:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c:        if (!m->menu)
+./plugins/menu/menu.c:            menu_create(p);
+./plugins/menu/menu.c:        gtk_menu_popup(GTK_MENU(m->menu),
+./plugins/menu/menu.c:            NULL, NULL, (GtkMenuPositionFunc)menu_pos, widget,
+./plugins/menu/menu.c:    menu_priv *m;
+./plugins/menu/menu.c:    m = (menu_priv *) p;
+./plugins/menu/menu.c:rebuild_menu(plugin_instance *p)
+./plugins/menu/menu.c:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c:    if (m->menu && GTK_WIDGET_MAPPED(m->menu))
+./plugins/menu/menu.c:    menu_create(p);
+./plugins/menu/menu.c:schedule_rebuild_menu(plugin_instance *p)
+./plugins/menu/menu.c:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c:        DBG("scheduling menu rebuild p=%p\n", p);
+./plugins/menu/menu.c:        m->rtout = g_timeout_add(2000, (GSourceFunc) rebuild_menu, p);
+./plugins/menu/menu.c:check_system_menu(plugin_instance *p)
+./plugins/menu/menu.c:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c:    if (systemmenu_changed(m->btime)) 
+./plugins/menu/menu.c:        schedule_rebuild_menu(p);
+./plugins/menu/menu.c:menu_constructor(plugin_instance *p)
+./plugins/menu/menu.c:    menu_priv *m;
+./plugins/menu/menu.c:    m = (menu_priv *) p;
+./plugins/menu/menu.c:        "changed", (GCallback) schedule_rebuild_menu, p);
+./plugins/menu/menu.c:    schedule_rebuild_menu(p);
+./plugins/menu/menu.c:menu_destructor(plugin_instance *p)
+./plugins/menu/menu.c:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c:        schedule_rebuild_menu, p);
+./plugins/menu/menu.c:    menu_destroy(m);
+./plugins/menu/menu.c:    .type        = "menu",
+./plugins/menu/menu.c:    .priv_size   = sizeof(menu_priv),
+./plugins/menu/menu.c:    .constructor = menu_constructor,
+./plugins/menu/menu.c:    .destructor  = menu_destructor,
+./plugins/menu/menu.c~:    GtkWidget *menu, *bg;
+./plugins/menu/menu.c~:    gboolean has_system_menu;
+./plugins/menu/menu.c~:} menu_priv;
+./plugins/menu/menu.c~:xconf *xconf_new_from_systemmenu();
+./plugins/menu/menu.c~:gboolean systemmenu_changed(time_t btime);
+./plugins/menu/menu.c~:static void menu_create(plugin_instance *p); 
+./plugins/menu/menu.c~:static void menu_destroy(menu_priv *m);
+./plugins/menu/menu.c~:static gboolean check_system_menu(plugin_instance *p);
+./plugins/menu/menu.c~:menu_expand_xc(xconf *xc, menu_priv *m)
+./plugins/menu/menu.c~:    xconf *nxc, *cxc, *smenu_xc;
+./plugins/menu/menu.c~:        if (!strcmp(cxc->name, "systemmenu"))
+./plugins/menu/menu.c~:            smenu_xc = xconf_new_from_systemmenu();
+./plugins/menu/menu.c~:            xconf_append_sons(nxc, smenu_xc);
+./plugins/menu/menu.c~:            xconf_del(smenu_xc, FALSE);
+./plugins/menu/menu.c~:            m->has_system_menu = TRUE;
+./plugins/menu/menu.c~:        xconf_append(nxc, menu_expand_xc(cxc, m));
+./plugins/menu/menu.c~:menu_create_separator()
+./plugins/menu/menu.c~:    return gtk_separator_menu_item_new();
+./plugins/menu/menu.c~:/* Creates menu item. Text and image are read from xconf. Action
+./plugins/menu/menu.c~: * depends on @menu. If @menu is NULL, action is to execute external
+./plugins/menu/menu.c~: * command. Otherwise it is to pop up @menu menu */
+./plugins/menu/menu.c~:menu_create_item(xconf *xc, GtkWidget *menu, menu_priv *m)
+./plugins/menu/menu.c~:    mi = gtk_image_menu_item_new_with_label(name ? name : "");
+./plugins/menu/menu.c~:            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi),
+./plugins/menu/menu.c~:    if (menu)
+./plugins/menu/menu.c~:        gtk_menu_item_set_submenu(GTK_MENU_ITEM(mi), menu);
+./plugins/menu/menu.c~:/* Creates menu and optionally button to pop it up.
+./plugins/menu/menu.c~: * If @ret_menu is TRUE, then a menu is returned. Otherwise,
+./plugins/menu/menu.c~: * button is created, linked to a menu and returned instead. */
+./plugins/menu/menu.c~:menu_create_menu(xconf *xc, gboolean ret_menu, menu_priv *m)
+./plugins/menu/menu.c~:    GtkWidget *mi, *menu;
+./plugins/menu/menu.c~:    menu = gtk_menu_new ();
+./plugins/menu/menu.c~:    gtk_container_set_border_width(GTK_CONTAINER(menu), 0);
+./plugins/menu/menu.c~:            mi = menu_create_separator();
+./plugins/menu/menu.c~:            mi = menu_create_item(nxc, NULL, m);
+./plugins/menu/menu.c~:        else if (!strcmp(nxc->name, "menu"))
+./plugins/menu/menu.c~:            mi = menu_create_menu(nxc, FALSE, m);
+./plugins/menu/menu.c~:        gtk_menu_shell_append(GTK_MENU_SHELL(menu), mi);
+./plugins/menu/menu.c~:    gtk_widget_show_all(menu);
+./plugins/menu/menu.c~:    return (ret_menu) ? menu : menu_create_item(xc, menu, m);
+./plugins/menu/menu.c~:menu_unmap(GtkWidget *menu, plugin_instance *p)
+./plugins/menu/menu.c~:menu_create(plugin_instance *p)
+./plugins/menu/menu.c~:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c~:    if (m->menu)
+./plugins/menu/menu.c~:        menu_destroy(m);
+./plugins/menu/menu.c~:    m->xc = menu_expand_xc(p->xc, m);
+./plugins/menu/menu.c~:    m->menu = menu_create_menu(m->xc, TRUE, m);
+./plugins/menu/menu.c~:    g_signal_connect(G_OBJECT(m->menu), "unmap", 
+./plugins/menu/menu.c~:        G_CALLBACK(menu_unmap), p);
+./plugins/menu/menu.c~:    if (m->has_system_menu) 
+./plugins/menu/menu.c~:        m->tout = g_timeout_add(30000, (GSourceFunc) check_system_menu, p);
+./plugins/menu/menu.c~:menu_destroy(menu_priv *m)
+./plugins/menu/menu.c~:    if (m->menu) {
+./plugins/menu/menu.c~:        gtk_widget_destroy(m->menu);
+./plugins/menu/menu.c~:        m->menu = NULL;
+./plugins/menu/menu.c~:        m->has_system_menu = FALSE;
+./plugins/menu/menu.c~:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c~:        if (!m->menu)
+./plugins/menu/menu.c~:            menu_create(p);
+./plugins/menu/menu.c~:        gtk_menu_popup(GTK_MENU(m->menu),
+./plugins/menu/menu.c~:            NULL, NULL, (GtkMenuPositionFunc)menu_pos, widget,
+./plugins/menu/menu.c~:    menu_priv *m;
+./plugins/menu/menu.c~:    m = (menu_priv *) p;
+./plugins/menu/menu.c~:rebuild_menu(plugin_instance *p)
+./plugins/menu/menu.c~:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c~:    if (m->menu && GTK_WIDGET_MAPPED(m->menu))
+./plugins/menu/menu.c~:    menu_create(p);
+./plugins/menu/menu.c~:schedule_rebuild_menu(plugin_instance *p)
+./plugins/menu/menu.c~:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c~:        DBG("scheduling menu rebuild p=%p\n", p);
+./plugins/menu/menu.c~:        m->rtout = g_timeout_add(2000, (GSourceFunc) rebuild_menu, p);
+./plugins/menu/menu.c~:check_system_menu(plugin_instance *p)
+./plugins/menu/menu.c~:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c~:    if (systemmenu_changed(m->btime)) 
+./plugins/menu/menu.c~:        schedule_rebuild_menu(p);
+./plugins/menu/menu.c~:menu_constructor(plugin_instance *p)
+./plugins/menu/menu.c~:    menu_priv *m;
+./plugins/menu/menu.c~:    m = (menu_priv *) p;
+./plugins/menu/menu.c~:        "changed", (GCallback) schedule_rebuild_menu, p);
+./plugins/menu/menu.c~:    schedule_rebuild_menu(p);
+./plugins/menu/menu.c~:menu_destructor(plugin_instance *p)
+./plugins/menu/menu.c~:    menu_priv *m = (menu_priv *) p;
+./plugins/menu/menu.c~:        schedule_rebuild_menu, p);
+./plugins/menu/menu.c~:    menu_destroy(m);
+./plugins/menu/menu.c~:    .type        = "menu",
+./plugins/menu/menu.c~:    .priv_size   = sizeof(menu_priv),
+./plugins/menu/menu.c~:    .constructor = menu_constructor,
+./plugins/menu/menu.c~:    .destructor  = menu_destructor,
+Binary file ./plugins/menu/system_menu.o matches
+Binary file ./plugins/menu/menu.so matches
+./plugins/menu/Makefile.in:SRCS = menu.c system_menu.c
+./plugins/menu/Makefile.in:LIBTARGET = menu.so
+./plugins/menu/Makefile:SRCS = menu.c system_menu.c
+./plugins/menu/Makefile:LIBTARGET = menu.so
+./plugins/menu/system_menu.c:systemmenu_changed(time_t btime)
+./plugins/menu/system_menu.c:xconf_new_from_systemmenu()
+./plugins/menu/system_menu.c:    /* Create category menus */
+./plugins/menu/system_menu.c:    xc = xconf_new("systemmenu", NULL);
+./plugins/menu/system_menu.c:        mxc = xconf_new("menu", NULL);
+./plugins/Makefile.in:SUBDIRS = taskbar launchbar space menu pager mem chart cpu net
+./plugins/Makefile:SUBDIRS = taskbar launchbar space menu pager mem chart cpu net
+./NOTES:* bug fixes in mem, taskbar and menu plugins
+./data/config/default:    type = menu
+./data/config/default:        systemmenu {
+./data/config/default:	menu {  
+./data/config/default.in:    type = menu
+./data/config/default.in:        systemmenu {
+./data/config/default.in:	menu {  
+./CREDITS:        Building menu from *.desktop files
+./CHANGELOG:* 2993878: set menu icons size from panel config not from gtk rc
+./CHANGELOG:* 2991081: do not autohide panel when menu is open
+./CHANGELOG:* menu: new code to build system menu
+./CHANGELOG:* fixing memory leaks in taskbar, menu and icons plugin
+./CHANGELOG:* prevent duplicate entries in menu
+./CHANGELOG:* menu plugin uses simple icons, and rebuild entire menu upon theme change, 
+./CHANGELOG:* system menu icon was renamed to logo.png from star.png
+./CHANGELOG:* fixing segfault in menu plugin
+./CHANGELOG:* menu was changed to propagate Control-Button3 clicks to parent window
+./CHANGELOG:* menu: fixed segfault caused by timeout func that used stale pointer
+./CHANGELOG:* 3 sec delayed menu creation to improve start-up time
+./CHANGELOG:* menu: items are sorted by name
+./CHANGELOG:* menu: icon size set to 22
+./CHANGELOG:* menu: forgoten g_free's were added
+./CHANGELOG:* new menu placement to not cover panel; used in menu and taskbar
+./CHANGELOG:* taskbar: icons were added to task's menu (raise, iconify, close)
+./CHANGELOG:* menu icons size was set to 24 from 22 to avoid scaling
+./CHANGELOG:* Build application menu from *.desktop files
+./CHANGELOG:* [1161921] menu image is too small
+./CHANGELOG:* New code for panel's buttons. Affected plugins are wincmd, launchbar and menu
+./CHANGELOG:* Depreceted option menu widget was replaced by combo box
+./CHANGELOG:* [ 953451 ] Add include functionality for menu config file.
+./CHANGELOG:* [ 976592 ] Right-click Context menu for the taskbar
+./CHANGELOG:* menu icon size fix
+./CHANGELOG:* menu plugin

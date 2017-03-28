@@ -1,0 +1,889 @@
+# Generated automatically from Makefile.in by configure.
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = /bin/sh
+
+srcdir = .
+top_srcdir = ..
+prefix = /usr
+exec_prefix = ${prefix}
+
+bindir = ${exec_prefix}/bin
+sbindir = ${exec_prefix}/sbin
+datadir = ${prefix}/share
+sysconfdir = ${prefix}/etc
+sharedstatedir = ${prefix}/com
+localstatedir = ${prefix}/var
+libdir = ${exec_prefix}/lib
+infodir = ${prefix}/info
+mandir = ${prefix}/man
+includedir = ${prefix}/include
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/gdk-pixbuf
+pkglibdir = $(libdir)/gdk-pixbuf
+pkgincludedir = $(includedir)/gdk-pixbuf
+
+top_builddir = ..
+
+ACLOCAL = aclocal
+AUTOCONF = autoconf
+AUTOMAKE = automake
+AUTOHEADER = autoheader
+
+INSTALL = /bin/install -c
+INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_SCRIPT = ${INSTALL_PROGRAM}
+transform = s,x,x,
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = i686-pc-linux-gnu
+host_triplet = i686-pc-linux-gnu
+AS = @AS@
+CC = i486-TSOL-linux-gnu-gcc
+CPP = i486-TSOL-linux-gnu-gcc -E
+DLLTOOL = @DLLTOOL@
+GDK_PIXBUF_DIR = /source/gtk/1.2.0/gdk-pixbuf-0.10.0
+GDK_PIXBUF_INCLUDEDIR = -I${prefix}/include -I/usr/xorg/include/ -I/usr/lib/glib/include
+GDK_PIXBUF_LIBDIR = -L${libdir}
+GDK_PIXBUF_MAJOR = 0
+GDK_PIXBUF_MICRO = 0
+GDK_PIXBUF_MINOR = 10
+GDK_PIXBUF_VERSION = 0.10.0
+GDK_PIXBUF_XLIB_INCLUDEDIR = -I${prefix}/include -I/usr/xorg/include/ -I/usr/lib/glib/include
+GDK_PIXBUF_XLIB_LIBDIR = -L${libdir}
+GDK_PIXBUF_XLIB_LIBS = -L/usr/lib -rdynamic -lgmodule -lglib -ldl -lgdk_pixbuf_xlib 
+GLIB_CFLAGS = -I/usr/lib/glib/include
+GLIB_CONFIG = /usr/bin/glib-config
+GLIB_LIBS = -L/usr/lib -rdynamic -lgmodule -lglib -ldl
+GMODULE_FLAGS = -I/usr/lib/glib/include
+GMODULE_LIBS = -L/usr/lib -rdynamic -lgmodule -lglib -ldl
+GNOMECANVASPIXBUF_INCLUDEDIR = -I${prefix}/include -I/usr/xorg/include/ -I/usr/lib/glib/include
+GNOMECANVASPIXBUF_LIBDIR = -L${libdir}
+GNOMECANVASPIXBUF_LIBS = -L/usr/lib -rdynamic -lgmodule -lglib -ldl -lgdk_pixbuf -L/usr/lib -L/usr/xorg/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXext -lX11 -lm -lgnomecanvaspixbuf
+GNOME_CFLAGS = 
+GNOME_CONFIG = no
+GNOME_LIBS = 
+GTKDOC = false
+GTK_CFLAGS = -I/usr/xorg/include/ -I/usr/lib/glib/include
+GTK_CONFIG = /usr/bin/gtk-config
+GTK_LIBS = -L/usr/lib -L/usr/xorg/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXext -lX11 -lm
+HAVE_GTK_DOC = 
+LIBJPEG = -ljpeg
+LIBPNG = -lpng -lz
+LIBTIFF = -ltiff
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LN_S = ln -s
+MAINT = #
+MAKEINFO = /source/gtk/1.2.0/gdk-pixbuf-0.10.0/missing makeinfo
+OBJDUMP = @OBJDUMP@
+PACKAGE = gdk-pixbuf
+RANLIB = ranlib
+STATIC_LIB_DEPS = -ltiff -ljpeg -lpng -lz
+VERSION = 0.10.0
+
+SUBDIRS = pixops
+#CANVAS_PIXBUF_LIB = libgnomecanvaspixbuf.la
+CANVAS_PIXBUF_LIB = 
+#CANVAS_PIXBUF_HEADERFILES = gnome-canvas-pixbuf.h
+CANVAS_PIXBUF_HEADERFILES = 
+#libgnomecanvaspixbuf_la_SOURCES = gnome-canvas-pixbuf.c
+#EXTRA_GNOME_LIBS = $(GNOME_LIBS)
+EXTRA_GNOME_LIBS = 
+
+lib_LTLIBRARIES =  	libgdk_pixbuf.la		libgdk_pixbuf_xlib.la		$(CANVAS_PIXBUF_LIB)
+
+
+libgnomecanvaspixbuf_la_LDFLAGS = -version-info 1:0:0 $(EXTRA_GNOME_LIBS)
+
+libexecdir = $(libdir)/gdk-pixbuf/loaders
+
+#
+# The PNG plugin.
+#
+libpixbufloader_png_la_SOURCES = io-png.c
+libpixbufloader_png_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_png_la_LIBADD = $(LIBPNG)
+
+#
+# The JPEG loader
+#
+libpixbufloader_jpeg_la_SOURCES = io-jpeg.c
+libpixbufloader_jpeg_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_jpeg_la_LIBADD = $(LIBJPEG)
+
+#
+# The XPM loader
+#
+libpixbufloader_xpm_la_SOURCES = io-xpm.c
+libpixbufloader_xpm_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_xpm_la_LIBADD = 
+
+#
+# The GIF loader
+#
+libpixbufloader_gif_la_SOURCES = io-gif.c
+libpixbufloader_gif_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_gif_la_LIBADD = 
+
+#
+# The ICO loader
+#
+libpixbufloader_ico_la_SOURCES = io-ico.c
+libpixbufloader_ico_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_ico_la_LIBADD = 
+
+#
+# The RAS loader
+#
+libpixbufloader_ras_la_SOURCES = io-ras.c
+libpixbufloader_ras_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_ras_la_LIBADD = 
+
+#
+# The TIFF loader
+#
+libpixbufloader_tiff_la_SOURCES = io-tiff.c
+libpixbufloader_tiff_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_tiff_la_LIBADD = $(LIBTIFF)
+
+#
+# The PNM loader
+#
+libpixbufloader_pnm_la_SOURCES = io-pnm.c
+libpixbufloader_pnm_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_pnm_la_LIBADD = 
+
+#
+# The BMP loader
+#
+libpixbufloader_bmp_la_SOURCES = io-bmp.c
+libpixbufloader_bmp_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_bmp_la_LIBADD = 
+
+#
+# The XBM loader
+#
+libpixbufloader_xbm_la_SOURCES = io-xbm.c
+libpixbufloader_xbm_la_LDFLAGS = -version-info 1:0:0 -module
+libpixbufloader_xbm_la_LIBADD = 
+
+PNG_LIB = libpixbufloader-png.la
+
+JPEG_LIB = libpixbufloader-jpeg.la
+
+GIF_LIB = libpixbufloader-gif.la
+
+ICO_LIB = libpixbufloader-ico.la
+
+RAS_LIB = libpixbufloader-ras.la
+
+TIFF_LIB = libpixbufloader-tiff.la
+
+XPM_LIB = libpixbufloader-xpm.la
+
+PNM_LIB = libpixbufloader-pnm.la
+
+BMP_LIB = libpixbufloader-bmp.la
+
+XBM_LIB = libpixbufloader-xbm.la
+
+libexec_LTLIBRARIES = 	$(PNG_LIB)		$(JPEG_LIB)		$(GIF_LIB)		$(ICO_LIB)		$(RAS_LIB)		$(XPM_LIB)		$(TIFF_LIB)		$(PNM_LIB)		$(BMP_LIB)		$(XBM_LIB)
+#libexec_LTLIBRARIES = 
+
+extra_sources = 
+#extra_sources = $(libpixbufloader_png_la_SOURCES) 			$(libpixbufloader_jpeg_la_SOURCES) 			$(libpixbufloader_xpm_la_SOURCES) 			$(libpixbufloader_gif_la_SOURCES) 			$(libpixbufloader_ico_la_SOURCES) 			$(libpixbufloader_ras_la_SOURCES) 			$(libpixbufloader_tiff_la_SOURCES) 			$(libpixbufloader_pnm_la_SOURCES) 			$(libpixbufloader_bmp_la_SOURCES)			$(libpixbufloader_xbm_la_SOURCES)
+
+#builtin_libraries = 
+
+noinst_PROGRAMS = test-gdk-pixbuf testpixbuf testpixbuf-drawable testanimation testpixbuf-scale
+TESTS = test-gdk-pixbuf
+
+DEPS = libgdk_pixbuf.la
+INCLUDES = -I$(top_srcdir) -I$(top_builddir) 	-I$(top_srcdir)/gdk-pixbuf 	-I$(top_builddir)/gdk-pixbuf 	$(X11_CFLAGS) $(GLIB_CFLAGS) $(GTK_CFLAGS) $(GNOME_CFLAGS)
+
+
+AM_CPPFLAGS = "-DPIXBUF_LIBDIR=\"$(libexecdir)\""
+
+LDADDS = libgdk_pixbuf.la $(GLIB_LIBS) $(GTK_LIBS) $(STATIC_LIB_DEPS)
+#test_gdk_pixbuf_LDADD = $(LDADDS) -lgmodule
+test_gdk_pixbuf_LDADD = $(LDADDS) $(GNOME_LIBS) -lgmodule
+#testpixbuf_LDADD = $(LDADDS) -lgmodule
+testpixbuf_LDADD = $(LDADDS) $(GNOME_LIBS) -lgmodule
+#testpixbuf_drawable_LDADD = $(LDADDS)
+testpixbuf_drawable_LDADD = $(LDADDS) $(GNOME_LIBS)
+#testpixbuf_scale_LDADD = $(LDADDS)
+testpixbuf_scale_LDADD = $(LDADDS) $(GNOME_LIBS)
+#testanimation_LDADD = $(LDADDS) -lgmodule
+testanimation_LDADD = $(LDADDS) $(GNOME_LIBS) -lgmodule
+
+GDK_PIXBUF_LIBS = $(GLIB_LIBS) $(GTK_LIBS)
+
+#
+# The GdkPixBuf library
+#
+
+libgdk_pixbufincludedir = $(includedir)/gdk-pixbuf
+
+libgdk_pixbuf_la_SOURCES =  	gdk-pixbuf.c				gdk-pixbuf-animation.c			gdk-pixbuf-data.c			gdk-pixbuf-drawable.c			gdk-pixbuf-io.c				gdk-pixbuf-loader.c			gdk-pixbuf-render.c			gdk-pixbuf-scale.c			gdk-pixbuf-util.c			gdk-pixbuf-parse-color.c		$(extra_sources)
+
+
+libgdk_pixbuf_la_LDFLAGS = -version-info 2:0:0 -export-dynamic $(GLIB_LIBS) $(GTK_LIBS)
+libgdk_pixbuf_la_LIBADD = pixops/libpixops.la
+
+#
+# The GdkPixbufXlib library
+#
+
+libgdk_pixbuf_xlib_la_SOURCES =  	gdk-pixbuf.c				gdk-pixbuf-xlib.c			gdk-pixbuf-animation.c			gdk-pixbuf-data.c			gdk-pixbuf-io.c				gdk-pixbuf-xlib-render.c		gdk-pixbuf-xlib-drawable.c		gdk-pixbuf-scale.c			gdk-pixbuf-util.c			gdk-pixbuf-xlibrgb.c			gdk-pixbuf-parse-color.c		$(extra_sources)
+
+
+libgdk_pixbuf_xlib_la_LDFLAGS = -version-info 2:0:0 -export-dynamic $(GLIB_LIBS) $(X11_LIBS)
+libgdk_pixbuf_xlib_la_LIBADD = pixops/libpixops.la
+
+libgdk_pixbufinclude_HEADERS =  	gdk-pixbuf.h				gdk-pixbuf-loader.h			gdk-pixbuf-features.h			gdk-pixbuf-xlib.h			gdk-pixbuf-xlibrgb.h			$(CANVAS_PIXBUF_HEADERFILES)
+
+
+noinst_HEADERS =  	gdk-pixbuf-io.h				gdk-pixbuf-private.h			gdk-pixbuf-xlib-private.h
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES =  gdk-pixbuf-features.h
+LTLIBRARIES =  $(lib_LTLIBRARIES) $(libexec_LTLIBRARIES)
+
+
+DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
+CPPFLAGS = 
+LDFLAGS = -static-libgcc
+LIBS = 
+X_CFLAGS =  -I/usr/xorg/include
+X_LIBS =  -L/usr/xorg/lib
+X_EXTRA_LIBS = 
+X_PRE_LIBS =  -lSM -lICE
+libgdk_pixbuf_la_DEPENDENCIES =  pixops/libpixops.la
+libgdk_pixbuf_la_OBJECTS =  gdk-pixbuf.lo \
+gdk-pixbuf-animation.lo gdk-pixbuf-data.lo \
+gdk-pixbuf-drawable.lo gdk-pixbuf-io.lo \
+gdk-pixbuf-loader.lo gdk-pixbuf-render.lo \
+gdk-pixbuf-scale.lo gdk-pixbuf-util.lo \
+gdk-pixbuf-parse-color.lo
+#libgdk_pixbuf_la_OBJECTS =  gdk-pixbuf.lo \
+#gdk-pixbuf-animation.lo gdk-pixbuf-data.lo \
+#gdk-pixbuf-drawable.lo gdk-pixbuf-io.lo \
+#gdk-pixbuf-loader.lo gdk-pixbuf-render.lo \
+#gdk-pixbuf-scale.lo gdk-pixbuf-util.lo \
+#gdk-pixbuf-parse-color.lo io-png.lo \
+#io-jpeg.lo io-xpm.lo io-gif.lo io-ico.lo \
+#io-ras.lo io-tiff.lo io-pnm.lo io-bmp.lo \
+#io-xbm.lo
+libgdk_pixbuf_xlib_la_DEPENDENCIES =  pixops/libpixops.la
+libgdk_pixbuf_xlib_la_OBJECTS =  \
+gdk-pixbuf.lo gdk-pixbuf-xlib.lo \
+gdk-pixbuf-animation.lo gdk-pixbuf-data.lo \
+gdk-pixbuf-io.lo gdk-pixbuf-xlib-render.lo \
+gdk-pixbuf-xlib-drawable.lo \
+gdk-pixbuf-scale.lo gdk-pixbuf-util.lo \
+gdk-pixbuf-xlibrgb.lo \
+gdk-pixbuf-parse-color.lo
+#libgdk_pixbuf_xlib_la_OBJECTS =  \
+#gdk-pixbuf.lo gdk-pixbuf-xlib.lo \
+#gdk-pixbuf-animation.lo gdk-pixbuf-data.lo \
+#gdk-pixbuf-io.lo gdk-pixbuf-xlib-render.lo \
+#gdk-pixbuf-xlib-drawable.lo \
+#gdk-pixbuf-scale.lo gdk-pixbuf-util.lo \
+#gdk-pixbuf-xlibrgb.lo \
+#gdk-pixbuf-parse-color.lo io-png.lo \
+#io-jpeg.lo io-xpm.lo io-gif.lo io-ico.lo \
+#io-ras.lo io-tiff.lo io-pnm.lo io-bmp.lo \
+#io-xbm.lo
+libgnomecanvaspixbuf_la_LIBADD = 
+#libgnomecanvaspixbuf_la_OBJECTS =  \
+#gnome-canvas-pixbuf.lo
+libpixbufloader_png_la_DEPENDENCIES = 
+libpixbufloader_png_la_OBJECTS =  io-png.lo
+libpixbufloader_jpeg_la_DEPENDENCIES = 
+libpixbufloader_jpeg_la_OBJECTS =  io-jpeg.lo
+libpixbufloader_gif_la_DEPENDENCIES = 
+libpixbufloader_gif_la_OBJECTS =  io-gif.lo
+libpixbufloader_ico_la_DEPENDENCIES = 
+libpixbufloader_ico_la_OBJECTS =  io-ico.lo
+libpixbufloader_ras_la_DEPENDENCIES = 
+libpixbufloader_ras_la_OBJECTS =  io-ras.lo
+libpixbufloader_xpm_la_DEPENDENCIES = 
+libpixbufloader_xpm_la_OBJECTS =  io-xpm.lo
+libpixbufloader_tiff_la_DEPENDENCIES = 
+libpixbufloader_tiff_la_OBJECTS =  io-tiff.lo
+libpixbufloader_pnm_la_DEPENDENCIES = 
+libpixbufloader_pnm_la_OBJECTS =  io-pnm.lo
+libpixbufloader_bmp_la_DEPENDENCIES = 
+libpixbufloader_bmp_la_OBJECTS =  io-bmp.lo
+libpixbufloader_xbm_la_DEPENDENCIES = 
+libpixbufloader_xbm_la_OBJECTS =  io-xbm.lo
+PROGRAMS =  $(noinst_PROGRAMS)
+
+test_gdk_pixbuf_SOURCES = test-gdk-pixbuf.c
+test_gdk_pixbuf_OBJECTS =  test-gdk-pixbuf.o
+#test_gdk_pixbuf_DEPENDENCIES =  libgdk_pixbuf.la
+test_gdk_pixbuf_DEPENDENCIES =  \
+libgdk_pixbuf.la
+test_gdk_pixbuf_LDFLAGS = 
+testpixbuf_SOURCES = testpixbuf.c
+testpixbuf_OBJECTS =  testpixbuf.o
+#testpixbuf_DEPENDENCIES =  libgdk_pixbuf.la
+testpixbuf_DEPENDENCIES =  libgdk_pixbuf.la
+testpixbuf_LDFLAGS = 
+testpixbuf_drawable_SOURCES = testpixbuf-drawable.c
+testpixbuf_drawable_OBJECTS =  testpixbuf-drawable.o
+#testpixbuf_drawable_DEPENDENCIES =  \
+#libgdk_pixbuf.la
+testpixbuf_drawable_DEPENDENCIES =  \
+libgdk_pixbuf.la
+testpixbuf_drawable_LDFLAGS = 
+testanimation_SOURCES = testanimation.c
+testanimation_OBJECTS =  testanimation.o
+#testanimation_DEPENDENCIES =  libgdk_pixbuf.la
+testanimation_DEPENDENCIES =  libgdk_pixbuf.la
+testanimation_LDFLAGS = 
+testpixbuf_scale_SOURCES = testpixbuf-scale.c
+testpixbuf_scale_OBJECTS =  testpixbuf-scale.o
+#testpixbuf_scale_DEPENDENCIES =  \
+#libgdk_pixbuf.la
+testpixbuf_scale_DEPENDENCIES =  \
+libgdk_pixbuf.la
+testpixbuf_scale_LDFLAGS = 
+CFLAGS = -O2
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(libgdk_pixbufinclude_HEADERS) $(noinst_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in gdk-pixbuf-features.h.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+SOURCES = $(libgdk_pixbuf_la_SOURCES) $(libgdk_pixbuf_xlib_la_SOURCES) $(libgnomecanvaspixbuf_la_SOURCES) $(libpixbufloader_png_la_SOURCES) $(libpixbufloader_jpeg_la_SOURCES) $(libpixbufloader_gif_la_SOURCES) $(libpixbufloader_ico_la_SOURCES) $(libpixbufloader_ras_la_SOURCES) $(libpixbufloader_xpm_la_SOURCES) $(libpixbufloader_tiff_la_SOURCES) $(libpixbufloader_pnm_la_SOURCES) $(libpixbufloader_bmp_la_SOURCES) $(libpixbufloader_xbm_la_SOURCES) test-gdk-pixbuf.c testpixbuf.c testpixbuf-drawable.c testanimation.c testpixbuf-scale.c
+OBJECTS = $(libgdk_pixbuf_la_OBJECTS) $(libgdk_pixbuf_xlib_la_OBJECTS) $(libgnomecanvaspixbuf_la_OBJECTS) $(libpixbufloader_png_la_OBJECTS) $(libpixbufloader_jpeg_la_OBJECTS) $(libpixbufloader_gif_la_OBJECTS) $(libpixbufloader_ico_la_OBJECTS) $(libpixbufloader_ras_la_OBJECTS) $(libpixbufloader_xpm_la_OBJECTS) $(libpixbufloader_tiff_la_OBJECTS) $(libpixbufloader_pnm_la_OBJECTS) $(libpixbufloader_bmp_la_OBJECTS) $(libpixbufloader_xbm_la_OBJECTS) test-gdk-pixbuf.o testpixbuf.o testpixbuf-drawable.o testanimation.o testpixbuf-scale.o
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .lo .o .s
+$(srcdir)/Makefile.in: # Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps gdk-pixbuf/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+gdk-pixbuf-features.h: $(top_builddir)/config.status gdk-pixbuf-features.h.in
+	cd $(top_builddir) && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+mostlyclean-libexecLTLIBRARIES:
+
+clean-libexecLTLIBRARIES:
+	-test -z "$(libexec_LTLIBRARIES)" || rm -f $(libexec_LTLIBRARIES)
+
+distclean-libexecLTLIBRARIES:
+
+maintainer-clean-libexecLTLIBRARIES:
+
+install-libexecLTLIBRARIES: $(libexec_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libexecdir)
+	@list='$(libexec_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libexecdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libexecdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libexecLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(libexec_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libexecdir)/$$p; \
+	done
+
+.c.o:
+	$(COMPILE) -c $<
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libgdk_pixbuf.la: $(libgdk_pixbuf_la_OBJECTS) $(libgdk_pixbuf_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libgdk_pixbuf_la_LDFLAGS) $(libgdk_pixbuf_la_OBJECTS) $(libgdk_pixbuf_la_LIBADD) $(LIBS)
+
+libgdk_pixbuf_xlib.la: $(libgdk_pixbuf_xlib_la_OBJECTS) $(libgdk_pixbuf_xlib_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libgdk_pixbuf_xlib_la_LDFLAGS) $(libgdk_pixbuf_xlib_la_OBJECTS) $(libgdk_pixbuf_xlib_la_LIBADD) $(LIBS)
+
+libgnomecanvaspixbuf.la: $(libgnomecanvaspixbuf_la_OBJECTS) $(libgnomecanvaspixbuf_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libgnomecanvaspixbuf_la_LDFLAGS) $(libgnomecanvaspixbuf_la_OBJECTS) $(libgnomecanvaspixbuf_la_LIBADD) $(LIBS)
+
+libpixbufloader-png.la: $(libpixbufloader_png_la_OBJECTS) $(libpixbufloader_png_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_png_la_LDFLAGS) $(libpixbufloader_png_la_OBJECTS) $(libpixbufloader_png_la_LIBADD) $(LIBS)
+
+libpixbufloader-jpeg.la: $(libpixbufloader_jpeg_la_OBJECTS) $(libpixbufloader_jpeg_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_jpeg_la_LDFLAGS) $(libpixbufloader_jpeg_la_OBJECTS) $(libpixbufloader_jpeg_la_LIBADD) $(LIBS)
+
+libpixbufloader-gif.la: $(libpixbufloader_gif_la_OBJECTS) $(libpixbufloader_gif_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_gif_la_LDFLAGS) $(libpixbufloader_gif_la_OBJECTS) $(libpixbufloader_gif_la_LIBADD) $(LIBS)
+
+libpixbufloader-ico.la: $(libpixbufloader_ico_la_OBJECTS) $(libpixbufloader_ico_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_ico_la_LDFLAGS) $(libpixbufloader_ico_la_OBJECTS) $(libpixbufloader_ico_la_LIBADD) $(LIBS)
+
+libpixbufloader-ras.la: $(libpixbufloader_ras_la_OBJECTS) $(libpixbufloader_ras_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_ras_la_LDFLAGS) $(libpixbufloader_ras_la_OBJECTS) $(libpixbufloader_ras_la_LIBADD) $(LIBS)
+
+libpixbufloader-xpm.la: $(libpixbufloader_xpm_la_OBJECTS) $(libpixbufloader_xpm_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_xpm_la_LDFLAGS) $(libpixbufloader_xpm_la_OBJECTS) $(libpixbufloader_xpm_la_LIBADD) $(LIBS)
+
+libpixbufloader-tiff.la: $(libpixbufloader_tiff_la_OBJECTS) $(libpixbufloader_tiff_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_tiff_la_LDFLAGS) $(libpixbufloader_tiff_la_OBJECTS) $(libpixbufloader_tiff_la_LIBADD) $(LIBS)
+
+libpixbufloader-pnm.la: $(libpixbufloader_pnm_la_OBJECTS) $(libpixbufloader_pnm_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_pnm_la_LDFLAGS) $(libpixbufloader_pnm_la_OBJECTS) $(libpixbufloader_pnm_la_LIBADD) $(LIBS)
+
+libpixbufloader-bmp.la: $(libpixbufloader_bmp_la_OBJECTS) $(libpixbufloader_bmp_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_bmp_la_LDFLAGS) $(libpixbufloader_bmp_la_OBJECTS) $(libpixbufloader_bmp_la_LIBADD) $(LIBS)
+
+libpixbufloader-xbm.la: $(libpixbufloader_xbm_la_OBJECTS) $(libpixbufloader_xbm_la_DEPENDENCIES)
+	$(LINK) -rpath $(libexecdir) $(libpixbufloader_xbm_la_LDFLAGS) $(libpixbufloader_xbm_la_OBJECTS) $(libpixbufloader_xbm_la_LIBADD) $(LIBS)
+
+mostlyclean-noinstPROGRAMS:
+
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+
+distclean-noinstPROGRAMS:
+
+maintainer-clean-noinstPROGRAMS:
+
+test-gdk-pixbuf: $(test_gdk_pixbuf_OBJECTS) $(test_gdk_pixbuf_DEPENDENCIES)
+	@rm -f test-gdk-pixbuf
+	$(LINK) $(test_gdk_pixbuf_LDFLAGS) $(test_gdk_pixbuf_OBJECTS) $(test_gdk_pixbuf_LDADD) $(LIBS)
+
+testpixbuf: $(testpixbuf_OBJECTS) $(testpixbuf_DEPENDENCIES)
+	@rm -f testpixbuf
+	$(LINK) $(testpixbuf_LDFLAGS) $(testpixbuf_OBJECTS) $(testpixbuf_LDADD) $(LIBS)
+
+testpixbuf-drawable: $(testpixbuf_drawable_OBJECTS) $(testpixbuf_drawable_DEPENDENCIES)
+	@rm -f testpixbuf-drawable
+	$(LINK) $(testpixbuf_drawable_LDFLAGS) $(testpixbuf_drawable_OBJECTS) $(testpixbuf_drawable_LDADD) $(LIBS)
+
+testanimation: $(testanimation_OBJECTS) $(testanimation_DEPENDENCIES)
+	@rm -f testanimation
+	$(LINK) $(testanimation_LDFLAGS) $(testanimation_OBJECTS) $(testanimation_LDADD) $(LIBS)
+
+testpixbuf-scale: $(testpixbuf_scale_OBJECTS) $(testpixbuf_scale_DEPENDENCIES)
+	@rm -f testpixbuf-scale
+	$(LINK) $(testpixbuf_scale_LDFLAGS) $(testpixbuf_scale_OBJECTS) $(testpixbuf_scale_LDADD) $(LIBS)
+
+install-libgdk_pixbufincludeHEADERS: $(libgdk_pixbufinclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libgdk_pixbufincludedir)
+	@list='$(libgdk_pixbufinclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(libgdk_pixbufincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(libgdk_pixbufincludedir)/$$p; \
+	done
+
+uninstall-libgdk_pixbufincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(libgdk_pixbufinclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(libgdk_pixbufincludedir)/$$p; \
+	done
+
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run `make' without going through this Makefile.
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
+
+
+
+all-recursive install-data-recursive install-exec-recursive \
+installdirs-recursive install-recursive uninstall-recursive  \
+check-recursive installcheck-recursive info-recursive dvi-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	   || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+maintainer-clean-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
+	  rev="$$subdir $$rev"; \
+	  test "$$subdir" = "." && dot_seen=yes; \
+	done; \
+	test "$$dot_seen" = "no" && rev=". $$rev"; \
+	target=`echo $@ | sed s/-recursive//`; \
+	for subdir in $$rev; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	   || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+tags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) tags); \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+   if test "$$subdir" = .; then :; else \
+	    test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
+   fi; \
+	done; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = gdk-pixbuf
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+	for subdir in $(SUBDIRS); do \
+	  if test "$$subdir" = .; then :; else \
+	    test -d $(distdir)/$$subdir \
+	    || mkdir $(distdir)/$$subdir \
+	    || exit 1; \
+	    chmod 777 $(distdir)/$$subdir; \
+	    (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) top_distdir=../$(top_distdir) distdir=../$(distdir)/$$subdir distdir) \
+	      || exit 1; \
+	  fi; \
+	done
+gdk-pixbuf-animation.lo gdk-pixbuf-animation.o : gdk-pixbuf-animation.c \
+	../config.h gdk-pixbuf-io.h gdk-pixbuf.h gdk-pixbuf-features.h \
+	gdk-pixbuf-private.h
+gdk-pixbuf-data.lo gdk-pixbuf-data.o : gdk-pixbuf-data.c ../config.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-private.h
+gdk-pixbuf-drawable.lo gdk-pixbuf-drawable.o : gdk-pixbuf-drawable.c \
+	../config.h gdk-pixbuf-private.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h
+gdk-pixbuf-io.lo gdk-pixbuf-io.o : gdk-pixbuf-io.c ../config.h \
+	gdk-pixbuf-private.h gdk-pixbuf.h gdk-pixbuf-features.h \
+	gdk-pixbuf-io.h
+gdk-pixbuf-loader.lo gdk-pixbuf-loader.o : gdk-pixbuf-loader.c \
+	../config.h gdk-pixbuf-private.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h gdk-pixbuf-loader.h gdk-pixbuf.h \
+	gdk-pixbuf-io.h
+gdk-pixbuf.lo gdk-pixbuf.o : gdk-pixbuf.c ../config.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h gdk-pixbuf-private.h
+gdk-pixbuf-parse-color.lo gdk-pixbuf-parse-color.o : \
+	gdk-pixbuf-parse-color.c ../config.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h gdk-pixbuf-private.h
+gdk-pixbuf-render.lo gdk-pixbuf-render.o : gdk-pixbuf-render.c \
+	../config.h gdk-pixbuf-private.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h
+gdk-pixbuf-scale.lo gdk-pixbuf-scale.o : gdk-pixbuf-scale.c ../config.h \
+	gdk-pixbuf-private.h gdk-pixbuf.h gdk-pixbuf-features.h \
+	pixops/pixops.h
+gdk-pixbuf-util.lo gdk-pixbuf-util.o : gdk-pixbuf-util.c ../config.h \
+	gdk-pixbuf-private.h gdk-pixbuf.h gdk-pixbuf-features.h
+gdk-pixbuf-xlib-drawable.lo gdk-pixbuf-xlib-drawable.o : \
+	gdk-pixbuf-xlib-drawable.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-xlib-private.h \
+	gdk-pixbuf-xlib.h gdk-pixbuf-xlibrgb.h
+gdk-pixbuf-xlib.lo gdk-pixbuf-xlib.o : gdk-pixbuf-xlib.c ../config.h \
+	gdk-pixbuf-private.h gdk-pixbuf.h gdk-pixbuf-features.h \
+	gdk-pixbuf-xlib-private.h gdk-pixbuf-xlib.h \
+	gdk-pixbuf-xlibrgb.h
+gdk-pixbuf-xlib-render.lo gdk-pixbuf-xlib-render.o : \
+	gdk-pixbuf-xlib-render.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-xlib-private.h \
+	gdk-pixbuf-xlib.h gdk-pixbuf-xlibrgb.h
+gdk-pixbuf-xlibrgb.lo gdk-pixbuf-xlibrgb.o : gdk-pixbuf-xlibrgb.c \
+	../config.h gdk-pixbuf-xlibrgb.h
+gnome-canvas-pixbuf.lo gnome-canvas-pixbuf.o : gnome-canvas-pixbuf.c \
+	../config.h gdk-pixbuf-private.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h gnome-canvas-pixbuf.h
+io-bmp.lo io-bmp.o : io-bmp.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-gif.lo io-gif.o : io-gif.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-ico.lo io-ico.o : io-ico.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-jpeg.lo io-jpeg.o : io-jpeg.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-png.lo io-png.o : io-png.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-pnm.lo io-pnm.o : io-pnm.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-ras.lo io-ras.o : io-ras.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-tiff.lo io-tiff.o : io-tiff.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-xbm.lo io-xbm.o : io-xbm.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h
+io-xpm.lo io-xpm.o : io-xpm.c ../config.h gdk-pixbuf-private.h \
+	gdk-pixbuf.h gdk-pixbuf-features.h gdk-pixbuf-io.h \
+	gdk-pixbuf-xlib-private.h gdk-pixbuf-xlib.h \
+	gdk-pixbuf-xlibrgb.h
+testanimation.o: testanimation.c ../config.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h gdk-pixbuf-loader.h gdk-pixbuf.h
+test-gdk-pixbuf.o: test-gdk-pixbuf.c ../config.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h
+testpixbuf-drawable.o: testpixbuf-drawable.c ../config.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h
+testpixbuf.o: testpixbuf.c ../config.h gdk-pixbuf.h \
+	gdk-pixbuf-features.h gdk-pixbuf-loader.h gdk-pixbuf.h
+testpixbuf-scale.o: testpixbuf-scale.c gdk-pixbuf.h \
+	gdk-pixbuf-features.h
+
+check-TESTS: $(TESTS)
+	@failed=0; all=0; \
+	srcdir=$(srcdir); export srcdir; \
+	for tst in $(TESTS); do \
+	  if test -f $$tst; then dir=.; \
+	  else dir="$(srcdir)"; fi; \
+	  if $(TESTS_ENVIRONMENT) $$dir/$$tst; then \
+	    all=`expr $$all + 1`; \
+	    echo "PASS: $$tst"; \
+	  elif test $$? -ne 77; then \
+	    all=`expr $$all + 1`; \
+	    failed=`expr $$failed + 1`; \
+	    echo "FAIL: $$tst"; \
+	  fi; \
+	done; \
+	if test "$$failed" -eq 0; then \
+	  banner="All $$all tests passed"; \
+	else \
+	  banner="$$failed of $$all tests failed"; \
+	fi; \
+	dashes=`echo "$$banner" | sed s/./=/g`; \
+	echo "$$dashes"; \
+	echo "$$banner"; \
+	echo "$$dashes"; \
+	test "$$failed" -eq 0
+info-am:
+info: info-recursive
+dvi-am:
+dvi: dvi-recursive
+check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
+check: check-recursive
+installcheck-am:
+installcheck: installcheck-recursive
+install-exec-am: install-libLTLIBRARIES install-libexecLTLIBRARIES
+install-exec: install-exec-recursive
+
+install-data-am: install-libgdk_pixbufincludeHEADERS
+install-data: install-data-recursive
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-recursive
+uninstall-am: uninstall-libLTLIBRARIES uninstall-libexecLTLIBRARIES \
+		uninstall-libgdk_pixbufincludeHEADERS
+uninstall: uninstall-recursive
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
+all-redirect: all-recursive
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs: installdirs-recursive
+installdirs-am:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(libexecdir) \
+		$(DESTDIR)$(libgdk_pixbufincludedir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES \
+		mostlyclean-libexecLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-noinstPROGRAMS \
+		mostlyclean-tags mostlyclean-generic
+
+mostlyclean: mostlyclean-recursive
+
+clean-am:  clean-libLTLIBRARIES clean-libexecLTLIBRARIES clean-compile \
+		clean-libtool clean-noinstPROGRAMS clean-tags \
+		clean-generic mostlyclean-am
+
+clean: clean-recursive
+
+distclean-am:  distclean-libLTLIBRARIES distclean-libexecLTLIBRARIES \
+		distclean-compile distclean-libtool \
+		distclean-noinstPROGRAMS distclean-tags \
+		distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-recursive
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-libexecLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-noinstPROGRAMS maintainer-clean-tags \
+		maintainer-clean-generic distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-recursive
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES \
+mostlyclean-libexecLTLIBRARIES distclean-libexecLTLIBRARIES \
+clean-libexecLTLIBRARIES maintainer-clean-libexecLTLIBRARIES \
+uninstall-libexecLTLIBRARIES install-libexecLTLIBRARIES \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile mostlyclean-libtool distclean-libtool \
+clean-libtool maintainer-clean-libtool mostlyclean-noinstPROGRAMS \
+distclean-noinstPROGRAMS clean-noinstPROGRAMS \
+maintainer-clean-noinstPROGRAMS uninstall-libgdk_pixbufincludeHEADERS \
+install-libgdk_pixbufincludeHEADERS install-data-recursive \
+uninstall-data-recursive install-exec-recursive \
+uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
+all-recursive check-recursive installcheck-recursive info-recursive \
+dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
+maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir check-TESTS \
+info-am info dvi-am dvi check check-am installcheck-am installcheck \
+install-exec-am install-exec install-data-am install-data install-am \
+install uninstall-am uninstall all-redirect all-am all installdirs-am \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

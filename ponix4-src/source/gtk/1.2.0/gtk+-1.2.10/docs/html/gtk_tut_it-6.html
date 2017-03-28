@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK Tutorial: Il Widget Bottone (Button)</TITLE>
+ <LINK HREF="gtk_tut_it-7.html" REL=next>
+ <LINK HREF="gtk_tut_it-5.html" REL=previous>
+ <LINK HREF="gtk_tut_it.html#toc6" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut_it-7.html">Avanti</A>
+<A HREF="gtk_tut_it-5.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc6">Indice</A>
+<HR NOSHADE>
+<H2><A NAME="s6">6. Il Widget Bottone (Button)</A></H2>
+
+<H2><A NAME="ss6.1">6.1 Bottoni Normali</A>
+</H2>
+
+<P>Ormai abbiamo visto tutto quello che c'&egrave; da vedere riguardo all'oggetto
+``bottone''. E' piuttosto semplice, ma ci sono due modi per crare un bottone.
+Potete usare gtk_button_new_with_label() per creare un bottone con una
+etichetta, o usare gtk_button_new() per creare un bottone vuoto. In tal caso &egrave; poi
+vostro compito impacchettare un'etichetta o una pixmap sul bottone creato.
+Per fare ci&ograve;, create una nuova scatola, e poi impacchettateci i vostri
+oggetti usando la solita  gtk_box_pack_start, e infine usate la funzione
+gtk_container_add per impacchettare la scatola nel bottone.
+<P>Ecco un esempio di utilizzo di  gtk_button_new per creare un bottone con
+un'immagine ed un'etichetta su di s&egrave;. Ho separato il codice usato per
+creare la scatola in modo che lo possiate usare nei vostri programmi.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* buttons.c */
+#include &lt;gtk/gtk.h>
+
+
+/* crea una nuova hbox contenente un'immagine ed un'etichetta
+ * e ritorna la scatola creata. */
+
+GtkWidget *xpm_label_box (GtkWidget *parent, gchar *xpm_filename, gchar *label_text)
+{
+    GtkWidget *box1;
+    GtkWidget *label;
+    GtkWidget *pixmapwid;
+    GdkPixmap *pixmap;
+    GdkBitmap *mask;
+    GtkStyle *style;
+
+    /* creare una scatola per una xpm ed una etichetta */
+    box1 = gtk_hbox_new (FALSE, 0);
+    gtk_container_border_width (GTK_CONTAINER (box1), 2);
+
+    /* ottengo lo stile del bottone. Penso che sia per avere il colore
+     * dello sfondo. Se qualcuno sa il vero motivo, &egrave; pregato di dirmelo. */
+    style = gtk_widget_get_style(parent);
+
+    /* e ora via con le faccende dell'xpm stuff. Carichiamo l'xpm*/
+    pixmap = gdk_pixmap_create_from_xpm (parent->window, &amp;mask,
+                                         &amp;style->bg[GTK_STATE_NORMAL],
+                                         xpm_filename);
+    pixmapwid = gtk_pixmap_new (pixmap, mask);
+
+    /* creiamo l'etichetta per il bottone */
+    label = gtk_label_new (label_text);
+
+    /* impacchettiamo la pixmap e l'etichetta nella scatola */
+    gtk_box_pack_start (GTK_BOX (box1),
+                        pixmapwid, FALSE, FALSE, 3);
+
+    gtk_box_pack_start (GTK_BOX (box1), label, FALSE, FALSE, 3);
+
+    gtk_widget_show(pixmapwid);
+    gtk_widget_show(label);
+
+    return (box1);
+}
+
+/* la nostra solita funzione di callback */
+void callback (GtkWidget *widget, gpointer data)
+{
+    g_print ("Hello again - %s was pressed\n", (char *) data);
+}
+
+
+int main (int argc, char *argv[])
+{
+    /* GtkWidget &egrave; il tipo per contenere gli oggetti */
+    GtkWidget *window;
+    GtkWidget *button;
+    GtkWidget *box1;
+
+    gtk_init (&amp;argc, &amp;argv);
+
+    /* creiamo una nuova finestra */
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    gtk_window_set_title (GTK_WINDOW (window), "Pixmap'd Buttons!");
+
+    /* E' una buona idea fare questo per tutte le finestre. */
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                        GTK_SIGNAL_FUNC (gtk_exit), NULL);
+
+    /* assegnamo lo spessore del bordo della finestra */
+    gtk_container_border_width (GTK_CONTAINER (window), 10);
+    gtk_widget_realize(window);
+
+    /* creiamo un nuovo bottone */
+    button = gtk_button_new ();
+
+    /* Ormai dovreste esservi abituati a vedere la maggior parte di
+     * queste funzioni  */
+    gtk_signal_connect (GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (callback), (gpointer) "cool button");
+
+    /* questa chiama la nostra funzione di creazione di scatole */
+    box1 = xpm_label_box(window, "info.xpm", "cool button");
+
+    /* impacchetta e mostra tutti i nostri oggetti */
+    gtk_widget_show(box1);
+
+    gtk_container_add (GTK_CONTAINER (button), box1);
+
+    gtk_widget_show(button);
+
+    gtk_container_add (GTK_CONTAINER (window), button);
+
+    gtk_widget_show (window);
+
+    /* mettiti in gtk_main e aspetta che cominci il divertimento! */
+    gtk_main ();
+
+    return 0;
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+
+La funzione xpm_label_box pu&ograve; essere usata per impacchettare delle xpm
+e delle etichette su qualsiasi oggetto che pu&ograve; essere un contenitore.
+<P>
+<H2><A NAME="ss6.2">6.2 Bottoni a Commutazione (Toggle Buttons)</A>
+</H2>
+
+<P>I bottoni a commutazione sono molto simili ai bottoni normali, tranne che per il
+fatto che essi si trovano sempre in uno di due stati, che si alternano ad ogni
+click. Possono trovarsi nello stato ``premuto'', e quando li si ripreme, tornano
+ad essere sollevati. Ri-clickandoli, torneranno gi&ugrave;.
+<P>I bottoni a commutazione sono la base per i bottoni di controllo (check button) e
+per i radio-bottoni, e quindi molte delle chiamate disponibili per i bottoni
+a commutazione vengono ereditati dai radio-bottoni e dai bottoni di controllo.
+Ma vedremo questi aspetti nel momento in cui li incontreremo.
+<P>Creare un nuovo bottone a commutazione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_toggle_button_new (void);
+
+GtkWidget* gtk_toggle_button_new_with_label (gchar *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Come potete immaginare, queste funzioni lavorano in modo identico che per
+i bottoni normali. La prima crea un bottone a commutazione vuoto e la seconda un
+bottone con un'etichetta.
+<P>Per ottenere lo stato dei widget a commutazione, compresi i radio-bottoni e i
+bottoni di controllo, si pu&ograve; usare una macro come mostrato nell'esempio 
+pi&ugrave; sotto. In questo modo lo stato dell'oggetto commutabile viene valutato in
+una funzione di ritorno. Il segnale emesso dai bottoni a commutazione 
+(toggle button, il radio button o il check button) che ci interessa &egrave; il segnale
+``toggled''. Per controllare lo stato di questi bottoni, create un gestore di
+segnali che catturi il ``toggled'', e usate la macro per determinare
+il suo stato. La funzione di callback avr&agrave; un aspetto pi&ugrave; o meno cos&igrave;:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void toggle_button_callback (GtkWidget *widget, gpointer   data)
+ {
+     if (GTK_TOGGLE_BUTTON (widget)->active) 
+     {
+        /* Se il programma si &egrave; arrivato a questo punto, il bottone
+         * a commutazione &egrave; premuto */
+    
+    } else {
+    
+        /* il bottone &egrave; sollevato */
+     }
+ }
+ 
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_set_state (GtkToggleButton *toggle_button,
+                                  gint state);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La chiamata qui sopra pu&ograve; essere usata per fare l'assegnazione dello stato
+del bottone a commutazione e dei suoi figli, il radio-bottone e il bottone di
+controllo. Passando come primo argomento a questa funzione il vostro bottone e
+come secondo argomento il valore TRUE o FALSE, si pu&ograve; specificare se il
+bottone deve essere sollevato (rilasciato) o abbassato (premuto). Il valore
+di difetto &egrave; sollevato, cio&egrave; FALSE.
+<P>Notate che quando usate la funzione  gtk_toggle_button_set_state(), e lo
+stato viene cambiato, si ha il risultato che il bottone emette il segnale
+``clicked''.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void       gtk_toggle_button_toggled (GtkToggleButton *toggle_button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione semplicemente commuta il bottone, ed emette il segnale ``toggled''.
+<P>
+<H2><A NAME="ss6.3">6.3 Bottoni di Controllo (Check Buttons)</A>
+</H2>
+
+<P>I bottoni di controllo ereditano molte propriet&agrave; e funzioni dal bottone a commutazione,
+ma hanno un aspetto un po' diverso. Invece di essere bottoni contenenti del testo,
+si tratta di quadratini con del testo alla propria destra. Questi bottoni sono
+spesso usati nelle applicazioni per commutare fra lo stato attivato e disattivato delle
+opzioni.
+<P>Le due funzioni di creazione sono analoghe a quelle del bottone normale..
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_check_button_new (void);
+
+GtkWidget* gtk_check_button_new_with_label (gchar *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La funzione new_with_label crea un bottone di controllo con una etichetta
+a fianco di esso.
+<P>Per controllare lo stato del check button si opera in modo identico al bottone
+a commutazione.
+<P>
+<H2><A NAME="ss6.4">6.4 Radio-Bottoni (Radio Buttons)</A>
+</H2>
+
+<P>I radio-bottoni sono simili ai bottoni di controllo, tranne che per il
+fatto che sono sempre raggruppati in modo che solo uno alla volta di essi
+pu&ograve; essere selezionato (premuto). Tornano utili quando nella propria applicazione
+si ha bisogno di selezionare una opzione da una breve lista.
+<P>La creazione di un nuovo radio-bottone si fa con una di queste chiamate:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget* gtk_radio_button_new (GSList *group);
+
+GtkWidget* gtk_radio_button_new_with_label (GSList *group,
+                                            gchar *label);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Avrete notato l'argomento in pi&ugrave; che c'&egrave; in queste chiamate. Queste hanno
+infatti bisogno dela specificazione di un ``gruppo'' per svolgere il loro compito.
+Per il primo bottone di un gruppo si deve passare come primo argomento il valore
+NULL. Dopodich&eacute; potete creare un gruppo usando la funzione:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GSList* gtk_radio_button_group (GtkRadioButton *radio_button);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>La cosa importante da ricordare &egrave; che gtk_radio_button_group va chiamata ogni volta che si aggiunge un nuovo bottone al gruppo, con il preceente bottone passato come argomento. Il risultato viene poi passato nella chiamata a gtk_radio_button_new o a gtk_radio_button_new_with_label. Ci&ograve; permette di creare una catena di bottoni. L'esempio pi&ugrave; sotto dovrebbe chiarire questo punto.
+<P>E' poi una buona idea stabiire quale dev'essere il bottone premuto per difetto, usando:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_toggle_button_set_state (GtkToggleButton *toggle_button,
+                                  gint state);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Questa funzione &egrave; descritta nella sezione sui bottoni a commutazione, e funziona
+nello stesso identico modo.
+<P>
+<P>Nel seguente esempio creiamo un gruppo di tre radio-bottoni.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* radiobuttons.c */
+
+#include &lt;gtk/gtk.h>
+#include &lt;glib.h>
+ 
+void close_application( GtkWidget *widget, gpointer data ) {
+  gtk_main_quit();
+}
+
+main(int argc,char *argv[])
+{
+  static GtkWidget *window = NULL;
+  GtkWidget *box1;
+  GtkWidget *box2;
+  GtkWidget *button;
+  GtkWidget *separator;
+  GSList *group;
+  
+  gtk_init(&amp;argc,&amp;argv);          
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  
+  gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+                      GTK_SIGNAL_FUNC(close_application),
+                      NULL);
+
+  gtk_window_set_title (GTK_WINDOW (window), "radio buttons");
+  gtk_container_border_width (GTK_CONTAINER (window), 0);
+
+  box1 = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (window), box1);
+  gtk_widget_show (box1);
+
+  box2 = gtk_vbox_new (FALSE, 10);
+  gtk_container_border_width (GTK_CONTAINER (box2), 10);
+  gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
+  gtk_widget_show (box2);
+
+  button = gtk_radio_button_new_with_label (NULL, "button1");
+  gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+  gtk_widget_show (button);
+
+  group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+  button = gtk_radio_button_new_with_label(group, "button2");
+  gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (button), TRUE);
+  gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+  gtk_widget_show (button);
+
+  group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+  button = gtk_radio_button_new_with_label(group, "button3");
+  gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+  gtk_widget_show (button);
+
+  separator = gtk_hseparator_new ();
+  gtk_box_pack_start (GTK_BOX (box1), separator, FALSE, TRUE, 0);
+  gtk_widget_show (separator);
+
+  box2 = gtk_vbox_new (FALSE, 10);
+  gtk_container_border_width (GTK_CONTAINER (box2), 10);
+  gtk_box_pack_start (GTK_BOX (box1), box2, FALSE, TRUE, 0);
+  gtk_widget_show (box2);
+
+  button = gtk_button_new_with_label ("close");
+  gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+                             GTK_SIGNAL_FUNC(close_application),
+                             GTK_OBJECT (window));
+  gtk_box_pack_start (GTK_BOX (box2), button, TRUE, TRUE, 0);
+  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+  gtk_widget_grab_default (button);
+  gtk_widget_show (button);
+  gtk_widget_show (window);
+     
+  gtk_main();
+  return(0);
+}
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>La cosa pu&ograve; essere accorciata un po' usando la seguente sintassi,
+che elimina la necessit&agrave; di una variabile per contenere la lista di bottoni:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+     button2 = gtk_radio_button_new_with_label(
+                 gtk_radio_button_group (GTK_RADIO_BUTTON (button1)),
+                 "button2");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut_it-7.html">Avanti</A>
+<A HREF="gtk_tut_it-5.html">Indietro</A>
+<A HREF="gtk_tut_it.html#toc6">Indice</A>
+</BODY>
+</HTML>

@@ -1,0 +1,67 @@
+.TH xcb_get_input_focus 3  "libxcb 1.11" "X Version 11" "XCB Requests"
+.ad l
+.SH NAME
+xcb_get_input_focus \- 
+.SH SYNOPSIS
+.hy 0
+.B #include <xcb/xproto.h>
+.SS Request function
+.HP
+xcb_get_input_focus_cookie_t \fBxcb_get_input_focus\fP(xcb_connection_t\ *\fIconn\fP, 
+.PP
+.SS Reply datastructure
+.nf
+.sp
+typedef struct xcb_get_input_focus_reply_t {
+    uint8_t      \fIresponse_type\fP;
+    uint8_t      \fIrevert_to\fP;
+    uint16_t     \fIsequence\fP;
+    uint32_t     \fIlength\fP;
+    xcb_window_t \fIfocus\fP;
+} \fBxcb_get_input_focus_reply_t\fP;
+.fi
+.SS Reply function
+.HP
+xcb_get_input_focus_reply_t *\fBxcb_get_input_focus_reply\fP(xcb_connection_t\ *\fIconn\fP, xcb_get_input_focus_cookie_t\ \fIcookie\fP, xcb_generic_error_t\ **\fIe\fP);
+.br
+.hy 1
+.SH REQUEST ARGUMENTS
+.IP \fIconn\fP 1i
+The XCB connection to X11.
+.SH REPLY FIELDS
+.IP \fIresponse_type\fP 1i
+The type of this reply, in this case \fIXCB_GET_INPUT_FOCUS\fP. This field is also present in the \fIxcb_generic_reply_t\fP and can be used to tell replies apart from each other.
+.IP \fIsequence\fP 1i
+The sequence number of the last request processed by the X11 server.
+.IP \fIlength\fP 1i
+The length of the reply, in words (a word is 4 bytes).
+.IP \fIrevert_to\fP 1i
+One of the following values:
+.RS 1i
+.IP \fIXCB_INPUT_FOCUS_NONE\fP 1i
+The focus reverts to \fIXCB_NONE\fP, so no window will have the input focus.
+.IP \fIXCB_INPUT_FOCUS_POINTER_ROOT\fP 1i
+The focus reverts to \fIXCB_POINTER_ROOT\fP respectively. When the focus reverts,
+FocusIn and FocusOut events are generated, but the last-focus-change time is
+not changed.
+.IP \fIXCB_INPUT_FOCUS_PARENT\fP 1i
+The focus reverts to the parent (or closest viewable ancestor) and the new
+revert_to value is \fIXCB_INPUT_FOCUS_NONE\fP.
+.IP \fIXCB_INPUT_FOCUS_FOLLOW_KEYBOARD\fP 1i
+NOT YET DOCUMENTED. Only relevant for the xinput extension.
+.RE
+.RS 1i
+TODO: NOT YET DOCUMENTED.
+.RE
+.IP \fIfocus\fP 1i
+TODO: NOT YET DOCUMENTED.
+.SH DESCRIPTION
+.SH RETURN VALUE
+Returns an \fIxcb_get_input_focus_cookie_t\fP. Errors have to be handled when calling the reply function \fIxcb_get_input_focus_reply\fP.
+
+If you want to handle errors in the event loop instead, use \fIxcb_get_input_focus_unchecked\fP. See \fBxcb-requests(3)\fP for details.
+.SH ERRORS
+This request does never generate any errors.
+.SH SEE ALSO
+.SH AUTHOR
+Generated from xproto.xml. Contact xcb@lists.freedesktop.org for corrections and improvements.

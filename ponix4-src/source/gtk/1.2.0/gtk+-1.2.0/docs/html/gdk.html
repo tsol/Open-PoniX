@@ -1,0 +1,393 @@
+<HTML>
+<HEAD>
+<!-- This HTML file has been created by texi2html 1.54
+     from gdk.texi on 24 Febuary 1999 -->
+
+<TITLE>GDK</TITLE>
+
+</HEAD>
+<BODY>
+<H1>The General Drawing Kit</H1>
+<H2>Version 1.0</H2>
+<H2>May 1996</H2>
+<ADDRESS>by Peter Mattis</ADDRESS>
+<P>
+<P><HR><P>
+
+
+<H1><A NAME="SEC1" HREF="gdk_toc.html#TOC1">Copying</A></H1>
+
+<P>
+GDK is <STRONG>free</STRONG>; this means that everyone is free to use it and free
+to redestribute it on a free basis. GDK is not in the public domain; it
+is copyrighted and there are restrictions on its distribution, but these
+restrictions are designed to permit everything that a good cooperating
+citizen would want to do. What is not allowed is to try to prevent
+others from further sharing any version of GDK that they might get from
+you.
+
+</P>
+<P>
+Specifically, we want to make sure that you have the right to give away
+copies of GDK, that you receive source code or else can get it if you
+want it, that you can change GDK or use pieces of it in new free
+programs, and that you know you can do these things.
+
+</P>
+<P>
+To make sure that everyone has such rights, we have to forbid you to
+deprive anyone else of these rights. For example, if you distribute
+copies of GDK, you must give the recipients all the rights that you
+have. You must make sure that they, too, receive or can get the source
+code. And you must tell them their rights.
+
+</P>
+<P>
+Also, for my own protection, we must make certain that everyone finds
+out that there is no warranty for GDK. If GDK is modified by someone
+else and passed on, we want their recipients to know that what they have
+is not what we distributed, so that any problems introduced by others
+will no reflect on our reputation.
+
+</P>
+<P>
+The precise conditions of the licenses for GDK are found in the General
+Public Licenses that accompanies it.
+
+</P>
+
+
+
+<H1><A NAME="SEC2" HREF="gdk_toc.html#TOC2">What is GDK?</A></H1>
+<P>
+<A NAME="IDX1"></A>
+
+</P>
+<P>
+GDK is designed as a wrapper library that lies on top of Xlib. It
+performs many common and desired operations for a programmer instead
+of the programmer having to explicitly ask for such functionality from
+Xlib directly. For example, GDK provides a common interface to both
+regular and shared memory XImage types. By doing so, an application
+can nearly transparently use the fastest image type available. GDK
+also provides routines for determining the best available color depth
+and the best available visual which is not always the default visual
+for a screen.
+
+</P>
+
+
+<H1><A NAME="SEC3" HREF="gdk_toc.html#TOC3">Initialization and exit</A></H1>
+<P>
+<A NAME="IDX2"></A>
+<A NAME="IDX3"></A>
+
+</P>
+<P>
+Initializing GDK is easy. Simply call <CODE>gdk_init</CODE> passing in the
+<VAR>argc</VAR> and <VAR>argv</VAR> parameters. Exit is similarly easy. Just
+call <CODE>gdk_exit</CODE>.
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> void <B>gdk_init</B> <I>(int *<VAR>argc</VAR>, char ***<VAR>argv</VAR>)</I>
+<DD><A NAME="IDX4"></A>
+Initializes the GDK library. The arguments <VAR>argc</VAR> and <VAR>argv</VAR>
+are scanned and any arguments that GDK recognizes are handled and
+removed. The <VAR>argc</VAR> and <VAR>argv</VAR> parameters are the values
+passed to <CODE>main</CODE> upon program invocation.
+</DL>
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> void <B>gdk_exit</B> <I>(int <VAR>errorcode</VAR>)</I>
+<DD><A NAME="IDX5"></A>
+Exit GDK and perform any necessary cleanup. <CODE>gdk_exit</CODE> will call
+the systems <CODE>exit</CODE> function passing <VAR>errorcode</VAR> as the
+parameter.
+</DL>
+
+</P>
+
+<PRE>
+int
+main (int argc, char *argv[])
+{
+  /* Initialize GDK. */
+  gdk_init (&#38;argc, &#38;argv);
+
+  /* Exit from GDK...this call will never return. */
+  gdk_exit (0);
+
+  /* Keep compiler from issuing a warning */
+  return 0;
+}
+</PRE>
+
+
+
+<H1><A NAME="SEC4" HREF="gdk_toc.html#TOC4">Event handling</A></H1>
+<P>
+<A NAME="IDX6"></A>
+
+</P>
+<P>
+Events are the means by which GDK lets the programmer know of user
+interaction. An event is normally a button or key press or some other
+indirect user action, such as a the mouse cursor entering or leaving a
+window.
+
+</P>
+<P>
+There exist only a few functions for getting events and event
+information. These are <CODE>gdk_events_pending</CODE>,
+<CODE>gdk_event_get</CODE>, <CODE>gdk_events_record</CODE> and
+<CODE>gdk_events_playback</CODE>. The latter two functions are useful for
+automatic testing of a software package and should normally not be
+needed in a program.
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> gint <B>gdk_events_pending</B> <I>(void)</I>
+<DD><A NAME="IDX7"></A>
+Returns the number of events pending on the event queue.
+</DL>
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> gint <B>gdk_event_get</B> <I>(GdkEvent *<VAR>event</VAR>)</I>
+<DD><A NAME="IDX8"></A>
+Return the next available event in the <VAR>event</VAR>
+structure. <CODE>gdk_event_get</CODE> will return <CODE>TRUE</CODE> on success and
+<CODE>FALSE</CODE> on failure. Success and failure is determined by whether
+an event arrived before the timeout period expired.
+</DL>
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> void <B>gdk_events_record</B> <I>(char *<VAR>filename</VAR>)</I>
+<DD><A NAME="IDX9"></A>
+Turn on recording of events. User events and certain system events will
+be saved in the file named by the variable <VAR>filename</VAR>. This stream
+of events can later be played back and "should" produce the same
+results as when the original events were handled. However, the
+programmer does need to be careful in that the state of the program must
+be the same when <CODE>gdk_events_record</CODE> is called and when
+<CODE>gdk_events_playback</CODE> is called. For this reason,
+<CODE>gdk_events_record</CODE> is normally not called directly, but is instead
+invoked indirectly by specifying the "-record" command line option.
+</DL>
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> void <B>gdk_events_playback</B> <I>(char *<VAR>filename</VAR>)</I>
+<DD><A NAME="IDX10"></A>
+Start playback of events from a file. (See the above description of
+<CODE>gdk_events_record</CODE>). Normally this function is not called directly
+but is invoked by the "-playback" command line option.
+</DL>
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> void <B>gdk_events_stop</B> <I>(void)</I>
+<DD><A NAME="IDX11"></A>
+Stop recording and playback of events.
+</DL>
+
+</P>
+
+<PRE>
+void
+handle_event ()
+{
+  GdkEvent event;
+
+  if (gdk_event_get (&#38;event))
+    {
+      switch (event.type)
+       {
+         ...
+       }
+    }
+}
+</PRE>
+
+
+
+<H1><A NAME="SEC5" HREF="gdk_toc.html#TOC5">Understanding and using visuals</A></H1>
+<P>
+<A NAME="IDX12"></A>
+
+</P>
+
+
+<H1><A NAME="SEC6" HREF="gdk_toc.html#TOC6">Creating and using windows</A></H1>
+<P>
+<A NAME="IDX13"></A>
+
+</P>
+
+
+<H1><A NAME="SEC7" HREF="gdk_toc.html#TOC7">Creating and modifying GCs</A></H1>
+<P>
+<A NAME="IDX14"></A>
+<A NAME="IDX15"></A>
+
+</P>
+
+
+<H1><A NAME="SEC8" HREF="gdk_toc.html#TOC8">Creating pixmaps</A></H1>
+<P>
+<A NAME="IDX16"></A>
+
+</P>
+
+
+<H1><A NAME="SEC9" HREF="gdk_toc.html#TOC9">Creating images</A></H1>
+<P>
+<A NAME="IDX17"></A>
+
+</P>
+
+
+<H1><A NAME="SEC10" HREF="gdk_toc.html#TOC10">Specifying color</A></H1>
+<P>
+<A NAME="IDX18"></A>
+
+</P>
+
+
+<H1><A NAME="SEC11" HREF="gdk_toc.html#TOC11">Creating Fonts</A></H1>
+<P>
+<A NAME="IDX19"></A>
+
+</P>
+
+
+<H1><A NAME="SEC12" HREF="gdk_toc.html#TOC12">Drawing Commands</A></H1>
+<P>
+<A NAME="IDX20"></A>
+
+</P>
+
+
+<H1><A NAME="SEC13" HREF="gdk_toc.html#TOC13">Using extended devices</A></H1>
+<P>
+<A NAME="IDX21"></A>
+<A NAME="IDX22"></A>
+<A NAME="IDX23"></A>
+
+</P>
+
+
+<H1><A NAME="SEC14" HREF="gdk_toc.html#TOC14">Other stuff</A></H1>
+<P>
+<A NAME="IDX24"></A>
+<A NAME="IDX25"></A>
+<A NAME="IDX26"></A>
+
+</P>
+
+
+
+<H1><A NAME="SEC15" HREF="gdk_toc.html#TOC15">Using GDK</A></H1>
+<P>
+<A NAME="IDX27"></A>
+
+</P>
+
+
+
+<H1><A NAME="SEC16" HREF="gdk_toc.html#TOC16">Variable Index</A></H1>
+
+<P>
+<H2>g</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX8">gdk_event_get</A>
+<LI><A HREF="gdk.html#IDX7">gdk_events_pending</A>
+<LI><A HREF="gdk.html#IDX10">gdk_events_playback</A>
+<LI><A HREF="gdk.html#IDX9">gdk_events_record</A>
+<LI><A HREF="gdk.html#IDX11">gdk_events_stop</A>
+<LI><A HREF="gdk.html#IDX5">gdk_exit</A>
+<LI><A HREF="gdk.html#IDX4">gdk_init</A>
+</DIR>
+
+</P>
+
+
+<H1><A NAME="SEC17" HREF="gdk_toc.html#TOC17">Concept Index</A></H1>
+
+<P>
+<H2>c</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX18">Color</A>
+<LI><A HREF="gdk.html#IDX23">Controlling extended devices</A>
+</DIR>
+<H2>d</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX25">Debugging</A>
+<LI><A HREF="gdk.html#IDX20">Drawing</A>
+</DIR>
+<H2>e</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX6">Events</A>
+<LI><A HREF="gdk.html#IDX27">Examples</A>
+<LI><A HREF="gdk.html#IDX3">Exit</A>
+</DIR>
+<H2>f</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX19">Fonts</A>
+</DIR>
+<H2>g</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX15">GC</A>
+<LI><A HREF="gdk.html#IDX14">Graphics Contexts</A>
+</DIR>
+<H2>i</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX17">Images</A>
+<LI><A HREF="gdk.html#IDX2">Initialization</A>
+</DIR>
+<H2>m</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX26">Miscellaneous</A>
+</DIR>
+<H2>o</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX1">Overview</A>, <A HREF="gdk.html#IDX21">Overview</A>
+</DIR>
+<H2>p</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX16">Pixmaps</A>
+</DIR>
+<H2>t</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX24">Timers</A>
+</DIR>
+<H2>u</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX22">Using extended device capabilities</A>
+</DIR>
+<H2>v</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX12">Visuals</A>
+</DIR>
+<H2>w</H2>
+<DIR>
+<LI><A HREF="gdk.html#IDX13">Windows</A>
+</DIR>
+
+</P>
+<P><HR><P>
+This document was generated on 24 Febuary 1999 using the
+<A HREF="http://wwwcn.cern.ch/dci/texi2html/">texi2html</A>
+translator version 1.54.</P>
+</BODY>
+</HTML>

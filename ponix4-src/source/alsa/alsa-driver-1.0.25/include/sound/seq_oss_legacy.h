@@ -1,0 +1,1 @@
+../../alsa-kernel/include/seq_oss_legacy.h

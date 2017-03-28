@@ -1,0 +1,316 @@
+<refentry id="gdk-pixbuf-creating">
+<refmeta>
+<refentrytitle>Image Data in Memory</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GDK-PIXBUF Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Image Data in Memory</refname><refpurpose>Creating a pixbuf from image data that is already in memory.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gdk-pixbuf/gdk-pixbuf.h&gt;
+
+
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new">gdk_pixbuf_new</link>                  (<link linkend="GdkColorspace">GdkColorspace</link> colorspace,
+                                             <link linkend="gboolean">gboolean</link> has_alpha,
+                                             <link linkend="int">int</link> bits_per_sample,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new-from-data">gdk_pixbuf_new_from_data</link>        (const <link linkend="guchar">guchar</link> *data,
+                                             <link linkend="GdkColorspace">GdkColorspace</link> colorspace,
+                                             <link linkend="gboolean">gboolean</link> has_alpha,
+                                             <link linkend="int">int</link> bits_per_sample,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height,
+                                             <link linkend="int">int</link> rowstride,
+                                             <link linkend="GdkPixbufDestroyNotify">GdkPixbufDestroyNotify</link> destroy_fn,
+                                             <link linkend="gpointer">gpointer</link> destroy_fn_data);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new-from-xpm-data">gdk_pixbuf_new_from_xpm_data</link>    (const <link linkend="char">char</link> **data);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new-from-inline">gdk_pixbuf_new_from_inline</link>      (<link linkend="gint">gint</link> data_length,
+                                             const <link linkend="guint8">guint8</link> *data,
+                                             <link linkend="gboolean">gboolean</link> copy_pixels,
+                                             <link linkend="GError">GError</link> **error);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-new-subpixbuf">gdk_pixbuf_new_subpixbuf</link>        (<link linkend="GdkPixbuf">GdkPixbuf</link> *src_pixbuf,
+                                             <link linkend="int">int</link> src_x,
+                                             <link linkend="int">int</link> src_y,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);
+<link linkend="GdkPixbuf">GdkPixbuf</link>*  <link linkend="gdk-pixbuf-copy">gdk_pixbuf_copy</link>                 (const <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+  <para>
+    The most basic way to create a pixbuf is to wrap an existing pixel
+    buffer with a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structure.  You can use the
+    <link linkend="gdk-pixbuf-new-from-data"><function>gdk_pixbuf_new_from_data()</function></link> function to do this You need to specify
+    the destroy notification function that will be called when the
+    data buffer needs to be freed; this will happen when a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>
+    is finalized by the reference counting functions If you have a
+    chunk of static data compiled into your application, you can pass
+    in <literal>NULL</literal> as the destroy notification function so that the data
+    will not be freed.
+  </para>
+
+  <para>
+    The <link linkend="gdk-pixbuf-new"><function>gdk_pixbuf_new()</function></link> function can be used as a convenience to
+    create a pixbuf with an empty buffer.  This is equivalent to
+    allocating a data buffer using <function><link linkend="malloc"><function>malloc()</function></link></function> and 
+    then wrapping it with <link linkend="gdk-pixbuf-new-from-data"><function>gdk_pixbuf_new_from_data()</function></link>.  The <link linkend="gdk-pixbuf-new"><function>gdk_pixbuf_new()</function></link> 
+    function will compute an optimal rowstride so that rendering can be 
+    performed with an efficient algorithm.
+  </para>
+
+  <para>
+    As a special case, you can use the <link linkend="gdk-pixbuf-new-from-xpm-data"><function>gdk_pixbuf_new_from_xpm_data()</function></link>
+    function to create a pixbuf from inline XPM image data.
+  </para>
+
+  <para>
+    You can also copy an existing pixbuf with the <link linkend="gdk-pixbuf-copy"><function>gdk_pixbuf_copy()</function></link>
+    function.  This is not the same as just doing a <link linkend="g-object-ref"><function>g_object_ref()</function></link>
+    on the old pixbuf; the copy function will actually duplicate the
+    pixel data in memory and create a new <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structure for it.
+  </para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new"/>gdk_pixbuf_new ()</title>
+<indexterm><primary>gdk_pixbuf_new</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new                  (<link linkend="GdkColorspace">GdkColorspace</link> colorspace,
+                                             <link linkend="gboolean">gboolean</link> has_alpha,
+                                             <link linkend="int">int</link> bits_per_sample,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);</programlisting>
+<para>
+Creates a new <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structure and allocates a buffer for it.  The 
+buffer has an optimal rowstride.  Note that the buffer is not cleared;
+you will have to fill it completely yourself.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>colorspace</parameter>&nbsp;:</term>
+<listitem><simpara> Color space for image.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>has_alpha</parameter>&nbsp;:</term>
+<listitem><simpara> Whether the image should have transparency information.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>bits_per_sample</parameter>&nbsp;:</term>
+<listitem><simpara> Number of bits per color sample.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> Width of image in pixels.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> Height of image in pixels.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> with a reference count of 1, or 
+<literal>NULL</literal> if not enough memory could be allocated for the image buffer.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new-from-data"/>gdk_pixbuf_new_from_data ()</title>
+<indexterm><primary>gdk_pixbuf_new_from_data</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new_from_data        (const <link linkend="guchar">guchar</link> *data,
+                                             <link linkend="GdkColorspace">GdkColorspace</link> colorspace,
+                                             <link linkend="gboolean">gboolean</link> has_alpha,
+                                             <link linkend="int">int</link> bits_per_sample,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height,
+                                             <link linkend="int">int</link> rowstride,
+                                             <link linkend="GdkPixbufDestroyNotify">GdkPixbufDestroyNotify</link> destroy_fn,
+                                             <link linkend="gpointer">gpointer</link> destroy_fn_data);</programlisting>
+<para>
+Creates a new <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> out of in-memory image data.  Currently only RGB
+images with 8 bits per sample are supported.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> Image data in 8-bit/sample packed format.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>colorspace</parameter>&nbsp;:</term>
+<listitem><simpara> Colorspace for the image data.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>has_alpha</parameter>&nbsp;:</term>
+<listitem><simpara> Whether the data has an opacity channel.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>bits_per_sample</parameter>&nbsp;:</term>
+<listitem><simpara> Number of bits per sample.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> Width of the image in pixels.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> Height of the image in pixels.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>rowstride</parameter>&nbsp;:</term>
+<listitem><simpara> Distance in bytes between row starts.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy_fn</parameter>&nbsp;:</term>
+<listitem><simpara> Function used to free the data when the pixbuf's reference count
+drops to zero, or <literal>NULL</literal> if the data should not be freed.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy_fn_data</parameter>&nbsp;:</term>
+<listitem><simpara> Closure data to pass to the destroy notification function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structure with a reference count of 1.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new-from-xpm-data"/>gdk_pixbuf_new_from_xpm_data ()</title>
+<indexterm><primary>gdk_pixbuf_new_from_xpm_data</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new_from_xpm_data    (const <link linkend="char">char</link> **data);</programlisting>
+<para>
+Creates a new pixbuf by parsing XPM data in memory.  This data is commonly
+the result of including an XPM file into a program's C source.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> Pointer to inline XPM data.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created pixbuf with a reference count of 1.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new-from-inline"/>gdk_pixbuf_new_from_inline ()</title>
+<indexterm><primary>gdk_pixbuf_new_from_inline</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new_from_inline      (<link linkend="gint">gint</link> data_length,
+                                             const <link linkend="guint8">guint8</link> *data,
+                                             <link linkend="gboolean">gboolean</link> copy_pixels,
+                                             <link linkend="GError">GError</link> **error);</programlisting>
+<para>
+Create a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> from a flat representation that is suitable for
+storing as inline data in a program. This is useful if you want to
+ship a program with images, but don't want to depend on any
+external files.
+</para>
+<para>
+GTK+ ships with a program called <command>gdk-pixbuf-csource</command> 
+which allows for conversion of <link linkend="GdkPixbufs"><type>GdkPixbufs</type></link> into such a inline representation.
+In almost all cases, you should pass the <option>--raw</option> flag to
+<command>gdk-pixbuf-csource</command>. A sample invocation would be:
+</para>
+<para>
+<informalexample><programlisting>
+ gdk-pixbuf-csource --raw --name=myimage_inline myimage.png
+</programlisting></informalexample>
+</para>
+<para>
+For the typical case where the inline pixbuf is read-only static data,
+you don't need to copy the pixel data unless you intend to write to
+it, so you can pass <literal>FALSE</literal> for <parameter>copy_pixels</parameter>.  (If you pass 
+<option>--rle</option> to <command>gdk-pixbuf-csource</command>, a copy 
+will be made even if <parameter>copy_pixels</parameter> is <literal>FALSE</literal>, so using this option is 
+generally a bad idea.)
+</para>
+<para>
+If you create a pixbuf from const inline data compiled into your
+program, it's probably safe to ignore errors and disable length checks, 
+since things will always succeed:
+<informalexample><programlisting>
+pixbuf = gdk_pixbuf_new_from_inline (-1, myimage_inline, FALSE, NULL);
+</programlisting></informalexample>
+</para>
+<para>
+For non-const inline data, you could get out of memory. For untrusted 
+inline data located at runtime, you could have corrupt inline data in 
+addition.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>data_length</parameter>&nbsp;:</term>
+<listitem><simpara> Length in bytes of the <parameter>data</parameter> argument or -1 to 
+   disable length checks
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara> Byte data containing a serialized <link linkend="GdkPixdata"><type>GdkPixdata</type></link> structure
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>copy_pixels</parameter>&nbsp;:</term>
+<listitem><simpara> Whether to copy the pixel data, or use direct pointers
+              <parameter>data</parameter> for the resulting pixbuf
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>error</parameter>&nbsp;:</term>
+<listitem><simpara> <link linkend="GError"><type>GError</type></link> return location, may be <literal>NULL</literal> to ignore errors
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> structure with a reference,
+  count of 1, or <literal>NULL</literal> if an error occurred.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-new-subpixbuf"/>gdk_pixbuf_new_subpixbuf ()</title>
+<indexterm><primary>gdk_pixbuf_new_subpixbuf</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_new_subpixbuf        (<link linkend="GdkPixbuf">GdkPixbuf</link> *src_pixbuf,
+                                             <link linkend="int">int</link> src_x,
+                                             <link linkend="int">int</link> src_y,
+                                             <link linkend="int">int</link> width,
+                                             <link linkend="int">int</link> height);</programlisting>
+<para>
+Creates a new pixbuf which represents a sub-region of
+<parameter>src_pixbuf</parameter>. The new pixbuf shares its pixels with the
+original pixbuf, so writing to one affects both.
+The new pixbuf holds a reference to <parameter>src_pixbuf</parameter>, so
+<parameter>src_pixbuf</parameter> will not be finalized until the new pixbuf
+is finalized.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>src_pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>src_x</parameter>&nbsp;:</term>
+<listitem><simpara> X coord in <parameter>src_pixbuf</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>src_y</parameter>&nbsp;:</term>
+<listitem><simpara> Y coord in <parameter>src_pixbuf</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>width</parameter>&nbsp;:</term>
+<listitem><simpara> width of region in <parameter>src_pixbuf</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>height</parameter>&nbsp;:</term>
+<listitem><simpara> height of region in <parameter>src_pixbuf</parameter>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a new pixbuf 
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gdk-pixbuf-copy"/>gdk_pixbuf_copy ()</title>
+<indexterm><primary>gdk_pixbuf_copy</primary></indexterm><programlisting><link linkend="GdkPixbuf">GdkPixbuf</link>*  gdk_pixbuf_copy                 (const <link linkend="GdkPixbuf">GdkPixbuf</link> *pixbuf);</programlisting>
+<para>
+Creates a new <link linkend="GdkPixbuf"><type>GdkPixbuf</type></link> with a copy of the information in the specified
+<parameter>pixbuf</parameter>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>pixbuf</parameter>&nbsp;:</term>
+<listitem><simpara> A pixbuf.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> A newly-created pixbuf with a reference count of 1, or <literal>NULL</literal> if
+not enough memory could be allocated.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+  <para>
+    <link linkend="gdk-pixbuf-finalize"><function>gdk_pixbuf_finalize()</function></link>.
+  </para>
+</refsect1>
+
+</refentry>

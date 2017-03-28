@@ -1,0 +1,102 @@
+# Makedefs.in -- input for the common Makefile definitions
+# $Id: Makedefs.in,v 1.29 2005/07/01 16:04:49 jsh Exp $
+#
+# Copyright (C) 1999 John Harper <john@dcs.warwick.ac.uk>
+#
+# This file is part of sawfish.
+#
+# sawfish is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# sawfish is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sawfish; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+version=1.9.0
+codename=Next Dimensional World
+subversion=
+rep_version=0.92.2.1
+SHELL=/bin/sh
+
+prefix=/usr
+exec_prefix=${prefix}
+datarootdir=${prefix}/share
+datadir=${datarootdir}
+bindir=${exec_prefix}/bin
+includedir=${prefix}/include
+infodir=${datarootdir}/info
+libdir=${exec_prefix}/lib
+localstatedir=${prefix}/var
+mandir=${datarootdir}/man
+sharedstatedir=${prefix}/com
+
+sawfishdir=${datadir}/sawfish
+lispdir=${sawfishdir}/lisp
+localedir=${datadir}/locale
+sawfishexecdir=${libdir}/sawfish
+GNOMEDIR=${prefix}
+KDEDIR=/usr/share/kde4/apps/
+
+KDE4_SESSION=yes
+GNOME2_SESSION=yes
+XDM_SESSION=yes
+
+CC=ccache gcc-4.7
+MAKEDEP=$(CC) -MM
+CPPFLAGS=-DHAVE_CONFIG_H -DSAWFISH -D__STRICT_ANSI__ -I. -I.. 
+CFLAGS=-g -O2
+LDFLAGS=
+LIBS=-lnsl 
+#LIBOBJS=
+LIBOBJS=
+X11_CFLAGS=  -I/usr/include/freetype2  
+X11_LIBS=-lX11 -lX11   -lXext -lXrender  -lICE -lSM -lXtst
+EXTRA_X11_LIBS=-lXinerama -lXrandr -lXft -lXext
+IMAGE_LIBS=-pthread -lgdk_pixbuf_xlib-2.0 -lgmodule-2.0 -lrt -lgdk_pixbuf-2.0 -lgobject-2.0 -lglib-2.0  
+IMAGE_CFLAGS=-pthread -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libpng12  
+GTK_CFLAGS=-pthread -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
+GTK_LIBS=-lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lglib-2.0  
+REP_CFLAGS=-I/usr/include/ -I/usr/lib/rep/  
+REP_LIBS=-lrep -lcrypt -lgmp -lm  
+LINGUAS=ak am ar az be bg bs ca cs da de dz el en_CA en_GB es et eu fi fr ga gl hi_IN hu id it ja ko lv mk ms nb ne nl nn no oc pa pl pt pt_BR ro ru rw sk sl sr sr@Latn sv tr uk vi wa zh_CN zh_TW
+PANGO_CFLAGS=-pthread -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/freetype2  
+PANGO_LIBS=-lpangox-1.0 -lX11 -lpangoxft-1.0 -lpangoft2-1.0 -lXft -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lglib-2.0  
+
+DESTDIR=
+INSTALL=/usr/bin/install -c
+INSTALL_DATA=${INSTALL} -m 644
+INSTALL_PROGRAM=${INSTALL}
+INSTALL_SCRIPT=${INSTALL}
+
+.PHONY: clean realclean install
+
+repexecdir=/usr/lib/rep
+include $(repexecdir)/rules.mk
+
+%.o : %.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+% : %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIBS)
+
+# This rule builds dependancy files from C source files.
+.%.d : %.c
+	$(SHELL) -ec '$(MAKEDEP) $(CPPFLAGS) $(CFLAGS) $< \
+	| sed '\''s/$*\.o/& $*.lo .$*\.d/g'\'' > $@'
+
+# Always use GNU gettext implementation
+REP_MSGFMT=/usr/bin/msgfmt
+
+# used when compiling/running lisp code
+REP_ENVIRON=REP_DL_LOAD_PATH=$(top_builddir)/src/.libexec \
+	    REP_GTK_DONT_INITIALIZE=1
+
+%.mo : %.po
+	$(REP_MSGFMT) $(MSGFMTFLAGS) -o $@ $<

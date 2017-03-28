@@ -1,0 +1,269 @@
+From a4a2954ff49e72ce3fa1f78a156b2492a023c89d Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qualcomm.com>
+Date: Mon, 10 Sep 2012 09:20:03 +0530
+Subject: [PATCH] ath9k_hw: Add AR9565 HW support
+
+Various parts of the code require AR9565 checks,
+this patch adds them.
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ani.c           |  2 +-
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.c | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/ar9003_mac.c    |  2 +-
+ drivers/net/wireless/ath/ath9k/ar9003_phy.c    | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/ar9003_phy.h    | 14 +++++++-------
+ drivers/net/wireless/ath/ath9k/eeprom.h        |  2 +-
+ drivers/net/wireless/ath/ath9k/hw.c            | 20 +++++++++++---------
+ 7 files changed, 31 insertions(+), 29 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ani.c
++++ b/drivers/net/wireless/ath/ath9k/ani.c
+@@ -237,7 +237,7 @@ static void ath9k_hw_set_cck_nil(struct
+ 				     entry_cck->fir_step_level);
+ 
+ 	/* Skip MRC CCK for pre AR9003 families */
+-	if (!AR_SREV_9300_20_OR_LATER(ah) || AR_SREV_9485(ah))
++	if (!AR_SREV_9300_20_OR_LATER(ah) || AR_SREV_9485(ah) || AR_SREV_9565(ah))
+ 		return;
+ 
+ 	if (aniState->mrcCCK != entry_cck->mrc_cck_on)
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
+@@ -3524,7 +3524,7 @@ static void ar9003_hw_xpa_bias_level_app
+ 
+ 	if (AR_SREV_9485(ah) || AR_SREV_9330(ah) || AR_SREV_9340(ah))
+ 		REG_RMW_FIELD(ah, AR_CH0_TOP2, AR_CH0_TOP2_XPABIASLVL, bias);
+-	else if (AR_SREV_9462(ah) || AR_SREV_9550(ah))
++	else if (AR_SREV_9462(ah) || AR_SREV_9550(ah) || AR_SREV_9565(ah))
+ 		REG_RMW_FIELD(ah, AR_CH0_TOP, AR_CH0_TOP_XPABIASLVL, bias);
+ 	else {
+ 		REG_RMW_FIELD(ah, AR_CH0_TOP, AR_CH0_TOP_XPABIASLVL, bias);
+@@ -3572,7 +3572,7 @@ static void ar9003_hw_ant_ctrl_apply(str
+ 
+ 	u32 value = ar9003_hw_ant_ctrl_common_get(ah, is2ghz);
+ 
+-	if (AR_SREV_9462(ah)) {
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 		REG_RMW_FIELD(ah, AR_PHY_SWITCH_COM,
+ 				AR_SWITCH_TABLE_COM_AR9462_ALL, value);
+ 	} else if (AR_SREV_9550(ah)) {
+@@ -3616,7 +3616,7 @@ static void ar9003_hw_ant_ctrl_apply(str
+ 		}
+ 	}
+ 
+-	if (AR_SREV_9330(ah) || AR_SREV_9485(ah)) {
++	if (AR_SREV_9330(ah) || AR_SREV_9485(ah) || AR_SREV_9565(ah)) {
+ 		value = ath9k_hw_ar9300_get_eeprom(ah, EEP_ANT_DIV_CTL1);
+ 		/*
+ 		 * main_lnaconf, alt_lnaconf, main_tb, alt_tb
+@@ -3847,7 +3847,7 @@ void ar9003_hw_internal_regulator_apply(
+ 			REG_WRITE(ah, AR_PHY_PMU2, reg_pmu_set);
+ 			if (!is_pmu_set(ah, AR_PHY_PMU2, reg_pmu_set))
+ 				return;
+-		} else if (AR_SREV_9462(ah)) {
++		} else if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 			reg_val = le32_to_cpu(pBase->swreg);
+ 			REG_WRITE(ah, AR_PHY_PMU1, reg_val);
+ 		} else {
+@@ -3878,7 +3878,7 @@ void ar9003_hw_internal_regulator_apply(
+ 			while (!REG_READ_FIELD(ah, AR_PHY_PMU2,
+ 						AR_PHY_PMU2_PGM))
+ 				udelay(10);
+-		} else if (AR_SREV_9462(ah))
++		} else if (AR_SREV_9462(ah) || AR_SREV_9565(ah))
+ 			REG_RMW_FIELD(ah, AR_PHY_PMU1, AR_PHY_PMU1_PWD, 0x1);
+ 		else {
+ 			reg_val = REG_READ(ah, AR_RTC_SLEEP_CLK) |
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mac.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mac.c
+@@ -31,7 +31,7 @@ ar9003_set_txdesc(struct ath_hw *ah, voi
+ 	u32 val, ctl12, ctl17;
+ 	u8 desc_len;
+ 
+-	desc_len = (AR_SREV_9462(ah) ? 0x18 : 0x17);
++	desc_len = ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x18 : 0x17);
+ 
+ 	val = (ATHEROS_VENDOR_ID << AR_DescId_S) |
+ 	      (1 << AR_TxRxDesc_S) |
+--- a/drivers/net/wireless/ath/ath9k/ar9003_phy.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.c
+@@ -88,7 +88,7 @@ static int ar9003_hw_set_channel(struct
+ 			channelSel = (freq * 4) / div;
+ 			chan_frac = (((freq * 4) % div) * 0x20000) / div;
+ 			channelSel = (channelSel << 17) | chan_frac;
+-		} else if (AR_SREV_9485(ah)) {
++		} else if (AR_SREV_9485(ah) || AR_SREV_9565(ah)) {
+ 			u32 chan_frac;
+ 
+ 			/*
+@@ -736,7 +736,7 @@ static int ar9003_hw_process_ini(struct
+ 	if (chan->channel == 2484)
+ 		ar9003_hw_prog_ini(ah, &ah->ini_japan2484, 1);
+ 
+-	if (AR_SREV_9462(ah))
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah))
+ 		REG_WRITE(ah, AR_GLB_SWREG_DISCONT_MODE,
+ 			  AR_GLB_SWREG_DISCONT_EN_BT_WLAN);
+ 
+@@ -746,9 +746,9 @@ static int ar9003_hw_process_ini(struct
+ 	ar9003_hw_set_chain_masks(ah, ah->rxchainmask, ah->txchainmask);
+ 	ath9k_hw_apply_txpower(ah, chan, false);
+ 
+-	if (AR_SREV_9462(ah)) {
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 		if (REG_READ_FIELD(ah, AR_PHY_TX_IQCAL_CONTROL_0,
+-				AR_PHY_TX_IQCAL_CONTROL_0_ENABLE_TXIQ_CAL))
++				   AR_PHY_TX_IQCAL_CONTROL_0_ENABLE_TXIQ_CAL))
+ 			ah->enabled_cals |= TX_IQ_CAL;
+ 		else
+ 			ah->enabled_cals &= ~TX_IQ_CAL;
+@@ -1111,7 +1111,7 @@ static void ar9003_hw_set_nf_limits(stru
+ 	if (AR_SREV_9330(ah))
+ 		ah->nf_2g.nominal = AR_PHY_CCA_NOM_VAL_9330_2GHZ;
+ 
+-	if (AR_SREV_9462(ah)) {
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 		ah->nf_2g.min = AR_PHY_CCA_MIN_GOOD_VAL_9462_2GHZ;
+ 		ah->nf_2g.nominal = AR_PHY_CCA_NOM_VAL_9462_2GHZ;
+ 		ah->nf_5g.min = AR_PHY_CCA_MIN_GOOD_VAL_9462_5GHZ;
+--- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+@@ -636,8 +636,8 @@
+ #define AR_PHY_65NM_CH0_TXRF3_CAPDIV2G_S	1
+ 
+ #define AR_PHY_65NM_CH0_SYNTH4      0x1608c
+-#define AR_PHY_SYNTH4_LONG_SHIFT_SELECT   (AR_SREV_9462(ah) ? 0x00000001 : 0x00000002)
+-#define AR_PHY_SYNTH4_LONG_SHIFT_SELECT_S (AR_SREV_9462(ah) ? 0 : 1)
++#define AR_PHY_SYNTH4_LONG_SHIFT_SELECT   ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x00000001 : 0x00000002)
++#define AR_PHY_SYNTH4_LONG_SHIFT_SELECT_S ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0 : 1)
+ #define AR_PHY_65NM_CH0_SYNTH7      0x16098
+ #define AR_PHY_65NM_CH0_BIAS1       0x160c0
+ #define AR_PHY_65NM_CH0_BIAS2       0x160c4
+@@ -647,7 +647,7 @@
+ #define AR_PHY_65NM_CH2_RXTX4       0x1690c
+ 
+ #define AR_CH0_TOP	(AR_SREV_9300(ah) ? 0x16288 : \
+-				((AR_SREV_9462(ah) ? 0x1628c : 0x16280)))
++			 (((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x1628c : 0x16280)))
+ #define AR_CH0_TOP_XPABIASLVL (AR_SREV_9550(ah) ? 0x3c0 : 0x300)
+ #define AR_CH0_TOP_XPABIASLVL_S (AR_SREV_9550(ah) ? 6 : 8)
+ 
+@@ -675,7 +675,7 @@
+ #define AR_SWITCH_TABLE_ALL_S (0)
+ 
+ #define AR_PHY_65NM_CH0_THERM       (AR_SREV_9300(ah) ? 0x16290 :\
+-					(AR_SREV_9462(ah) ? 0x16294 : 0x1628c))
++				     ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16294 : 0x1628c))
+ 
+ #define AR_PHY_65NM_CH0_THERM_LOCAL   0x80000000
+ #define AR_PHY_65NM_CH0_THERM_LOCAL_S 31
+@@ -697,17 +697,17 @@
+ #define AR_CH0_TOP2_XPABIASLVL_S	12
+ 
+ #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
+-					(AR_SREV_9462(ah) ? 0x16298 : 0x16290))
++				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : 0x16290))
+ #define AR_CH0_XTAL_CAPINDAC	0x7f000000
+ #define AR_CH0_XTAL_CAPINDAC_S	24
+ #define AR_CH0_XTAL_CAPOUTDAC	0x00fe0000
+ #define AR_CH0_XTAL_CAPOUTDAC_S	17
+ 
+-#define AR_PHY_PMU1		(AR_SREV_9462(ah) ? 0x16340 : 0x16c40)
++#define AR_PHY_PMU1		((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16340 : 0x16c40)
+ #define AR_PHY_PMU1_PWD		0x1
+ #define AR_PHY_PMU1_PWD_S	0
+ 
+-#define AR_PHY_PMU2		(AR_SREV_9462(ah) ? 0x16344 : 0x16c44)
++#define AR_PHY_PMU2		((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16344 : 0x16c44)
+ #define AR_PHY_PMU2_PGM		0x00200000
+ #define AR_PHY_PMU2_PGM_S	21
+ 
+--- a/drivers/net/wireless/ath/ath9k/eeprom.h
++++ b/drivers/net/wireless/ath/ath9k/eeprom.h
+@@ -108,7 +108,7 @@
+ #define EEP_RFSILENT_ENABLED_S      0
+ #define EEP_RFSILENT_POLARITY       0x0002
+ #define EEP_RFSILENT_POLARITY_S     1
+-#define EEP_RFSILENT_GPIO_SEL       (AR_SREV_9462(ah) ? 0x00fc : 0x001c)
++#define EEP_RFSILENT_GPIO_SEL       ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x00fc : 0x001c)
+ #define EEP_RFSILENT_GPIO_SEL_S     2
+ 
+ #define AR5416_OPFLAGS_11A           0x01
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -602,6 +602,11 @@ static int __ath9k_hw_init(struct ath_hw
+ 	if (AR_SREV_9462(ah))
+ 		ah->WARegVal &= ~AR_WA_D3_L1_DISABLE;
+ 
++	if (AR_SREV_9565(ah)) {
++		ah->WARegVal |= AR_WA_BIT22;
++		REG_WRITE(ah, AR_WA, ah->WARegVal);
++	}
++
+ 	ath9k_hw_init_defaults(ah);
+ 	ath9k_hw_init_config(ah);
+ 
+@@ -802,8 +807,7 @@ static void ath9k_hw_init_pll(struct ath
+ {
+ 	u32 pll;
+ 
+-	if (AR_SREV_9485(ah)) {
+-
++	if (AR_SREV_9485(ah) || AR_SREV_9565(ah)) {
+ 		/* program BB PLL ki and kd value, ki=0x4, kd=0x40 */
+ 		REG_RMW_FIELD(ah, AR_CH0_BB_DPLL2,
+ 			      AR_CH0_BB_DPLL2_PLL_PWD, 0x1);
+@@ -2036,7 +2040,7 @@ static void ath9k_set_power_sleep(struct
+ {
+ 	REG_SET_BIT(ah, AR_STA_ID1, AR_STA_ID1_PWR_SAV);
+ 
+-	if (AR_SREV_9462(ah)) {
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 		REG_CLR_BIT(ah, AR_TIMER_MODE, 0xff);
+ 		REG_CLR_BIT(ah, AR_NDP2_TIMER_MODE, 0xff);
+ 		REG_CLR_BIT(ah, AR_SLP32_INC, 0xfffff);
+@@ -2491,7 +2495,7 @@ int ath9k_hw_fill_cap_info(struct ath_hw
+ 
+ 	if (AR_SREV_9300_20_OR_LATER(ah)) {
+ 		pCap->hw_caps |= ATH9K_HW_CAP_EDMA | ATH9K_HW_CAP_FASTCLOCK;
+-		if (!AR_SREV_9330(ah) && !AR_SREV_9485(ah))
++		if (!AR_SREV_9330(ah) && !AR_SREV_9485(ah) && !AR_SREV_9565(ah))
+ 			pCap->hw_caps |= ATH9K_HW_CAP_LDPC;
+ 
+ 		pCap->rx_hp_qdepth = ATH9K_HW_RX_HP_QDEPTH;
+@@ -2570,14 +2574,12 @@ int ath9k_hw_fill_cap_info(struct ath_hw
+ 			ah->enabled_cals |= TX_IQ_ON_AGC_CAL;
+ 	}
+ 
+-	if (AR_SREV_9462(ah)) {
+-
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 		if (!(ah->ent_mode & AR_ENT_OTP_49GHZ_DISABLE))
+ 			pCap->hw_caps |= ATH9K_HW_CAP_MCI;
+ 
+ 		if (AR_SREV_9462_20(ah))
+ 			pCap->hw_caps |= ATH9K_HW_CAP_RTT;
+-
+ 	}
+ 
+ 
+@@ -2743,7 +2745,7 @@ void ath9k_hw_setrxfilter(struct ath_hw
+ 
+ 	ENABLE_REGWRITE_BUFFER(ah);
+ 
+-	if (AR_SREV_9462(ah))
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah))
+ 		bits |= ATH9K_RX_FILTER_CONTROL_WRAPPER;
+ 
+ 	REG_WRITE(ah, AR_RX_FILTER, bits);
+@@ -3040,7 +3042,7 @@ void ath9k_hw_gen_timer_start(struct ath
+ 	REG_SET_BIT(ah, gen_tmr_configuration[timer->index].mode_addr,
+ 		    gen_tmr_configuration[timer->index].mode_mask);
+ 
+-	if (AR_SREV_9462(ah)) {
++	if (AR_SREV_9462(ah) || AR_SREV_9565(ah)) {
+ 		/*
+ 		 * Starting from AR9462, each generic timer can select which tsf
+ 		 * to use. But we still follow the old rule, 0 - 7 use tsf and

@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: Adjustments </TITLE>
+ <LINK HREF="gtk_tut-8.html" REL=next>
+ <LINK HREF="gtk_tut-6.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc7" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-8.html">Next</A>
+<A HREF="gtk_tut-6.html">Previous</A>
+<A HREF="gtk_tut.html#toc7">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="sec_Adjustment"></A> <A NAME="s7">7. Adjustments </A></H2>
+
+<P>GTK has various widgets that can be visually adjusted by the user
+using the mouse or the keyboard, such as the range widgets, described
+in the 
+<A HREF="gtk_tut-8.html#sec_Range_Widgets">Range Widgets</A>
+section. There are also a few widgets that display some adjustable
+portion of a larger area of data, such as the text widget and the
+viewport widget.
+<P>Obviously, an application needs to be able to react to changes the
+user makes in range widgets. One way to do this would be to have each
+widget emit its own type of signal when its adjustment changes, and
+either pass the new value to the signal handler, or require it to look
+inside the widget's data structure in order to ascertain the value.
+But you may also want to connect the adjustments of several widgets
+together, so that adjusting one adjusts the others. The most obvious
+example of this is connecting a scrollbar to a panning viewport or a
+scrolling text area. If each widget has its own way of setting or
+getting the adjustment value, then the programmer may have to write
+their own signal handlers to translate between the output of one
+widget's signal and the "input" of another's adjustment setting
+function.
+<P>GTK solves this problem using the Adjustment object, which is not a
+widget but a way for widgets to store and pass adjustment information
+in an abstract and flexible form. The most obvious use of Adjustment
+is to store the configuration parameters and values of range widgets,
+such as scrollbars and scale controls. However, since Adjustments are
+derived from Object, they have some special powers beyond those of
+normal data structures. Most importantly, they can emit signals, just
+like widgets, and these signals can be used not only to allow your
+program to react to user input on adjustable widgets, but also to
+propagate adjustment values transparently between adjustable widgets.
+<P>You will see how adjustments fit in when you see the other widgets
+that incorporate them:
+<A HREF="gtk_tut-9.html#sec_ProgressBar">Progress Bars</A>,
+<A HREF="gtk_tut-10.html#sec_Viewports">Viewports</A>,
+<A HREF="gtk_tut-10.html#sec_ScrolledWindow">Scrolled Windows</A>, and others.
+<P>
+<H2><A NAME="ss7.1">7.1 Creating an Adjustment</A>
+</H2>
+
+<P>Many of the widgets which use adjustment objects do so automatically,
+but some cases will be shown in later examples where you may need to
+create one yourself. You create an adjustment using:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkObject *gtk_adjustment_new( gfloat value,
+                               gfloat lower,
+                               gfloat upper,
+                               gfloat step_increment,
+                               gfloat page_increment,
+                               gfloat page_size );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The <CODE>value</CODE> argument is the initial value you want to give to the
+adjustment, usually corresponding to the topmost or leftmost position
+of an adjustable widget. The <CODE>lower</CODE> argument specifies the lowest
+value which the adjustment can hold. The <CODE>step_increment</CODE> argument
+specifies the "smaller" of the two increments by which the user can
+change the value, while the <CODE>page_increment</CODE> is the "larger" one.
+The <CODE>page_size</CODE> argument usually corresponds somehow to the visible
+area of a panning widget. The <CODE>upper</CODE> argument is used to represent
+the bottom most or right most coordinate in a panning widget's
+child. Therefore it is <EM>not</EM> always the largest number that
+<CODE>value</CODE> can take, since the <CODE>page_size</CODE> of such widgets is
+usually non-zero.
+<P>
+<H2><A NAME="ss7.2">7.2 Using Adjustments the Easy Way</A>
+</H2>
+
+<P>The adjustable widgets can be roughly divided into those which use and
+require specific units for these values and those which treat them as
+arbitrary numbers. The group which treats the values as arbitrary
+numbers includes the range widgets (scrollbars and scales, the
+progress bar widget, and the spin button widget). These widgets are
+all the widgets which are typically "adjusted" directly by the user
+with the mouse or keyboard. They will treat the <CODE>lower</CODE> and
+<CODE>upper</CODE> values of an adjustment as a range within which the user
+can manipulate the adjustment's <CODE>value</CODE>. By default, they will only
+modify the <CODE>value</CODE> of an adjustment.
+<P>The other group includes the text widget, the viewport widget, the
+compound list widget, and the scrolled window widget. All of these
+widgets use pixel values for their adjustments. These are also all
+widgets which are typically "adjusted" indirectly using scrollbars.
+While all widgets which use adjustments can either create their own
+adjustments or use ones you supply, you'll generally want to let this
+particular category of widgets create its own adjustments. Usually,
+they will eventually override all the values except the <CODE>value</CODE>
+itself in whatever adjustments you give them, but the results are, in
+general, undefined (meaning, you'll have to read the source code to
+find out, and it may be different from widget to widget).
+<P>Now, you're probably thinking, since text widgets and viewports insist
+on setting everything except the <CODE>value</CODE> of their adjustments,
+while scrollbars will <EM>only</EM> touch the adjustment's <CODE>value</CODE>, if
+you <EM>share</EM> an adjustment object between a scrollbar and a text
+widget, manipulating the scrollbar will automagically adjust the text
+widget?  Of course it will! Just like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  /* creates its own adjustments */
+  text = gtk_text_new (NULL, NULL);
+  /* uses the newly-created adjustment for the scrollbar as well */
+  vscrollbar = gtk_vscrollbar_new (GTK_TEXT(text)->vadj);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss7.3">7.3 Adjustment Internals</A>
+</H2>
+
+<P>Ok, you say, that's nice, but what if I want to create my own handlers
+to respond when the user adjusts a range widget or a spin button, and
+how do I get at the value of the adjustment in these handlers?  To
+answer these questions and more, let's start by taking a look at
+<CODE>struct _GtkAdjustment</CODE> itself:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+struct _GtkAdjustment
+{
+  GtkData data;
+  
+  gfloat lower;
+  gfloat upper;
+  gfloat value;
+  gfloat step_increment;
+  gfloat page_increment;
+  gfloat page_size;
+};     
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first thing you should know is that there aren't any handy-dandy
+macros or accessor functions for getting the <CODE>value</CODE> out of an
+Adjustment, so you'll have to (horror of horrors) do it like a
+<EM>real</EM> C programmer.  Don't worry - the <CODE>GTK_ADJUSTMENT
+(Object)</CODE> macro does run-time type checking (as do all the GTK
+type-casting macros, actually).
+<P>Since, when you set the <CODE>value</CODE> of an adjustment, you generally
+want the change to be reflected by every widget that uses this
+adjustment, GTK provides this convenience function to do this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_adjustment_set_value( GtkAdjustment *adjustment,
+                               gfloat         value );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>As mentioned earlier, Adjustment is a subclass of Object just
+like all the various widgets, and thus it is able to emit signals.
+This is, of course, why updates happen automagically when you share an
+adjustment object between a scrollbar and another adjustable widget;
+all adjustable widgets connect signal handlers to their adjustment's
+<CODE>value_changed</CODE> signal, as can your program. Here's the definition
+of this signal in <CODE>struct _GtkAdjustmentClass</CODE>:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  void (* value_changed) (GtkAdjustment *adjustment);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The various widgets that use the Adjustment object will emit this
+signal on an adjustment whenever they change its value. This happens
+both when user input causes the slider to move on a range widget, as
+well as when the program explicitly changes the value with
+<CODE>gtk_adjustment_set_value()</CODE>. So, for example, if you have a scale
+widget, and you want to change the rotation of a picture whenever its
+value changes, you would create a callback like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void cb_rotate_picture (GtkAdjustment *adj, GtkWidget *picture)
+{
+  set_picture_rotation (picture, adj->value);
+...
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>and connect it to the scale widget's adjustment like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
+                    GTK_SIGNAL_FUNC (cb_rotate_picture), picture);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>What about when a widget reconfigures the <CODE>upper</CODE> or <CODE>lower</CODE>
+fields of its adjustment, such as when a user adds more text to a text
+widget?  In this case, it emits the <CODE>changed</CODE> signal, which looks
+like this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  void (* changed)       (GtkAdjustment *adjustment);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Range widgets typically connect a handler to this signal, which
+changes their appearance to reflect the change - for example, the size
+of the slider in a scrollbar will grow or shrink in inverse proportion
+to the difference between the <CODE>lower</CODE> and <CODE>upper</CODE> values of its
+adjustment.
+<P>You probably won't ever need to attach a handler to this signal,
+unless you're writing a new type of range widget.  However, if you
+change any of the values in a Adjustment directly, you should emit
+this signal on it to reconfigure whatever widgets are using it, like
+this:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_emit_by_name (GTK_OBJECT (adjustment), "changed");
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Now go forth and adjust!
+<HR NOSHADE>
+<A HREF="gtk_tut-8.html">Next</A>
+<A HREF="gtk_tut-6.html">Previous</A>
+<A HREF="gtk_tut.html#toc7">Contents</A>
+</BODY>
+</HTML>

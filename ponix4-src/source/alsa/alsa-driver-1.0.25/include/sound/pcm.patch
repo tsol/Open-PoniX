@@ -1,0 +1,178 @@
+--- ../../alsa-kernel/include/pcm.h	2011-11-08 07:59:19.946461474 +0100
++++ pcm.h	2011-11-08 08:30:47.618696246 +0100
+@@ -278,10 +278,15 @@
+ 	snd_pcm_uframes_t avail_max;
+ 	snd_pcm_uframes_t hw_ptr_base;	/* Position at buffer restart */
+ 	snd_pcm_uframes_t hw_ptr_interrupt; /* Position at interrupt time */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30)
+ 	unsigned long hw_ptr_jiffies;	/* Time when hw_ptr is updated */
++#endif
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)
+ 	unsigned long hw_ptr_buffer_jiffies; /* buffer time in jiffies */
++#endif
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 31)
+ 	snd_pcm_sframes_t delay;	/* extra delay; typically FIFO size */
+-
++#endif
+ 	/* -- HW params -- */
+ 	snd_pcm_access_t access;	/* access mode */
+ 	snd_pcm_format_t format;	/* SNDRV_PCM_FORMAT_* */
+@@ -291,6 +296,9 @@
+ 	snd_pcm_uframes_t period_size;	/* period size */
+ 	unsigned int periods;		/* periods */
+ 	snd_pcm_uframes_t buffer_size;	/* buffer size */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
++	unsigned int tick_time;		/* for ABI compatibility */
++#endif
+ 	snd_pcm_uframes_t min_align;	/* Min alignment for the format */
+ 	size_t byte_align;
+ 	unsigned int frame_bits;
+@@ -298,11 +306,17 @@
+ 	unsigned int info;
+ 	unsigned int rate_num;
+ 	unsigned int rate_den;
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38)
+ 	unsigned int no_period_wakeup: 1;
++#endif
+ 
+ 	/* -- SW params -- */
+ 	int tstamp_mode;		/* mmap timestamp is updated */
+   	unsigned int period_step;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
++	unsigned int sleep_min;		/* for ABI compatibility */
++	snd_pcm_uframes_t xfer_align;	/* for ABI compatibility */
++#endif
+ 	snd_pcm_uframes_t start_threshold;
+ 	snd_pcm_uframes_t stop_threshold;
+ 	snd_pcm_uframes_t silence_threshold; /* Silence filling happens when
+@@ -320,9 +334,22 @@
+ 	struct snd_pcm_mmap_control *control;
+ 
+ 	/* -- locking / scheduling -- */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+ 	snd_pcm_uframes_t twake; 	/* do transfer (!poll) wakeup if non-zero */
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 34)
++#ifdef __GENKSYMS__
++	unsigned int twake: 1;		/* for ABI compatibility */
++#else
++	unsigned int old_twake: 1;	/* for ABI compatibility */
++#endif
++#endif
+ 	wait_queue_head_t sleep;	/* poll sleep */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 34)
+ 	wait_queue_head_t tsleep;	/* transfer sleep */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25) 
++	struct timer_list tick_timer;	/* for ABI compatibility */
++#endif
+ 	struct fasync_struct *fasync;
+ 
+ 	/* -- private section -- */
+@@ -339,8 +366,9 @@
+ 
+ 	/* -- timer -- */
+ 	unsigned int timer_resolution;	/* timer resolution */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
+ 	int tstamp_type;		/* timestamp type */
+-
++#endif
+ 	/* -- DMA -- */           
+ 	unsigned char *dma_area;	/* DMA area */
+ 	dma_addr_t dma_addr;		/* physical bus address (not accessible from main CPU) */
+@@ -353,9 +381,34 @@
+ 	struct snd_pcm_oss_runtime oss;
+ #endif
+ 
++	/* appended below for ABI compatibility */
++#ifndef __GENKSYMS__
+ #ifdef CONFIG_SND_PCM_XRUN_DEBUG
+ 	struct snd_pcm_hwptr_log *hwptr_log;
+ #endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 30)
++	unsigned long hw_ptr_jiffies;	/* Time when hw_ptr is updated */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 31)
++	snd_pcm_sframes_t delay;	/* extra delay; typically FIFO size */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
++	int tstamp_type;		/* timestamp type */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 34)
++	wait_queue_head_t tsleep;	/* transfer sleep */	
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
++	snd_pcm_uframes_t twake; 	/* do transfer (!poll) wakeup if non-zero */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 37)
++	unsigned long hw_ptr_buffer_jiffies; /* buffer time in jiffies */
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 38)
++	unsigned int no_period_wakeup: 1;
++#endif
++#endif /* !__GENKSYMS__ */
+ };
+ 
+ struct snd_pcm_group {		/* keep linked substreams */
+@@ -373,7 +426,15 @@
+ 	int number;
+ 	char name[32];			/* substream name */
+ 	int stream;			/* stream (direction) */
++#ifdef CONFIG_SND_HAVE_PM_QOS_REQUEST_STATIC   
++	struct pm_qos_request_list latency_pm_qos_req; /* pm_qos request */
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST_LIST)
++	struct pm_qos_request_list *latency_pm_qos_req; /* pm_qos request */
++#elif defined(CONFIG_SND_HAVE_PM_QOS_REQUEST)
+ 	struct pm_qos_request latency_pm_qos_req; /* pm_qos request */
++#else
++	char latency_id[20];
++#endif        
+ 	size_t buffer_bytes_max;	/* limit ring buffer size */
+ 	struct snd_dma_buffer dma_buffer;
+ 	unsigned int dma_buf_id;
+@@ -385,6 +446,9 @@
+         /* -- timer section -- */
+ 	struct snd_timer *timer;		/* timer */
+ 	unsigned timer_running: 1;	/* time is running */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 30)
++	spinlock_t timer_lock;		/* just place holder */
++#endif
+ 	/* -- next substream -- */
+ 	struct snd_pcm_substream *next;
+ 	/* -- linked substreams -- */
+@@ -397,7 +461,9 @@
+ 	atomic_t mmap_count;
+ 	unsigned int f_flags;
+ 	void (*pcm_release)(struct snd_pcm_substream *);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33)
+ 	struct pid *pid;
++#endif
+ #if defined(CONFIG_SND_PCM_OSS) || defined(CONFIG_SND_PCM_OSS_MODULE)
+ 	/* -- OSS things -- */
+ 	struct snd_pcm_oss_substream oss;
+@@ -413,6 +479,13 @@
+ #endif
+ 	/* misc flags */
+ 	unsigned int hw_opened: 1;
++
++	/* appended below for ABI compatibility */
++#ifndef __GENKSYMS__
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
++	struct pid *pid;
++#endif
++#endif
+ };
+ 
+ #define SUBSTREAM_BUSY(substream) ((substream)->ref_count > 0)
+@@ -491,7 +564,11 @@
+ int snd_pcm_status(struct snd_pcm_substream *substream,
+ 		   struct snd_pcm_status *status);
+ int snd_pcm_start(struct snd_pcm_substream *substream);
++#if defined(__GENKSYMS__) && LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 38)
++int snd_pcm_stop(struct snd_pcm_substream *substream, int status);
++#else
+ int snd_pcm_stop(struct snd_pcm_substream *substream, snd_pcm_state_t status);
++#endif
+ int snd_pcm_drain_done(struct snd_pcm_substream *substream);
+ #ifdef CONFIG_PM
+ int snd_pcm_suspend(struct snd_pcm_substream *substream);

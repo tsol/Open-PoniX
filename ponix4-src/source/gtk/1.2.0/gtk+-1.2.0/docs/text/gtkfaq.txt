@@ -1,0 +1,1386 @@
+  GTK+ FAQ
+  Nathan Froyd, Tony Gale, Shawn T. Amundson.
+  July 6th 1998
+
+  This document is intended to answer questions that are likely to be
+  frequently asked by programmers using GTK+ or people who are just
+  looking at using GTK+.
+  ______________________________________________________________________
+
+  Table of Contents
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  1. General Information
+
+     1.1 Authors
+     1.2 What is GTK+?
+     1.3 What is the + in GTK+?
+     1.4 Does the G in GTK+ stand for General, Gimp, or GNU?
+     1.5 Where is the documentation for GTK+?
+     1.6 Is there a mailing list (or mailing list archive) for GTK+?
+     1.7 The gtk-list hasn't had any traffic for days, is it dead?
+     1.8 How to get help with GTK+
+     1.9 How to report bugs in GTK+
+     1.10 What applications have been written with GTK+?
+     1.11 I'm looking for an application to write in GTK+. How about an IRC client?
+
+  2. How to find, configure, install, and troubleshoot GTK+
+
+     2.1 What do I need to run GTK+?
+     2.2 Where can I get GTK+?
+     2.3 How do I configure/compile GTK+?
+     2.4 When compiling GTK+ I get an error like:
+     2.5 I've compiled and installed GTK+, but I can't get any programs to link with it!
+     2.6 When compiling programs with GTK+, I get compiler error messages about not being able to find
+     2.7 When installing The GIMP, configure reports that it can't find GTK.
+
+  3. Development of GTK+
+
+     3.1 Whats this CVS thing that everyone keeps talking about, and how do I access it?
+     3.2 How can I contribute to GTK+?
+     3.3 How do I know if my patch got applied, and if not, why not?
+     3.4 What is the policy on incorporating new widgets into the library?
+     3.5 Is anyone working on bindings for languages other than C?
+
+  4. Development with GTK+
+
+     4.1 How do I get started?
+     4.2 What widgets are in GTK?
+     4.3 Is GTK+ thread safe? How do I write multi-threaded GTK+ applications?
+     4.4 How can I prevent redrawing and resizing while I change multiple widgets?
+     4.5 How do I catch a double click event (in a list widget, for example)?
+     4.6 How do I find out about the selection of a GtkList?
+     4.7 Is it possible to get some text displayed which is truncated to fit inside its allocation?
+     4.8 Why don't the contents of a button move when the button is pressed? Here's a patch to make it work that way...
+     4.9 How can I define a separation line in a menu?
+     4.10 How can I right justify a menu, such as Help, when using the MenuFactory?
+     4.11 How do I make my window modal? / How do I make a single window active?
+     4.12 Why doesn't my widget (e.g. progressbar) update?
+
+  5. About gdk
+
+     5.1 What is gdk?
+     5.2 How do I use color allocation?
+
+  6. About glib
+
+     6.1 What is glib?
+     6.2 Why use g_print, g_malloc, g_strdup and fellow glib functions ?
+
+  7. GTK+ FAQ Contributions, Maintainers and Copyright
+
+
+
+  ______________________________________________________________________
+
+
+
+
+  11..  GGeenneerraall IInnffoorrmmaattiioonn
+
+  11..11..  AAuutthhoorrss
+
+  The authors of GTK+ are:
+
+
+  +o  Peter Mattis    (petm@xcf.berkeley.edu)
+
+  +o  Spencer Kimball (spencer@xcf.berkeley.edu)
+
+  +o  Josh MacDonald  (jmacd@xcf.berkeley.edu)
+
+     GTK+ is distributed under the GNU Library General Public License
+
+
+  11..22..  WWhhaatt iiss GGTTKK++??
+
+  GTK+ is a small and efficient widget set designed with the general
+  look and feel of Motif.  In reality, it looks much better than Motif.
+  It contains common widgets and some more complex widgets such as a
+  file selection, and color selection widgets.
+
+  GTK+ provides some unique features. (At least, I know of no other
+  widget library which provides them). For example, a button does not
+  contain a label, it contains a child widget, which in most instances
+  will be a label.  However, the child widget can also be a pixmap,
+  image or any combination possible the programmer desires.  This
+  flexibility is adhered to throughout the library.
+
+
+  11..33..  WWhhaatt iiss tthhee ++ iinn GGTTKK++??
+
+  Peter Mattis informed the gtk mailing list that:
+
+       "I originally wrote gtk which included the three libraries,
+       libglib, libgdk and libgtk. It featured a flat widget hier-
+       archy. That is, you couldn't derive a new widget from an
+       existing one. And it contained a more standard callback
+       mechanism instead of the signal mechanism now present in
+       gtk+. The + was added to distinguish between the original
+       version of gtk and the new version. You can think of it as
+       being an enhancement to the original gtk that adds object
+       oriented features."
+
+
+
+  11..44..  DDooeess tthhee GG iinn GGTTKK++ ssttaanndd ffoorr GGeenneerraall,, GGiimmpp,, oorr GGNNUU??
+
+  Peter Mattis informed the gtk mailing list that:
+
+       "I think the last time Spencer and I talked about it we
+       decided on GTK = Gimp ToolKit. But I don't know for sure.
+       Its definately not GNU, though."
+
+
+
+  11..55..  WWhheerree iiss tthhee ddooccuummeennttaattiioonn ffoorr GGTTKK++??
+
+  In the GTK+ distribution's doc/ directory you will find the reference
+  material for both GTK and GDK, this FAQ and the GTK Tutorial.
+
+  In addition, you can find links to HTML versions of these documents by
+  going to http://www.gtk.org/.
+
+
+  The Tutorial and FAQ can also be found at
+  http://www.geocities.com/ResearchTriangle/Lab/4299/.
+
+
+  11..66..  IIss tthheerree aa mmaaiilliinngg lliisstt ((oorr mmaaiilliinngg lliisstt aarrcchhiivvee)) ffoorr GGTTKK++??
+
+  There are two mailing lists:
+
+  +o  A mailing list for discussion of development of GTK based
+     applications is hosted at gtk-app-devel-list@redhat.com. To
+     subscribe send an email message to gtk-app-devel-list-
+     request@redhat.com with _s_u_b_s_c_r_i_b_e in the ssuubbjjeecctt.
+
+
+  +o  A mailing list for discussion of development of GTK is hosted at
+     gtk-list@redhat.com. To subscribe send an email message to gtk-
+     list-request@redhat.com with _s_u_b_s_c_r_i_b_e in the ssuubbjjeecctt.
+
+     A searchable archive of the mailing list can be found at
+     http://archive.redhat.com/gtk-list
+
+  11..77..  TThhee ggttkk--lliisstt hhaassnn''tt hhaadd aannyy ttrraaffffiicc ffoorr ddaayyss,, iiss iitt ddeeaadd??
+
+  No, everyone's just busy coding.
+
+
+  11..88..  HHooww ttoo ggeett hheellpp wwiitthh GGTTKK++
+
+  First, make sure your question isn't answered in the documentation,
+  this FAQ or the tutorial. Done that? You're sure you've done that,
+  right? In that case, the best place to post questions is to the GTK+
+  mailing list.
+
+
+  11..99..  HHooww ttoo rreeppoorrtt bbuuggss iinn GGTTKK++
+
+  Bug reports should be sent to the GTK+ mailing list.
+
+
+  11..1100..  WWhhaatt aapppplliiccaattiioonnss hhaavvee bbeeeenn wwrriitttteenn wwiitthh GGTTKK++??
+
+  Some applications which use GTK+ are:
+
+  +o  GIMP (http://www.XCF.Berkeley.EDU/~gimp/ ), an image manipulation
+     program
+
+  +o  Gsumi (http://www.msc.cornell.edu/~otaylor/gsumi/gsumi.html), a fun
+     B+W doodling program with XInput support.
+
+  +o  GUBI (http://www.SoftHome.net/pub/users/timj/gubi/index.htm), a
+     user interface builder
+
+  +o  Gzilla (http://www.levien.com/gzilla/), a web browser
+
+  +o  SANE (http://www.azstarnet.com/~axplinux/sane/ ), a universal
+     scanner interface
+
+  +o  XQF (http://www.botik.ru/~roma/quake/), a QuakeWorld/Quake2 server
+     browser and launcher
+
+  +o  ElectricEyes (http://www.labs.redhat.com/ee.shtml), an image viewer
+     that aims to be a free replacement for xv
+
+  +o  GPK - the General Proxy Kit (http://www.humanfactor.com/gpk/), an
+     add-on library to permit thread-safe access to GTK+
+
+  +o  GCK - the General Convenience Kit
+     (http://www.ii.uib.no/~tomb/gck.html), miscellaneous functions
+     intended to ease color handling, UI construction, vector
+     operations, and math functions
+
+  +o  GDK Imlib (http://www.labs.redhat.com/imlib/), a fast image loading
+     and manipulation library for GDK
+
+  In addition to the above, the GNOME project (http://www.gnome.org) is
+  using GTK+ to build a free desktop for Linux. Many more programs can
+  be found there.
+
+
+  11..1111..  II''mm llooookkiinngg ffoorr aann aapppplliiccaattiioonn ttoo wwrriittee iinn GGTTKK++.. HHooww aabboouutt aann
+  IIRRCC cclliieenntt??
+
+
+
+  Ask on gtk-list for suggestions. There are at least four IRC clients
+  already under development.
+
+
+  +o  girc. (Included with GNOME)
+
+  +o  Bezerk (http://www.gtk.org/~trog/)
+
+  +o  gsirc. (Location?)
+
+  +o  Gnirc. (http://www.imaginet.fr/~dramboz/gnirc)
+
+
+
+  22..  HHooww ttoo ffiinndd,, ccoonnffiigguurree,, iinnssttaallll,, aanndd ttrroouubblleesshhoooott GGTTKK++
+
+  22..11..  WWhhaatt ddoo II nneeeedd ttoo rruunn GGTTKK++??
+
+  To compile GTK+, all you need is a C compiler (gcc) and the X Window
+  System and associated libraries on your system.
+
+
+  22..22..  WWhheerree ccaann II ggeett GGTTKK++??
+
+  The canonical site is:
+
+  ftp://ftp.gtk.org/pub/gtk
+
+
+  Of course, any mirrors of ftp.gtk.org should have the latest version,
+  too.
+
+
+  22..33..  HHooww ddoo II ccoonnffiigguurree//ccoommppiillee GGTTKK++??
+
+  Generally, all you will need to do is issue the commands:
+
+  ./configure
+  make
+
+
+  in the gtk+-version/ directory.
+
+
+  22..44..  WWhheenn ccoommppiilliinngg GGTTKK++ II ggeett aann eerrrroorr lliikkee:: mmaakkee:: ffiillee ``MMaakkeeffiillee''
+  lliinnee 445566:: SSyynnttaaxx eerrrroorr
+
+
+  Make sure that you are using GNU make (use make -v to check). There
+  are many weird and wonderful versions of make out there, and not all
+  of them handle the automatically generated Makefiles.
+
+
+
+  22..55..  II''vvee ccoommppiilleedd aanndd iinnssttaalllleedd GGTTKK++,, bbuutt II ccaann''tt ggeett aannyy pprrooggrraammss
+  ttoo lliinnkk wwiitthh iitt!!
+
+  This problem is most often encountered when the GTK+ libraries can't
+  be found or are the wrong version. Generally, the compiler will
+  complain about an
+
+  +o  Make sure that the libraries can be found. You want to edit
+     /etc/ld.so.conf to include the directories which contain the GTK
+     libraries, so it looks something like:
+
+     /usr/X11R6/lib
+     /usr/local/lib
+
+
+  Then you need to run /sbin/ldconfig as root. You can find what direc-
+  tory GTK is in using
+
+  gtk-config --libs
+
+
+
+  If your system doesn't use ld.so to find libraries (such as Solaris),
+  then you will have to use the LD_LIBRARY_PATH environment variable (or
+  compile the path into your program, which I'm not going to cover
+  here). So, with a Bourne type shell you can do (if your GTK libraries
+  are in /usr/local/lib):
+
+  export LD_LIBRARY_PATH=/usr/local/lib
+
+
+  and in a csh, you can do:
+
+  setenv LD_LIBRARY_PATH /usr/local/lib
+
+
+
+  +o  Make sure the linker is finding the correct set of libraries. If
+     you have a Linux distribution that installs GTK+ (e.g. RedHat 5.0)
+     then this older version may be used. Now (assuming you have a
+     RedHat system), issue the command
+
+     rpm -e gtk gtk-devel
+
+
+  You may also want to remove the packages that depend on gtk (rpm will
+  tell you which ones they are).  If you don't have a RedHat Linux sys-
+  tem, check to make sure that neither
+
+  /usr/lib
+
+
+
+  /usr/local/lib
+
+
+  the libraries libgtk, libgdk, libglib, or libgck.  If they do exist,
+  remove them (and any gtk include files, such as /usr/include/gtk and
+  /usr/include/gdk) and reinstall gtk+.
+
+  22..66..  WWhheenn ccoommppiilliinngg pprrooggrraammss wwiitthh GGTTKK++,, II ggeett ccoommppiilleerr eerrrroorr mmeessssaaggeess
+  aabboouutt nnoott bbeeiinngg aabbllee ttoo ffiinndd ""gglliibbccoonnffiigg..hh"" ..
+
+  The header file "glibconfig.h" was moved to the directory
+  $exec_prefix/lib/glib/include/. $exec_prefix is the directory that was
+  specified by giving the --exec-prefix flags to ./configure when
+  compiling GTK+. It defaults to $prefix, (specified with --prefix),
+  which in turn defaults to /usr/local/.
+
+  This was done because "glibconfig.h" includes architecture dependent
+  information, and the rest of the include files are put in
+  $prefix/include, which can be shared between different architectures.
+
+  GTK+ includes a shell script, gtk-config, that makes it easy to find
+  out the correct include paths.  The GTK+ tutorial includes an example
+  of using gtk-config for simple compilation from the command line. For
+  information about more complicated configuration, see the file
+  docs/gtk-config.txt in the GTK+ distribution.
+
+  If you are trying to compile an old program, you may be able to work
+  around the problem by configuring it with a command line like:
+
+
+
+       CPPFLAGS="-I/usr/local/include/glib/include" ./configure
+
+
+
+
+  for Bourne-compatible shells like bash, or for csh variants:
+
+
+
+       setenv CPPFLAGS "-I/usr/local/include/glib/include"
+       ./configure
+
+
+
+
+  (Substitute the appropriate value of $exec_prefix for /usr/local.)
+
+
+  22..77..  WWhheenn iinnssttaalllliinngg TThhee GGIIMMPP,, ccoonnffiigguurree rreeppoorrttss tthhaatt iitt ccaann''tt ffiinndd
+  GGTTKK..
+
+  There are several common reasons for this:
+
+  +o  You have an old version of GTK installed somewhere. RedHat 5.0, for
+     example, installs an older copy of GTK that will not work with the
+     latest versions of GIMP. You should remove this old copy, but note
+     that in the case of RedHat 5.0 this will break the control-panel
+     applications.
+
+
+  +o  gtk-config (or another component of GTK) isn't in your path, or
+     there is an old version on your system. Type:
+
+     gtk-config --version
+
+
+  to check for both of these. This should return a value of at least
+  0.99.8 for things to work properly with GIMP 0.99.23. If it returns a
+  value different from what you expect, then you have an old version of
+  GTK on your system.
+
+
+  +o  The ./configure script can't find the GTK libraries. As ./configure
+     compiles various test programs, it needs to be able to find the GTK
+     libraries. See the question above for help on this.
+
+  If none of the above help, then have a look in config.log, which is
+  generated by ./configure as it runs. At the bottom will be the last
+  action it took before failing. If it is a section of source code, copy
+  the source code to a file and compile it with the line just above it
+  in config.log. If the compilation is successful, try executing it.
+
+
+  33..  DDeevveellooppmmeenntt ooff GGTTKK++
+
+  33..11..  WWhhaattss tthhiiss CCVVSS tthhiinngg tthhaatt eevveerryyoonnee kkeeeeppss ttaallkkiinngg aabboouutt,, aanndd hhooww
+  ddoo II aacccceessss iitt??
+
+  CVS is the Concurent Version System and is a very popular mean of
+  version control for software projects. It is designed to allow
+  multiple authors to be able to simultanously operate on the same
+  source tree.  This source tree is centrally maintained, but each
+  developer has a local mirror of this repository that they make there
+  changes to.
+
+  The GTK+ developers use a CVS repository to store the master copy of
+  the current development version of GTK+. As such, people wishing to
+  contribute patches to GTK+ should generate them against the CVS
+  version.  Normal people should use the packaged releases.
+
+  The CVS toolset is available as RPM packages from the usual RedHat
+  sites.  The latest version is available at
+  <http://download.cyclic.com/pub/>
+
+  Anyone can download the latest CVS version of GTK+ by using anonymous
+  access using the following steps:
+
+  +o  In a bourne shell descendant (e.g. bash) type:
+
+     export CVSROOT=':pserver:anonymous@anoncvs.gimp.org:/debian/home/gnomecvs'
+
+
+
+  +o  Next, the first time the source tree is checked out, a cvs login is
+     needed.
+
+     cvs login
+
+
+  This will ask you for a password. There is no password for
+  cvs.gimp.org, so just enter a carriage return.
+
+  +o  To get the tree and place it in a subdir of your current working
+     directory, issue the command:
+
+     cvs -z3 get gtk+
+
+
+
+  Note that with the GTK+ 1.1 tree, glib has been moved to a separate
+  CVS module, so if you don't have glib installed you will need to get
+  that as well:
+
+  cvs -z3 get glib
+
+
+
+
+  33..22..  HHooww ccaann II ccoonnttrriibbuuttee ttoo GGTTKK++??
+
+  It's simple.  If something doesn't work like you think it should in a
+  program, check the documentation to make sure you're not missing
+  something.  If it is a true bug or missing feature, track it down in
+  the GTK+ source, change it, and then generate a patch in the form of a
+  'context diff'. This can be done using a command such as diff -ru
+  <oldfile> <newfile>.  Then upload the patchfile to:
+
+  ftp://ftp.gtk.org/incoming
+
+
+  along with a README file.  Make sure you follow the naming conventions
+  or your patch will just be deleted! The filenames should be of this
+  form:
+
+  gtk-<username>-<date yymmdd-n>.patch.gz
+  gtk-<username>-<date yymmdd-n>.patch.README
+
+
+  The "n" in the date indicates a unique number (starting from 0) of
+  patches you uploaded that day.  It should be 0, unless you upload more
+  than one patch in the same day.
+
+  Example:
+
+  gtk-gale-982701-0.patch.gz
+  gtk-gale-982701-0.patch.README
+
+
+  Once you upload _a_n_y_t_h_i_n_g, send the README to ftp-admin@gtk.org
+
+
+  33..33..  HHooww ddoo II kknnooww iiff mmyy ppaattcchh ggoott aapppplliieedd,, aanndd iiff nnoott,, wwhhyy nnoott??
+
+  Uploaded patches will be moved to ftp://ftp.gtk.org/pub/gtk/patches
+  where one of the GTK+ development team will pick them up. If applied,
+  they will be moved to /pub/gtk/patches/old.
+
+  Patches that aren't applied, for whatever reason, are moved to
+  /pub/gtk/patches/unapplied or /pub/gtk/patches/outdated.  At this
+  point you can ask on the gtk-list mailing list why your patch wasn't
+  applied. There are many possible reasons why patches may not be
+  applied, ranging from it doesn't apply cleanly, to it isn't right.
+  Don't be put off if your patch didn't make it first time round.
+
+
+  33..44..  WWhhaatt iiss tthhee ppoolliiccyy oonn iinnccoorrppoorraattiinngg nneeww wwiiddggeettss iinnttoo tthhee
+  lliibbrraarryy??
+
+  This is up to the authors, so you will have to ask them once you are
+  done with your widget.  As a general guideline, widgets that are
+  generally useful, work, and are not a disgrace to the widget set will
+  gladly be included.
+
+
+  33..55..  IIss aannyyoonnee wwoorrkkiinngg oonn bbiinnddiinnggss ffoorr llaanngguuaaggeess ootthheerr tthhaann CC??
+
+  Yes. There is
+
+  +o  a C++ wrapper for GTK+ called gtk--. You can find the home page at:
+     http://www.cs.tut.fi/~p150650/gtk/gtk--.html.  The FTP site is
+     ftp://ftp.gtk.org/pub/gtk/gtk--.
+
+
+
+  +o  There are two Objective-c bindings currently in development:
+
+
+  +o  The GNOME project's package of choice is obgtk. Objgtk is based on
+     the Object class and is maintained by Elliot Lee. Apparently,
+     objgtk is being accepted as the `standard' Objective-C binding for
+     GTK+.
+
+  +o  If you are more inclined towards the GNUstep project, you may want
+     to check out GTKKit by Helge Hess.  The intention is to setup a
+     GTK+ binding using the FoundationKit.  GTKKit includes nicities
+     like writing a XML-type template file to construct a GTK+
+     interface.
+
+
+
+
+  +o  Perl bindings ftp://ftp.gtk.org/pub/gtk/perl
+
+
+  +o  Guile bindings. The home page is at
+     http://www.ping.de/sites/zagadka/guile-gtk.  By the way, Guile is
+     the GNU Project's implemention of R4RS Scheme (the standard). If
+     you like Scheme, you may want to take a look at this.
+
+
+
+  +o  David Monniaux reports:
+
+       I've started a gtk-O'Caml binding system.  The basics of the
+       system, including callbacks, work fine.
+
+       The current development is in http://www.ens-lyon.fr/~dmon-
+       niau/arcs
+
+
+
+  +o  Several python bindings have been done:
+
+
+  +o  pygtk is at http://www.daa.com.au/~james/pygtk and
+     ftp://ftp.gtk.org/pub/gtk/python
+
+  +o  python-gtk is at http://www.ucalgary.ca/~nascheme/python-gtk
+
+
+  +o  There's a OpenGL/Mesa widget available for GTK+. Grab it at
+     http://www.sakuranet.or.jp/~aozasa/shige/doc/comp/gtk/gtkGL/files-
+     en.html
+
+
+  44..  DDeevveellooppmmeenntt wwiitthh GGTTKK++
+
+  44..11..  HHooww ddoo II ggeett ssttaarrtteedd??
+
+  So, after you have installed GTK+ there are a couple of things that
+  can ease you into developing applications with it. There is the GTK+
+  Tutorial <http://www.gtk.org/tutorial/>, which is undergoing
+  development. This will introduce you to writing applications using C.
+
+  The Tutorial doesn't (yet) contain information on all of the widgets
+  that are in GTK+. For example code on how to use the basics of all the
+  GTK+ widgets you should look at the file gtk/testgtk.c (and associated
+  source files) within the GTK+ distribution. Looking at these exmaples
+  will give you a good grounding on what the widgets can do.
+
+  44..22..  WWhhaatt wwiiddggeettss aarree iinn GGTTKK??
+
+  The GTK+ Tutorial lists the following widgets:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    GtkObject
+     +GtkData
+     | +GtkAdjustment
+     | `GtkTooltips
+     `GtkWidget
+       +GtkContainer
+       | +GtkBin
+       | | +GtkAlignment
+       | | +GtkEventBox
+       | | +GtkFrame
+       | | | `GtkAspectFrame
+       | | +GtkHandleBox
+       | | +GtkItem
+       | | | +GtkListItem
+       | | | +GtkMenuItem
+       | | | | `GtkCheckMenuItem
+       | | | |   `GtkRadioMenuItem
+       | | | `GtkTreeItem
+       | | +GtkViewport
+       | | `GtkWindow
+       | |   +GtkColorSelectionDialog
+       | |   +GtkDialog
+       | |   | `GtkInputDialog
+       | |   `GtkFileSelection
+       | +GtkBox
+       | | +GtkButtonBox
+       | | | +GtkHButtonBox
+       | | | `GtkVButtonBox
+       | | +GtkHBox
+       | | | +GtkCombo
+       | | | `GtkStatusbar
+       | | `GtkVBox
+       | |   +GtkColorSelection
+       | |   `GtkGammaCurve
+       | +GtkButton
+       | | +GtkOptionMenu
+       | | `GtkToggleButton
+       | |   `GtkCheckButton
+       | |     `GtkRadioButton
+       | +GtkCList
+       |   `GtkCTree
+       | +GtkFixed
+       | +GtkList
+       | +GtkMenuShell
+       | | +GtkMenuBar
+       | | `GtkMenu
+       | +GtkNotebook
+       | +GtkPaned
+       | | +GtkHPaned
+       | | `GtkVPaned
+       | +GtkScrolledWindow
+       | +GtkTable
+       | +GtkToolbar
+       | `GtkTree
+       +GtkDrawingArea
+       | `GtkCurve
+       +GtkEditable
+       | +GtkEntry
+       | | `GtkSpinButton
+       | `GtkText
+       +GtkMisc
+       | +GtkArrow
+       | +GtkImage
+       | +GtkLabel
+       | | `GtkTipsQuery
+       | `GtkPixmap
+       +GtkPreview
+       +GtkProgressBar
+       +GtkRange
+       | +GtkScale
+       | | +GtkHScale
+       | | `GtkVScale
+       | `GtkScrollbar
+       |   +GtkHScrollbar
+       |   `GtkVScrollbar
+       +GtkRuler
+       | +GtkHRuler
+       | `GtkVRuler
+       `GtkSeparator
+         +GtkHSeparator
+         `GtkVSeparator
+
+
+
+
+  44..33..  IIss GGTTKK++ tthhrreeaadd ssaaffee?? HHooww ddoo II wwrriittee mmuullttii--tthhrreeaaddeedd GGTTKK++ aapppplliiccaa--
+  ttiioonnss??
+
+  Although GTK+, like many X toolkits, isn't thread safe, this does not
+  prohibit the development of multi-threaded applications with GTK+.
+
+  Rob Browning (rlb@cs.utexas.edu) describes threading techniques for
+  use with GTK+ (slightly edited):
+
+  There are basically two main approaches, the first is simple, and the
+  second complicated. In the first, you just make sure that all GTK+ (or
+  X) interactions are handled by one, and only one, thread. Any other
+  thread that wants to draw something has to somehow notify the "GTK+"
+  thread, and let it handle the actual work.
+
+  The second approach allows you to call GTK+ (or X) functions from any
+  thread, but it requires some careful synchronization. The basic idea
+  is that you create an X protection mutex, and no one may make any X
+  calls without first acquiring this mutex.
+
+  Note that this is a little effort, but it allows you to be potentially
+  more efficient than a completely thread safe GTK+. You get to decide
+  the granularity of the thread locking. You also have to make sure that
+  the thread that calls gtk_main is holding the lock when it calls
+  gtk_main.
+
+  The next thing to worry about is that since you were holding the
+  global mutex when you entered gtk_main, all callbacks will also be
+  holding it. This means that the callback must release it if it's going
+  to call any other code that might reacquire it. Otherwise you'll get
+  deadlock. Also, you must be holding the mutex when you finally return
+  from the callback.
+
+  In order to allow threads other than the one calling gtk_main to get
+  access to the mutex, we also need to register a work function with GTK
+  that allows us to release the mutex periodically.
+
+  Why can't GTK+ be thread safe by default?
+
+  Complexity, overhead, and manpower.  The proportion of threaded
+  programs is still reasonably small, and getting thread safety right is
+  both quite difficult and takes valuable time away from the main work
+  of getting a good graphics library finished.  It would be nice to have
+  GTK+ thread safe "out of the box", but that's not practical right now,
+  and it also might make GTK+ substantially less efficient if not
+  handled carefully.
+
+  Regardless, it's especially not a priority since relatively good
+  workarounds exist.
+
+
+  44..44..  HHooww ccaann II pprreevveenntt rreeddrraawwiinngg aanndd rreessiizziinngg wwhhiillee II cchhaannggee mmuullttiippllee
+  wwiiddggeettss??
+
+
+  Use gtk_container_disable_resize and gtk_container_enable_resize
+  around the code where you are changing a lot of stuff. This will
+  result in much faster speed since it will prevent resizing of the
+  entire widget hierarchy.
+
+
+  44..55..  HHooww ddoo II ccaattcchh aa ddoouubbllee cclliicckk eevveenntt ((iinn aa lliisstt wwiiddggeett,, ffoorr eexxaamm--
+  ppllee))??
+
+  Tim Janik wrote to gtk-list (slightly modified):
+
+  Define a signal handler:
+
+
+
+       gint
+       signal_handler_event(GtkWiget *widget, GdkEvenButton *event, gpointer func_data)
+       {
+         if (GTK_IS_LIST_ITEM(widget) &&
+              (event->type==GDK_2BUTTON_PRESS ||
+               event->type==GDK_3BUTTON_PRESS) ) {
+           printf("I feel %s clicked on button %d\",
+                  event->type==GDK_2BUTTON_PRESS ? "double" : "triple",
+                  event->button);
+         }
+
+         return FALSE;
+       }
+
+
+
+
+  And connect the handler to your object:
+
+
+
+       {
+         /* list, list item init stuff */
+
+         gtk_signal_connect(GTK_OBJECT(list_item),
+                            "button_press_event",
+                            GTK_SIGNAL_FUNC(signal_handler_event),
+                            NULL);
+
+         /* and/or */
+
+         gtk_signal_connect(GTK_OBJECT(list_item),
+                            "button_release_event",
+                            GTK_SIGNAL_FUNC(signal_handler_event),
+                            NULL);
+
+         /* something else */
+       }
+
+
+
+
+
+  and, Owen Taylor wrote:
+
+  Note that a single button press will be received beforehand, and if
+  you are doing this for a button, you will therefore also get a
+  "clicked" signal for the button. (This is going to be true for any
+  toolkit, since computers aren't good at reading one's mind.)
+
+
+  44..66..  HHooww ddoo II ffiinndd oouutt aabboouutt tthhee sseelleeccttiioonn ooff aa GGttkkLLiisstt??
+
+
+  Get the selection something like this:
+
+
+       GList *sel;
+       sel = GTK_LIST(list)->selection;
+
+
+
+
+  This is how GList is defined (quoting glist.h):
+
+
+       typedef struct _GList GList;
+
+       struct _GList
+       {
+         gpointer data;
+         GList *next;
+         GList *prev;
+       };
+
+
+
+
+  A GList structure is just a simple structure for doubly linked lists.
+  there exist several g_list_*() functions to modify a linked list in
+  glib.h.  However the GTK_LIST(MyGtkList)->selection is maintained by
+  the gtk_list_*() functions and should not be modified.
+
+  The selection_mode of the GtkList determines the selection facilities
+  of a GtkList and therefore the contents of
+  GTK_LIST(AnyGtkList)->selection:
+
+
+  selection_mode          GTK_LIST()->selection contents
+  ------------------------------------------------------
+
+  GTK_SELECTION_SINGLE)   selection is either NULL
+                          or contains a GList* pointer
+                          for a single selected item.
+
+  GTK_SELECTION_BROWSE)   selection is NULL if the list
+                          contains no widgets, otherwise
+                          it contains a GList* pointer
+                          for one GList structure.
+  GTK_SELECTION_MULTIPLE) selection is NULL if no listitems
+                          are selected or a a GList* pointer
+                          for the first selected item. that
+                          in turn points to a GList structure
+                          for the second selected item and so
+                          on
+
+  GTK_SELECTION_EXTENDED) selection is NULL.
+
+
+  The data field of the GList structure GTK_LIST(MyGtkList)->selection
+  points to the first GtkListItem that is selected.  So if you would
+  like to determine which listitems are selected you should go like
+  this:
+
+  Upon Initialization:
+
+
+       {
+               gchar           *list_items[]={
+                                       "Item0",
+                                       "Item1",
+                                       "foo",
+                                       "last Item",
+                               };
+               guint           nlist_items=sizeof(list_items)/sizeof(list_items[0]);
+               GtkWidget       *list_item;
+               guint           i;
+
+               list=gtk_list_new();
+               gtk_list_set_selection_mode(GTK_LIST(list), GTK_SELECTION_MULTIPLE);
+               gtk_container_add(GTK_CONTAINER(AnyGtkContainer), list);
+               gtk_widget_show (list);
+
+               for (i = 0; i < nlist_items; i++)
+               {
+                       list_item=gtk_list_item_new_with_label(list_items[i]);
+                       gtk_object_set_user_data(GTK_OBJECT(list_item), (gpointer)i);
+                       gtk_container_add(GTK_CONTAINER(list), list_item);
+                       gtk_widget_show(list_item);
+               }
+       }
+
+
+
+
+  To get known about the selection:
+
+
+       {
+               GList   *items;
+
+               items=GTK_LIST(list)->selection;
+
+               printf("Selected Items: ");
+               while (items) {
+                       if (GTK_IS_LIST_ITEM(items->data))
+                               printf("%d ", (guint)
+                       gtk_object_get_user_data(items->data));
+                       items=items->next;
+               }
+               printf("\n");
+       }
+
+
+
+
+  44..77..  IIss iitt ppoossssiibbllee ttoo ggeett ssoommee tteexxtt ddiissppllaayyeedd wwhhiicchh iiss ttrruunnccaatteedd ttoo
+  ffiitt iinnssiiddee iittss aallllooccaattiioonn??
+
+  GTK's behavior (no clipping) is a consequence of its attempts to
+  conserve X resources. Label widgets (among others) don't get their own
+  X window - they just draw their contents on their parent's window.
+  While it might be possible to have clipping occur by setting the clip
+  mask before drawing the text, this would probably cause a substantial
+  performance penalty.
+  Its possible that, in the long term, the best solution to such
+  problems might be just to change gtk to give labels X windows.  A
+  short term workaround is to put the label widget inside another widget
+  that does get it's own window - one possible candidate would be the
+  viewport widget.
+
+
+
+       viewport = gtk_viewport (NULL, NULL);
+       gtk_widget_set_usize (viewport, 50, 25);
+       gtk_viewport_set_shadow_type (GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
+       gtk_widget_show(viewport);
+
+       label = gtk_label ("a really long label that won't fit");
+       gtk_container_add (GTK_CONTAINER(viewport), label);
+       gtk_widget_show (label);
+
+
+
+
+  If you were doing this for a bunch of widgets, you might want to copy
+  gtkviewport.c and strip out the adjustment and shadow functionality
+  (perhaps you could call it GtkClipper).
+
+
+  44..88..  WWhhyy ddoonn''tt tthhee ccoonntteennttss ooff aa bbuuttttoonn mmoovvee wwhheenn tthhee bbuuttttoonn iiss
+  pprreesssseedd?? HHeerree''ss aa ppaattcchh ttoo mmaakkee iitt wwoorrkk tthhaatt wwaayy......
+
+  From: Peter Mattis
+
+  The reason buttons don't move their child down and to the right when
+  they are depressed is because I don't think that's what is happening
+  visually. My view of buttons is that you are looking at them straight
+  on. That is, the user interface lies in a plane and you're above it
+  looking straight at it. When a button gets pressed it moves directly
+  away from you. To be absolutely correct I guess the child should
+  actually shrink a tiny amount. But I don't see why the child should
+  shift down and to the left. Remember, the child is supposed to be
+  attached to the buttons surface. Its not good for it to appear like
+  the child is slipping on the surface of the button.
+
+  On a more practical note, I did implement this at one point and
+  determined it didn't look good and removed it.
+
+
+  44..99..  HHooww ccaann II ddeeffiinnee aa sseeppaarraattiioonn lliinnee iinn aa mmeennuu??
+
+  See the Tutorial for information on how to create menus.  However, to
+  create a separation line in a menu, just insert an empty menu item:
+
+
+
+       menuitem = gtk_menu_item_new();
+       gtk_menu_append(GTK_MENU(menu), menuitem);
+       gtk_widget_show(menuitem);
+
+
+
+
+
+  44..1100..  HHooww ccaann II rriigghhtt jjuussttiiffyy aa mmeennuu,, ssuucchh aass HHeellpp,, wwhheenn uussiinngg tthhee
+  MMeennuuFFaaccttoorryy??
+
+  Use something like the following:
+
+
+       menu_path = gtk_menu_factory_find (factory,  "<MyApp>/Help");
+       gtk_menu_item_right_justify(menu_path->widget);
+
+
+
+
+  44..1111..  HHooww ddoo II mmaakkee mmyy wwiinnddooww mmooddaall?? // HHooww ddoo II mmaakkee aa ssiinnggllee wwiinnddooww
+  aaccttiivvee??
+
+  After you create your window, do gtk_grab_add(my_window). And after
+  closing the window do gtk_grab_remove(my_window).
+
+
+  44..1122..  WWhhyy ddooeessnn''tt mmyy wwiiddggeett ((ee..gg.. pprrooggrreessssbbaarr)) uuppddaattee??
+
+
+  You are probably doing all the changes within a function without
+  returning control to gtk_main. Most drawing updates are only placed on
+  a queue, which is processed within gtk_main. You can force the drawing
+  queue to be processed using something like:
+
+
+
+       while (gtk_events_pending())
+               gtk_main_iteration();
+
+
+
+
+  inside you're function that changes the widget.
+
+  What the above snippet does is run all pending events and high
+  priority idle functions, then return immediately (the drawing is done
+  in a high priority idle function).
+
+
+  55..  AAbboouutt ggddkk
+
+  55..11..  WWhhaatt iiss ggddkk??
+
+  gdk is basically a wrapper around the standard Xlib function calls. If
+  you are at all familiar with Xlib, a lot of the functions in gdk will
+  require little or no getting used to. All functions are written to
+  provide an easy way to access Xlib functions in an easier an slightly
+  more intuitive manner.  In addition, since gdk uses glib (see below),
+  it will be more portable and safer to use on multiple platforms.
+
+
+
+  55..22..  HHooww ddoo II uussee ccoolloorr aallllooccaattiioonn??
+
+  One of the nice things about GDK is that it's based on top of Xlib;
+  this is also a problem, especially in the area of color management. If
+  you want to use color in your program (drawing a rectangle or such,
+  your code should look something like this:
+
+
+
+
+
+
+
+
+
+
+
+  {
+    GdkColor *color;
+    int width, height;
+    GtkWidget *widget;
+    GdkGC *gc;
+
+    ...
+
+    /* first, create a GC to draw on */
+    gc = gdk_gc_new(widget->window);
+
+    /* find proper dimensions for rectangle */
+    gdk_window_get_size(widget->window, &width, &height);
+
+    /* the color we want to use */
+    color = (GdkColor *)malloc(sizeof(GdkColor));
+
+    /* red, green, and blue are passed values, indicating the RGB triple
+     * of the color we want to draw. Note that the values of the RGB components
+     * within the GdkColor are taken from 0 to 65535, not 0 to 255.
+     */
+    color->red = red * (65535/255);
+    color->green = green * (65535/255);
+    color->blue = blue * (65535/255);
+
+    /* the pixel value indicates the index in the colormap of the color.
+     * it is simply a combination of the RGB values we set earlier
+     */
+    color->pixel = (gulong)(red*65536 + green*256 + blue);
+
+    /* However, the pixel valule is only truly valid on 24-bit (TrueColor)
+     * displays. Therefore, this call is required so that GDK and X can
+     * give us the closest color available in the colormap
+     */
+    gdk_color_alloc(gtk_widget_get_colormap(widget), color);
+
+    /* set the foreground to our color */
+    gdk_gc_set_foreground(gc, color);
+
+    /* draw the rectangle */
+    gdk_draw_rectangle(widget->window, gc, 1, 0, 0, width, height);
+
+    ...
+  }
+
+
+
+
+
+  66..  AAbboouutt gglliibb
+
+  66..11..  WWhhaatt iiss gglliibb??
+
+  glib is a library of useful functions and definitions available for
+  use when creating GDK and GTK applications. It provides replacements
+  for some standard libc functions, such as malloc, which are buggy on
+  some systems.
+
+  It also provides routines for handling:
+
+  +o  Doubly Linked Lists
+
+  +o  Singly Linked Lists
+
+  +o  Timers
+
+  +o  String Handling
+
+  +o  A Lexical Scanner
+
+  +o  Error Functions
+
+
+
+
+  66..22..  WWhhyy uussee gg__pprriinntt,, gg__mmaalllloocc,, gg__ssttrrdduupp aanndd ffeellllooww gglliibb ffuunnccttiioonnss ??
+
+  Thanks to Tim Janik who wrote to gtk-list: (slightly modified)
+
+       Regarding g_malloc(), g_free() and siblings, these functions
+       are much safer than thier libc equivalences.  For example,
+       g_free() just returns if called with NULL.  Also, if
+       USE_DMALLOC is defined, the definition for these functions
+       changes (in glib.h) to use MALLOC(), FREE() etc...  If
+       MEM_PROFILE or MEM_CHECK are defined, there are even small
+       statistics made counting the used block sizes (shown by
+       g_mem_profile() / g_mem_check()).
+
+       Considering the fact that glib provides an interface for
+       memory chunks to save space if you have lots of blocks that
+       are always the same size and to mark them ALLOC_ONLY if
+       needed, it is just straight forward to create a small saver
+       (debug able) wrapper around the normal malloc/free stuff as
+       well - just like gdk covers Xlib. ;)
+
+       Using g_error() and g_warning() inside of applications like
+       the GIMP that fully rely on gtk even gives the opportunity
+       to pop up a window showing the messages inside of a gtk
+       window with your own handler (by using
+       g_set_error_handler()) along the lines of gtk_print()
+       (inside of gtkmain.c).
+
+
+
+  77..  GGTTKK++ FFAAQQ CCoonnttrriibbuuttiioonnss,, MMaaiinnttaaiinneerrss aanndd CCooppyyrriigghhtt
+
+  If you would like to make a contribution to the FAQ, send either one
+  of us an e-mail message with the exact text you think should be
+  included (question and answer).  With your help, this document can
+  grow and become more useful!
+
+  This document is maintained by Nathan Froyd <maestrox@geocities.com>
+  and Tony Gale <gale@gimp.org>.  This FAQ was created by Shawn T.
+  Amundson <amundson@gimp.org>who continues to provide support.
+
+  The GTK+ FAQ is Copyright (C) 1997,1998 by Shawn T. Amundson, Nathan
+  Froyd and Tony Gale.
+
+  Permission is granted to make and distribute verbatim copies of this
+  manual provided the copyright notice and this permission notice are
+  preserved on all copies.
+
+  Permission is granted to copy and distribute modified versions of this
+  document under the conditions for verbatim copying, provided that this
+  copyright notice is included exactly as in the original, and that the
+  entire resulting derived work is distributed under the terms of a
+  permission notice identical to this one.
+
+  Permission is granted to copy and distribute translations of this
+  document into another language, under the above conditions for
+  modified versions.
+
+  If you are intending to incorporate this document into a published
+  work, please contact one of the maintainers, and we will make an
+  effort to ensure that you have the most up to date information
+  available.
+
+  There is no guarentee that this document lives up to its intended
+  purpose.  This is simply provided as a free resource.  As such, the
+  authors and maintainers of the information provided within can not
+  make any guarentee that the information is even accurate.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

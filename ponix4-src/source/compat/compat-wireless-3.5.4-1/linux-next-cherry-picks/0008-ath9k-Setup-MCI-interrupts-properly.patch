@@ -1,0 +1,62 @@
+From e270e776a0985511146555e79edbe53539809adb Mon Sep 17 00:00:00 2001
+From: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Date: Mon, 4 Jun 2012 16:27:19 +0530
+Subject: [PATCH 08/57] ath9k: Setup MCI interrupts properly
+
+MCI interrupts have to be enabled only when BTCOEX is
+actually in use.
+
+Signed-off-by: Sujith Manoharan <c_manoha@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/main.c |    3 +--
+ drivers/net/wireless/ath/ath9k/mci.c  |   11 +++++++++++
+ drivers/net/wireless/ath/ath9k/mci.h  |   11 ++++++++++-
+ 3 files changed, 22 insertions(+), 3 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -1054,8 +1054,7 @@ static int ath9k_start(struct ieee80211_
+ 	if (ah->caps.hw_caps & ATH9K_HW_CAP_HT)
+ 		ah->imask |= ATH9K_INT_CST;
+ 
+-	if (ah->caps.hw_caps & ATH9K_HW_CAP_MCI)
+-		ah->imask |= ATH9K_INT_MCI;
++	ath_mci_enable(sc);
+ 
+ 	sc->sc_flags &= ~SC_OP_INVALID;
+ 	sc->sc_ah->is_monitoring = false;
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -538,3 +538,14 @@ void ath_mci_intr(struct ath_softc *sc)
+ 		mci_int &= ~(AR_MCI_INTERRUPT_RX_INVALID_HDR |
+ 			     AR_MCI_INTERRUPT_CONT_INFO_TIMEOUT);
+ }
++
++void ath_mci_enable(struct ath_softc *sc)
++{
++	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
++
++	if (!common->btcoex_enabled)
++		return;
++
++	if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_MCI)
++		sc->sc_ah->imask |= ATH9K_INT_MCI;
++}
+--- a/drivers/net/wireless/ath/ath9k/mci.h
++++ b/drivers/net/wireless/ath/ath9k/mci.h
+@@ -130,4 +130,13 @@ void ath_mci_flush_profile(struct ath_mc
+ int ath_mci_setup(struct ath_softc *sc);
+ void ath_mci_cleanup(struct ath_softc *sc);
+ void ath_mci_intr(struct ath_softc *sc);
+-#endif
++
++#ifdef CONFIG_ATH9K_BTCOEX_SUPPORT
++void ath_mci_enable(struct ath_softc *sc);
++#else
++static inline void ath_mci_enable(struct ath_softc *sc)
++{
++}
++#endif /* CONFIG_ATH9K_BTCOEX_SUPPORT */
++
++#endif /* MCI_H*/

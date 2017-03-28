@@ -1,0 +1,137 @@
+acpid for netlink
+=================
+
+This branch of the acpid project includes support for netlink and the input 
+layer.  The latest version can be found here:
+
+  http://sourceforge.net/projects/acpid2/
+
+Previous (1.x) versions of acpid relied on /proc/acpi/event which is a 
+deprecated kernel interface for ACPI events.  Newer kernels use netlink and 
+the input layer to send ACPI-related events.  This branch of acpid uses these
+new interfaces.
+
+BUILD NOTES
+
+Before installing, the chances are pretty good that you are already running
+acpid.  You'll want to kill it before installing the new version.  While
+"sudo killall acpid" might work, it is likely that you'll need to work with
+init (e.g. upstart, systemd, ...) on your particular setup to stop acpid 
+completely.  For example, with upstart, the proper incantation is usually:
+
+  $ sudo initctl stop acpid
+
+acpid version 2.0.15 introduced autoconf.  To build versions >= 2.0.15:
+
+  $ ./configure --prefix=/usr
+  $ make
+  $ sudo make install
+
+If you want to start from scratch, use autoreconf to regenerate the configure
+script from configure.ac and Makefile.am.  This is not normally needed, so
+be sure you understand autoreconf before using it.
+
+  $ autoreconf --install --force
+
+Older versions (<= 2.0.14) of acpid simply required "make" to build:
+
+  $ make
+  $ sudo make install
+
+CONTACT
+
+Any comments or patches for this branch should be sent to Ted Felix:
+http://www.tedfelix.com  ( ted -at- tedfelix -dot- com )
+
+You can also fork the git repo on sourceforge and submit changes that way:
+http://sourceforge.net/u/tedfelix/acpid2/
+
+RELEASE PROCESS
+
+Before making the tarball:
+
+  1. Check the version number in configure.ac and the Changelog.
+  2. Check in all changes (except maybe the Changelog).
+  3. Update the Changelog based on changes since the last tag.
+       git log 2.0.17..
+  4. Check in Changelog and create a tag for the version.
+       git commit -a
+       git tag -a 2.0.xx
+  5. Push to sf.
+       git push
+       git push --tags
+
+To create the tarball for distribution:
+
+  $ make distclean
+  $ autoreconf --install --force
+  $ ./configure
+  $ make dist
+
+Upload to sf:
+
+  http://sourceforge.net/apps/trac/sourceforge/wiki/Release%20files%20for%20download
+
+  $ rsync -t acpid-2.0.18.tar.xz tedfelix@frs.sourceforge.net:/home/frs/project/acpid2
+
+  or via sftp...
+
+  $ sftp tedfelix@frs.sourceforge.net
+  sftp> cd /home/frs/project/acpid2
+  sftp> put -p acpid-2.0.18.tar.xz
+
+Set this latest upload as the latest:
+
+  1. Login to sf.
+  2. Click on the "i" icon on the right in the file list.
+  3. Default download for: "Select all"
+  4. Save
+
+Once complete:
+
+  1. Update the version number in configure.ac.
+  2. Update the Changelog for the next version. 
+
+--------------------------------------------------------------------
+OLD README
+
+***********************************************************
+*                      README for acpid                   *
+*                                                         *
+*  Daemon for Advanced Configuration and Power Interface  *
+*  Tim Hockin                                             *
+*      <thockin@hockin.org>                               *
+*                                                         *
+***********************************************************
+
+Feb 13, 2004
+
+Overview
+--------
+
+  ACPID used to try to handle events internally.  Rather than try to climb
+  an ever-growing mountain, ACPID now lets YOU define what events to handle.
+  Any event that publishes itself to /proc/acpi/event can be handled.
+
+  ACPID reads a set of configuration files which define event->action pairs.
+  This is how you make it do stuff. See the man page for details.
+
+Implementation status
+---------------------
+
+  This version should have complete support for generic handling of events.
+
+Requirements
+------------
+
+  For 2.6 and newer 2.4 kernels, ACPI seems to be fully integrated.  That
+  should be all you need.
+
+  The ACPI kernel driver should be working on your system before trying
+  ACPID.  Verify ACPI is loaded by verifying the existence of
+  /proc/acpi/event.
+
+Compiling ACPID
+---------------
+
+  type "make"

@@ -1,0 +1,131 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Type Conversion Macros</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="GLib Reference Manual"><link rel="up" href="glib-fundamentals.html" title="GLib Fundamentals"><link rel="previous" href="glib-Standard-Macros.html" title="Standard Macros"><link rel="next" href="glib-Byte-Order-Macros.html" title="Byte Order Macros"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="glib-Standard-Macros.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="glib-fundamentals.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">GLib Reference Manual</th><td><a accesskey="n" href="glib-Byte-Order-Macros.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="glib-Type-Conversion-Macros"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">Type Conversion Macros</span></h2><p>Type Conversion Macros &#8212; 
+portably storing integers in pointer variables.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+#include &lt;glib.h&gt;
+
+
+#define     <a href="glib-Type-Conversion-Macros.html#GINT-TO-POINTER-CAPS">GINT_TO_POINTER</a>                 (i)
+#define     <a href="glib-Type-Conversion-Macros.html#GPOINTER-TO-INT-CAPS">GPOINTER_TO_INT</a>                 (p)
+
+#define     <a href="glib-Type-Conversion-Macros.html#GUINT-TO-POINTER-CAPS">GUINT_TO_POINTER</a>                (u)
+#define     <a href="glib-Type-Conversion-Macros.html#GPOINTER-TO-UINT-CAPS">GPOINTER_TO_UINT</a>                (p)
+#define     <a href="glib-Type-Conversion-Macros.html#GSIZE-TO-POINTER-CAPS">GSIZE_TO_POINTER</a>                (s)
+#define     <a href="glib-Type-Conversion-Macros.html#GPOINTER-TO-SIZE-CAPS">GPOINTER_TO_SIZE</a>                (p)
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+Many times GLib, GTK+, and other libraries allow you to pass "user
+data" to a callback, in the form of a void pointer. From time to time
+you want to pass an integer instead of a pointer. You could allocate
+an integer, with something like:
+</p><div class="informalexample"><pre class="programlisting">
+ int *ip = g_new (int, 1);
+ *ip = 42;
+</pre></div><p>
+But this is inconvenient, and it's annoying to have to free the 
+memory at some later time.
+</p><p>
+Pointers are always at least 32 bits in size (on all platforms GLib
+intends to support). Thus you can store at least 32-bit integer values
+in a pointer value. Naively, you might try this, but it's incorrect:
+</p><div class="informalexample"><pre class="programlisting">
+ gpointer p;
+ int i;
+ p = (void*) 42;
+ i = (int) p;
+</pre></div><p>
+Again, that example was <span class="emphasis"><em>not</em></span> correct, don't copy it. 
+The problem is that on some systems you need to do this:
+</p><div class="informalexample"><pre class="programlisting">
+ gpointer p;
+ int i;
+ p = (void*) (long) 42;
+ i = (int) (long) p;
+</pre></div><p>
+So <a href="glib-Type-Conversion-Macros.html#GPOINTER-TO-INT-CAPS"><tt class="function">GPOINTER_TO_INT()</tt></a>, <a href="glib-Type-Conversion-Macros.html#GINT-TO-POINTER-CAPS"><tt class="function">GINT_TO_POINTER()</tt></a>, etc. do the right thing
+on the current platform.
+</p><p>
+</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>
+YOU MAY NOT STORE POINTERS IN INTEGERS. THIS IS NOT PORTABLE IN ANY
+WAY SHAPE OR FORM. These macros <span class="emphasis"><em>ONLY</em></span> allow
+storing integers in pointers, and only preserve 32 bits of the
+integer; values outside the range of a 32-bit integer will be mangled.
+</p></div><p>
+</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="GINT-TO-POINTER-CAPS"></a>GINT_TO_POINTER()</h3><a class="indexterm" name="id3114346"></a><pre class="programlisting">#define GINT_TO_POINTER(i)	((gpointer)  (i))
+</pre><p>
+Stuffs an integer into a pointer type.
+</p><p>
+Remember, YOU MAY NOT STORE POINTERS IN INTEGERS. THIS IS NOT PORTABLE
+IN ANY WAY SHAPE OR FORM. These macros <span class="emphasis"><em>ONLY</em></span> allow
+storing integers in pointers, and only preserve 32 bits of the
+integer; values outside the range of a 32-bit integer will be mangled.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>i</tt></i> :</span></td><td>integer to stuff into a pointer.
+
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GPOINTER-TO-INT-CAPS"></a>GPOINTER_TO_INT()</h3><a class="indexterm" name="id3114415"></a><pre class="programlisting">#define GPOINTER_TO_INT(p)	((gint)   (p))
+</pre><p>
+Extracts an integer from a pointer. The integer must have
+been stored in the pointer with <a href="glib-Type-Conversion-Macros.html#GINT-TO-POINTER-CAPS"><tt class="function">GINT_TO_POINTER()</tt></a>.
+</p><p>
+Remember, YOU MAY NOT STORE POINTERS IN INTEGERS. THIS IS NOT PORTABLE
+IN ANY WAY SHAPE OR FORM. These macros <span class="emphasis"><em>ONLY</em></span> allow
+storing integers in pointers, and only preserve 32 bits of the
+integer; values outside the range of a 32-bit integer will be mangled.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>p</tt></i> :</span></td><td>pointer containing an integer.
+
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GUINT-TO-POINTER-CAPS"></a>GUINT_TO_POINTER()</h3><a class="indexterm" name="id3114087"></a><pre class="programlisting">#define GUINT_TO_POINTER(u)	((gpointer)  (u))
+</pre><p>
+Stuffs an unsigned integer into a pointer type.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>u</tt></i> :</span></td><td>unsigned integer to stuff into the pointer.
+
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GPOINTER-TO-UINT-CAPS"></a>GPOINTER_TO_UINT()</h3><a class="indexterm" name="id3114143"></a><pre class="programlisting">#define GPOINTER_TO_UINT(p)	((guint)  (p))
+</pre><p>
+Extracts an unsigned integer from a pointer. The integer must have
+been stored in the pointer with <a href="glib-Type-Conversion-Macros.html#GUINT-TO-POINTER-CAPS"><tt class="function">GUINT_TO_POINTER()</tt></a>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>p</tt></i> :</span></td><td>pointer to extract an unsigned integer from.
+
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GSIZE-TO-POINTER-CAPS"></a>GSIZE_TO_POINTER()</h3><a class="indexterm" name="id3114776"></a><pre class="programlisting">#define GSIZE_TO_POINTER(s)	((gpointer) (gsize) (s))
+</pre><p>
+Stuffs a <a href="glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> into a pointer type.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>s</tt></i> :</span></td><td><a href="glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> to stuff into the pointer.
+
+
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="GPOINTER-TO-SIZE-CAPS"></a>GPOINTER_TO_SIZE()</h3><a class="indexterm" name="id3114848"></a><pre class="programlisting">#define GPOINTER_TO_SIZE(p)	((gsize) (p))
+</pre><p>
+Extracts a <a href="glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> from a pointer. The <a href="glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> must have
+been stored in the pointer with <a href="glib-Type-Conversion-Macros.html#GSIZE-TO-POINTER-CAPS"><tt class="function">GSIZE_TO_POINTER()</tt></a>.
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>p</tt></i> :</span></td><td>pointer to extract a <a href="glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> from.
+
+
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="glib-Standard-Macros.html"><b>&lt;&lt; Standard Macros</b></a></td><td align="right"><a accesskey="n" href="glib-Byte-Order-Macros.html"><b>Byte Order Macros &gt;&gt;</b></a></td></tr></table></body></html>

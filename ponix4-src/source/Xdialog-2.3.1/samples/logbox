@@ -1,0 +1,53 @@
+#!/bin/sh
+
+LOGFILE=/tmp/logbox.tmp.$$
+
+REVERSE=""
+TIMESTAMP=""
+CHOICE=`Xdialog --stdout --title "LOGBOX" \
+		--check "I want the messages to appear in reverse order" \
+		--no-tags --no-cancel --no-close \
+		--radiolist "What type of time stamps do you want in the log box ?" 0 0 0 \
+			    "none" "No stamps at all"				"off" \
+			    "time" "Time (HH:MM:SS) only"			"off"\
+			    "date" "Date and time (DD/MM/YYYY HH:MM:SS)"	"on"`
+for i in $CHOICE ; do
+	case $i in
+		checked)
+			REVERSE="--reverse"
+			;;
+		time)
+			TIMESTAMP="--time-stamp"
+			;;
+		date)
+			TIMESTAMP="--date-stamp"
+			;;
+	esac
+done
+
+touch $LOGFILE
+
+Xdialog --title "LOGBOX" $TIMESTAMP $REVERSE --logbox $LOGFILE 0 0 &
+
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+sleep 1
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+sleep 1
+echo -e "\\033[1;31mThis is a red foreground text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+echo -e "\\033[1;42mThis is a green background text." >>$LOGFILE
+sleep 1
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+sleep 1
+echo -e "And now a blue text\\033[1;34;46m on cyan background." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+echo "Normal text." >>$LOGFILE
+sleep 2
+
+rm -f $LOGFILE

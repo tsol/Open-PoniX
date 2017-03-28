@@ -1,0 +1,115 @@
+<html>
+<head>
+<title>Xdialog documentation - Common options</title>
+</head>
+<body bgcolor="#102050" text="#F0E0A0" link="#00E000" vlink="#FF00B0" alink="#FF0000">
+<table border=0 width="100%"><tr>
+<td align="left"><a href="syntax.html">previous</a><a name="TOP">&nbsp;</a>&nbsp;<a href="box.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#BOTTOM">bottom</a></td>
+</tr></table>
+<hr>
+<center>
+<h1>Xdialog documentation - Common options</h1>
+<hr width=30%>
+</center>
+<p>&nbsp;
+<p align="justify">The <b>common options</b> apply to all the following <a href="box.html">box options</a> until the same or opposite <b>common options</b> are encountered into the Xdialog command line; each common option either got one opposite or several complementary options, or allow to reset the parameter they change to its default value; their effect may therefore later be cancelled or changed for the other box options that follow in a chained dialogs command line.
+<h2>Available common options and parameters:</h2>
+<pre><ul>
+<li> <a href="#WMCLASS">--wmclass</a> &lt;name&gt;
+<li> <a href="#RCFILE">--rc-file</a> &lt;gtkrc filename&gt;
+<li> <a href="#BACKTITLE">--backtitle</a> &lt;backtitle&gt;
+<li> <a href="#TITLE">--title</a> &lt;title&gt;
+<li> <a href="#CLOSE">--allow-close</a> | <a href="#CLOSE">--no-close</a>
+<li> <a href="#POSITION">--screen-center</a> | <a href="#POSITION">--under-mouse</a> | <a href="#POSITION">--auto-placement</a>
+<li> <a href="#JUSTIFICATION">--center</a> | <a href="#JUSTIFICATION">--right</a> | <a href="#JUSTIFICATION">--left</a> | <a href="#JUSTIFICATION">--fill</a>
+<li> <a href="#WRAP">--no-wrap</a> | <a href="#WRAP">--wrap</a>
+<li> <a href="#CRWRAP">--cr-wrap</a> | <a href="#CRWRAP">--no-cr-wrap</a>
+<li> <a href="#OUTPUT">--stderr</a> | <a href="#OUTPUT">--stdout</a>
+<li> <a href="#SEPARATOR">--separator</a> &lt;character&gt; | <a href="#SEPARATOR">--separate-output</a>
+<li> <a href="#BUTTONSSTYLE">--buttons-style</a> default|icon|text
+</ul>
+</pre>
+<hr>
+<ul>
+<p><li><a name="WMCLASS"><b>--wmclass</b></a> &lt;name&gt;
+<p align="justify">This option allows to set the window manager class name for Xdialog so that its window may be differenciated and decorated differently from other applications windows. This, of course, will depend on your window manager features... This also allows to use different decorations for different scripts using Xdialog. The <b>--wmclass</b> option must be followed by a &lt;name&gt; (the wmclass name of Xdialog then becomes &lt;name&gt;/&lt;name&gt;).
+<p><li><a name="RCFILE"><b>--rc-file</b></a> &lt;gtkrc filename&gt;
+<p align="justify">This option allows to change the GTK+ theme for the following box options into the Xdialog command line. This option must be followed by the name of a file in the gtkrc format. As an example, the following lines may be put into a rc file which name will be passed to Xdialog after the <b>--rc-file</b> option; the result will be blue Xdialog boxes with white text:
+<p align="justify"><table border=0>
+<tr>
+<td align="left" valign="top" width=580>
+bluebox.rc file contents:
+<pre>
+        style 'blue_background' {
+                bg[NORMAL] = { 0.0, 0.3, 0.8 }
+                fg[NORMAL] = { 1.0, 1.0, 1.0 }
+        }
+        widget '*' style 'blue_background'
+
+</pre>
+Using the bluebox.rc file:
+<pre>
+        Xdialog --rc-file bluebox.rc --msgbox "--rc-file demonstration." 0 0</pre>
+</td>
+<td width=10>&nbsp;</td>
+<td align="left" valign="top" width=200>
+Result:
+<p><img src="rcfile.png" height=102 width=165 align="center">
+<td>
+</tr>
+</table>
+</ul>
+<table border=0>
+<tr>
+<td align="left" valign="top" width=580>
+<ul>
+<p><li><a name="BACKTITLE"><b>--backtitle</b></a> &lt;backtitle&gt;
+<p align="justify">In (c)dialog, this option is used to print a title on the screen (terminal) background of the dialog boxes, thus the name... As it is not very friendly nor even desirable to print text on the X11 screen background (AKA &quot;root window&quot;), Xdialog uses this option to print a title <b>into</b> its widgets, at the top of them (horizontally centered). The default is no backtitle and you may restore this default after using <b>--backtitle</b> once into a chained dialog command line, by passing an empty string to the next <b>--backtitle</b> option as parameter. When the widget accepts a <a href="box.html#TEXT">&lt;text&gt;</a> parameter and when the backtitle is not an empty string, Xdialog automatically adds an horizontal line as a separator between the backtitle and the text. As for the <a href="box.html#TEXT">&lt;text&gt;</a> parameter, the &lt;backtitle&gt; parameter may contain &quot;\n&quot; (line feeds) characters. This option applies to all widgets.
+<p><li><a name="TITLE"><b>--title</b></a> &lt;title&gt;
+<p align="justify">This option sets the title of the Xdialog <b>window</b>. The title appears into the title bar which position depends on the window manager you are using. If no <b>--title</b> option is given then the title defaults to &quot;Xdialog&quot;.
+</ul>
+</td>
+<td width=10>&nbsp;</td>
+<td align="left" width=200>
+Title, backtitle and text positions in Xdialog windows:
+<p><img src="title.png" height=159 width=198 align="center">
+</td>
+</tr>
+</table>
+<ul>
+<p><li><a name="CLOSE"><b>--allow-close</b></a> | <b>--no-close</b>
+<p align="justify"><b>--allow-close</b> is the default and entitles the user to close the Xdialog window through the window manager; when a close event is received by Xdialog, it exits immediately and returns 255 as the exit code to the shell. Specifying <b>--no-close</b> will make Xdialog ignore any <i>close</i> (sometimes called <i>delete</i>) event originating from the window manager. Note that it is always possible, although not recommended, to <i>destroy</i> a Xdialog window using the window manager destroy event.
+<p><li><a name="POSITION"><b>--screen-center</b></a> | <b>--under-mouse</b> | <b>--auto-placement</b>
+<p align="justify">These options control the Xdialog widgets placement (ditto). The default is <b>--screen-center</b>. The <b>--auto-placement</b> option lets the window manager decide where to pop up Xdialog widgets. Note that some window managers may perfectly ignore these options (which are only requests sent by GTK+ to the window manager) and place the widgets where they feel like...
+<p><li><a name="JUSTIFICATION"><b>--center</b></a> | <b>--left</b> | <b>--right</b> | <b>--fill</b>
+<p align="justify">These options instruct Xdialog to justify the text centered, left, right or full into the &lt;text&gt; label. Default is <b>--center</b>. The effect of these options is only sensible for multiple-lines text.
+<p align="justify">Because of what I consider a bug in GTK+, the center and right justification modes only work when the GTK+ line wrap mode is not in force, while the fill justification only works when the GTK+ line wrap mode is in force (go figure...). This is why, as of v2.0.0, Xdialog uses its own wrapping routine for all cases but when the <b>--fill</b> option is requested: in this case, the GTK+ line wrap mode is automatically enforced.
+<p align="justify">Note also that the <b>--fill</b> option will <b>left</b> justify any line containing an explicit line feed.
+<p><img src="left.png" width=165 height=118>&nbsp;&nbsp;&nbsp;&nbsp;<img src="center.png" width=165 height=118>&nbsp;&nbsp;&nbsp;&nbsp;<img src="right.png" width=165 height=118>&nbsp;&nbsp;&nbsp;&nbsp;<img src="fill.png" width=261 height=175>
+<p align="justify">These options also affect the labels used in <a href="box.html#INPUTBOX">2inputsbox</a>, <a href="box.html#INPUTBOX">3inputsbox</a>, <a href="box.html#RANGEBOX">2rangesbox</a> and <a href="box.html#RANGEBOX">3rangesbox</a> widgets above each text entry/horizontal slider. The <b>alignement</b> of these labels is also affected by <b>--left</b> and <b>--right</b>, even if these labels are held on a single line.
+<p><img src="labelleft.png" width=288 height=202>&nbsp;&nbsp;&nbsp;&nbsp;<img src="labelcenter.png" width=288 height=202>&nbsp;&nbsp;&nbsp;&nbsp;<img src="labelright.png" width=288 height=202>
+<p align="justify">See also the <a href="compatibility.html#HIGH">(c)dialog compatibility notes</a>.
+<p><li><a name="WRAP"><b>--no-wrap</b></a> | <b>--wrap</b>
+<p align="justify">When <b>--wrap</b> is is force, Xdialog automatically wraps the backtitle and text around so to make them fit the widget width (note that as of v2.0.0, Xdialog uses its own wrapping routine as a replacement for the buggy GTK+ built-in one: but this does not apply when the <a href="#JUSTIFICATION">--fill</a> option is in force, where the GTK+ wrapping routine must be used...). The default is <b>--no-wrap</b> but remember that using the <a href="#JUSTIFICATION">--fill</a> options will enforce the (GTK+) wrap mode as well.
+<p align="justify">See also the <a href="compatibility.html#HIGH">(c)dialog compatibility notes</a>.
+<p><li><a name="CRWRAP"><b>--cr-wrap</b></a> | <b>--no-cr-wrap</b>
+<p align="justify">When passing a string parameter to Xdialog, Xdialog takes embeded newline characters into account by default (<b>--cr-wrap</b> is the default). Specifying <b>--no-cr-wrap</b> will prevent these newline characters to be taken into account for &lt;text&gt;, &lt;backtitle&gt;, &lt;help&gt; and <a href="transient.html#CHECK">--check</a> option &lt;label&gt; parameters (thus allowing to split these strings into your script without having to escape the end of each line with a backslash). Note that whatever option is in force, any embeded "\n" characters sequence is always translated into a newline.
+<p align="justify">See also the <a href="compatibility.html#HIGH">(c)dialog compatibility notes</a>.
+<p><li><a name="OUTPUT"><b>--stderr</b></a> | <b>--stdout</b>
+<p align="justify">The default behaviour of Xdialog is to mimic (c)dialog and send all its results to stderr. This may sometimes be inapropriate and you may want to get separate outputs on separate streams (one for the true errors/warnings and one for the results). This is why the <b>--stdout</b> common option was implemented: it makes Xdialog to output all the widgets results to stdout instead of stderr. The <b>--stderr</b> common option is there so that you can revert to the default stderr output in a chained dialogs command line.
+<p><li><a name="SEPARATOR"><b>--separator</b></a> &lt;character&gt; | <b>--separate-output</b>
+<p align="justify">The <b>--separator</b> option allows to change the separator used by the Xdialog widgets that return more than one result (<a href="box.html#INPUTBOX">2inputsbox</a>, <a href="box.html#INPUTBOX">3inputsbox</a>, <a href="box.html#RANGEBOX">2rangesbox</a>, <a href="box.html#RANGEBOX">3rangesbox</a>, <a href="box.html#SPINBOX">2spinsbox</a>, <a href="box.html#SPINBOX">3spinsbox</a>, <a href="box.html#CHECKLIST">checklist</a>, <a href="box.html#BUILDLIST">buildlist</a>). The default separator is &quot;/&quot; but it may be unpractical to use such a separator. You can therefore change the separator to any character (examples: &quot;\n&quot; (line feed) or &quot;|&quot;).
+<p align="justify">The <b>--separate-output</b> is a (c)dialog compatible option and is synonym to <b>--separator &quot;\n&quot;</b>.
+<p align="justify">Note: former Xdialog releases used the &quot;\n&quot; (line feed) as a results separator for the <a href="box.html#CHECKLIST">checklist</a> widget; this has been changed to &quot;/&quot; in Xdialog v1.5.0 so to make it compatible with (c)dialog. In your old scripts using the Xdialog checklist, you will then have to add the <b>--separate-output</b> option before the <b>--checklist</b> one.
+<p><li><a name="BUTTONSSTYLE"><b>--buttons-style</b></a> default|icon|text
+<p align="justify">The <b>--buttons-style</b> option must be followed by a parameter (the style name, case sensitive !) which must be either &quot;default&quot; (both icon and text in each button), &quot;icon&quot; (icon only in each button) or &quot;text&quot; (text only in each button).
+</ul>
+<hr>
+<table border=0 width="100%"><tr>
+<td align="left"><a href="syntax.html">previous</a><a name="BOTTOM">&nbsp;</a>&nbsp;<a href="box.html">next</a>&nbsp;&nbsp;<a href="index.html">contents</a></td>
+<td align="right"><a href="#TOP">top</a></td>
+</tr></table>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>

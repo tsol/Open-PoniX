@@ -1,0 +1,104 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>PangoEngineLang</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2"><meta name="generator" content="GTK-Doc V1.2 (XML mode)"><style type="text/css">
+        .synopsis, .classsynopsis {
+            background: #eeeeee;
+            border: solid 1px #aaaaaa;
+            padding: 0.5em;
+        }
+        .programlisting {
+            background: #eeeeff;
+            border: solid 1px #aaaaff;
+            padding: 0.5em;
+        }
+        .variablelist {
+            padding: 4px;
+            margin-left: 3em;
+        }
+        .navigation {
+            background: #ffeeee;
+            border: solid 1px #ffaaaa;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .navigation a {
+            color: #770000;
+        }
+        .navigation a:visited {
+            color: #550000;
+        }
+        .navigation .title {
+            font-size: 200%;
+        }
+      </style><link rel="home" href="index.html" title="Pango Reference Manual"><link rel="up" href="lowlevel.html" title="Low Level Functionality"><link rel="previous" href="pango-Engines.html" title="Engines"><link rel="next" href="PangoEngineShape.html" title="PangoEngineShape"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><table class="navigation" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle"><td><a accesskey="p" href="pango-Engines.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td><td><a accesskey="u" href="lowlevel.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td><td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td><th width="100%" align="center">Pango Reference Manual</th><td><a accesskey="n" href="PangoEngineShape.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td></tr></table><div class="refentry" lang="en"><a name="PangoEngineLang"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2><span class="refentrytitle">PangoEngineLang</span></h2><p>PangoEngineLang &#8212; Rendering-system independent script engines</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><pre class="synopsis">
+
+
+
+struct      <a href="PangoEngineLang.html#PangoEngineLang-struct">PangoEngineLang</a>;
+struct      <a href="PangoEngineLang.html#PangoEngineLangClass">PangoEngineLangClass</a>;
+#define     <a href="PangoEngineLang.html#PANGO-ENGINE-TYPE-LANG-CAPS">PANGO_ENGINE_TYPE_LANG</a>
+#define     <a href="PangoEngineLang.html#PANGO-ENGINE-LANG-DEFINE-TYPE-CAPS">PANGO_ENGINE_LANG_DEFINE_TYPE</a>   (name, prefix, class_init, instance_init)
+
+
+</pre></div><div class="refsect1" lang="en"><h2>Object Hierarchy</h2><pre class="synopsis">
+
+  <a
+href="../gobject/gobject-The-Base-Object-Type.html#GObject"
+>GObject</a>
+   +----<a href="pango-Engines.html#PangoEngine">PangoEngine</a>
+         +----PangoEngineLang
+</pre></div><div class="refsect1" lang="en"><h2>Description</h2><p>
+
+</p></div><div class="refsect1" lang="en"><h2>Details</h2><div class="refsect2" lang="en"><h3><a name="PangoEngineLang-struct"></a>struct PangoEngineLang</h3><a class="indexterm" name="id3613974"></a><pre class="programlisting">struct PangoEngineLang;</pre><p>
+The <a href="PangoEngineLang.html" title="PangoEngineLang"><span class="type">PangoEngineLang</span></a> class is implemented by engines that
+customize the rendering-system independent part of the
+Pango pipeline for a particular script or language. For
+instance, a custom <a href="PangoEngineLang.html" title="PangoEngineLang"><span class="type">PangoEngineLang</span></a> could be provided for
+Thai to implement the dictionary-based word boundary
+lookups needed for that language.</p><p>
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PangoEngineLangClass"></a>struct PangoEngineLangClass</h3><a class="indexterm" name="id3614035"></a><pre class="programlisting">struct PangoEngineLangClass {
+
+  void (*script_break) (PangoEngineLang *engine,
+			const char    *text,
+			int            len,
+			PangoAnalysis *analysis,
+			PangoLogAttr  *attrs,
+                        int            attrs_len);
+};
+</pre><p>
+Class structure for <a href="PangoEngineLang.html" title="PangoEngineLang"><span class="type">PangoEngineLang</span></a></p><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term">void (*<i class="structfield"><tt>script_break</tt></i>) (PangoEngineLang *engine,
+			const char    *text,
+			int            len,
+			PangoAnalysis *analysis,
+			PangoLogAttr  *attrs,
+                        int            attrs_len)</span></td><td> Provides a custom implementation of <a href="pango-Text-Processing.html#pango-break"><tt class="function">pango_break()</tt></a>.
+ if this is <tt class="literal">NULL</tt>, <a href="pango-Text-Processing.html#pango-default-break"><tt class="function">pango_default_break()</tt></a> will be used.
+</td></tr></tbody></table></div></div><hr><div class="refsect2" lang="en"><h3><a name="PANGO-ENGINE-TYPE-LANG-CAPS"></a>PANGO_ENGINE_TYPE_LANG</h3><a class="indexterm" name="id3614151"></a><pre class="programlisting">#define PANGO_ENGINE_TYPE_LANG "PangoEngineLang"
+</pre><p>
+A string constant defining the engine type
+for <i class="firstterm">language engines</i>.
+These engines derive from <a href="PangoEngineLang.html" title="PangoEngineLang"><span class="type">PangoEngineLang</span></a>.
+</p></div><hr><div class="refsect2" lang="en"><h3><a name="PANGO-ENGINE-LANG-DEFINE-TYPE-CAPS"></a>PANGO_ENGINE_LANG_DEFINE_TYPE()</h3><a class="indexterm" name="id3614199"></a><pre class="programlisting">#define     PANGO_ENGINE_LANG_DEFINE_TYPE(name, prefix, class_init, instance_init)</pre><p>
+Outputs the necessary code for GObject type registration for a
+<a href="PangoEngineLang.html" title="PangoEngineLang"><span class="type">PangoEngineLang</span></a> class defined in a module. Two static symbols
+are defined.
+</p><p>
+</p><pre class="programlisting">
+ static GType <i class="replaceable"><tt>prefix</tt></i>_type;
+ static void <i class="replaceable"><tt>prefix</tt></i>_register_type (GTypeModule module);
+</pre><p>
+</p><p>
+The <tt class="function"><i class="replaceable"><tt>prefix</tt></i>, <tt class="function">_register_type()</tt></tt>
+function should be called in your <a href="pango-Engines.html#script-engine-init"><tt class="function">script_engine_init()</tt></a> function for
+each type that your module implements, and then your <a href="pango-Engines.html#script-engine-create"><tt class="function">script_engine_create()</tt></a>
+function can create instances of the object as follows:
+</p><p>
+</p><div class="informalexample"><pre class="programlisting">
+ PangoEngine *engine = g_object_new (<i class="replaceable"><tt>prefix</tt></i>_type, NULL);
+</pre></div><p>
+
+</p><div class="variablelist"><table border="0"><col align="left" valign="top"><tbody><tr><td><span class="term"><i class="parameter"><tt>name</tt></i> :</span></td><td> Name of the the type to register (for example:, <tt class="literal">ArabicEngineFc</tt>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>prefix</tt></i> :</span></td><td> Prefix for symbols that will be defined (for example:, <tt class="literal">arabic_engine_fc</tt>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>class_init</tt></i> :</span></td><td> Class initialization function for the new type, or <tt class="literal">NULL</tt>
+</td></tr><tr><td><span class="term"><i class="parameter"><tt>instance_init</tt></i> :</span></td><td> Instance initialization function for the new type, or <tt class="literal">NULL</tt>
+</td></tr></tbody></table></div></div></div></div><table class="navigation" width="100%" summary="Navigation footer" cellpadding="2" cellspacing="0"><tr valign="middle"><td align="left"><a accesskey="p" href="pango-Engines.html"><b>&lt;&lt; Engines</b></a></td><td align="right"><a accesskey="n" href="PangoEngineShape.html"><b>PangoEngineShape &gt;&gt;</b></a></td></tr></table></body></html>

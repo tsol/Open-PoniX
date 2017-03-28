@@ -1,0 +1,41 @@
+From 90be994cd0d70fbe4a97b144806db6cfa497392c Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Tue, 4 Sep 2012 19:33:32 +0530
+Subject: [PATCH] ath9k_hw: Fix invalid MCI GPM index access/caching
+
+There is a possibility that AR_MCI_GPM_1 register can
+return 0xdeadbeef and this results in caching of invalid
+GPM index in ar9003_mci_is_gpm_valid. Ensure we
+have appropriate checks to avoid this.
+
+Cc: xijin luo <xijin@qca.qualcomm.com>
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -1321,6 +1321,10 @@ u32 ar9003_mci_get_next_gpm_offset(struc
+ 
+ 	if (first) {
+ 		gpm_ptr = MS(REG_READ(ah, AR_MCI_GPM_1), AR_MCI_GPM_WRITE_PTR);
++
++		if (gpm_ptr >= mci->gpm_len)
++			gpm_ptr = 0;
++
+ 		mci->gpm_idx = gpm_ptr;
+ 		return gpm_ptr;
+ 	}
+@@ -1365,6 +1369,10 @@ u32 ar9003_mci_get_next_gpm_offset(struc
+ 			more_gpm = MCI_GPM_NOMORE;
+ 
+ 		temp_index = mci->gpm_idx;
++
++		if (temp_index >= mci->gpm_len)
++			temp_index = 0;
++
+ 		mci->gpm_idx++;
+ 
+ 		if (mci->gpm_idx >= mci->gpm_len)

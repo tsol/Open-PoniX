@@ -1,0 +1,76 @@
+#!/usr/bin/make -f
+# debian/rules for xdialog by Lenart Janos.
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+include /usr/share/dpatch/dpatch.make
+
+CFLAGS=-Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+       CFLAGS += -O0
+else
+       CFLAGS += -O2
+endif
+
+configure: configure-stamp
+configure-stamp: patch
+	dh_testdir
+        CFLAGS="$(CFLAGS)" ./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+	$(MAKE)
+	touch build-stamp
+
+clean: clean-patched unpatch
+clean-patched:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	-$(MAKE) distclean
+	-patch -t -N -R --dry-run doc/Xdialog.man debian/xdialog.man.diff && patch -t -N -R doc/Xdialog.man debian/xdialog.man.diff
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs usr/bin usr/share/doc/xdialog
+	patch doc/Xdialog.man debian/xdialog.man.diff
+	$(MAKE) install prefix=$(CURDIR)/debian/xdialog/usr
+	mv $(CURDIR)/debian/xdialog/usr/share/doc/Xdialog-2.1.2 $(CURDIR)/debian/xdialog/usr/share/doc/xdialog/html
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs BUGS
+	dh_installexamples samples/*
+	dh_installmenu
+	dh_installman doc/Xdialog.1
+	dh_installchangelogs ChangeLog
+	dh_link
+	dh_strip
+ 	#call dh_compress twice, otherwise it will fail to compress examples
+	dh_compress -X.html -X.png
+	dh_compress -X.html -X.png -X.gz $(CURDIR)/debian/xdialog/usr/share/doc/xdialog/examples/*
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

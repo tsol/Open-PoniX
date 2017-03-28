@@ -1,0 +1,42 @@
+#!/bin/sh
+
+TITLE="Screen saver"
+PROMPT="Please choose the mode:"
+CHECKER="Check to lock the screen"
+MENU=/tmp/menu.$$
+
+cat << EOF >$MENU
+#!/bin/sh
+CHOICE=\$(Xdialog --title "$TITLE" --stdout --no-tags --check "$CHECKER" --default-item "random" --menubox "$PROMPT" 0 0 7 \\
+EOF
+xlock -help | awk --source '{ if (substr($1,1,1) != "-" && $1 != "where" && $1 != "" && $1 != "xlock" && $1 != "usage:") print $1 " " $1 " \\" }' >>$MENU
+cat << EOF2 >>$MENU
+)
+ret=\$?
+echo \$CHOICE
+exit \$ret
+EOF2
+
+chmod +x $MENU
+CHOICE=`$MENU`
+ret=$?
+rm -f $MENU
+
+if (( $ret != 0 )) ; then
+	exit 0
+fi
+
+for i in $CHOICE ; do
+	case $i in
+		unchecked)
+			NOLOCK="-nolock"
+			;;
+		checked)
+			NOLOCK=""
+			;;
+		*)
+			MODE=$i
+			;;
+	esac
+done
+xlock $NOLOCK -mode $MODE

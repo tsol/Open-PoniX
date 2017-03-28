@@ -1,0 +1,753 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>GTK v1.2 Tutorial: CList Widget</TITLE>
+ <LINK HREF="gtk_tut-12.html" REL=next>
+ <LINK HREF="gtk_tut-10.html" REL=previous>
+ <LINK HREF="gtk_tut.html#toc11" REL=contents>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A HREF="gtk_tut-12.html">Next</A>
+<A HREF="gtk_tut-10.html">Previous</A>
+<A HREF="gtk_tut.html#toc11">Contents</A>
+<HR NOSHADE>
+<H2><A NAME="s11">11. CList Widget</A></H2>
+
+<P>The CList widget has replaced the List widget (which is still
+available).
+<P>The CList widget is a multi-column list widget that is capable of
+handling literally thousands of rows of information. Each column can
+optionally have a title, which itself is optionally active, allowing
+us to bind a function to its selection.
+<P>
+<H2><A NAME="ss11.1">11.1 Creating a CList widget</A>
+</H2>
+
+<P>Creating a CList is quite straightforward, once you have learned
+about widgets in general. It provides the almost standard two ways,
+that is the hard way, and the easy way. But before we create it, there
+is one thing we should figure out beforehand: how many columns should
+it have?
+<P>Not all columns have to be visible and can be used to store data that
+is related to a certain cell in the list.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkWidget *gtk_clist_new ( gint columns );
+
+GtkWidget *gtk_clist_new_with_titles( gint   columns,
+                                      gchar *titles[] );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The first form is very straightforward, the second might require some
+explanation. Each column can have a title associated with it, and this
+title can be a label or a button that reacts when we click on it. If
+we use the second form, we must provide pointers to the title texts,
+and the number of pointers should equal the number of columns
+specified. Of course we can always use the first form, and manually
+add titles later.
+<P>Note: The CList widget does not have its own scrollbars and should
+be placed within a ScrolledWindow widget if your require this
+functionality. This is a change from the GTK 1.0 implementation.
+<P>
+<H2><A NAME="ss11.2">11.2 Modes of operation</A>
+</H2>
+
+<P>There are several attributes that can be used to alter the behaviour of
+a CList. First there is
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_selection_mode( GtkCList         *clist,
+                                   GtkSelectionMode  mode );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>which, as the name implies, sets the selection mode of the
+CList. The first argument is the CList widget, and the second
+specifies the cell selection mode (they are defined in gtkenums.h). At
+the time of this writing, the following modes are available to us:
+<P>
+<UL>
+<LI> <CODE>GTK_SELECTION_SINGLE</CODE> - The selection is either NULL or contains
+a GList pointer for a single selected item.
+</LI>
+<LI> <CODE>GTK_SELECTION_BROWSE</CODE> - The selection is NULL if the list
+contains no widgets or insensitive ones only, otherwise it contains a
+GList pointer for one GList structure, and therefore exactly one list
+item.
+</LI>
+<LI> <CODE>GTK_SELECTION_MULTIPLE</CODE> - The selection is NULL if no list items
+are selected or a GList pointer for the first selected item. That in
+turn points to a GList structure for the second selected item and so
+on. This is currently the <B>default</B> for the CList widget.
+</LI>
+<LI> <CODE>GTK_SELECTION_EXTENDED</CODE> - The selection is always NULL.</LI>
+</UL>
+<P>Others might be added in later revisions of GTK.
+<P>We can also define what the border of the CList widget should look
+like. It is done through
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_shadow_type( GtkCList      *clist,
+                                GtkShadowType  border );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The possible values for the second argument are
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_SHADOW_NONE
+  GTK_SHADOW_IN
+  GTK_SHADOW_OUT
+  GTK_SHADOW_ETCHED_IN
+  GTK_SHADOW_ETCHED_OUT
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss11.3">11.3 Working with titles</A>
+</H2>
+
+<P>When you create a CList widget, you will also get a set of title
+buttons automatically. They live in the top of the CList window, and
+can act either as normal buttons that respond to being pressed, or
+they can be passive, in which case they are nothing more than a
+title. There are four different calls that aid us in setting the
+status of the title buttons.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_column_title_active( GtkCList *clist,
+                                     gint     column );
+
+void gtk_clist_column_title_passive( GtkCList *clist,
+                                     gint      column );
+
+void gtk_clist_column_titles_active( GtkCList *clist );
+
+void gtk_clist_column_titles_passive( GtkCList *clist );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>An active title is one which acts as a normal button, a passive one is
+just a label. The first two calls above will activate/deactivate the
+title button above the specific column, while the last two calls
+activate/deactivate all title buttons in the supplied clist widget.
+<P>But of course there are those cases when we don't want them at all,
+and so they can be hidden and shown at will using the following two
+calls.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_column_titles_show( GtkCList *clist );
+
+void gtk_clist_column_titles_hide( GtkCList *clist );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>For titles to be really useful we need a mechanism to set and change
+them, and this is done using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_column_title( GtkCList *clist,
+                                 gint      column,
+                                 gchar    *title );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Note that only the title of one column can be set at a time, so if all
+the titles are known from the beginning, then I really suggest using
+gtk_clist_new_with_titles (as described above) to set them. It saves
+you coding time, and makes your program smaller. There are some cases
+where getting the job done the manual way is better, and that's when
+not all titles will be text. CList provides us with title buttons
+that can in fact incorporate whole widgets, for example a pixmap. It's
+all done through
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_column_widget( GtkCList  *clist,
+                                  gint       column,
+                                  GtkWidget *widget );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>which should require no special explanation.
+<P>
+<H2><A NAME="ss11.4">11.4 Manipulating the list itself</A>
+</H2>
+
+<P>It is possible to change the justification for a column, and it is
+done through
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_column_justification( GtkCList         *clist,
+                                         gint              column,
+                                         GtkJustification  justification );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The GtkJustification type can take the following values:
+<P>
+<UL>
+<LI><CODE>GTK_JUSTIFY_LEFT</CODE> - The text in the column will begin from the
+left edge.
+</LI>
+<LI><CODE>GTK_JUSTIFY_RIGHT</CODE> - The text in the column will begin from the
+right edge.
+</LI>
+<LI><CODE>GTK_JUSTIFY_CENTER</CODE> - The text is placed in the center of the
+column.
+</LI>
+<LI><CODE>GTK_JUSTIFY_FILL</CODE> - The text will use up all available space in
+the column. It is normally done by inserting extra blank spaces
+between words (or between individual letters if it's a single
+word). Much in the same way as any ordinary WYSIWYG text editor.</LI>
+</UL>
+<P>The next function is a very important one, and should be standard in
+the setup of all CList widgets. When the list is created, the width
+of the various columns are chosen to match their titles, and since
+this is seldom the right width we have to set it using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_column_width( GtkCList *clist,
+                                 gint      column,
+                                 gint      width );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Note that the width is given in pixels and not letters. The same goes
+for the height of the cells in the columns, but as the default value
+is the height of the current font this isn't as critical to the
+application. Still, it is done through
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_row_height( GtkCList *clist,
+                               gint      height );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Again, note that the height is given in pixels.
+<P>We can also move the list around without user interaction, however, it
+does require that we know what we are looking for. Or in other words,
+we need the row and column of the item we want to scroll to.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_moveto( GtkCList *clist,
+                       gint      row,
+                       gint      column,
+                       gfloat    row_align,
+                       gfloat    col_align );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The gfloat row_align is pretty important to understand. It's a value
+between 0.0 and 1.0, where 0.0 means that we should scroll the list so
+the row appears at the top, while if the value of row_align is 1.0,
+the row will appear at the bottom instead. All other values between
+0.0 and 1.0 are also valid and will place the row between the top and
+the bottom. The last argument, gfloat col_align works in the same way,
+though 0.0 marks left and 1.0 marks right instead.
+<P>Depending on the application's needs, we don't have to scroll to an
+item that is already visible to us. So how do we know if it is
+visible? As usual, there is a function to find that out as well.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkVisibility gtk_clist_row_is_visible( GtkCList *clist,
+                                        gint      row );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The return value is is one of the following:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_VISIBILITY_NONE
+  GTK_VISIBILITY_PARTIAL
+  GTK_VISIBILITY_FULL
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Note that it will only tell us if a row is visible. Currently there is
+no way to determine this for a column. We can get partial information
+though, because if the return is <CODE>GTK_VISIBILITY_PARTIAL</CODE>, then
+some of it is hidden, but we don't know if it is the row that is being
+cut by the lower edge of the listbox, or if the row has columns that
+are outside.
+<P>We can also change both the foreground and background colors of a
+particular row. This is useful for marking the row selected by the
+user, and the two functions that is used to do it are
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_foreground( GtkCList *clist,
+                               gint      row,
+                               GdkColor *color );
+
+void gtk_clist_set_background( GtkCList *clist,
+                               gint      row,
+                               GdkColor *color );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>Please note that the colors must have been previously allocated.
+<P>
+<H2><A NAME="ss11.5">11.5 Adding rows to the list</A>
+</H2>
+
+<P>We can add rows in three ways. They can be prepended or appended to
+the list using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_clist_prepend( GtkCList *clist,
+                        gchar    *text[] );
+
+gint gtk_clist_append( GtkCList *clist,
+                       gchar    *text[] );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The return value of these two functions indicate the index of the row
+that was just added. We can insert a row at a given place using
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_insert( GtkCList *clist,
+                       gint      row,
+                       gchar    *text[] );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>In these calls we have to provide a collection of pointers that are
+the texts we want to put in the columns. The number of pointers should
+equal the number of columns in the list. If the text[] argument is
+NULL, then there will be no text in the columns of the row. This is
+useful, for example, if we want to add pixmaps instead (something that
+has to be done manually).
+<P>Also, please note that the numbering of both rows and columns start at 0.
+<P>To remove an individual row we use
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_remove( GtkCList *clist,
+                       gint      row );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There is also a call that removes all rows in the list. This is a lot
+faster than calling gtk_clist_remove once for each row, which is the
+only alternative.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_clear( GtkCList *clist );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There are also two convenience functions that should be used when a
+lot of changes have to be made to the list. This is to prevent the
+list flickering while being repeatedly updated, which may be highly
+annoying to the user. So instead it is a good idea to freeze the list,
+do the updates to it, and finally thaw it which causes the list to be
+updated on the screen.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_freeze( GtkCList * clist );
+
+void gtk_clist_thaw( GtkCList * clist );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss11.6">11.6 Setting text and pixmaps in the cells</A>
+</H2>
+
+<P>A cell can contain a pixmap, text or both. To set them the following
+functions are used.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_text( GtkCList    *clist,
+                         gint         row,
+                         gint         column,
+                         const gchar *text );
+
+void gtk_clist_set_pixmap( GtkCList  *clist,
+                           gint       row,
+                           gint       column,
+                           GdkPixmap *pixmap,
+                           GdkBitmap *mask );
+
+void gtk_clist_set_pixtext( GtkCList  *clist,
+                            gint       row,
+                            gint       column,
+                            gchar     *text,
+                            guint8     spacing,
+                            GdkPixmap *pixmap,
+                            GdkBitmap *mask );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>It's quite straightforward. All the calls have the CList as the first
+argument, followed by the row and column of the cell, followed by the
+data to be set. The <CODE>spacing</CODE> argument in gtk_clist_set_pixtext is
+the number of pixels between the pixmap and the beginning of the
+text. In all cases the data is copied into the widget.
+<P>To read back the data, we instead use
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_clist_get_text( GtkCList  *clist,
+                         gint       row,
+                         gint       column,
+                         gchar    **text );
+
+gint gtk_clist_get_pixmap( GtkCList   *clist,
+                           gint        row,
+                           gint        column,
+                           GdkPixmap **pixmap,
+                           GdkBitmap **mask );
+
+gint gtk_clist_get_pixtext( GtkCList   *clist,
+                            gint        row,
+                            gint        column,
+                            gchar     **text,
+                            guint8     *spacing,
+                            GdkPixmap **pixmap,
+                            GdkBitmap **mask );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The returned pointers are all pointers to the data stored within the
+widget, so the referenced data should not be modified or released. It
+isn't necessary to read it all back in case you aren't interested. Any
+of the pointers that are meant for return values (all except the
+clist) can be NULL. So if we want to read back only the text from a
+cell that is of type pixtext, then we would do the following, assuming
+that clist, row and column already exist:
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gchar *mytext;
+
+gtk_clist_get_pixtext(clist, row, column, &amp;mytext, NULL, NULL, NULL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There is one more call that is related to what's inside a cell in the
+clist, and that's
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+GtkCellType gtk_clist_get_cell_type( GtkCList *clist,
+                                     gint      row,
+                                     gint      column );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>which returns the type of data in a cell. The return value is one of
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+  GTK_CELL_EMPTY
+  GTK_CELL_TEXT
+  GTK_CELL_PIXMAP
+  GTK_CELL_PIXTEXT
+  GTK_CELL_WIDGET
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>There is also a function that will let us set the indentation, both
+vertical and horizontal, of a cell. The indentation value is of type
+gint, given in pixels, and can be both positive and negative.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_shift( GtkCList *clist,
+                          gint      row,
+                          gint      column,
+                          gint      vertical,
+                          gint      horizontal );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss11.7">11.7 Storing data pointers</A>
+</H2>
+
+<P>With a CList it is possible to set a data pointer for a row. This
+pointer will not be visible for the user, but is merely a convenience
+for the programmer to associate a row with a pointer to some
+additional data.
+<P>The functions should be fairly self-explanatory by now.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_set_row_data( GtkCList *clist,
+                             gint      row,
+                             gpointer  data );
+
+void gtk_clist_set_row_data_full( GtkCList         *clist,
+                                  gint              row,
+                                  gpointer          data,
+                                  GtkDestroyNotify  destroy );
+
+gpointer gtk_clist_get_row_data( GtkCList *clist,
+                                 gint      row );
+
+gint gtk_clist_find_row_from_data( GtkCList *clist,
+                                   gpointer  data );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss11.8">11.8 Working with selections</A>
+</H2>
+
+<P>There are also functions available that let us force the (un)selection
+of a row. These are
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void gtk_clist_select_row( GtkCList *clist,
+                           gint      row,
+                           gint      column );
+
+void gtk_clist_unselect_row( GtkCList *clist,
+                             gint      row,
+                             gint      column );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>And also a function that will take x and y coordinates (for example,
+read from the mousepointer), and map that onto the list, returning the
+corresponding row and column.
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gint gtk_clist_get_selection_info( GtkCList *clist,
+                                   gint      x,
+                                   gint      y,
+                                   gint     *row,
+                                   gint     *column );
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>When we detect something of interest (it might be movement of the
+pointer, a click somewhere in the list) we can read the pointer
+coordinates and find out where in the list the pointer is. Cumbersome?
+Luckily, there is a simpler way...
+<P>
+<H2><A NAME="ss11.9">11.9 The signals that bring it together</A>
+</H2>
+
+<P>As with all other widgets, there are a few signals that can be used. The
+CList widget is derived from the Container widget, and so has all the
+same signals, but also adds the following:
+<P>
+<UL>
+<LI>select_row - This signal will send the following information, in
+order: GtkCList *clist, gint row, gint column, GtkEventButton *event
+</LI>
+<LI>unselect_row - When the user unselects a row, this signal is
+activated. It sends the same information as select_row
+</LI>
+<LI>click_column - Send GtkCList *clist, gint column</LI>
+</UL>
+<P>So if we want to connect a callback to select_row, the callback
+function would be declared like this
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+void select_row_callback(GtkWidget *widget,
+                         gint row,
+                         gint column,
+                         GdkEventButton *event,
+                         gpointer data);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>The callback is connected as usual with
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+gtk_signal_connect(GTK_OBJECT( clist),
+                   "select_row"
+                   GTK_SIGNAL_FUNC(select_row_callback),
+                   NULL);
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<H2><A NAME="ss11.10">11.10 A CList example</A>
+</H2>
+
+<P>
+<P>
+<BLOCKQUOTE><CODE>
+<PRE>
+/* example-start clist clist.c */
+
+#include &lt;gtk/gtk.h>
+
+/* User clicked the "Add List" button. */
+void button_add_clicked( gpointer data )
+{
+    int indx;
+ 
+    /* Something silly to add to the list. 4 rows of 2 columns each */
+    gchar *drink[4][2] = { { "Milk",    "3 Oz" },
+                           { "Water",   "6 l" },
+                           { "Carrots", "2" },
+                           { "Snakes",  "55" } };
+
+    /* Here we do the actual adding of the text. It's done once for
+     * each row.
+     */
+    for ( indx=0 ; indx &lt; 4 ; indx++ )
+        gtk_clist_append( (GtkCList *) data, drink[indx]);
+
+    return;
+}
+
+/* User clicked the "Clear List" button. */
+void button_clear_clicked( gpointer data )
+{
+    /* Clear the list using gtk_clist_clear. This is much faster than
+     * calling gtk_clist_remove once for each row.
+     */
+    gtk_clist_clear( (GtkCList *) data);
+
+    return;
+}
+
+/* The user clicked the "Hide/Show titles" button. */
+void button_hide_show_clicked( gpointer data )
+{
+    /* Just a flag to remember the status. 0 = currently visible */
+    static short int flag = 0;
+
+    if (flag == 0)
+    {
+        /* Hide the titles and set the flag to 1 */
+        gtk_clist_column_titles_hide((GtkCList *) data);
+        flag++;
+    }
+    else
+    {
+        /* Show the titles and reset flag to 0 */
+        gtk_clist_column_titles_show((GtkCList *) data);
+        flag--;
+    }
+
+    return;
+}
+
+/* If we come here, then the user has selected a row in the list. */
+void selection_made( GtkWidget      *clist,
+                     gint            row,
+                     gint            column,
+                     GdkEventButton *event,
+                     gpointer        data )
+{
+    gchar *text;
+
+    /* Get the text that is stored in the selected row and column
+     * which was clicked in. We will receive it as a pointer in the
+     * argument text.
+     */
+    gtk_clist_get_text(GTK_CLIST(clist), row, column, &amp;text);
+
+    /* Just prints some information about the selected row */
+    g_print("You selected row %d. More specifically you clicked in "
+            "column %d, and the text in this cell is %s\n\n",
+            row, column, text);
+
+    return;
+}
+
+int main( int    argc,
+          gchar *argv[] )
+{                                  
+    GtkWidget *window;
+    GtkWidget *vbox, *hbox;
+    GtkWidget *scrolled_window, *clist;
+    GtkWidget *button_add, *button_clear, *button_hide_show;    
+    gchar *titles[2] = { "Ingredients", "Amount" };
+
+    gtk_init(&amp;argc, &amp;argv);
+    
+    window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_usize(GTK_WIDGET(window), 300, 150);
+
+    gtk_window_set_title(GTK_WINDOW(window), "GtkCList Example");
+    gtk_signal_connect(GTK_OBJECT(window),
+                       "destroy",
+                       GTK_SIGNAL_FUNC(gtk_main_quit),
+                       NULL);
+    
+    vbox=gtk_vbox_new(FALSE, 5);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+    gtk_widget_show(vbox);
+    
+    /* Create a scrolled window to pack the CList widget into */
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+
+    gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
+    gtk_widget_show (scrolled_window);
+
+    /* Create the CList. For this example we use 2 columns */
+    clist = gtk_clist_new_with_titles( 2, titles);
+
+    /* When a selection is made, we want to know about it. The callback
+     * used is selection_made, and its code can be found further down */
+    gtk_signal_connect(GTK_OBJECT(clist), "select_row",
+                       GTK_SIGNAL_FUNC(selection_made),
+                       NULL);
+
+    /* It isn't necessary to shadow the border, but it looks nice :) */
+    gtk_clist_set_shadow_type (GTK_CLIST(clist), GTK_SHADOW_OUT);
+
+    /* What however is important, is that we set the column widths as
+     * they will never be right otherwise. Note that the columns are
+     * numbered from 0 and up (to 1 in this case).
+     */
+    gtk_clist_set_column_width (GTK_CLIST(clist), 0, 150);
+
+    /* Add the CList widget to the vertical box and show it. */
+    gtk_container_add(GTK_CONTAINER(scrolled_window), clist);
+    gtk_widget_show(clist);
+
+    /* Create the buttons and add them to the window. See the button
+     * tutorial for more examples and comments on this.
+     */
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
+    gtk_widget_show(hbox);
+
+    button_add = gtk_button_new_with_label("Add List");
+    button_clear = gtk_button_new_with_label("Clear List");
+    button_hide_show = gtk_button_new_with_label("Hide/Show titles");
+
+    gtk_box_pack_start(GTK_BOX(hbox), button_add, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button_clear, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button_hide_show, TRUE, TRUE, 0);
+
+    /* Connect our callbacks to the three buttons */
+    gtk_signal_connect_object(GTK_OBJECT(button_add), "clicked",
+                              GTK_SIGNAL_FUNC(button_add_clicked),
+                              (gpointer) clist);
+    gtk_signal_connect_object(GTK_OBJECT(button_clear), "clicked",
+                              GTK_SIGNAL_FUNC(button_clear_clicked),
+                              (gpointer) clist);
+    gtk_signal_connect_object(GTK_OBJECT(button_hide_show), "clicked",
+                              GTK_SIGNAL_FUNC(button_hide_show_clicked),
+                              (gpointer) clist);
+
+    gtk_widget_show(button_add);
+    gtk_widget_show(button_clear);
+    gtk_widget_show(button_hide_show);
+
+    /* The interface is completely set up so we show the window and
+     * enter the gtk_main loop.
+     */
+    gtk_widget_show(window);
+    gtk_main();
+    
+    return(0);
+}
+/* example-end */
+</PRE>
+</CODE></BLOCKQUOTE>
+<P>
+<HR NOSHADE>
+<A HREF="gtk_tut-12.html">Next</A>
+<A HREF="gtk_tut-10.html">Previous</A>
+<A HREF="gtk_tut.html#toc11">Contents</A>
+</BODY>
+</HTML>

@@ -1,0 +1,72 @@
+From 83ad49a96edaf139333be7f3f7ed261dd41e4ad3 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 10 Sep 2012 17:05:09 +0530
+Subject: [PATCH] ath9k_hw: Wait BT calibration to complete
+
+Whenever BT calibration requested, WLAN has to wait for the
+calibration to be completed. But right now we defer the waiting
+which might cause BT calibration to fail. Fix that.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_mci.c |  1 +
+ drivers/net/wireless/ath/ath9k/debug.h      |  1 -
+ drivers/net/wireless/ath/ath9k/mci.c        | 19 ++++++++++++++++++-
+ 3 files changed, 19 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_mci.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_mci.c
+@@ -714,6 +714,7 @@ bool ar9003_mci_start_reset(struct ath_h
+ 
+ 	return true;
+ }
++EXPORT_SYMBOL(ar9003_mci_start_reset);
+ 
+ int ar9003_mci_end_reset(struct ath_hw *ah, struct ath9k_channel *chan,
+ 			 struct ath9k_hw_cal_data *caldata)
+--- a/drivers/net/wireless/ath/ath9k/debug.h
++++ b/drivers/net/wireless/ath/ath9k/debug.h
+@@ -41,7 +41,6 @@ enum ath_reset_type {
+ 	RESET_TYPE_PLL_HANG,
+ 	RESET_TYPE_MAC_HANG,
+ 	RESET_TYPE_BEACON_STUCK,
+-	RESET_TYPE_MCI,
+ 	__RESET_TYPE_MAX
+ };
+ 
+--- a/drivers/net/wireless/ath/ath9k/mci.c
++++ b/drivers/net/wireless/ath/ath9k/mci.c
+@@ -191,6 +191,23 @@ skip_tuning:
+ 	ath9k_btcoex_timer_resume(sc);
+ }
+ 
++static void ath_mci_wait_btcal_done(struct ath_softc *sc)
++{
++	struct ath_hw *ah = sc->sc_ah;
++
++	/* Stop tx & rx */
++	ieee80211_stop_queues(sc->hw);
++	ath_stoprecv(sc);
++	ath_drain_all_txq(sc, false);
++
++	/* Wait for cal done */
++	ar9003_mci_start_reset(ah, ah->curchan);
++
++	/* Resume tx & rx */
++	ath_startrecv(sc);
++	ieee80211_wake_queues(sc->hw);
++}
++
+ static void ath_mci_cal_msg(struct ath_softc *sc, u8 opcode, u8 *rx_payload)
+ {
+ 	struct ath_hw *ah = sc->sc_ah;
+@@ -202,7 +219,7 @@ static void ath_mci_cal_msg(struct ath_s
+ 	case MCI_GPM_BT_CAL_REQ:
+ 		if (mci_hw->bt_state == MCI_BT_AWAKE) {
+ 			mci_hw->bt_state = MCI_BT_CAL_START;
+-			ath9k_queue_reset(sc, RESET_TYPE_MCI);
++			ath_mci_wait_btcal_done(sc);
+ 		}
+ 		ath_dbg(common, MCI, "MCI State : %d\n", mci_hw->bt_state);
+ 		break;

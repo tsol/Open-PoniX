@@ -1,0 +1,195 @@
+#!/bin/sh
+# Copyright 2008-2011 Citrix Systems, Inc.
+#
+# This script starts and stops Citrix USB Service
+
+# The settings for chkconfig:
+# chkconfig is used on Redhat and Fedora instead of update-rc.d to update init levels
+# the default values of 20 and 80 are being used for start and stop priority.
+# chkconfig <run levels> <start priority> <stop priority>
+# chkconfig: 2345 20 80
+# description: Provides USB redirection between endpoint devices and the virtual desktop.
+
+### LSB init script information required by debian
+### BEGIN INIT INFO
+# Provides:          ctxusbd
+# Required-Start:    ###INIT_UDEV###
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Citrix USB Service
+### END INIT INFO
+
+# Set a sane path
+export PATH=/bin:/usr/bin:/usr/sbin:/sbin
+
+# constants
+# The DAEMON variable gets updated at install time if it is not installed in the default location
+DAEMON=###ICAROOT###/ctxusbd
+RUNDIR=/var/run/ctxusbd
+PIDFILE=$RUNDIR/ctxusbd.pid
+
+ECHO_CMD_NO_NL=printf
+
+INITLIB="NOT_FOUND"
+
+# Init functions locations for different systems
+LSB_INIT_FUNCTIONS=/lib/lsb/init-functions
+
+# If /lib/lsb/init-functions is present use the LSB init fuctions.
+if [ -r "$LSB_INIT_FUNCTIONS" ]; then
+	. "$LSB_INIT_FUNCTIONS"
+	INITLIB="$LSB_INIT_FUNCTIONS"
+fi
+
+
+CTXUSBD_PID=""
+
+get_pidof_ctxusbd()
+{
+	# Get the pid (or list of pids) of the ctxusbd daemon
+	# The LSB function pidofproc is too inconsistent across distrobutions at present to be used safely.
+
+	# Identify the ctxusbd daemon with 'ps' using the exact path
+	
+    	if ls -l `which ps 2>/dev/null` | grep busybox 1>/dev/null ; then                                                      
+		CTXUSBD_PID=`ps  | grep " $DAEMON" | grep -v grep | cut -d ' ' -f 2`
+    	elif PID_CMD="`which ps 2>/dev/null`" ; test -x "$PID_CMD" ; then
+		CTXUSBD_PID="`"$PID_CMD" axo pid,cmd | grep "[0-9] $DAEMON" | sed -e "s/^[ ]*//g" -e "s, $DAEMON,,g"`"
+	elif PID_CMD="/bin/ps" ; test -x "$PID_CMD" ; then
+		CTXUSBD_PID="`"$PID_CMD" axo pid,cmd | grep "[0-9] $DAEMON" | sed -e "s/^[ ]*//g" -e "s, $DAEMON,,g"`"
+	# pidof finds all ctxusbd binaries running ignoring the path, note not scripts by default.
+	elif PID_CMD="`which pidof 2>/dev/null`" ; test -x "$PID_CMD" ; then
+		CTXUSBD_PID="`"$PID_CMD" "$DAEMON"`"
+	elif PID_CMD="/sbin/pidof" ; test -x "$PID_CMD" ; then
+		CTXUSBD_PID="`"$PID_CMD" "$DAEMON"`"
+	else
+		return 1
+	fi
+
+	return 0
+}
+
+
+ctxusbd_start () {
+    if [ -d /dev/bus/usb ]
+    then
+		# Get the pid of the ctxusbd daemon
+		get_pidof_ctxusbd
+
+		# Check if any instances of the ctxusbd daemon were found
+		if [ -z "$CTXUSBD_PID" ]
+		then
+
+			# Create the $RUNDIR directory for ctxusbd
+			mkdir -m 700 -p "$RUNDIR"
+
+			# Starting the ctxusbd daemon
+
+			# Start the ctxusbd daemon using the LSB init functions
+			if [ "$INITLIB" = "$LSB_INIT_FUNCTIONS" ]
+			then
+				if start_daemon "$DAEMON"
+				then
+					log_success_msg "Starting Citrix USB daemon [ OK ]"
+				else
+					log_failure_msg "Starting Citrix USB daemon [fail]"
+				fi
+
+			# Start the ctxusbd daemon manually
+			else
+				"$ECHO_CMD_NO_NL" " * Starting Citrix USB daemon"
+
+				# Start the ctxusbd daemon
+				if "$DAEMON"
+				then
+					# Create the lock required by Redhat based distros if possible
+					mkdir -p /var/lock/subsys
+					touch /var/lock/subsys/`basename "$DAEMON"`
+
+					"$ECHO_CMD_NO_NL" " [ OK ]\n"
+				else
+					"$ECHO_CMD_NO_NL" " [fail]\n"
+				fi
+			fi
+		else
+			"$ECHO_CMD_NO_NL" "Citrix USB daemon is already running.\n"
+		fi
+    else
+        "$ECHO_CMD_NO_NL" "No /dev/bus/usb directory; not starting.\n"
+    fi
+}
+
+
+ctxusbd_stop () {
+
+	# Get the pid of the ctxusbd daemon
+	if get_pidof_ctxusbd
+	then
+		# If a pid has been found
+		if [ -n "$CTXUSBD_PID" ]
+		then
+			# If the LSB init functions are present
+			if [ "$INITLIB" = "$LSB_INIT_FUNCTIONS" ]
+			then
+			
+				# Killproc requires a pidfile.
+				# Dynamicaly create the pidfile.
+				"$ECHO_CMD_NO_NL" "$CTXUSBD_PID" > "$PIDFILE"
+
+				killproc -p "$PIDFILE" "$DAEMON"
+
+				RETVAL=$?		
+				
+				# Remove the pidfile if not removed by killproc
+				rm -f "$PIDFILE" > /dev/null 2>&1
+
+				if [ $RETVAL -eq 0 ]
+				then
+					log_success_msg "Stopping Citrix USB daemon [ OK ]"
+				else
+					log_failure_msg "Stopping Citrix USB daemon [fail]"
+				fi
+
+			# Stop the ctxusbd daemon manually
+			else
+				"$ECHO_CMD_NO_NL" " * Stopping Citrix USB daemon"
+	
+				# kill the daemon process using the pid value
+				if kill "$CTXUSBD_PID" > /dev/null 2>&1
+				then
+					# Remove the lock required by Redhat based distros
+					rm -f /var/lock/subsys/`basename "$DAEMON"`
+
+					"$ECHO_CMD_NO_NL" " [ OK ]\n"
+				else
+					"$ECHO_CMD_NO_NL" " [fail]\n"
+				fi
+			fi
+		else
+			"$ECHO_CMD_NO_NL" "Citrix USB daemon has already stopped.\n"
+		fi
+	else
+		"$ECHO_CMD_NO_NL" " * Stopping Citrix USB daemon [fail]\nCould not find the pid of the ctxusbd daemon.\n"
+	fi
+}
+
+# parse arguments
+case "$1" in
+    start|stop)
+        ctxusbd_${1}
+        ;;
+
+    restart|reload|force-reload)
+        ctxusbd_stop
+        ctxusbd_start
+        ;;
+
+    *)
+        echo "usage: `basename "$0"` { start | stop | restart | reload | force-reload }" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+

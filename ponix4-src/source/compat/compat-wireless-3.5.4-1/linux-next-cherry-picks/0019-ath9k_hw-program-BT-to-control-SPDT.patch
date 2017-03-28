@@ -1,0 +1,24 @@
+From 9dc08eceb7491331e81acde625e0d9c82aa86a16 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 4 Jun 2012 16:28:20 +0530
+Subject: [PATCH 19/57] ath9k_hw: program BT to control SPDT
+
+program BT to control SPDT everytime while loading switch table
+from eeprom.
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
+@@ -3613,6 +3613,7 @@ static void ar9003_hw_ant_ctrl_apply(str
+ 		value = ar9003_switch_com_spdt_get(ah, is2ghz);
+ 		REG_RMW_FIELD(ah, AR_PHY_GLB_CONTROL,
+ 				AR_SWITCH_TABLE_COM_SPDT_ALL, value);
++		REG_SET_BIT(ah, AR_PHY_GLB_CONTROL, AR_BTCOEX_CTRL_SPDT_ENABLE);
+ 	}
+ 
+ 	value = ar9003_hw_ant_ctrl_common_2_get(ah, is2ghz);

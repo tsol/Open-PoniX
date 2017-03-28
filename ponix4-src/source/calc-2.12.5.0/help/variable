@@ -1,0 +1,166 @@
+Variable declarations
+
+    Variables can be declared as either being global, local, or static.
+    Global variables are visible to all functions and on the command
+    line, and are permanent.  Local variables are visible only within
+    a single function or command sequence.  When the function or command
+    sequence returns, the local variables are deleted.	Static variables
+    are permanent like global variables, but are only visible within the
+    same input file or function where they are defined.
+
+    To declare one or more variables, the 'local', 'global', or 'static'
+    keywords are used, followed by the desired list of variable names,
+    separated by commas.  The definition is terminated with a semicolon.
+    Examples of declarations are:
+
+	    local	x, y, z;
+	    global	fred;
+	    local	foo, bar;
+	    static	var1, var2, var3;
+
+    Variables may have initializations applied to them.	 This is done
+    by following the variable name by an equals sign and an expression.
+    Global and local variables are initialized each time that control
+    reaches them (e.g., at the entry to a function which contains them).
+    Static variables are initialized once only, at the time that control
+    first reaches them (but in future releases the time of initialization
+    may change).  Unlike in C, expressions for static variables may
+    contain function calls and refer to variables.  Examples of such
+    initializations are:
+
+	    local	a1 = 7, a2 = 3;
+	    static	b = a1 + sin(a2);
+
+    Within function declarations, all variables must be defined.
+    But on the top level command line, assignments automatically define
+    global variables as needed.	 For example, on the top level command
+    line, the following defines the global variable x if it had not
+    already been defined:
+
+	    x = 7
+
+    The static keyword may be used at the top level command level to
+    define a variable which is only accessible interactively, or within
+    functions defined interactively.
+
+    Variables have no fixed type, thus there is no need or way to
+    specify the types of variables as they are defined.	 Instead, the
+    types of variables change as they are assigned to or are specified
+    in special statements such as 'mat' and 'obj'.  When a variable is
+    first defined using 'local', 'global', or 'static', it has the
+    value of zero.
+
+    If a procedure defines a local or static variable name which matches
+    a global variable name, or has a parameter name which matches a
+    global variable name, then the local variable or parameter takes
+    precedence within that procedure, and the global variable is not
+    directly accessible.
+
+    The MAT and OBJ keywords may be used within a declaration statement
+    in order to initially define variables as that type.  Initialization
+    of these variables are also allowed.  Examples of such declarations
+    are:
+
+	    static mat table[3] = {5, 6, 7};
+	    local obj point p1, p2;
+
+    When working with user-defined functions, the syntax for passing an
+    lvalue by reference rather than by value is to precede an expression
+    for the lvalue by a backquote. For example, if the function invert is
+    defined by:
+
+	    define invert(x) {x = inverse(x)}
+
+    then invert(`A) achieves the effect of A = inverse(A).  In other
+    words, passing and argument of `variable (with a back-quote)
+    will cause and changes to the function argument to be applied to
+    the calling variable.  Calling invert(A) (without the ` backquote)
+    assigns inverse(A) to the temporary function parameter x and leaves
+    A unchanged.
+
+    In an argument, a backquote before other than an lvalue is ignored.
+    Consider, for example:
+
+	    ; define logplus(x,y,z) {return log(++x + ++y + ++z);}
+
+	    ; eh = 55;
+	    ; mi = 25;
+	    ; answer = logplus(eh, `mi, `17);
+
+	    ; print eh, mi, answer;
+	    55 26 2
+
+    The value of eh is was not changed because eh was used as
+    an argument without a back-quote (`).  However, mi was incremented
+    because it was passed as `mi (with a back-quote).  Passing 17
+    (not an lvalue) as `17 has not effect on the value 17.
+
+    The back-quote should only be used before arguments to a function.
+    In all other contexts, a backquote causes a compile error.
+
+    Another method is to pass the address of the lvalue explicitly and
+    use the indirection operator * (star) to refer to the lvalue in the
+    function body.  Consider the following function:
+
+	    ; define ten(a) { *a = 10; }
+
+	    ; n = 17;
+	    ; ten(n);
+	    ; print n;
+	    17
+
+	    ; ten(`n);
+	    ; print n;
+	    17
+
+	    ; ten(&n);
+	    ; print n;
+	    10
+
+    Passing an argument with a & (ampersand) allows the tenmore()
+    function to modify the calling variable:
+
+	    ; wa = tenmore(&vx);
+	    ; print vx, wa;
+	    65 65
+
+    Great care should be taken when using a pointer to a local variable
+    or element of a matrix, list or object, since the lvalue pointed to
+    is deleted when evaluation of the function is completed or the lvalue
+    whose value is the matrix, list or object is assigned another value.
+
+    As both of the above methods (using & arguments (ampersand) *value
+    (star) function values or by using ` arguments (back quote) alone)
+    copy the address rather than the value of the argument to the function
+    parameter, they allow for faster calls of functions when the memory
+    required for the value is huge (such as for a large matrix).
+
+    As the built-in functions and object functions always accept their
+    arguments as addresses, there is no gain in using the backquote when
+    calling these functions.
+
+## Copyright (C) 1999-2006  Landon Curt Noll
+##
+## Calc is open software; you can redistribute it and/or modify it under
+## the terms of the version 2.1 of the GNU Lesser General Public License
+## as published by the Free Software Foundation.
+##
+## Calc is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+## or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General
+## Public License for more details.
+##
+## A copy of version 2.1 of the GNU Lesser General Public License is
+## distributed with calc under the filename COPYING-LGPL.  You should have
+## received a copy with calc; if not, write to Free Software Foundation, Inc.
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+## @(#) $Revision: 30.1 $
+## @(#) $Id: variable,v 30.1 2007/03/16 11:10:42 chongo Exp $
+## @(#) $Source: /usr/local/src/bin/calc/help/RCS/variable,v $
+##
+## Under source code control:	1991/07/21 04:37:25
+## File existed as early as:	1991
+##
+## chongo <was here> /\oo/\	http://www.isthe.com/chongo/
+## Share and enjoy!  :-)	http://www.isthe.com/chongo/tech/comp/calc/

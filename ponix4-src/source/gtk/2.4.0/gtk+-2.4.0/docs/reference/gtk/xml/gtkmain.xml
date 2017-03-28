@@ -1,0 +1,1171 @@
+<refentry id="gtk-General">
+<refmeta>
+<refentrytitle>Main loop and Events</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>GTK Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>Main loop and Events</refname><refpurpose>Library initialization, main event loop, and events</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv><title>Synopsis</title>
+
+<synopsis>
+
+#include &lt;gtk/gtk.h&gt;
+
+
+<link linkend="gchar">gchar</link>*      <link linkend="gtk-set-locale">gtk_set_locale</link>                  (void);
+<link linkend="void">void</link>        <link linkend="gtk-disable-setlocale">gtk_disable_setlocale</link>           (void);
+<link linkend="PangoLanguage">PangoLanguage</link>* <link linkend="gtk-get-default-language">gtk_get_default_language</link>     (void);
+<link linkend="void">void</link>        <link linkend="gtk-init">gtk_init</link>                        (<link linkend="int">int</link> *argc,
+                                             <link linkend="char">char</link> ***argv);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-init-check">gtk_init_check</link>                  (<link linkend="int">int</link> *argc,
+                                             <link linkend="char">char</link> ***argv);
+<link linkend="void">void</link>        <link linkend="gtk-exit">gtk_exit</link>                        (<link linkend="gint">gint</link> error_code);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-events-pending">gtk_events_pending</link>              (void);
+<link linkend="void">void</link>        <link linkend="gtk-main">gtk_main</link>                        (void);
+<link linkend="guint">guint</link>       <link linkend="gtk-main-level">gtk_main_level</link>                  (void);
+<link linkend="void">void</link>        <link linkend="gtk-main-quit">gtk_main_quit</link>                   (void);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-main-iteration">gtk_main_iteration</link>              (void);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-main-iteration-do">gtk_main_iteration_do</link>           (<link linkend="gboolean">gboolean</link> blocking);
+<link linkend="void">void</link>        <link linkend="gtk-main-do-event">gtk_main_do_event</link>               (<link linkend="GdkEvent">GdkEvent</link> *event);
+<link linkend="void">void</link>        (<link linkend="GtkModuleInitFunc">*GtkModuleInitFunc</link>)            (<link linkend="gint">gint</link> *argc,
+                                             <link linkend="gchar">gchar</link> ***argv);
+<link linkend="void">void</link>        (<link linkend="GtkModuleDisplayInitFunc">*GtkModuleDisplayInitFunc</link>)     (<link linkend="GdkDisplay">GdkDisplay</link> *display);
+
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-true">gtk_true</link>                        (void);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-false">gtk_false</link>                       (void);
+
+<link linkend="void">void</link>        <link linkend="gtk-grab-add">gtk_grab_add</link>                    (<link linkend="GtkWidget">GtkWidget</link> *widget);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-grab-get-current">gtk_grab_get_current</link>            (void);
+<link linkend="void">void</link>        <link linkend="gtk-grab-remove">gtk_grab_remove</link>                 (<link linkend="GtkWidget">GtkWidget</link> *widget);
+
+<link linkend="void">void</link>        <link linkend="gtk-init-add">gtk_init_add</link>                    (<link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-quit-add-destroy">gtk_quit_add_destroy</link>            (<link linkend="guint">guint</link> main_level,
+                                             <link linkend="GtkObject">GtkObject</link> *object);
+<link linkend="guint">guint</link>       <link linkend="gtk-quit-add">gtk_quit_add</link>                    (<link linkend="guint">guint</link> main_level,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="guint">guint</link>       <link linkend="gtk-quit-add-full">gtk_quit_add_full</link>               (<link linkend="guint">guint</link> main_level,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-quit-remove">gtk_quit_remove</link>                 (<link linkend="guint">guint</link> quit_handler_id);
+<link linkend="void">void</link>        <link linkend="gtk-quit-remove-by-data">gtk_quit_remove_by_data</link>         (<link linkend="gpointer">gpointer</link> data);
+
+<link linkend="guint">guint</link>       <link linkend="gtk-timeout-add-full">gtk_timeout_add_full</link>            (<link linkend="guint32">guint32</link> interval,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="guint">guint</link>       <link linkend="gtk-timeout-add">gtk_timeout_add</link>                 (<link linkend="guint32">guint32</link> interval,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="void">void</link>        <link linkend="gtk-timeout-remove">gtk_timeout_remove</link>              (<link linkend="guint">guint</link> timeout_handler_id);
+
+<link linkend="guint">guint</link>       <link linkend="gtk-idle-add">gtk_idle_add</link>                    (<link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="guint">guint</link>       <link linkend="gtk-idle-add-priority">gtk_idle_add_priority</link>           (<link linkend="gint">gint</link> priority,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);
+<link linkend="guint">guint</link>       <link linkend="gtk-idle-add-full">gtk_idle_add_full</link>               (<link linkend="gint">gint</link> priority,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-idle-remove">gtk_idle_remove</link>                 (<link linkend="guint">guint</link> idle_handler_id);
+<link linkend="void">void</link>        <link linkend="gtk-idle-remove-by-data">gtk_idle_remove_by_data</link>         (<link linkend="gpointer">gpointer</link> data);
+
+<link linkend="guint">guint</link>       <link linkend="gtk-input-add-full">gtk_input_add_full</link>              (<link linkend="gint">gint</link> source,
+                                             <link linkend="GdkInputCondition">GdkInputCondition</link> condition,
+                                             <link linkend="GdkInputFunction">GdkInputFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);
+<link linkend="void">void</link>        <link linkend="gtk-input-remove">gtk_input_remove</link>                (<link linkend="guint">guint</link> input_handler_id);
+
+#define     <link linkend="GTK-PRIORITY-REDRAW-CAPS">GTK_PRIORITY_REDRAW</link>
+#define     <link linkend="GTK-PRIORITY-RESIZE-CAPS">GTK_PRIORITY_RESIZE</link>
+#define     <link linkend="GTK-PRIORITY-HIGH-CAPS">GTK_PRIORITY_HIGH</link>
+#define     <link linkend="GTK-PRIORITY-INTERNAL-CAPS">GTK_PRIORITY_INTERNAL</link>
+#define     <link linkend="GTK-PRIORITY-DEFAULT-CAPS">GTK_PRIORITY_DEFAULT</link>
+#define     <link linkend="GTK-PRIORITY-LOW-CAPS">GTK_PRIORITY_LOW</link>
+
+<link linkend="guint">guint</link>       <link linkend="gtk-key-snooper-install">gtk_key_snooper_install</link>         (<link linkend="GtkKeySnoopFunc">GtkKeySnoopFunc</link> snooper,
+                                             <link linkend="gpointer">gpointer</link> func_data);
+<link linkend="gint">gint</link>        (<link linkend="GtkKeySnoopFunc">*GtkKeySnoopFunc</link>)              (<link linkend="GtkWidget">GtkWidget</link> *grab_widget,
+                                             <link linkend="GdkEventKey">GdkEventKey</link> *event,
+                                             <link linkend="gpointer">gpointer</link> func_data);
+<link linkend="void">void</link>        <link linkend="gtk-key-snooper-remove">gtk_key_snooper_remove</link>          (<link linkend="guint">guint</link> snooper_handler_id);
+
+<link linkend="GdkEvent">GdkEvent</link>*   <link linkend="gtk-get-current-event">gtk_get_current_event</link>           (void);
+<link linkend="guint32">guint32</link>     <link linkend="gtk-get-current-event-time">gtk_get_current_event_time</link>      (void);
+<link linkend="gboolean">gboolean</link>    <link linkend="gtk-get-current-event-state">gtk_get_current_event_state</link>     (<link linkend="GdkModifierType">GdkModifierType</link> *state);
+<link linkend="GtkWidget">GtkWidget</link>*  <link linkend="gtk-get-event-widget">gtk_get_event_widget</link>            (<link linkend="GdkEvent">GdkEvent</link> *event);
+<link linkend="void">void</link>        <link linkend="gtk-propagate-event">gtk_propagate_event</link>             (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkEvent">GdkEvent</link> *event);
+
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1>
+<title>Description</title>
+
+<para>
+Before using GTK+, you need to initialize it; initialization connects
+to the window system display, and parses some standard command line
+arguments. The <link linkend="gtk-init"><function>gtk_init()</function></link> function initializes GTK+. <link linkend="gtk-init"><function>gtk_init()</function></link> exits
+the application if errors occur; to avoid this, use <link linkend="gtk-init-check"><function>gtk_init_check()</function></link>. 
+<link linkend="gtk-init-check"><function>gtk_init_check()</function></link> allows you to recover from a failed GTK+
+initialization - you might start up your application in text mode instead.
+</para>
+
+<para>
+Like all GUI toolkits, GTK+ uses an event-driven programming
+model. When the user is doing nothing, GTK+ sits in the
+<firstterm>main loop</firstterm> and waits for input. If the user
+performs some action - say, a mouse click - then the main loop "wakes
+up" and delivers an event to GTK+. GTK+ forwards the event to one or
+more widgets.
+</para>
+
+<para>
+When widgets receive an event, they frequently emit one or more 
+<firstterm>signals</firstterm>. Signals notify your program that
+"something interesting happened" by invoking functions you've
+connected to the signal with <link linkend="g-signal-connect"><function>g_signal_connect()</function></link>. Functions connected
+to a signal are often termed <firstterm>callbacks</firstterm>. 
+</para>
+
+<para>
+When your callbacks are invoked, you would typically take some action
+- for example, when an Open button is clicked you might display a 
+<link linkend="GtkFileSelectionDialog"><type>GtkFileSelectionDialog</type></link>. After a callback finishes, GTK+ will return
+to the main loop and await more user input.
+</para>
+
+<example>
+<title>Typical <function>main</function> function for a GTK+ application</title>
+<programlisting>
+int 
+main (int argc, char **argv)
+{
+  /* Initialize i18n support */
+  gtk_set_locale (<!-- -->);
+
+  /* Initialize the widget set */
+  gtk_init (&amp;argc, &amp;argv);
+
+  /* Create the main window */
+  mainwin = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+  /* Set up our GUI elements */
+  ...
+
+  /* Show the application window */
+  gtk_widget_show_all (mainwin);
+
+  /* Enter the main event loop, and wait for user interaction */
+  gtk_main (<!-- -->);
+
+  /* The user lost interest */
+  return 0;
+}
+</programlisting>
+</example>
+
+<para>
+It's OK to use the GLib main loop directly instead of <link linkend="gtk-main"><function>gtk_main()</function></link>,
+though it involves slightly more typing. See <link linkend="GMainLoop"><type>GMainLoop</type></link> in the GLib
+documentation.
+</para>
+</refsect1>
+
+<refsect1>
+<title>Details</title>
+<refsect2>
+<title><anchor id="gtk-set-locale"/>gtk_set_locale ()</title>
+<indexterm><primary>gtk_set_locale</primary></indexterm><programlisting><link linkend="gchar">gchar</link>*      gtk_set_locale                  (void);</programlisting>
+<para>
+Initializes internationalization support for GTK+. <link linkend="gtk-init"><function>gtk_init()</function></link>
+automatically does this, so there is typically no point
+in calling this function.
+</para>
+<para>
+If you are calling this function because you changed the locale
+after GTK+ is was initialized, then calling this function
+may help a bit. (Note, however, that changing the locale
+after GTK+ is initialized may produce inconsistent results and
+is not really supported.)
+</para>
+<para>
+In detail - sets the current locale according to the
+program environment. This is the same as calling the C library function
+<literal>setlocale (LC_ALL, "")</literal> but also takes care of the 
+locale specific setup of the windowing system used by GDK.</para>
+
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a string corresponding to the locale set, typically in the
+form lang_COUNTRY, where lang is an ISO-639 language code, and
+COUNTRY is an ISO-3166 country code. On Unix, this form matches the
+result of the <link linkend="setlocale"><function>setlocale()</function></link>; it is also used on other machines, such as 
+Windows, where the C library returns a different result. The string is 
+owned by GTK+ and should not be modified or freed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-disable-setlocale"/>gtk_disable_setlocale ()</title>
+<indexterm><primary>gtk_disable_setlocale</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_disable_setlocale           (void);</programlisting>
+<para>
+Prevents <link linkend="gtk-init"><function>gtk_init()</function></link> and <link linkend="gtk-init-check"><function>gtk_init_check()</function></link> from automatically
+calling <literal>setlocale (LC_ALL, "")</literal>. You would 
+want to use this function if you wanted to set the locale for 
+your program to something other than the user's locale, or if 
+you wanted to set different values for different locale categories.
+</para>
+<para>
+Most programs should not need to call this function.</para>
+<para>
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-get-default-language"/>gtk_get_default_language ()</title>
+<indexterm><primary>gtk_get_default_language</primary></indexterm><programlisting><link linkend="PangoLanguage">PangoLanguage</link>* gtk_get_default_language     (void);</programlisting>
+<para>
+Returns the <link linkend="PangoLanguage"><type>PangoLanguage</type></link> for the default language currently in
+effect. (Note that this can change over the life of an
+application.)  The default language is derived from the current
+locale. It determines, for example, whether GTK+ uses the
+right-to-left or left-to-right text direction. See
+<link linkend="gtk-get-lc-ctype"><function>_gtk_get_lc_ctype()</function></link> for notes on behaviour on Windows.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the default language as a <link linkend="PangoLanguage"><type>PangoLanguage</type></link>, must not be
+freed
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-init"/>gtk_init ()</title>
+<indexterm><primary>gtk_init</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_init                        (<link linkend="int">int</link> *argc,
+                                             <link linkend="char">char</link> ***argv);</programlisting>
+<para>
+Call this function before using any other GTK+ functions in your GUI
+applications.  It will initialize everything needed to operate the 
+toolkit and parses some standard command line options. <parameter>argc</parameter> and 
+<parameter>argv</parameter> are adjusted accordingly so your own code will 
+never see those standard arguments.
+</para>
+<para>
+<note><para>
+This function will terminate your program if it was unable to initialize 
+the GUI for some reason. If you want your program to fall back to a 
+textual interface you want to call <link linkend="gtk-init-check"><function>gtk_init_check()</function></link> instead.
+</para></note></para>
+<para>
+</para>
+
+<note>
+<para>
+</para>
+</note><variablelist role="params">
+<varlistentry><term><parameter>argc</parameter>&nbsp;:</term>
+<listitem><simpara> Address of the <parameter>argc</parameter> parameter of your 
+  <link linkend="main"><function>main()</function></link> function. Changed if any arguments were handled.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>argv</parameter>&nbsp;:</term>
+<listitem><simpara> Address of the <parameter>argv</parameter> parameter of <link linkend="main"><function>main()</function></link>. 
+  Any parameters understood by <link linkend="gtk-init"><function>gtk_init()</function></link> are stripped before return.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-init-check"/>gtk_init_check ()</title>
+<indexterm><primary>gtk_init_check</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_init_check                  (<link linkend="int">int</link> *argc,
+                                             <link linkend="char">char</link> ***argv);</programlisting>
+<para>
+This function does the same work as <link linkend="gtk-init"><function>gtk_init()</function></link> with only 
+a single change: It does not terminate the program if the GUI can't be 
+initialized. Instead it returns <literal>FALSE</literal> on failure.
+</para>
+<para>
+This way the application can fall back to some other means of communication 
+with the user - for example a curses or command line interface.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>argc</parameter>&nbsp;:</term>
+<listitem><simpara> Address of the <parameter>argc</parameter> parameter of your 
+  <link linkend="main"><function>main()</function></link> function. Changed if any arguments were handled.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>argv</parameter>&nbsp;:</term>
+<listitem><simpara> Address of the <parameter>argv</parameter> parameter of <link linkend="main"><function>main()</function></link>. 
+  Any parameters understood by <link linkend="gtk-init"><function>gtk_init()</function></link> are stripped before return.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if the GUI has been successfully initialized, 
+              <literal>FALSE</literal> otherwise.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-exit"/>gtk_exit ()</title>
+<indexterm><primary>gtk_exit</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_exit                        (<link linkend="gint">gint</link> error_code);</programlisting>
+<warning><para><literal>gtk_exit</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Terminates the program and returns the given exit code to the caller. 
+This function will shut down the GUI and free all resources allocated 
+for GTK+.
+</para><variablelist role="params">
+<varlistentry><term><parameter>error_code</parameter>&nbsp;:</term>
+<listitem><simpara>Return value to pass to the caller. This is dependend on the
+target system but at least on Unix systems <literal>0</literal> means 
+success.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-events-pending"/>gtk_events_pending ()</title>
+<indexterm><primary>gtk_events_pending</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_events_pending              (void);</programlisting>
+<para>
+Checks if any events are pending. This can be used to update the GUI 
+and invoke timeouts etc. while doing some time intensive computation.
+</para>
+
+<example>
+<title>Updating the GUI during a long computation.</title>
+<programlisting>
+	/* computation going on */
+...
+        while (gtk_events_pending (<!-- -->))
+	  gtk_main_iteration (<!-- -->);
+...
+	/* computation continued */
+</programlisting>
+</example><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal> if any events are pending, <literal>FALSE</literal> otherwise.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-main"/>gtk_main ()</title>
+<indexterm><primary>gtk_main</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_main                        (void);</programlisting>
+<para>
+Runs the main loop until <link linkend="gtk-main-quit"><function>gtk_main_quit()</function></link> is called. You can nest calls to
+<link linkend="gtk-main"><function>gtk_main()</function></link>. In that case <link linkend="gtk-main-quit"><function>gtk_main_quit()</function></link> will make the innermost invocation
+of the main loop return.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-main-level"/>gtk_main_level ()</title>
+<indexterm><primary>gtk_main_level</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_main_level                  (void);</programlisting>
+<para>
+Asks for the current nesting level of the main loop. This can be useful
+when calling <link linkend="gtk-quit-add"><function>gtk_quit_add()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>the nesting level of the current invocation of the main loop.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-main-quit"/>gtk_main_quit ()</title>
+<indexterm><primary>gtk_main_quit</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_main_quit                   (void);</programlisting>
+<para>
+Makes the innermost invocation of the main loop return when it regains 
+control.
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-main-iteration"/>gtk_main_iteration ()</title>
+<indexterm><primary>gtk_main_iteration</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_main_iteration              (void);</programlisting>
+<para>
+Runs a single iteration of the mainloop. If no events are waiting to be
+processed GTK+ will block until the next event is noticed. If you don't
+want to block look at <link linkend="gtk-main-iteration-do"><function>gtk_main_iteration_do()</function></link> or check if any events are
+pending with <link linkend="gtk-events-pending"><function>gtk_events_pending()</function></link> first.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal> if <link linkend="gtk-main-quit"><function>gtk_main_quit()</function></link> has been called for the innermost mainloop.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-main-iteration-do"/>gtk_main_iteration_do ()</title>
+<indexterm><primary>gtk_main_iteration_do</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_main_iteration_do           (<link linkend="gboolean">gboolean</link> blocking);</programlisting>
+<para>
+Runs a single iteration of the mainloop. If no events are available either
+return or block dependent on the value of <parameter>blocking</parameter>. 
+</para><variablelist role="params">
+<varlistentry><term><parameter>blocking</parameter>&nbsp;:</term>
+<listitem><simpara><literal>TRUE</literal> if you want GTK+ to block if no events are pending.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal> if <link linkend="gtk-main-quit"><function>gtk_main_quit()</function></link> has been called for the innermost mainloop.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-main-do-event"/>gtk_main_do_event ()</title>
+<indexterm><primary>gtk_main_do_event</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_main_do_event               (<link linkend="GdkEvent">GdkEvent</link> *event);</programlisting>
+<para>
+Processes a single GDK event. This is public only to allow filtering of events
+between GDK and GTK+. You will not usually need to call this function directly.
+</para>
+<para>
+While you should not call this function directly, you might want to know
+how exactly events are handled. So here is what this function does with 
+the event:
+</para>
+
+<orderedlist>
+<listitem><para>
+  Compress enter/leave notify events. If the event passed build an 
+  enter/leave pair together with the next event (peeked from GDK)
+  both events are thrown away. This is to avoid a backlog of (de-)highlighting
+  widgets crossed by the pointer.
+</para></listitem>
+<listitem><para>
+  Find the widget which got the event. If the widget can't be determined 
+  the event is thrown away unless it belongs to a INCR transaction. In that
+  case it is passed to <link linkend="gtk-selection-incr-event"><function>gtk_selection_incr_event()</function></link>.
+</para></listitem>
+<listitem><para>
+  Then the event is passed on a stack so you can query the currently handled
+  event with <link linkend="gtk-get-current-event"><function>gtk_get_current_event()</function></link>. 
+</para></listitem>
+<listitem><para>
+  The event is sent to a widget. If a grab is active all events for 
+  widgets that are not in the contained in the grab widget are sent to the 
+  latter with a few exceptions: 
+
+  <itemizedlist>
+  <listitem><para>
+    Deletion and destruction events are still sent to the event widget for
+    obvious reasons.
+  </para></listitem>
+  <listitem><para>
+    Events which directly relate to the visual representation of the event
+    widget.
+  </para></listitem>
+  <listitem><para>
+    Leave events are delivered to the event widget if there was an enter 
+    event delivered to it before without the paired leave event.
+  </para></listitem>
+  <listitem><para>
+    Drag events are not redirected because it is unclear what the semantics
+    of that would be.
+  </para></listitem>
+  </itemizedlist>
+
+  Another point of interest might be that all key events are first passed
+  through the key snooper functions if there are any. Read the description
+  of <link linkend="gtk-key-snooper-install"><function>gtk_key_snooper_install()</function></link> if you need this feature.
+</para></listitem>
+<listitem><para>
+  After finishing the delivery the event is popped from the event stack.
+</para></listitem>
+</orderedlist><variablelist role="params">
+<varlistentry><term><parameter>event</parameter>&nbsp;:</term>
+<listitem><simpara>An event to process (normally) passed by GDK.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkModuleInitFunc"/>GtkModuleInitFunc ()</title>
+<indexterm><primary>GtkModuleInitFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkModuleInitFunc)            (<link linkend="gint">gint</link> *argc,
+                                             <link linkend="gchar">gchar</link> ***argv);</programlisting>
+<para>
+Each GTK+ module must have a function <link linkend="gtk-module-init"><function>gtk_module_init()</function></link> with this prototype.
+This function is called after loading the module with the <parameter>argc</parameter> and <parameter>argv</parameter> 
+cleaned from any arguments that GTK+ handles itself.
+</para><variablelist role="params">
+<varlistentry><term><parameter>argc</parameter>&nbsp;:</term>
+<listitem><simpara>Pointer to the number of arguments remaining after <link linkend="gtk-init"><function>gtk_init()</function></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>argv</parameter>&nbsp;:</term>
+<listitem><simpara>Points to the argument vector.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkModuleDisplayInitFunc"/>GtkModuleDisplayInitFunc ()</title>
+<indexterm><primary>GtkModuleDisplayInitFunc</primary></indexterm><programlisting><link linkend="void">void</link>        (*GtkModuleDisplayInitFunc)     (<link linkend="GdkDisplay">GdkDisplay</link> *display);</programlisting>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>display</parameter>&nbsp;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist><para>Since 2.2
+
+
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-true"/>gtk_true ()</title>
+<indexterm><primary>gtk_true</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_true                        (void);</programlisting>
+<para>
+All this function does it to return <literal>TRUE</literal>. This can be useful for example
+if you want to inhibit the deletion of a window. Of course you should 
+not do this as the user expects a reaction from clicking the close 
+icon of the window...
+</para>
+
+<example>
+<title>A persistent window</title>
+<programlisting>
+#<link linkend="include"><type>include</type></link> &lt;gtk/gtk.h&gt;
+
+int
+main (int argc, char **argv)
+{
+  GtkWidget     *win, *but;
+
+  gtk_init( &amp;argc, &amp;argv );
+
+  win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  g_signal_connect (GTK_OBJECT(win), "delete-event", 
+                    G_CALLBACK (gtk_true), NULL);
+  g_signal_connect (GTK_OBJECT(win), "destroy", 
+		    G_CALLBACK (gtk_main_quit), NULL);
+
+  but = gtk_button_new_with_label ("Close yourself. I mean it!");
+  g_signal_connect_swapped (GTK_OBJECT (but), "clicked", 
+		  G_CALLBACK (gtk_object_destroy), (gpointer) win);
+  gtk_container_add (GTK_CONTAINER (win), but);
+
+  gtk_widget_show_all (win);
+  gtk_main (<!-- -->);
+  return 0;
+}
+</programlisting>
+</example><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-false"/>gtk_false ()</title>
+<indexterm><primary>gtk_false</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_false                       (void);</programlisting>
+<para>
+Analogical to <link linkend="gtk-true"><function>gtk_true()</function></link> this function does nothing 
+but always returns <literal>FALSE</literal>.
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>FALSE</literal>
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-grab-add"/>gtk_grab_add ()</title>
+<indexterm><primary>gtk_grab_add</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_grab_add                    (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Makes <parameter>widget</parameter> the current grabbed widget. This means that interaction with 
+other widgets in the same application is blocked and mouse as well as 
+keyboard events are delivered to this widget.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>The widget that grabs keyboard and pointer events.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-grab-get-current"/>gtk_grab_get_current ()</title>
+<indexterm><primary>gtk_grab_get_current</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_grab_get_current            (void);</programlisting>
+<para>
+Queries the current grab. 
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>The widget which currently has the grab or <literal>NULL</literal> if no grab is active.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-grab-remove"/>gtk_grab_remove ()</title>
+<indexterm><primary>gtk_grab_remove</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_grab_remove                 (<link linkend="GtkWidget">GtkWidget</link> *widget);</programlisting>
+<para>
+Removes the grab from the given widget. You have to pair calls to <link linkend="gtk-grab-add"><function>gtk_grab_add()</function></link>
+and <link linkend="gtk-grab-remove"><function>gtk_grab_remove()</function></link>.
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara>The widget which gives up the grab.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-init-add"/>gtk_init_add ()</title>
+<indexterm><primary>gtk_init_add</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_init_add                    (<link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+Registers a function to be called when the mainloop is started.
+</para><variablelist role="params">
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>Function to invoke when <link linkend="gtk-main"><function>gtk_main()</function></link> is called next.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>Data to pass to that function.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-quit-add-destroy"/>gtk_quit_add_destroy ()</title>
+<indexterm><primary>gtk_quit_add_destroy</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_quit_add_destroy            (<link linkend="guint">guint</link> main_level,
+                                             <link linkend="GtkObject">GtkObject</link> *object);</programlisting>
+<para>
+Trigger destruction of <parameter>object</parameter> in case the mainloop at level <parameter>main_level</parameter>
+is quit.
+</para><variablelist role="params">
+<varlistentry><term><parameter>main_level</parameter>&nbsp;:</term>
+<listitem><simpara>Level of the mainloop which shall trigger the destruction.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>object</parameter>&nbsp;:</term>
+<listitem><simpara>Object to be destroyed.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-quit-add"/>gtk_quit_add ()</title>
+<indexterm><primary>gtk_quit_add</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_quit_add                    (<link linkend="guint">guint</link> main_level,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+Registers a function to be called when an instance of the mainloop is left.
+</para><variablelist role="params">
+<varlistentry><term><parameter>main_level</parameter>&nbsp;:</term>
+<listitem><simpara>Level at which termination the function shall be called. You
+ can pass 0 here to have the function run at the termination of the current
+ mainloop.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call. This should return 0 to be removed from the 
+ list of quit handlers. Otherwise the function might be called again.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>Pointer to pass when calling <parameter>function</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A handle for this quit handler (you need this for <link linkend="gtk-quit-remove"><function>gtk_quit_remove()</function></link>)
+  or 0 if you passed a <literal>NULL</literal> pointer in <parameter>function</parameter>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-quit-add-full"/>gtk_quit_add_full ()</title>
+<indexterm><primary>gtk_quit_add_full</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_quit_add_full               (<link linkend="guint">guint</link> main_level,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<para>
+Registers a function to be called when an instance of the mainloop is left.
+In comparison to <link linkend="gtk-quit-add"><function>gtk_quit_add()</function></link> this function adds the possibility to 
+pass a marshaller and a function to be called when the quit handler is freed.
+</para>
+<para>
+The former can be used to run interpreted code instead of a compiled function
+while the latter can be used to free the information stored in <parameter>data</parameter> (while
+you can do this in <parameter>function</parameter> as well)... So this function will mostly be
+used by GTK+ wrappers for languages other than C.
+</para><variablelist role="params">
+<varlistentry><term><parameter>main_level</parameter>&nbsp;:</term>
+<listitem><simpara>Level at which termination the function shall be called. You
+ can pass 0 here to have the function run at the termination of the current
+ mainloop.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call. This should return 0 to be removed from the 
+ list of quit handlers. Otherwise the function might be called again.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>marshal</parameter>&nbsp;:</term>
+<listitem><simpara>The marshaller to be used. If this is non-<literal>NULL</literal>, <parameter>function</parameter> is 
+ ignored.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>Pointer to pass when calling <parameter>function</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>Function to call to destruct <parameter>data</parameter>. Gets <parameter>data</parameter> as argument.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A handle for this quit handler (you need this for <link linkend="gtk-quit-remove"><function>gtk_quit_remove()</function></link>)
+  or 0 if you passed a <literal>NULL</literal> pointer in <parameter>function</parameter>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-quit-remove"/>gtk_quit_remove ()</title>
+<indexterm><primary>gtk_quit_remove</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_quit_remove                 (<link linkend="guint">guint</link> quit_handler_id);</programlisting>
+<para>
+Removes a quit handler by its identifier.
+</para><variablelist role="params">
+<varlistentry><term><parameter>quit_handler_id</parameter>&nbsp;:</term>
+<listitem><simpara>Identifier for the handler returned when installing it.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-quit-remove-by-data"/>gtk_quit_remove_by_data ()</title>
+<indexterm><primary>gtk_quit_remove_by_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_quit_remove_by_data         (<link linkend="gpointer">gpointer</link> data);</programlisting>
+<para>
+Removes a quit handler identified by its <parameter>data</parameter> field.
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>The pointer passed as <parameter>data</parameter> to <link linkend="gtk-quit-add"><function>gtk_quit_add()</function></link> or <link linkend="gtk-quit-add-full"><function>gtk_quit_add_full()</function></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-timeout-add-full"/>gtk_timeout_add_full ()</title>
+<indexterm><primary>gtk_timeout_add_full</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_timeout_add_full            (<link linkend="guint32">guint32</link> interval,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<warning><para><literal>gtk_timeout_add_full</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-timeout-add-full"><function>g_timeout_add_full()</function></link> instead.</para></warning>
+<para>
+Registers a function to be called periodically. The function will be called
+repeatedly after <parameter>interval</parameter> milliseconds until it returns <literal>FALSE</literal> at which 
+point the timeout is destroyed and will not be called again.
+</para><variablelist role="params">
+<varlistentry><term><parameter>interval</parameter>&nbsp;:</term>
+<listitem><simpara>The time between calls to the function, in milliseconds 
+	(1/1000ths of a second.)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call periodically.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>marshal</parameter>&nbsp;:</term>
+<listitem><simpara>The marshaller to use instead of the function (if non-<literal>NULL</literal>).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>The data to pass to the function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>Function to call when the timeout is destroyed or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A unique id for the event source.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-timeout-add"/>gtk_timeout_add ()</title>
+<indexterm><primary>gtk_timeout_add</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_timeout_add                 (<link linkend="guint32">guint32</link> interval,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_timeout_add</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-timeout-add"><function>g_timeout_add()</function></link> instead.</para></warning>
+<para>
+Registers a function to be called periodically. The function will be called
+repeatedly after <parameter>interval</parameter> milliseconds until it returns <literal>FALSE</literal> at which 
+point the timeout is destroyed and will not be called again.
+</para><variablelist role="params">
+<varlistentry><term><parameter>interval</parameter>&nbsp;:</term>
+<listitem><simpara>The time between calls to the function, in milliseconds 
+	(1/1000ths of a second.)
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call periodically.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>The data to pass to the function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A unique id for the event source.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-timeout-remove"/>gtk_timeout_remove ()</title>
+<indexterm><primary>gtk_timeout_remove</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_timeout_remove              (<link linkend="guint">guint</link> timeout_handler_id);</programlisting>
+<warning><para><literal>gtk_timeout_remove</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-source-remove"><function>g_source_remove()</function></link> instead.</para></warning>
+<para>
+Removes the given timeout destroying all information about it.
+</para><variablelist role="params">
+<varlistentry><term><parameter>timeout_handler_id</parameter>&nbsp;:</term>
+<listitem><simpara>The identifier returned when installing the timeout.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-idle-add"/>gtk_idle_add ()</title>
+<indexterm><primary>gtk_idle_add</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_idle_add                    (<link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_idle_add</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-idle-add"><function>g_idle_add()</function></link> instead.</para></warning>
+<para>
+Causes the mainloop to call the given function whenever no events with 
+higher priority are to be processed. The default priority is 
+<literal>GTK_PRIORITY_DEFAULT</literal>, which is rather low.
+</para><variablelist role="params">
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>The information to pass to the function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a unique handle for this registration.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-idle-add-priority"/>gtk_idle_add_priority ()</title>
+<indexterm><primary>gtk_idle_add_priority</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_idle_add_priority           (<link linkend="gint">gint</link> priority,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_idle_add_priority</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-idle-add-full"><function>g_idle_add_full()</function></link> instead.</para></warning>
+<para>
+Like <link linkend="gtk-idle-add"><function>gtk_idle_add()</function></link> this function allows you to have a function called
+when the event loop is idle. The difference is that you can give a 
+priority different from <literal>GTK_PRIORITY_DEFAULT</literal> to the idle function.
+</para><variablelist role="params">
+<varlistentry><term><parameter>priority</parameter>&nbsp;:</term>
+<listitem><simpara>The priority which should not be above <literal>G_PRIORITY_HIGH_IDLE</literal>.
+Note that you will interfere with GTK+ if you use a priority above
+<literal>GTK_PRIORITY_RESIZE</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>Data to pass to that function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A unique id for the event source.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-idle-add-full"/>gtk_idle_add_full ()</title>
+<indexterm><primary>gtk_idle_add_full</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_idle_add_full               (<link linkend="gint">gint</link> priority,
+                                             <link linkend="GtkFunction">GtkFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<warning><para><literal>gtk_idle_add_full</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-idle-add-full"><function>g_idle_add_full()</function></link> instead.</para></warning>
+<para>
+Like <link linkend="gtk-idle-add"><function>gtk_idle_add()</function></link> this function allows you to have a function called
+when the event loop is idle. The difference is that you can give a 
+priority different from <literal>GTK_PRIORITY_DEFAULT</literal> to the idle function.
+</para><variablelist role="params">
+<varlistentry><term><parameter>priority</parameter>&nbsp;:</term>
+<listitem><simpara>The priority which should not be above <literal>G_PRIORITY_HIGH_IDLE</literal>.
+Note that you will interfere with GTK+ if you use a priority above
+<literal>GTK_PRIORITY_RESIZE</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>marshal</parameter>&nbsp;:</term>
+<listitem><simpara>The marshaller to use instead of the function (if non-<literal>NULL</literal>).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>Data to pass to that function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>Function to call when the timeout is destroyed or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A unique id for the event source.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-idle-remove"/>gtk_idle_remove ()</title>
+<indexterm><primary>gtk_idle_remove</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_idle_remove                 (<link linkend="guint">guint</link> idle_handler_id);</programlisting>
+<warning><para><literal>gtk_idle_remove</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-source-remove"><function>g_source_remove()</function></link> instead.</para></warning>
+<para>
+Removes the idle function with the given id.
+</para><variablelist role="params">
+<varlistentry><term><parameter>idle_handler_id</parameter>&nbsp;:</term>
+<listitem><simpara>Identifies the idle function to remove.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-idle-remove-by-data"/>gtk_idle_remove_by_data ()</title>
+<indexterm><primary>gtk_idle_remove_by_data</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_idle_remove_by_data         (<link linkend="gpointer">gpointer</link> data);</programlisting>
+<warning><para><literal>gtk_idle_remove_by_data</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-idle-remove-by-data"><function>g_idle_remove_by_data()</function></link> instead.</para></warning>
+<para>
+Removes the idle function identified by the user data.
+</para><variablelist role="params">
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>remove the idle function which was registered with this user data.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-input-add-full"/>gtk_input_add_full ()</title>
+<indexterm><primary>gtk_input_add_full</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_input_add_full              (<link linkend="gint">gint</link> source,
+                                             <link linkend="GdkInputCondition">GdkInputCondition</link> condition,
+                                             <link linkend="GdkInputFunction">GdkInputFunction</link> function,
+                                             <link linkend="GtkCallbackMarshal">GtkCallbackMarshal</link> marshal,
+                                             <link linkend="gpointer">gpointer</link> data,
+                                             <link linkend="GtkDestroyNotify">GtkDestroyNotify</link> destroy);</programlisting>
+<warning><para><literal>gtk_input_add_full</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-io-add-watch-full"><function>g_io_add_watch_full()</function></link> instead.</para></warning>
+<para>
+Registers a function to be called when a condition becomes true 
+on a file descriptor.
+</para><variablelist role="params">
+<varlistentry><term><parameter>source</parameter>&nbsp;:</term>
+<listitem><simpara>a file descriptor.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>condition</parameter>&nbsp;:</term>
+<listitem><simpara>the condition.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>function</parameter>&nbsp;:</term>
+<listitem><simpara>The function to call.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>marshal</parameter>&nbsp;:</term>
+<listitem><simpara>The marshaller to use instead of the function (if non-<literal>NULL</literal>).
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&nbsp;:</term>
+<listitem><simpara>callback data passed to <parameter>function</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>destroy</parameter>&nbsp;:</term>
+<listitem><simpara>callback function to call with <parameter>data</parameter> when the input
+  handler is removed, or <literal>NULL</literal>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>A unique id for the event source; to be used with <link linkend="gtk-input-remove"><function>gtk_input_remove()</function></link>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-input-remove"/>gtk_input_remove ()</title>
+<indexterm><primary>gtk_input_remove</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_input_remove                (<link linkend="guint">guint</link> input_handler_id);</programlisting>
+<warning><para><literal>gtk_input_remove</literal> is deprecated and should not be used in newly-written code. Use <link linkend="g-source-remove"><function>g_source_remove()</function></link> instead.</para></warning>
+<para>
+Removes the function with the given id.
+</para><variablelist role="params">
+<varlistentry><term><parameter>input_handler_id</parameter>&nbsp;:</term>
+<listitem><simpara>Identifies the function to remove.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GTK-PRIORITY-REDRAW-CAPS"/>GTK_PRIORITY_REDRAW</title>
+<indexterm><primary>GTK_PRIORITY_REDRAW</primary></indexterm><programlisting>#define GTK_PRIORITY_REDRAW     (G_PRIORITY_HIGH_IDLE + 20)
+</programlisting>
+<warning><para><literal>GTK_PRIORITY_REDRAW</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Use this priority for redrawing related stuff. It is used internally by
+GTK+ to do pending redraws. This priority is lower than <literal>GTK_PRIORITY_RESIZE</literal>
+to avoid redrawing a widget just before resizing (and therefore redrawing
+it again).
+</para>
+<note><para>
+This macro is deprecated. You should use <literal>GDK_PRIORITY_REDRAW</literal> instead.
+</para></note></refsect2>
+<refsect2>
+<title><anchor id="GTK-PRIORITY-RESIZE-CAPS"/>GTK_PRIORITY_RESIZE</title>
+<indexterm><primary>GTK_PRIORITY_RESIZE</primary></indexterm><programlisting>#define GTK_PRIORITY_RESIZE     (G_PRIORITY_HIGH_IDLE + 10)
+</programlisting>
+<para>
+Use this priority for resizing related stuff. It is used internally by
+GTK+ to compute the sizes of widgets. This priority is higher than 
+<literal>GTK_PRIORITY_REDRAW</literal> to avoid resizing a widget which was just redrawn.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-PRIORITY-HIGH-CAPS"/>GTK_PRIORITY_HIGH</title>
+<indexterm><primary>GTK_PRIORITY_HIGH</primary></indexterm><programlisting>#define GTK_PRIORITY_HIGH       G_PRIORITY_HIGH
+</programlisting>
+<warning><para><literal>GTK_PRIORITY_HIGH</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Use this for high priority timeouts. This priority is never used inside
+GTK+ so everything running at this priority will be running before anything
+inside the toolkit.
+<note><para>
+This macro is deprecated. You should use <literal>G_PRIORITY_HIGH</literal> instead.
+</para></note>
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-PRIORITY-INTERNAL-CAPS"/>GTK_PRIORITY_INTERNAL</title>
+<indexterm><primary>GTK_PRIORITY_INTERNAL</primary></indexterm><programlisting>#define GTK_PRIORITY_INTERNAL   GTK_PRIORITY_REDRAW
+</programlisting>
+<warning><para><literal>GTK_PRIORITY_INTERNAL</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+This priority is for GTK+ internal stuff. Don't use it in your applications.
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-PRIORITY-DEFAULT-CAPS"/>GTK_PRIORITY_DEFAULT</title>
+<indexterm><primary>GTK_PRIORITY_DEFAULT</primary></indexterm><programlisting>#define GTK_PRIORITY_DEFAULT	G_PRIORITY_DEFAULT_IDLE
+</programlisting>
+<warning><para><literal>GTK_PRIORITY_DEFAULT</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Default priority for idle functions.
+<note><para>
+This macro is deprecated. You should use <literal>G_PRIORITY_DEFAULT_IDLE</literal> instead.
+</para></note>
+</para></refsect2>
+<refsect2>
+<title><anchor id="GTK-PRIORITY-LOW-CAPS"/>GTK_PRIORITY_LOW</title>
+<indexterm><primary>GTK_PRIORITY_LOW</primary></indexterm><programlisting>#define GTK_PRIORITY_LOW	G_PRIORITY_LOW
+</programlisting>
+<warning><para><literal>GTK_PRIORITY_LOW</literal> is deprecated and should not be used in newly-written code.</para></warning>
+<para>
+Priority for very unimportant background tasks.
+<note><para>
+This macro is deprecated. You should use <literal>G_PRIORITY_LOW</literal> instead.
+</para></note>
+</para></refsect2>
+<refsect2>
+<title><anchor id="gtk-key-snooper-install"/>gtk_key_snooper_install ()</title>
+<indexterm><primary>gtk_key_snooper_install</primary></indexterm><programlisting><link linkend="guint">guint</link>       gtk_key_snooper_install         (<link linkend="GtkKeySnoopFunc">GtkKeySnoopFunc</link> snooper,
+                                             <link linkend="gpointer">gpointer</link> func_data);</programlisting>
+<para>
+Installs a key snooper function, which will get called on all key events
+before delivering them normally.
+</para><variablelist role="params">
+<varlistentry><term><parameter>snooper</parameter>&nbsp;:</term>
+<listitem><simpara>a <link linkend="GtkKeySnoopFunc"><type>GtkKeySnoopFunc</type></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func_data</parameter>&nbsp;:</term>
+<listitem><simpara>data to pass to <parameter>snooper</parameter>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara>a unique id for this key snooper for use with <link linkend="gtk-key-snooper-remove"><function>gtk_key_snooper_remove()</function></link>.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="GtkKeySnoopFunc"/>GtkKeySnoopFunc ()</title>
+<indexterm><primary>GtkKeySnoopFunc</primary></indexterm><programlisting><link linkend="gint">gint</link>        (*GtkKeySnoopFunc)              (<link linkend="GtkWidget">GtkWidget</link> *grab_widget,
+                                             <link linkend="GdkEventKey">GdkEventKey</link> *event,
+                                             <link linkend="gpointer">gpointer</link> func_data);</programlisting>
+<para>
+Key snooper functions are called before normal event delivery.
+They can be used to implement custom key event handling.
+</para><variablelist role="params">
+<varlistentry><term><parameter>grab_widget</parameter>&nbsp;:</term>
+<listitem><simpara>the widget to which the event will be delivered.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>event</parameter>&nbsp;:</term>
+<listitem><simpara>the key event.
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>func_data</parameter>&nbsp;:</term>
+<listitem><simpara>the <parameter>func_data</parameter> supplied to <link linkend="gtk-key-snooper-install"><function>gtk_key_snooper_install()</function></link>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara><literal>TRUE</literal> to stop further processing of <parameter>event</parameter>, <literal>FALSE</literal> to continue.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-key-snooper-remove"/>gtk_key_snooper_remove ()</title>
+<indexterm><primary>gtk_key_snooper_remove</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_key_snooper_remove          (<link linkend="guint">guint</link> snooper_handler_id);</programlisting>
+<para>
+Removes the key snooper function with the given id.
+</para><variablelist role="params">
+<varlistentry><term><parameter>snooper_handler_id</parameter>&nbsp;:</term>
+<listitem><simpara>Identifies the key snooper to remove.
+
+
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-get-current-event"/>gtk_get_current_event ()</title>
+<indexterm><primary>gtk_get_current_event</primary></indexterm><programlisting><link linkend="GdkEvent">GdkEvent</link>*   gtk_get_current_event           (void);</programlisting>
+<para>
+Obtains a copy of the event currently being processed by GTK+.  For
+example, if you get a "clicked" signal from <link linkend="GtkButton"><type>GtkButton</type></link>, the current
+event will be the <link linkend="GdkEventButton"><type>GdkEventButton</type></link> that triggered the "clicked"
+signal. The returned event must be freed with <link linkend="gdk-event-free"><function>gdk_event_free()</function></link>.
+If there is no current event, the function returns <literal>NULL</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> a copy of the current event, or <literal>NULL</literal> if no current event.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-get-current-event-time"/>gtk_get_current_event_time ()</title>
+<indexterm><primary>gtk_get_current_event_time</primary></indexterm><programlisting><link linkend="guint32">guint32</link>     gtk_get_current_event_time      (void);</programlisting>
+<para>
+If there is a current event and it has a timestamp, return that
+timestamp, otherwise return <literal>GDK_CURRENT_TIME</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the timestamp from the current event, or <literal>GDK_CURRENT_TIME</literal>.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-get-current-event-state"/>gtk_get_current_event_state ()</title>
+<indexterm><primary>gtk_get_current_event_state</primary></indexterm><programlisting><link linkend="gboolean">gboolean</link>    gtk_get_current_event_state     (<link linkend="GdkModifierType">GdkModifierType</link> *state);</programlisting>
+<para>
+If there is a current event and it has a state field, place
+that state field in <parameter>state</parameter> and return <literal>TRUE</literal>, otherwise return
+<literal>FALSE</literal>.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>state</parameter>&nbsp;:</term>
+<listitem><simpara> a location to store the state of the current event
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> <literal>TRUE</literal> if there was a current event and it had a state field
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-get-event-widget"/>gtk_get_event_widget ()</title>
+<indexterm><primary>gtk_get_event_widget</primary></indexterm><programlisting><link linkend="GtkWidget">GtkWidget</link>*  gtk_get_event_widget            (<link linkend="GdkEvent">GdkEvent</link> *event);</programlisting>
+<para>
+If <parameter>event</parameter> is <literal>NULL</literal> or the event was not associated with any widget,
+returns <literal>NULL</literal>, otherwise returns the widget that received the event
+originally.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>event</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GdkEvent"><type>GdkEvent</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis> :</term><listitem><simpara> the widget that originally received <parameter>event</parameter>, or <literal>NULL</literal>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2>
+<title><anchor id="gtk-propagate-event"/>gtk_propagate_event ()</title>
+<indexterm><primary>gtk_propagate_event</primary></indexterm><programlisting><link linkend="void">void</link>        gtk_propagate_event             (<link linkend="GtkWidget">GtkWidget</link> *widget,
+                                             <link linkend="GdkEvent">GdkEvent</link> *event);</programlisting>
+<para>
+Sends an event to a widget, propagating the event to parent widgets
+if the event remains unhandled. Events received by GTK+ from GDK
+normally begin in <link linkend="gtk-main-do-event"><function>gtk_main_do_event()</function></link>. Depending on the type of
+event, existence of modal dialogs, grabs, etc., the event may be
+propagated; if so, this function is used. <link linkend="gtk-propagate-event"><function>gtk_propagate_event()</function></link>
+calls <link linkend="gtk-widget-event"><function>gtk_widget_event()</function></link> on each widget it decides to send the
+event to.  So <link linkend="gtk-widget-event"><function>gtk_widget_event()</function></link> is the lowest-level function; it
+simply emits the "event" and possibly an event-specific signal on a
+widget.  <link linkend="gtk-propagate-event"><function>gtk_propagate_event()</function></link> is a bit higher-level, and
+<link linkend="gtk-main-do-event"><function>gtk_main_do_event()</function></link> is the highest level.
+</para>
+<para>
+All that said, you most likely don't want to use any of these
+functions; synthesizing events is rarely needed. Consider asking on
+the mailing list for better ways to achieve your goals. For
+example, use <link linkend="gdk-window-invalidate-rect"><function>gdk_window_invalidate_rect()</function></link> or
+<link linkend="gtk-widget-queue-draw"><function>gtk_widget_queue_draw()</function></link> instead of making up expose events.</para>
+<para>
+
+</para><variablelist role="params">
+<varlistentry><term><parameter>widget</parameter>&nbsp;:</term>
+<listitem><simpara> a <link linkend="GtkWidget"><type>GtkWidget</type></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>event</parameter>&nbsp;:</term>
+<listitem><simpara> an event
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+<refsect1>
+<title>See Also</title>
+<para>
+See the GLib manual, especially <link linkend="GMainLoop"><type>GMainLoop</type></link> and signal-related
+functions such as <link linkend="g-signal-connect"><function>g_signal_connect()</function></link>.
+</para>
+</refsect1>
+
+</refentry>

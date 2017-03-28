@@ -1,0 +1,61 @@
+From 1d69d7294ec09910c8e7d57eaa37adf1ee28288f Mon Sep 17 00:00:00 2001
+From: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Date: Tue, 28 Aug 2012 12:14:48 +0530
+Subject: [PATCH 224/226] ath9k: Fix a crash in 2 WIRE btcoex chipsets
+
+Generic timers for BTCOEX functionality is applicable
+only for 3 WIRE BTCOEX (and MCI) chipsets.
+Hence btcoex->no_stomp_timer is allocated only 3 WIRE
+btcoex chipsets and in all the other cases its NULL.
+Make sure we stop the generic timer only if
+'btcoex->hw_timer_enabled' is true(only if its up and
+running)
+
+Fixes the following crash
+
+	[68757.020454] BUG: unable to handle kernel NULL pointer dereference at 0000000c
+	[68757.020916] IP: [<f9b055c3>] ath9k_hw_gen_timer_stop+0x13/0x80 [ath9k_hw]
+	[68757.021251] *pde = 00000000
+	[68757.024384] EIP: 0060:[<f9b055c3>] EFLAGS: 00010082 CPU: 0
+	[68757.024384] EIP is at ath9k_hw_gen_timer_stop+0x13/0x80 [ath9k_hw]
+	[68757.024384] EAX: d32d0000 EBX: d32d0000 ECX: 00000000 EDX: 00000000
+	[68757.024384] ESI: e67c24c0 EDI: 00000296 EBP: e137be2c ESP: e137be20
+	[68757.024384]  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068
+	[68757.024384] CR0: 8005003b CR2: 0000000c CR3: 00b99000 CR4: 000407d0
+	[68757.024384] DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+	[68757.024384] DR6: ffff0ff0 DR7: 00000400
+	[68757.024384] Process kworker/u:2 (pid: 8917, ti=e137a000 task=ea7a6860 task.ti=e137a000)
+	[68757.024384] Stack:
+	[68757.024384]  c06c4676 d32d0000 e67c24c0 e137be38 f81c9590 e67c1ca0 e137be40 f81c95d9
+	[68757.024384]  e137be64 f81cd1c5 00000246 00000002 d32d0000 e67c05e0 e67c1ca0 e67c05e0
+	[68757.024384]  00000000 e137beac f81cdfa0 e137be84 00000246 00000246 e67c1ca0 e67c1ca0
+	[68757.024384] Call Trace:
+	[68757.024384]  [<c06c4676>] ? _raw_spin_lock_irqsave+0x86/0xa0
+	[68757.024384]  [<f81c9590>] ath9k_gen_timer_stop+0x10/0x40 [ath9k]
+	[68757.024384]  [<f81c95d9>] ath9k_btcoex_stop_gen_timer+0x19/0x20 [ath9k]
+	[68757.024384]  [<f81cd1c5>] ath9k_ps_restore+0x85/0x110 [ath9k]
+	[68757.024384]  [<f81cdfa0>] ath9k_config+0x220/0x520 [ath9k]
+	[68757.024384]  [<f81cd47d>] ? ath9k_flush+0x15d/0x1b0 [ath9k]
+	[68757.024384]  [<f85c7ca5>] ieee80211_hw_config+0x135/0x2c0 [mac80211]
+	[68757.024384]  [<f860e3c8>] ieee80211_dynamic_ps_enable_work+0x198/0x5f0 [mac80211]
+
+Cc: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Cc: Bala Shanmugam <bkamatch@qca.qualcomm.com>
+Signed-off-by: Mohammed Shafi Shajakhan <mohammed@qca.qualcomm.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/ath/ath9k/gpio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/wireless/ath/ath9k/gpio.c
++++ b/drivers/net/wireless/ath/ath9k/gpio.c
+@@ -341,7 +341,8 @@ void ath9k_btcoex_stop_gen_timer(struct
+ {
+ 	struct ath_btcoex *btcoex = &sc->btcoex;
+ 
+-	ath9k_gen_timer_stop(sc->sc_ah, btcoex->no_stomp_timer);
++	if (btcoex->hw_timer_enabled)
++		ath9k_gen_timer_stop(sc->sc_ah, btcoex->no_stomp_timer);
+ }
+ 
+ u16 ath9k_btcoex_aggr_limit(struct ath_softc *sc, u32 max_4ms_framelen)

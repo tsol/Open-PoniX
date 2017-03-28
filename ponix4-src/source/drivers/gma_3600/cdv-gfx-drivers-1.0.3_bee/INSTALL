@@ -1,0 +1,80 @@
+Copyright (C) 2011 Intel Corporation
+INTEL CONFIDENTIAL - FOR INTERNAL USE ONLY
+
+See LICENSE for license and legal terms
+
+
+
+Since installation methods may vary based on your Linux distribution, these
+instructions are minimal and assume you understand how to compile a Linux
+kernel.
+
+Read the ReleaseNotes.txt file first for code name definitions and caveats.
+
+
+
+!!! Attention package maintainers !!!
+
+Include the applicable license contained in the LICENSE file in all packages
+derived from the cedarview-userspace and cedarview-vaapi tarballs. The kernel
+source patch is licensed under the GPLv2. The libwsbm upstream project has a
+MIT license.
+
+
+
+== Kernel ==
+
+* Apply this kernel patch to avoid a known video playback issue:
+    * kernel-ttm-clear-high.patch
+
+* Apply the kernel driver patch for your desired target:
+    * For "Ant": cedarview-kernel-<version>_ant.patch
+    * For "Bee": cedarview-kernel-<version>_bee.patch
+
+* Add the following line to drivers/staging/Kconfig:
+  source "drivers/staging/cdv/Kconfig"
+
+* Add the following line to drivers/staging/Makefile:
+  obj-$(CONFIG_DRM_INTEL_CDV) += cdv/
+
+  To enable the Cedarview kernel driver component, be sure to set the following
+  kernel config variables:
+
+   CONFIG_HIGHMEM4G=y
+   # CONFIG_DRM_PSB is not set  
+   CONFIG_SND_HDA_CODEC_HDMI=y  
+   CONFIG_DRM_INTEL_CDV=y  
+   CONFIG_DRM_CDV_RELEASE=y  
+   # CONFIG_DRM_CDV_DEBUG is not set  
+   # CONFIG_DRM_PVR_PDUMP is not set
+
+* Compile the kernel and install
+
+
+
+== Userspace Components ==
+
+* Unpack and install cedarview-libwsbm binary tarball relative to your root
+  filesystem:
+    * cedarview-libwsbm-1.1.0.tar
+    * If you need to build from source (provided in src/), consult the MeeGo
+      build profile:
+        * http://build.meego.com/package/files?package=libwsbm-cdv&project=MeeGo%3A1.2.0%3ACedarTrail%3Aoss
+
+* Install libva and dependencies from your package manager.
+    * See ReleaseNotes.txt for supported versions
+
+* Unpack and install the appropriate userspace (Xorg, 2D, 3D) Cedarview drivers
+  relative to your root filesystem. While the PowerVR driver is a Mesa
+  replacement for EGL and GL ES, mesa-libGL of the stated version is required for
+  OpenGL operation. Note that development headers are installed as well.
+    * For "Ant": cedarview-userspace-<version>_ant.tar.bz2
+    * For "Bee": cedarview-userspace-<version>_bee.tar.bz2
+
+* Unpack the PVR VA-API driver for Cedartrail-accelerated H.264, MPEG-2, and
+  VC1 streams:
+    * For "Ant": cedarview-vaapi-<version>_ant.tar
+    * For "Bee": cedarview-vaapi-<version>_bee.tar
+
+* Reboot your system into the new kernel. Starting X will initialize the PVR
+  driver.

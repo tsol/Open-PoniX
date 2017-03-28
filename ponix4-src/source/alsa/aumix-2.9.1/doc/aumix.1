@@ -1,0 +1,341 @@
+.\" $Aumix: aumix/doc/aumix.1,v 1.7 2010/05/04 23:30:28 trevor Exp $
+.\" from mdoc.samples(7)
+.\"
+.\" The following requests are required for all man pages.
+.\"           .Dd Month day, year
+.\"           .Os OPERATING_SYSTEM [version/release]
+.\"           .Dt DOCUMENT_TITLE [section number] [volume]
+.\"           .Sh NAME
+.\"           .Nm name
+.\"           .Nd one line description of name
+.\"           .Sh SYNOPSIS
+.\"           .Sh DESCRIPTION
+.\" The following requests should be uncommented and
+.\" used where appropriate.  This next request is
+.\" for sections 2, 3 and 9 function return values only.
+.\" .Sh RETURN VALUES
+.\" This next request is for sections 1, 6, 7, 8 & 9 only
+.\" .Sh ENVIRONMENT
+.\" .Sh FILES
+.\" .Sh EXAMPLES
+.\" This next request is for sections 1, 6, 7, 8 & 9 only
+.\"     (command return values (to shell) and
+.\"       fprintf/stderr type diagnostics)
+.\" .Sh DIAGNOSTICS
+.\" The next request is for sections 2, 3 and 9 error
+.\" and signal handling only.
+.\" .Sh ERRORS
+.\" .Sh SEE ALSO
+.\" .Sh STANDARDS
+.\" .Sh HISTORY
+.\" .Sh AUTHORS
+.\" .Sh BUGS
+.\"
+.Dd July 13, 2000
+.Os
+.Dt AUMIX 1
+.Sh NAME
+.Nm aumix
+.Nd adjust audio mixer
+.Sh SYNOPSIS
+.Nm
+[\-<channel option>[[+|\-][<amount>]]|<level>|R[ecord]|P[lay]|q[uery]]
+[\-dhILqS] [\-f <rc file>][\-C <color scheme file>]
+.Sh DESCRIPTION
+This program adjusts the settings of an audio mixing device.
+It can be used from the command line, in scripts, or interactively
+with the keyboard or mouse.
+.Sh OPTIONS
+.Ss CHANNEL OPTIONS
+.Bl -tag -width Fl -compact
+.It Fl v
+main volume
+.It Fl b
+bass
+.It Fl c
+CD
+.It Fl i
+input gain
+.It Fl l
+line
+.It Fl m
+microphone
+.It Fl o
+output gain
+.It Fl p
+PC speaker
+.It Fl r
+record
+.It Fl s
+synthesizer
+.It Fl t
+treble
+.It Fl w
+PCM
+.It Fl W
+PCM 2
+.It Fl x
+mix monitor
+.It Fl 1
+line 1
+.It Fl 2
+line 2
+.It Fl 3
+line 3
+.El
+.Pp
+For each channel, 
+.Cm q
+queries, 
+.Cm +
+and
+.Cm \-
+increment and decrement by one, or an amount if one is specified.
+If no
+.Cm +
+or
+.Cm \-
+is given after the channel option, a number sets a specific level
+(monophonically).
+.Ss OTHER OPTIONS
+.Bl -tag -width Fl
+.It Fl C Ar color_scheme_file
+specify the name of a file containing a color scheme.
+This implies
+.Fl I .
+.It Fl d Ar device_file
+specify the name of the mixer device (default is
+.Pa /dev/mixer )
+.It Fl f Ar rc_file
+specify file for saving and loading settings
+.It Fl h
+display information on usage
+.It Fl I
+run
+.Nm
+interactively, using the full-screen ncurses-based interface.
+This is the default if no options are given, but must be specified
+in order to have
+.Nm
+go into interactive mode after doing things non-interactively.
+.It Fl L
+load settings from
+.Pa $HOME/.aumixrc ,
+or
+.Pa /etc/aumixrc
+if the former is inaccessible
+.It Fl q
+query all devices and print their settings
+.It Fl S
+save settings to
+.Pa $HOME/.aumixrc
+.El
+.Sh EXAMPLES
+The command
+.Bd -literal -offset indent
+aumix \-q \-v75 \-m 0 \-c R \-c+10 \-m q
+.Ed
+.Pp
+prints all settings, sets volume to 75%, sets microphone to 0, sets
+CD to record, increases the CD level by ten (both left and right),
+and prints the new settings for the microphone.
+.Pp
+The .aumixrc file containing:
+.Bd -literal -offset indent
+vol:60:60
+wait:5000
+vol:50:50
+.Ed
+.Pp
+sets the volume to 60%, waits five seconds, then reduces the volume to 50%.
+Note that "wait" lines will not be saved by aumix.  They must be added by hand.
+.Sh INTERACTIVE USE
+If no options are given on the command line, and
+.Nm
+is compiled with ncurses, it will run interactively.
+.Ss LAYOUT
+The left bank of controls is used for adjusting levels; the right
+bank is for adjusting balance.
+Mixing channels not supported by your hardware will not be shown.
+Mixing channels which are stereo-capable will have balance controls.
+.Ss KEYS
+The following keys control
+.Nm
+in interactive mode:
+.Bl -tag -width Fl
+.It page up, page down, up and down cursor
+select a new control.
+.It Tab, Enter, <, >, comma and period
+toggle between level and balance controls
+.It + , \- , \&[ , \&] , left and right cursor and digits
+adjust the setting of the current device.
+The
+.Li +
+and right cursor keys increase the level by 3%; the
+.Li \-
+and left cursor keys decrease it by the same amount.
+The
+.Li \&[
+key sets it to 0% and
+.Li \&]
+or
+.Li 0
+set it to 100%.
+The digits
+.Li 1
+to
+.Li 9
+set it to 10% through 90%.
+The same keys work analogously on the balance controls.
+.It Space
+toggles between record and play for controls which are capable of 
+this.
+.It |
+centers the balance of the current device.
+.It K or k
+show a description of the functions of keys
+.It L or l
+load settings from
+.Pa $HOME/.aumixrc ,
+falling back to
+.Pa /etc/aumixrc
+.It M or m
+mute or unmute
+.It O or o
+.Dq only :
+mute all channels but the current one
+.It S or s
+save settings to the rc file
+.It U or u
+undo any muting
+.It Q or q
+end the program
+.It ^L
+refresh screen
+.El
+.Pp
+^Z, ^D and ^C also have their normal function (the screen is refreshed when
+.Nm
+is brought to the foreground).
+.Ss MOUSE
+In interactive mode,
+.Nm
+can accept input from the mouse if
+.Xr gpm 8
+is running and
+.Nm
+is compiled with
+.Xr gpm 8
+support.
+If gpm is not running but gpm support is included, the message
+.Ql mouse off
+will appear at the top of the screen, and only keyboard input will be
+accepted.
+With
+.Xr gpm 8
+running, most functions can be performed through the mouse.
+The mouse is active whenever one of its buttons is held down.
+While active, it works in the following ways:
+.Bl -bullet -compact
+.It
+over a control track, it sets the control to match the position of
+the mouse cursor.
+.It
+over a record/play indicator, it toggles the record/play state.
+.It
+over the 
+.Ql Quit ,
+.Ql Load ,
+.Ql Save ,
+.Ql Keys ,
+.Ql Mute ,
+.Ql Only ,
+or
+.Ql Undo
+labels at the top of the screen, it causes those actions to take place.
+.El
+.Sh ENVIRONMENT
+The
+.Ev HOME
+variable is used.
+When
+.Nm
+is compiled with GTK+ support,
+.Ev DISPLAY
+is checked, and if set is used.
+.Ev LANG
+is used when
+.Nm
+the ncurses screen is displayed.
+.Sh FILES
+Saved settings for the mixer are kept in the
+.Pa /etc/aumixrc
+and
+.Pa $HOME/.aumixrc
+files, but can be kept anywhere if specified explicitly.
+Color schemes are normally kept in the directory given
+by
+.Ev DATADIR
+at compilation time, but are preferentially loaded
+from the current directory and can be kept anywhere so long as the
+path to them is specified.
+The format of these files is:
+.Bd -filled -offset indent
+.Ar item
+.Ar foreground
+.Ar background
+.Ed 
+.Pp
+where
+.Ar item
+is one of
+.Ql active ,
+.Ql axis ,
+.Ql handle ,
+.Ql hotkey ,
+.Ql menu ,
+.Ql play ,
+.Ql record ,
+or
+.Ql track
+and
+.Ar foreground
+and
+.Ar background
+are one of
+.Ql black ,
+.Ql red ,
+.Ql green ,
+.Ql yellow ,
+.Ql blue ,
+.Ql magenta ,
+.Ql cyan ,
+or
+.Ql white .
+The words should be separated by whitespace and can be upper-,
+lower-, or mixed-case.
+Lines not matching all these conditions are ignored.
+Some samples of color schemes are provided, named
+after the sort of terminal where they should be most suitable.
+.Pp
+If either foreground or background is given as
+.Ql \- ,
+then the default color for that is used.
+The defaults are a white foreground and black background.
+.Pp
+An xpm icon is provided.
+.Sh VERSION
+This page corresponds to version 2.9.1.
+.Sh BUGS
+Suspending with ^Z may make the terminal difficult to use.
+.Sh HOME PAGE
+.Bd -literal
+http://jpj.net/~trevor/aumix.html
+.Sh MAILING LISTS
+.Bd -literal
+https://gna.org/mail/?group=aumix
+.Sh SEE ALSO
+.Xr gpm 1 ,
+.Xr moused 8 ,
+.Xr sb 4 ,
+.Xr xaumix 1

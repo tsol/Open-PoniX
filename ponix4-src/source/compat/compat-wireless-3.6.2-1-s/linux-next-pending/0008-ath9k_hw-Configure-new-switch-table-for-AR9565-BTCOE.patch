@@ -1,0 +1,47 @@
+From 2413be8ff29842ba6404dc69e353f481aa7e6f87 Mon Sep 17 00:00:00 2001
+From: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Date: Mon, 15 Oct 2012 15:29:52 +0530
+Subject: [PATCH 08/11] ath9k_hw: Configure new switch table for AR9565 BTCOEX
+
+Signed-off-by: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+---
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.c |    2 +-
+ drivers/net/wireless/ath/ath9k/reg.h           |    4 ----
+ drivers/net/wireless/ath/ath9k/wow.c           |    2 +-
+ 3 files changed, 2 insertions(+), 6 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
+@@ -3601,7 +3601,7 @@ static void ar9003_hw_ant_ctrl_apply(str
+ 	 *   7:4 R/W  SWITCH_TABLE_COM_SPDT_WLAN_IDLE
+ 	 * SWITCH_TABLE_COM_SPDT_WLAN_IDLE
+ 	 */
+-	if (AR_SREV_9462_20_OR_LATER(ah)) {
++	if (AR_SREV_9462_20(ah) || AR_SREV_9565(ah)) {
+ 		value = ar9003_switch_com_spdt_get(ah, is2ghz);
+ 		REG_RMW_FIELD(ah, AR_PHY_GLB_CONTROL,
+ 				AR_SWITCH_TABLE_COM_SPDT_ALL, value);
+--- a/drivers/net/wireless/ath/ath9k/reg.h
++++ b/drivers/net/wireless/ath/ath9k/reg.h
+@@ -907,10 +907,6 @@
+ 	(((_ah)->hw_version.macVersion == AR_SREV_VERSION_9462) && \
+ 	((_ah)->hw_version.macRev == AR_SREV_REVISION_9462_20))
+ 
+-#define AR_SREV_9462_20_OR_LATER(_ah) \
+-	(((_ah)->hw_version.macVersion == AR_SREV_VERSION_9462) && \
+-	((_ah)->hw_version.macRev >= AR_SREV_REVISION_9462_20))
+-
+ #define AR_SREV_9565(_ah) \
+ 	(((_ah)->hw_version.macVersion == AR_SREV_VERSION_9565))
+ 
+--- a/drivers/net/wireless/ath/ath9k/wow.c
++++ b/drivers/net/wireless/ath/ath9k/wow.c
+@@ -118,7 +118,7 @@ static void ath9k_wow_create_keep_alive_
+ 		       (ap_mac_addr[1] << 8) | (ap_mac_addr[0]);
+ 	data_word[5] = (ap_mac_addr[5] << 8) | (ap_mac_addr[4]);
+ 
+-	if (AR_SREV_9462_20_OR_LATER(ah)) {
++	if (AR_SREV_9462_20(ah)) {
+ 		/* AR9462 2.0 has an extra descriptor word (time based
+ 		 * discard) compared to other chips */
+ 		REG_WRITE(ah, (AR_WOW_KA_DESC_WORD2 + (12 * 4)), 0);

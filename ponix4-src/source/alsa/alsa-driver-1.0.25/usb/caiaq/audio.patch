@@ -1,0 +1,32 @@
+--- ../../alsa-kernel/usb/caiaq/audio.c	2009-10-30 12:42:28.000000000 +0100
++++ audio.c	2009-12-15 22:17:52.000000000 +0100
+@@ -1,3 +1,5 @@
++#include "adriver.h"
++#include "../usbcompat.h"
+ /*
+  *   Copyright (c) 2006-2008 Daniel Mack, Karsten Wiese
+  *
+@@ -462,7 +464,11 @@
+ 	}
+ }
+ 
++#if !defined(OLD_USB) && !defined(CONFIG_SND_NEW_IRQ_HANDLER)
++static void read_completed(struct urb *urb, struct pt_regs *regs)
++#else
+ static void read_completed(struct urb *urb)
++#endif
+ {
+ 	struct snd_usb_caiaq_cb_info *info = urb->context;
+ 	struct snd_usb_caiaqdev *dev;
+@@ -521,7 +527,11 @@
+ 	usb_submit_urb(urb, GFP_ATOMIC);
+ }
+ 
++#if !defined(OLD_USB) && !defined(CONFIG_SND_NEW_IRQ_HANDLER)
++static void write_completed(struct urb *urb, struct pt_regs *regs)
++#else
+ static void write_completed(struct urb *urb)
++#endif
+ {
+ 	struct snd_usb_caiaq_cb_info *info = urb->context;
+ 	struct snd_usb_caiaqdev *dev = info->dev;

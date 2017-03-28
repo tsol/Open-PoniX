@@ -1,0 +1,122 @@
+# MediaStreamingConfig.tbl
+# 
+# This file contains a mapping of Windows-specific GUIDs to MIME types that GStreamer can understand.
+#
+# Copyright 2012 Citrix Systems, Inc. All Rights Reserved.
+
+### Begin pre-defined MIME-types. ###
+
+# An unsupported GUID is one where the MIME type starts with a ?
+#  (If you want to disable a type, just add a '?' after the colon)
+{00000000-0000-0000-0000-000000000000}: ? audio/example
+
+# raw-int
+{00000001-0000-0010-8000-00AA00389B71}: audio/x-raw-int,endianness=1234,signed=(boolean)true,channels=$(channels),width=$(width),depth=$(width),rate=$(rate)
+
+# ADPCM
+{00000002-0000-0010-8000-00AA00389B71}: audio/x-adpcm, layout=(string)microsoft, rate=(int)$(rate), channels=(int)$(channels), block_align=(int)$(block_align)$(codec_str)
+{34616D69-0000-0010-8000-00AA00389B71}: audio/x-adpcm,layout=(string)quicktime,channels=$(channels),width=$(width),depth=$(width),rate=$(rate) # 'ima4'
+
+# WMA voice
+{0000000A-0000-0010-8000-00AA00389B71}: audio/x-wms,rate=$(rate),channels=$(channels),bitrate=$(bitrate),depth=$(width),width=$(width),block_align=$(block_align)$(codec_str)
+
+# WMA audio
+{00000160-0000-0010-8000-00AA00389B71}: audio/x-wma,wmaversion=1,rate=$(rate),channels=$(channels),bitrate=$(bitrate),depth=$(width),width=$(width),block_align=$(block_align)$(codec_str)
+{00000161-0000-0010-8000-00AA00389B71}: audio/x-wma,wmaversion=2,rate=$(rate),channels=$(channels),bitrate=$(bitrate),depth=$(width),width=$(width),block_align=$(block_align)$(codec_str)
+{00000162-0000-0010-8000-00AA00389B71}: audio/x-wma,wmaversion=3,rate=$(rate),channels=$(channels),bitrate=$(bitrate),depth=$(width),width=$(width),block_align=$(block_align)$(codec_str)
+
+# MP3 audio
+{00000050-0000-0010-8000-00AA00389B71}: audio/mpeg,mpegversion=1,layer=3,channels=$(channels),rate=$(rate)
+{00000055-0000-0010-8000-00AA00389B71}: audio/mpeg,mpegversion=1,layer=3,channels=$(channels),rate=$(rate)
+{E06D802B-DB46-11CF-B4D1-00805F6CBBEA}: audio/mpeg,mpegversion=1,layer=3,channels=$(channels),rate=$(rate)
+
+# AC3
+{00002000-0000-0010-8000-00AA00389B71}: audio/x-ac3,channels=$(channels),rate=$(rate)
+{E06D802C-DB46-11CF-B4D1-00805F6CBBEA}: audio/x-ac3,channels=$(channels),width=$(width),depth=$(width),rate=$(rate)
+
+# MPEG AAC
+{00001610-0000-0010-8000-00AA00389B71}: audio/mpeg,mpegversion=(int)4,framed=(boolean)true$(stream_format_str),rate=(int)$(rate),channels=(int)$(channels)$(codec_str)
+
+# 3ivx AAC?
+{000000FF-0000-0010-8000-00AA00389B71}: audio/mpeg,mpegversion=(int)4,framed=(boolean)true,rate=$(rate),channels=$(channels),bitrate=$(bitrate),depth=$(width),width=$(width),block_align=$(block_align)$(codec_str)
+
+# AMR audio 'rmas' (Don't know how to determine codec_data, rate, etc. Will require server-side changes or a different source filter.)
+# ex: audio/AMR,codec_data=(buffer)0000001164616d7246464d500081ff0001,rate=(int)8000,channels=(int)1
+#{73616D72-767A-494D-B478-F29D25DC9037}: ? (audio) 'rmas' channels=0,rate=0,depth=0,bitrate=0,block_align=0,codec_str=
+
+# MPEG1
+{E436EB81-524F-11CE-9F53-0020AF0BA770}: video/mpeg,mpegversion=1,systemstream=(boolean)false,bitrate=$(bitrate)
+{3167706D-0000-0010-8000-00AA00389B71}: video/mpeg,mpegversion=1,systemstream=(boolean)false,framerate=$(framerate),width=$(width),height=$(height) # 'mpg1'
+{4745504D-0000-0010-8000-00AA00389B71}: video/mpeg,mpegversion=1,systemstream=(boolean)false,framerate=$(framerate),width=$(width),height=$(height)$(codec_str) # 'MPEG'
+
+# MPEG2
+{E06D8026-DB46-11CF-B4D1-00805F6CBBEA}: video/mpeg,mpegversion=2,systemstream=(boolean)false,framerate=10000000/$(frame_duration),bitrate=$(bitrate)
+{3267706D-0000-0010-8000-00AA00389B71}: video/mpeg,mpegversion=2,systemstream=(boolean)false,framerate=$(framerate),width=$(width),height=$(height) # 'mpg2'
+
+# MPEG4
+{5634504D-0000-0010-8000-00AA00389B71}: video/mpeg,mpegversion=(int)4,systemstream=(boolean)false,width=(int)$(width),height=(int)$(height),framerate=(fraction)$(framerate) # 'MP4V'
+{5334504D-0000-0010-8000-00AA00389B71}: video/mpeg,mpegversion=(int)4,systemstream=(boolean)false,width=(int)$(width),height=(int)$(height),framerate=(fraction)$(framerate),format=(fourcc)MP4S$(codec_str) # 'MP4S'
+{3253344D-0000-0010-8000-00AA00389B71}: video/mpeg,mpegversion=(int)4,systemstream=(boolean)false,width=(int)$(width),height=(int)$(height),framerate=(fraction)$(framerate)$(codec_str) # MPEG4 std 'M4S2'
+{6D703476-767A-494D-B478-F29D25DC9037}: ? # 'mp4v' - Broken GUID -- if encountered, install replacement MP4 media splitter.
+
+# MS-MPEG4
+{3447504D-0000-0010-8000-00AA00389B71}: video/x-msmpeg,msmpegversion=41,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'MPG4'
+{3234504D-0000-0010-8000-00AA00389B71}: video/x-msmpeg,msmpegversion=42,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'MP42'
+{3334504D-0000-0010-8000-00AA00389B71}: video/x-msmpeg,msmpegversion=43,format=(fourcc)MP43,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'MP43'
+
+# WMV
+{31564D57-0000-0010-8000-00AA00389B71}: video/x-wmv,wmvversion=1,format=(fourcc)WMV1,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate)$(codec_str) # 'WMV1'
+{32564D57-0000-0010-8000-00AA00389B71}: video/x-wmv,wmvversion=(int)2,format=(fourcc)WMV2,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate)$(codec_str) # 'WMV2'
+{33564D57-0000-0010-8000-00AA00389B71}: video/x-wmv,wmvversion=3,format=(fourcc)WMV3,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate)$(codec_str) # 'WMV3'
+
+# WMV-VC1
+{31435657-0000-0010-8000-00AA00389B71}: video/x-wmv,wmvversion=3,format=(fourcc)WVC1,width=$(width),height=$(height),framerate=10000000/$(frame_duration)$(codec_str) # 'WVC1' MS VC1
+
+# DivX
+{33564944-0000-0010-8000-00AA00389B71}: video/x-divx,divxversion=3,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'DIV3'
+{58564944-0000-0010-8000-00AA00389B71}: video/x-divx,divxversion=4,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'DIVX'
+{30355844-0000-0010-8000-00AA00389B71}: video/x-divx,divxversion=5,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'DX50'
+
+# XViD
+{44495658-0000-0010-8000-00AA00389B71}: video/x-xvid,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'XVID'
+
+# SVQ1
+{31515653-0000-0010-8000-00AA00389B71}: video/x-svq,svqversion=(int)1,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate) # 'SVQ1'
+
+# Intel Indeo
+{32337669-0000-0010-8000-00AA00389B71}: video/x-indeo, indeoversion=(int)3,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate) # 'iv32'
+{30355649-0000-0010-8000-00AA00389B71}: video/x-indeo, indeoversion=(int)5,width=$(width),height=$(height),framerate=10000000/$(frame_duration) # 'IV50'
+
+# CRAM/CRAN
+{4D415243-0000-0010-8000-00AA00389B71}: video/x-msvideocodec,msvideoversion=(int)1,width=(int)$(width),height=(int)$(height),framerate=(fraction)10000000/$(frame_duration),bitrate=$(bitrate) # 'CRAM'
+{4E415243-0000-0010-8000-00AA00389B71}: ? (video) 'CRAN' # seems to be unsupported
+
+# Cinepak 'cvid'
+{64697663-0000-0010-8000-00AA00389B71}: video/x-cinepak,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate) # 'cvid'
+
+# DV
+{64737664-0000-0010-8000-00AA00389B71}: video/x-dv,systemstream=(boolean)true,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate) # 'dvsd'
+
+# Raw YUV
+{32595559-0000-0010-8000-00AA00389B71}: video/x-raw-yuv,format=(fourcc)YUY2,width=$(width),height=$(height),framerate=10000000/$(frame_duration),bitrate=$(bitrate) # 'YUY2'
+
+# NV11 (unsupported, raw)
+{3131564E-0000-0010-8000-00AA00389B71}: ? (video) 'NV11'
+
+# 'H264' - MPEG4 AVC (part10) (avc1) - video/x-h264, profile=(string)high, level=(string)4.1, codec_data=(buffer)01640029ffe1001867640029ac34e5014016e84001974ec04c4b4023c60c458001000468eebcb0, width=(int)1280, height=(int)720, framerate=(fraction)24000/1001, pixel-aspect-ratio=(fraction)1/1
+{34363248-0000-0010-8000-00AA00389B71}: video/x-h264, width=(int)$(width), height=(int)$(height), framerate=(fraction)10000000/$(frame_duration) # 'H264'
+
+# 'H263'
+{33363248-0000-0010-8000-00AA00389B71}: video/x-h263, variant=(string)itu, framerate=(fraction)$(framerate), width=(int)$(width), height=(int)$(height)
+
+# 's263' is missing media information -- use Matroska media splitter, instead.
+# video/x-h263, width=(int)176, height=(int)144, framerate=(fraction)10000000/$(frame_duration), pixel-aspect-ratio=(fraction)1/1 # '362s'
+#{73323633-767A-494D-B478-F29D25DC9037}: ? (video) '362s' width=0, height=0, depth=0, frame_duration=40000, rate=40000, bitrate=1084168, block_align=0, codec_str=
+
+# Below two lines require Matroska media splitter, and disabling Media Foundation 3gp support.
+{33363273-0000-0010-8000-00AA00389B71}: video/x-h263, width=(int)$(width), height=(int)$(height), framerate=(fraction)10000000/$(frame_duration), pixel-aspect-ratio=(fraction)1/1 # 's263'
+{726D6173-0000-0010-8000-00AA00389B71}: audio/AMR, rate=(int)$(rate), channels=(int)1$(codec_str) # 'samr'
+
+### End pre-defined MIME-types. ###
+
+
