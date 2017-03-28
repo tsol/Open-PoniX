@@ -1,0 +1,38 @@
+#!/bin/sh
+. $TS_GLOBAL
+load_lang base
+load_lang nx
+
+/bin/nxclient --wizard
+
+
+if /bin/xdmenu_yesno "$LNG_NX_WIZARD_UPLOAD_YN" ; then
+
+	
+	RESULT=$(ls /root/.nx/config/*.nxs | 
+	while read ffile
+	do
+ 		file=`basename $ffile`
+		not_auto_session=`echo $file | grep -v -E "^session[0-9]\.nxs$"`
+		if [ -n "$not_auto_session" ] ; then
+			if ! /etc/xdmenu/scripts/upload_pxe $ffile upload/$file ; then
+				xdmenu_errbox "$LNG_NX_WIZARD_UPLOAD_ERR"
+				exit 1
+			else
+				echo $file
+			fi
+		fi
+	done
+	)
+	
+	if [ -n "$RESULT" ] ; then 
+		xdmenu_msgbox "$LNG_NX_WIZARD_UPLOADED_FILES\n$RESULT";
+	else
+		xdmenu_msgbox "$LNG_NX_WIZARD_NO_UPLOAD"
+	fi
+
+fi
+
+
+
+

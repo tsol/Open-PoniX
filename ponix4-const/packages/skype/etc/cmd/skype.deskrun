@@ -1,0 +1,25 @@
+#! /bin/sh
+. $TS_GLOBAL
+load_lang skype
+
+SESID=$1
+
+if [ -z "$SESID" ]; then
+	echo "Session ID required as parameter!"
+	exit
+fi
+
+if [ `make_caps "$WM_DISABLE"` = "ON"  ] ; then
+	xdmenu_errbox "$LNG_SKYPE_NO_WM"
+	exit 1
+fi
+
+if ! pkg_require graphics ; then
+	xdmenu_errbox "$LNG_SKYPE_NO_GTK"
+	exit 1
+fi
+
+SKYPE_USER=`sestypevar_def $SESID USER`
+SKYPE_PASSWORD=`sestypevar_def $SESID PASSWORD`
+
+DESKRUN_CMD="/bin/skyperun $SKYPE_USER $SKYPE_PASSWORD"

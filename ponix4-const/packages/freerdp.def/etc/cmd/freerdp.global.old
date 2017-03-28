@@ -1,0 +1,94 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+#
+if [ -z "$FREERDP_SLOWLINK" ]; then FREERDP_SLOWLINK=Off; fi
+if [ -z "$FREERDP_COMPRESSION" ]; then FREERDP_COMPRESSION=Off; fi
+if [ -z "$FREERDP_SOUND" ]; then FREERDP_SOUND=Off; fi
+if [ -z "$FREERDP_CDROM" ]; then FREERDP_CDROM=Off; fi
+if [ -z "$FREERDP_FDD" ]; then FREERDP_FDD=Off; fi
+if [ -z "$FREERDP_HDD" ]; then FREERDP_HDD=Off; fi
+if [ -z "$FREERDP_USB" ]; then FREERDP_USB=Off; fi
+if [ -z "$FREERDP_COM3" ]; then FREERDP_COM3=Off; fi
+if [ -z "$FREERDP_COM4" ]; then FREERDP_COM4=Off; fi
+if [ -z "$FREERDP_COM5" ]; then FREERDP_COM5=Off; fi
+if [ -z "$FREERDP_COM6" ]; then FREERDP_COM6=Off; fi
+if [ -z "$FREERDP_NO_TLS" ]; then FREERDP_NO_TLS=Off; fi
+if [ -z "$FREERDP_PORT" ]; then FREERDP_PORT=3389; fi
+if [ -z "$FREERDP_MICROPHONE" ]; then FREERDP_MICROPHONE=Off; fi
+if [ -z "$FREERDP_COLOR_DEPTH" ]; then FREERDP_COLOR_DEPTH=16; fi
+
+let SN=$DISPLAY_NUMBER-1
+SESSION_OPTIONS=`eval echo '$SESSION_'$SN'_FREERDP_OPTIONS'`
+
+USER="-u '$FREERDP_USER'"
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-u\s\|\s-u\s'`" ]; then USER=""; fi
+
+DOMAIN=""
+ if [ -n "$FREERDP_DOMAIN" ]; then DOMAIN="-d '$FREERDP_DOMAIN'"; fi
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-d\s\|\s-d\s'`" ]; then DOMAIN=""; fi
+
+KEYMAP=""
+ if [ -n "$FREERDP_KEYMAP" ]; then KEYMAP="-k '$FREERDP_KEYMAP'"; fi
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-k\s\|\s-k\s'`" ]; then KEYMAP=""; fi
+
+COLOR_DEPTH="-a $FREERDP_COLOR_DEPTH"
+if [ -n "`echo $SESSION_OPTIONS | grep -e '^-a\s\|\s-a\s'`" ]; then COLOR_DEPTH=""; fi
+
+#    
+if [ `make_caps "$FREERDP_SLOWLINK"` = "ON" ]; then
+    SLOW="-x m"
+fi
+#
+if [ `make_caps "$FREERDP_COMPRESSION"` = "ON" ]; then
+    COMPRESS="-z"
+fi
+#
+if [ `make_caps "$FREERDP_SOUND"` = "ON" ]; then
+    SOUND="--plugin rdpsnd"
+fi
+#
+if [ `make_caps "$FREERDP_CDROM"` = "ON" ]; then
+    CDROM="disk:cdrom:/mnt/cdrom"
+fi
+#
+if [ `make_caps "$FREERDP_FDD"` = "ON" ]; then
+    FDD="disk:floppy:/mnt/floppy"
+fi
+#
+if [ `make_caps "$FREERDP_HDD"` = "ON" ]; then
+    HDD="disk:hdd:/mnt/disc"
+fi
+#
+if [ `make_caps "$FREERDP_USB"` = "ON" ]; then
+    USB="disk:flash:/mnt/usbdevice"
+fi
+#
+if [ `make_caps "$FREERDP_COM3"` = "ON" ]; then
+COM3="serial:COM3:/dev/ttyS0"
+fi
+#
+if [ `make_caps "$FREERDP_COM4"` = "ON" ]; then
+COM4="serial:COM4:/dev/ttyS1"
+fi
+#
+if [ `make_caps "$FREERDP_COM5"` = "ON" ]; then
+COM5="serial:COM5:/dev/ttyS2"
+fi
+#
+if [ `make_caps "$FREERDP_COM6"` = "ON" ]; then
+COM6="serial:COM6:/dev/ttyS3"
+fi
+#
+if [ `make_caps "$FREERDP_NO_TLS"` = "ON" ]; then
+ NO_TLS="--no-tls"
+fi
+#
+if [ `make_caps "$FREERDP_MICROPHONE"` = "ON" ]; then
+MICROPHONE="--plugin drdynvc --data audin --"
+fi
+#
+
+CMD_GLOBAL="xfreerdp -f $KEYMAP $USER $DOMAIN $COLOR_DEPTH \
+            $SLOW $COMPRESS $NO_TLS $SOUND --plugin rdpdr --data $CDROM $FDD $HDD \
+            $USB $COM3 $COM4 $COM5 $COM6 -- $MICROPHONE"

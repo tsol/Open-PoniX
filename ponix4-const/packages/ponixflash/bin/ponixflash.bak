@@ -1,0 +1,106 @@
+#!/bin/sh
+
+. /etc/ponix.env
+. $TS_GLOBAL
+        
+    parentdev=/dev/sda
+    dev=/dev/sda1
+    mount=/mnt/ponixsys/
+    server=$SERVER_IP
+    firmwarefile=ponix_firmware.tar.gz
+    tftpfile=/ponixflash/${firmwarefile}
+
+
+clear
+echo "Ponix flashing utility ver: $TS_VERSION"
+echo ""
+echo "|-------------------------------------|"
+echo "| Terminal Solutions Saint-Petersburg |"
+echo "|                                     |"
+echo "| www: http://www.t-sol.ru            |"
+echo "| phone: +7 (812) 458-7499            |"
+echo "|-------------------------------------|"
+echo ""
+echo "SERVER_IP=$server"
+echo "FILE=$tftpfile"
+echo ""    
+
+
+if [ -e "$parentdev" ]; then
+
+    echo -e '\e[0;32m'"Start creating new partition by parted utility" '\e[0;37m'
+    /bin/create_part > /dev/null
+    sleep 2
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""	
+         
+    echo -e '\e[0;32m'"Start creating FAT32 filesystem" '\e[0;31m'
+    mkfs.vfat -n PONIXSYS $dev
+    sleep 2
+    dd conv=notrunc bs=440 count=1 if=/etc/mbr.bin of=$parentdev > /dev/null
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+    
+    echo -e '\e[0;32m'"Start syslinux preparing" '\e[0;31m'
+    syslinux $dev
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+
+    /bin/mkdir -p $mount
+    
+    echo -e '\e[0;32m'"Start mounting disk" '\e[0;31m'
+    /bin/mount -o flush,relatime,utf8,gid=100,umask=002 $dev $mount
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+    
+    echo -e '\e[0;32m'"Start downloading firmware (this operation may take several minutes)" '\e[0;31m'
+    tftp -b 4096 -g -r $tftpfile -l /tmp/$firmwarefile $server
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+
+    if [ -e "/tmp/$firmwarefile" ]; then
+    
+ 	    echo -e '\e[0;32m'"Start copying files to FLASHDRIVE" '\e[0;31m'
+	    cat /tmp/$firmwarefile | gunzip | tar xf - -C $mount
+	    echo -e '\e[0;32m'"End" '\e[0;37m'
+	    echo ""
+
+	    if [ -e "/mnt/ponixsys/ldlinux.sys" ] && [ -e "/mnt/ponixsys/initrd" ]; then
+	        echo -e '\e[0;32m'"----------------------------------" 
+	    	echo -e '\e[0;32m'"| FLASHDRIVE is ready to boot!!! |"
+	    	echo -e '\e[0;32m'"----------------------------------"'\e[0;37m'
+	    else
+	    	echo -e '\e[0;31m'"-------------------------------------"
+	    	echo -e '\e[0;31m'"| ERROR, FLASHDRIVE is not ready!!! |"
+	    	echo -e '\e[0;31m'"-------------------------------------"'\e[0;37m'
+	    fi
+    else
+    
+	    echo -e '\e[0;31m'"-------------------------------------"
+	    echo -e '\e[0;31m'"| Firmware could not be download!   |"
+	    echo -e '\e[0;31m'"-------------------------------------"'\e[0;37m'    
+
+    fi
+    
+ else
+    echo -e '\e[0;31m'"-------------------------------------------------------"
+    echo -e '\e[0;31m'"| ERROR! Not found any properly installed FLASHDRIVE! |"
+    echo -e '\e[0;31m'"-------------------------------------------------------"'\e[0;37m'
+fi
+
+echo ""    
+echo " Please choose your next action:"
+echo " 1-reboot"
+echo " 2-shutdown"
+echo " 3-go to console"
+ch=0
+while [ "$ch" != "1" ] && [ "$ch" != "2" ] && [ "$ch" != "3" ] 
+do
+echo ""
+echo -n "Your choice: "
+read ch
+done
+
+if [ "$ch" == "1" ]; then reboot -f; fi
+if [ "$ch" == "2" ]; then shutdown; fi
+if [ "$ch" == "3" ]; then /bin/ash; fi

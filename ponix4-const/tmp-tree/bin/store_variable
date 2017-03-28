@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# This is usefull tool for saving variables to user config or
+# runtime config without duplicating.
+
+. /etc/ponix.env
+
+USERCONF=$TS_USER
+
+TMP=/tmp/store_variable.$$
+
+if [ -z "$1" ] ; then
+
+	echo "Stores a variable to $USERCONF"
+	echo
+	echo "Usage: store_variable VAR_NAME \"value\" [RUNTIME]"
+	exit
+fi
+
+if [ "$3" = "RUNTIME" ] ; then
+	USERCONF=$TS_RUNTIME
+fi
+
+if [ -e $USERCONF ] ; then
+	cat $USERCONF | grep -v $1 > $TMP
+fi
+
+echo $1=\"$2\" >> $TMP
+cat $TMP > $USERCONF
+rm $TMP
+

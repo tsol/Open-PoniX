@@ -1,0 +1,65 @@
+#! /bin/sh
+. /etc/ponix.env
+. $TS_GLOBAL
+RESOLV=/etc/resolv.conf
+
+
+case $1 in
+	deconfig)
+		ifconfig $interface 0.0.0.0
+		;;
+	bound|renew)
+	cat /dev/null > $RESOLV
+	for dnsserver in $dns ; do
+		echo "nameserver $dnsserver" >> $RESOLV
+        done
+	echo "search $domain" >> $RESOLV
+	ifconfig $interface $ip netmask $subnet
+	route add default gw $router
+	if [ -z "$CLIENT_NAME" ] ; then
+		echo "CLIENT_NAME=$hostname" >> $TS_RUNTIME
+	fi
+	if [ -z "$CLIENT_IP" ] ; then
+		echo "CLIENT_IP=$ip" >> $TS_RUNTIME
+	fi
+	if [ -z "$SERVER_NAME" ] ; then
+		if [ -n "$tftp" ] ; then
+			echo "SERVER_NAME=$tftp" >> $TS_RUNTIME
+		else
+			echo "SERVER_NAME=$sname" >> $TS_RUNTIME
+		fi
+	fi
+
+	if [ -z "$NETMASK_SIZE" ] ; then
+		echo "NETMASK_SIZE=$mask" >> $TS_RUNTIME
+	fi
+	if [ -z "$SUBNET" ] ; then
+		echo "SUBNET=$subnet" >> $TS_RUNTIME
+	fi
+
+	# Calculate TimeZone, From Pxes
+	#
+
+	if [ -n "$timezone" ]; then
+		TZONE="UTC"
+		O=$((timezone * -3600))
+		[ $O -ge 0 ] && TZONE="${TZONE}+"
+		TIME_ZONE="${TZONE}${O}"
+		echo "TIME_ZONE=$TIME_ZONE" >> $TS_RUNTIME
+	fi
+
+	if [ -n "$NET_FILE_ALTERNATE" ] ; then
+		SERVER_IP=$NET_FILE_ALTERNATE
+	else
+		if [ -n "$siaddr" ] ; then
+			SERVER_IP=$siaddr
+		else
+			SERVER_IP=$tftp
+		fi
+		if [ -z "$SERVER_IP" ] ; then
+			SERVER_IP=$serverid
+		fi
+	fi
+	echo "SERVER_IP=$SERVER_IP" >> $TS_RUNTIME
+	;;
+esac

@@ -1,0 +1,151 @@
+#! /bin/sh
+#
+# Thinstation init script
+#
+
+if [ -e /etc/ponix.env ] ; then . /etc/ponix.env ; fi
+if [ -e $TS_DEFAULTS ] ; then . $TS_DEFAULTS ; fi
+if [ -e $TS_FUNCTIONS ] ; then . $TS_FUNCTIONS ; fi
+
+INITLIST=/tmp/initlist
+KERNEL_VERSION=`uname -r`
+
+# Runs packages in init level
+
+init_packages()
+{
+(cat $INITLIST | sort) |
+while read package
+do
+#	let progress=progress+1
+#	splash_progress $progress
+#	if [ -n "$DEBUG_BOOT" ]; then
+#	    echo -n `echo "$package -" | cut -c4-`" "
+#	fi
+	(
+	    trap - INT QUIT TSTP
+	    if [ -n "$DEBUG_BOOT" ]; then
+	        echo "$package" >> $LOGFILE
+            fi
+	    export CURRENTRC=$1
+	    if [ -z "$DEBUG_PACKAGES" ]; then
+	        /etc/rc$1.d/$package init >> $LOGFILE 2>&1
+	    else
+	        /etc/rc$1.d/$package init >> $LOGFILE
+		sleep 1
+	    fi
+	)
+done
+}
+
+
+umask 022
+
+# Mount Filesystems
+
+# Allow you to specify the tmpfs filesystem size
+if [ ! -z ${BOOTFSSIZE} ]; then
+	mount -t tmpfs -o size=${BOOTFSSIZE} tmpfs /mnt/dynamic
+else
+	mount -t tmpfs tmpfs /mnt/dynamic
+fi 
+
+mount -t unionfs -o dirs=/mnt/dynamic=rw:/=ro unionfs /mnt/union
+cd /mnt/union
+mkdir oldroot
+pivot_root . /mnt/union/oldroot
+mount -t proc /proc /proc
+mount -t sysfs none /sys
+mkdir /dev/pts
+mount -t devpts devpts /dev/pts
+mkdir /tmp/ts
+
+#plymouthd --mode=boot
+#plymouth show-splash
+#plymouth message --text="poniX version $TS_VERSION"
+
+echo "poniX version: $TS_VERSION"
+echo ""
+echo "|-------------------------------------|"
+echo "| Terminal Solutions Saint-Petersburg |"
+echo "|                                     |"
+echo "| www: http://www.t-sol.ru            |"   
+echo "| phone: +7 (812) 458-7499            |"
+echo "|-------------------------------------|"
+echo ""
+echo ""
+
+if [ -e /etc/DEBUGLEVEL ] ; then
+	. /etc/DEBUGLEVEL
+fi
+get_debug_level $DEBUGLEVEL
+echo "DEBUG_BOOT=$DEBUG_BOOT
+DEBUG_NETWORK=$DEBUG_NETWORK
+DEBUG_INIT=$DEBUG_INIT
+DEBUG_KERNEL=$DEBUG_KERNEL
+DEBUG_MODULES=$DEBUG_MODULES
+DEBUG_PACKAGES=$DEBUG_PACKAGES
+DEBUG_EMAIL=$DEBUG_EMAIL" >> $TS_RUNTIME
+
+# Enable Verbose mode of Debug Package
+
+if [ -n "$DEBUG_BOOT" ] ; then
+	debug="-d"
+fi
+
+if [ -n "$DEBUG_INIT" ]; then
+	set -v
+	echo_log "\nDebug Mode Enabled, echoing commands to screen\n"
+	echo "set -v" >> $TS_RUNTIME
+	sleep 5
+fi
+
+depmod
+
+udevd --daemon
+udevadm trigger 
+
+# Loop over every line in /etc/modules.
+#echo_log -e '\nLoading modules: ' $debug
+(cat /etc/modules; echo) | # make sure there is a LF at the end
+while read module args
+do
+	case "$module" in
+		\#*|"") continue ;;
+	esac
+		
+#	if [ -n "$DEBUG_BOOT" ]; then
+#	    echo -n "$module - "
+#        fi
+	if [ -z "$DEBUG_MODULES" ]; then
+	    if ! modprobe "$module" $args >> $LOGFILE 2>&1; then
+		echo "Device $module not Found, Removing" >> $LOGFILE
+		modprobe -r "$module" >> $LOGFILE
+	    fi
+        else 
+	    sleep 1
+	    if ! modprobe "$module" $args >> $LOGFILE; then
+		echo "Device $module not Found, Removing" >> $LOGFILE
+		modprobe -r "$module" >> $LOGFILE
+	    fi
+        fi
+done
+
+#echo_log "" $debug
+
+# Packages init
+
+for x in 0 5; do
+#	echo_log -e "\nInitializing rc$x packages... " $debug
+	ls /etc/rc$x.d > $INITLIST
+	init_packages $x
+#	echo_log "" $debug
+done
+
+rm $INITLIST
+
+if pkg_initialized debug ; then
+	echo_log -d "\n\n\nDebug Package enabled, Type exit to continue"
+	echo_log -d "If you do not want this to happen, disable the debug package\n"
+	/bin/ash
+fi

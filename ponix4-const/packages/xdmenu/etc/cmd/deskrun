@@ -1,0 +1,94 @@
+
+. $TS_GLOBAL
+load_lang base
+
+export SESSION_ID=$1
+if [ -z "$SESSION_ID" ]; then
+	echo_log "DESKRUN: Session ID required as parameter!"
+	exit
+fi
+
+SESSION_TYPE=`sesvar $SESSION_ID TYPE`
+
+if [ -z "$SESSION_TYPE" ]; then
+	echo_log "DESKRUN: Session $SESSION_ID doesn't have a TYPE."
+	exit
+fi
+
+SESSION_TYPE=`make_lower "$SESSION_TYPE"`
+
+PID=$$
+
+echo_log "DESKRUN session $SESSION_ID $SESSION_TYPE (PID=$PID)" 
+
+# Check if session pkg is loaded, try to load. Every session must have a .deskrun
+
+if [ ! -e /etc/cmd/$SESSION_TYPE.deskrun ] ; then
+
+	pkg require $SESSION_TYPE
+
+	if [ ! -e /etc/cmd/$SESSION_TYPE.deskrun ] ; then
+		/bin/xdmenu_errbox "$LNG_DESKRUN_INVALID_TYPE ($SESSION_TYPE)"
+		exit 1	
+	fi
+fi
+
+# Remove shutdown countdown initiated by Connection Manager
+
+if [ -e "/tmp/countdown" ] ; then
+	rm /tmp/countdown
+fi
+
+/bin/store_variable "SESSION${SESSION_ID}_PID" "$PID" RUNTIME
+
+# Input server IP if session requires a server and no server specified
+
+if [ -e /etc/cmd/$SESSION_TYPE.needs_server ]; then
+
+	SES_SERVER=`sestypevar $SESSION_ID SERVER`
+	
+	if [ -z "$SES_SERVER" ]; then
+		echo_log "Session requires a server, but server is not defined. Running input box."
+
+		$XDMENU_SCRIPTS/input_server_for_session $SESSION_ID
+
+		if [ "$?" = "1" ] ; then
+			echo_log "User canceled server input!" 
+			exit 1		
+		fi
+		
+		. $TS_USER
+		
+		INPUT_SERVER=`sesvar $SESSION_ID INPUT_SERVER`
+	fi
+fi
+
+# Ask user for login and password if SESSION_X_ASK_AUTH is set
+
+ASK_AUTH=`sesvar $SESSION_ID ASK_AUTH`
+
+if [ "`make_caps $ASK_AUTH`" = "ON" ] ; then
+	${XDMENU_SCRIPTS}/input_auth_for_session $SESSION_ID
+	if [ "$?" != "0" ] ; then
+		echo_log "User canceled auth input!"
+		exit 1
+	fi
+fi
+
+# Run corresponding .deskrun to get DESKRUN_CMD from it and run it
+ 
+. /etc/cmd/$SESSION_TYPE.deskrun $SESSION_ID $INPUT_SERVER
+(sleep 2 && ${XDMENU_SCRIPTS}/bring_session_to_front $SESSION_ID) &
+echo_log "$DESKRUN_CMD" 
+eval "$DESKRUN_CMD" >> $LOGFILE 2>>$LOGFILE
+wait
+
+# kill connection manager so it doesn't show [running] on this session when it's closed
+/bin/xdmenu_kill connection_manager
+
+# say that we're done
+/bin/store_variable "SESSION${SESSION_ID}_PID" "" RUNTIME
+
+# and let others occupy screen
+${XDMENU_SCRIPTS}/popup_first_running_session
+

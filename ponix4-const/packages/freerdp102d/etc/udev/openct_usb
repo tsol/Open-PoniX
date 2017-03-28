@@ -1,0 +1,57 @@
+#!/bin/sh
+
+# maybe udev passes the device name to us.
+if [ -n "$1" ]; then
+	DEVNAME="$1"
+fi
+
+[ -n "$DEVPATH" ] || exit 0
+[ "$ACTION" = "add" ] || exit 0
+[ -e "/usr/var/run/openct/status" ] || exit 0
+
+# try to get the device node from the parent device
+if [ -z "$DEVNAME" ]; then
+	#
+	# Guess udev info interface.
+	# Newer udev uses udevadm
+	#
+	if which udevinfo > /dev/null 2>&1; then
+		UDEVINFO="udevinfo"
+	else
+		UDEVINFO="udevadm info"
+	fi
+	DEVNAME=/dev/$($UDEVINFO --query=name --path=$(dirname $DEVPATH))
+fi
+
+# if udev supplied a device node directly from the usb-device, we use it,
+# because it is guaranteed to exist at the time we run
+if [ -n "$DEVNAME" -a -e "$DEVNAME" ]; then
+	DEVICE="$DEVNAME"
+fi
+
+[ -n "$DEVICE" ] || exit 0
+
+if [ -z "$PRODUCT" -a -n "$MODALIAS" ]; then
+	PRODUCT=$(echo $MODALIAS | sed -e 's/usb:v\(....\)p\(....\)d\(....\).*/\1\/\2\/\3/g' |tr A-F a-f)
+fi
+
+if [ -z "$PRODUCT" ]; then
+	V=$(cat /sys$(dirname $DEVPATH)/idVendor | sed -e 's/^0*//')
+	P=$(cat /sys$(dirname $DEVPATH)/idProduct | sed -e 's/^0*//')
+	D=$(cat /sys$(dirname $DEVPATH)/bcdDevice | sed -e 's/^0*//')
+	PRODUCT="$V/$P/$D"
+fi
+
+[ -n "$PRODUCT" ] || exit 0
+
+# we may neeed to wait for the device node, when usbfs is used
+for A in "0 1 2 3 4 5 6 7 8 9"; do
+	if [ -e "$DEVICE" ]; then
+		/usr/sbin/openct-control attach usb:$PRODUCT usb $DEVICE
+		exit 0
+	fi
+	sleep 0.1
+done
+
+echo "$0 waited for $DEVICE but it did not appear." | logger -p daemon.error
+exit 0

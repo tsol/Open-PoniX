@@ -1,0 +1,13 @@
+KERNEL!="fd[0-9]*", GOTO="media_by_label_auto_mount_end"
+
+# Import FS infos
+IMPORT{program}="/bin/blkid -o udev -p %N"
+
+ENV{ID_FS_LABEL}!="", ENV{dir_name}="%E{ID_FS_LABEL}"
+ENV{ID_FS_LABEL}=="", ENV{dir_name}="%k"
+
+# Mount the device
+SYMLINK+="floppy/%n", RUN+="/bin/mkdir -p /mnt/floppy/%E{dir_name}", RUN+="/bin/mount -o relatime,utf8,gid=100,umask=002 /dev/%k /mnt/floppy/%E{dir_name}"
+
+# Exit
+LABEL="media_by_label_auto_mount_end"

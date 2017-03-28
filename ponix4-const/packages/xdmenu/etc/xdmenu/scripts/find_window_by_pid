@@ -1,0 +1,45 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+if [ -z "$1" ] ; then
+	echo "Require PID!"
+	exit
+fi
+
+list_procs_and_raise_windows ()
+{
+	for proc in $1
+	do
+		if [ -n "$2" ] ; then
+			WIDS=`xdotool search --classname "$2"`
+		else
+			WIDS=`xdotool search --pid $proc --classname "\*+"`
+		fi
+
+		WIDS=`echo $WIDS | sed 's/\n+/ /g'`
+		echo "PROC: '$proc', WIDS: '$WIDS'"
+
+		if [ -n "$WIDS" ] ; then
+#			for WID in $WIDS
+#			do
+#				echo "RAISING WID: $WID"
+#				xdotool windowraise $WID
+#			done
+
+			if [ -n "$2" ]; then
+				return 0			
+			fi
+
+		fi
+		KIDS=`pgrep -P $proc`
+		if [ -n "$KIDS" ] ; then
+			list_procs_and_raise_windows "$KIDS"
+		fi		
+	done
+
+}
+
+list_procs_and_raise_windows $1
+
+

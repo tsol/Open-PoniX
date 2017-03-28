@@ -1,0 +1,10 @@
+KERNEL!="sd*[!0-9]", GOTO="disc_by_label_auto_mount_end"
+
+# Mount the device
+ACTION=="add", SYMLINK+="usb-floppy%n", SUBSYSTEMS=="usb", ATTRS{bInterfaceProtocol}=="0[01]", RUN+="/bin/mkdir -p /mnt/floppy/%k", RUN+="/bin/mount /dev/%k /mnt/floppy/%k", OPTIONS+="last_rule"
+
+# Clean up after removal
+ACTION=="remove", RUN+="/bin/umount -l /mnt/floppy/%k", RUN+="/bin/rm -r /mnt/floppy/%k"
+
+# Exit
+LABEL="disc_by_label_auto_mount_end"

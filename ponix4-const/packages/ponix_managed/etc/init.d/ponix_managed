@@ -1,0 +1,32 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+	if [ -z "$PONIX_SERVER_IP" ]; then
+		PONIX_SERVER_IP=$SERVER_IP
+	fi
+
+	if [ -z "$PONIX_SERVER_URL" ] ; then
+		PONIX_SERVER_URL="http://${PONIX_SERVER_IP}:8800"	
+	fi
+	
+	wget --quiet "${PONIX_SERVER_URL}/termpoll.php?mac=${CLIENT_MAC}&&ip=${CLIENT_IP}" -O /dev/null
+
+	pkg_set_init_flag $PACKAGE
+    fi
+    ;;
+stop)
+    ;;
+help)
+    echo "Usage: $0 init stop"
+    ;;
+*)
+    exit 1
+    ;;
+esac
+
+exit 0

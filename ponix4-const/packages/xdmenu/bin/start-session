@@ -1,0 +1,154 @@
+#!/bin/sh
+
+. /etc/ponix.env
+. $TS_GLOBAL
+
+
+xorg_died ()
+{	
+	if [ -z "$XORG_DEATH_COUNT" ] ; then
+		XORG_DEATH_COUNT=1
+	else
+		let XORG_DEATH_COUNT=XORG_DEATH_COUNT+1
+	fi
+
+	store_variable XORG_DEATH_COUNT "$XORG_DEATH_COUNT" RUNTIME
+
+	echo_log "START-SESSION: Xorg DIED! $XORG_DEATH_COUNT times."
+
+	mkdir "/var/log/xorgdead$XORG_DEATH_COUNT"
+	cp /etc/xorg/xorg.conf "/var/log/xorgdead$XORG_DEATH_COUNT/"
+    
+	# kill all processes which depend on Xorg (they might be alive)
+	(ps w | grep -E "(xdmenu|Xdialog|deskrun)" | awk '{print $1}') |
+	while read pid
+	do
+		kill $pid 2>&1 > /dev/null
+	done
+
+	# kill JWM if for some reason it's alive
+	if [ -n "`pidof jwm`" ] ; then
+		kill `pidof safe_jwm` > /dev/null
+		kill -9 `pidof jwm` > /dev/null
+	fi
+
+	# decide what to do
+		
+	if [ "$XORG_DEATH_COUNT" = "1" ] ; then
+		SET_DRIVER=""
+	elif [ "$XORG_DEATH_COUNT" = "2" ] ; then
+		SET_DRIVER="modesetting"
+	elif [ "$XORG_DEATH_COUNT" = "3" ] ; then
+		SET_DRIVER="fbdev"
+	else
+		chvt 1
+		echo_log "START-SESSION: Couldn't initialize video card. Giving up!" -d
+		replimenu -f /etc/replimenu/xorgdied.menu
+		/bin/loger
+		sleep 600
+		exit
+	fi
+
+	echo_log "START-SESSION: Trying to set video driver to '$SET_DRIVER'"
+
+	# cleanup dead Xorg files
+
+	if [ -e "/tmp/.X1-lock" ]; then rm /tmp/.X1-lock 2>&1 > /dev/null; fi
+	if [ -e "/tmp/.X11-unix" ]; then rm /tmp/.X11-unix/* 2>&1 > /dev/null; fi
+	if [ -e "/etc/xorg/xorg.conf" ]; then rm /etc/xorg/xorg.conf 2>&1 > /dev/null; fi
+
+	# remove unsafe safe variables before next xorg run
+	
+#	store_variable X_SERVER "" RUNTIME
+	store_variable SCREEN_RESOLUTION "" RUNTIME
+	store_variable SCREEN_COLOR_DEPTH "" RUNTIME
+	store_variable X_DRIVER_NAME "$SET_DRIVER" RUNTIME
+
+	load_lang base
+	set_notice "$LNG_SYSTEM_XORG_DIED"
+	
+}
+
+
+video_quirks() {
+	if [ "$WAS_FIRST_RUN" != "1" ] ; then	
+		QUIRK_IS_D2500=`cat /proc/cpuinfo | grep "model name" | grep -E "Intel.+D2500"`
+		if [ -n "$QUIRK_IS_D2500" ] ; then
+			echo "START-SESSION: Intel D2500 video detected. Setting default X_DRIVER_NAME=modesetting" >> $LOGFILE
+			store_variable X_DRIVER_NAME "modesetting" RUNTIME
+			. $TS_RUNTIME
+		fi	
+	fi
+}
+
+run ()
+{	
+	video_quirks
+
+	/etc/init.d/x start
+	. $TS_RUNTIME
+
+	# wait for Xorg to start, if waited for too long consider it dead
+	WAITCOUNT=0
+	while [ ! -e /tmp/.X1-lock ]; do
+		echo "START-SESSION: Waiting for X to start..." >> $LOGFILE
+		sleep 1
+		let WAITCOUNT=WAITCOUNT+1
+		if [ "$WAITCOUNT" -gt 5 ] ; then
+			xorg_died
+			exit 1		
+		fi
+	done
+
+    	if [ "$WAS_FIRST_RUN" != "1" ] ; then
+		if [ "`make_caps "$SETNUMLOCK"`" = "ON" ]; then numlockx; fi
+		echo "WAS_FIRST_RUN=1" >> $TS_RUNTIME
+		
+		# if two monitors, we assume apply_xrandr might've changed their order, so we move
+		# mouse on to the first monitor so that connection_manager pops up on first monitor
+		if [ -n "$XRANDR_MON1" ] ; then
+			xdotool mousemove 0 0
+		fi
+		
+	fi
+
+	NOTICE=`fetch_notice`
+	if [ -n "$NOTICE" ] ; then
+		xdmenu_errbox "$NOTICE"
+	fi
+
+	/etc/init.d/autostart start
+
+	# endless cycle until Xorg dies which normally shouldn't happen
+	RATE=2
+	
+	while [ -n "`pidof Xorg`" ] ; 
+	do
+		sleep $RATE
+
+		# if countdown initiated by CM - process it
+		if [ -e "/tmp/countdown" ] ; then
+
+			CNTDOWN=`cat /tmp/countdown`
+			let CNTDOWN=CNTDOWN-$RATE
+
+			if [ $CNTDOWN -le 0 ] ; then
+				rm /tmp/countdown
+				/bin/poweroff
+			else
+				echo $CNTDOWN > /tmp/countdown
+			fi		
+		fi
+
+		# popup connection manager if all sessions are closed
+		$XDMENU_SCRIPTS/check_if_no_sessions
+
+	done
+
+	sleep 3
+	xorg_died
+	
+}
+
+run
+

@@ -1,0 +1,138 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+SESID=$1
+INPUT_SERVER=$2
+
+if [ -z "$SESID" ]; then
+	echo "Session ID required as parameter!"
+	exit
+fi
+
+FREERDP_SERVER=`eval echo '$SESSION_'$SESID'_FREERDP_SERVER'`
+if [ -z "$FREERDP_SERVER" ]; then
+	FREERDP_SERVER=$INPUT_SERVER
+	if [ -z "$FREERDP_SERVER" ] ; then
+		echo "FREERDP_DESKRUN: No server given to me!" >> $LOGFILE
+		exit 1	
+	fi
+fi
+
+# session specific -> readable
+
+FREERDP_OPTIONS=`sestypevar_def $SESID OPTIONS`
+FREERDP_SLOWLINK=`sestypevar_def $SESID SLOWLINK OFF`
+FREERDP_SOUND=`sestypevar_def $SESID SOUND ON`
+FREERDP_CDROM=`sestypevar_def $SESID CDROM OFF`
+FREERDP_FDD=`sestypevar_def $SESID FDD OFF`
+FREERDP_HDD=`sestypevar_def $SESID HDD OFF`
+FREERDP_USB=`sestypevar_def $SESID USB ON`
+FREERDP_COM3=`sestypevar_def $SESID COM3 OFF`
+FREERDP_COM4=`sestypevar_def $SESID COM4 OFF`
+FREERDP_COM5=`sestypevar_def $SESID COM5 OFF`
+FREERDP_COM6=`sestypevar_def $SESID COM6 OFF`
+FREERDP_NO_TLS=`sestypevar_def $SESID NO_TLS OFF`
+FREERDP_PORT=`sestypevar_def $SESID PORT 3389`
+FREERDP_MICROPHONE=`sestypevar_def $SESID MICROPHONE OFF`
+FREERDP_COLOR_DEPTH=`sestypevar_def $SESID COLOR_DEPTH 16`
+FREERDP_USER=`sestypevar_def $SESID USER`
+FREERDP_DOMAIN=`sestypevar_def $SESID DOMAIN`
+FREERDP_PASSWORD=`sestypevar_def $SESID PASSWORD`
+FREERDP_KEYMAP=`sestypevar_def $SESID KEYMAP`
+FREERDP_GEOMETRY=`sestypevar_def $SESID GEOMETRY`
+FREERDP_COMPRESSION=`sestypevar_def $SESID COMPRESSION OFF`
+FREERDP_DOWNLOADS=`sestypevar_def $SESID DOWNLOADS OFF`
+
+
+# AUTH_ASK
+FREERDP_ASK_AUTH=`sesvar $SESID ASK_AUTH`
+if [ "`make_caps $FREERDP_ASK_AUTH`" = "ON" ] ; then
+	FREERDP_USER=`sesvar $SESID INPUT_USER`
+	FREERDP_PASSWORD=`sesvar $SESID INPUT_PASSWORD`
+fi
+
+# param options
+
+USER="-u '$FREERDP_USER'"
+COLOR_DEPTH="-a $FREERDP_COLOR_DEPTH"
+
+if [ -n "$FREERDP_DOMAIN" ]; then DOMAIN="-d '$FREERDP_DOMAIN'"; fi
+if [ -n "$FREERDP_PASSWORD" ]; then PASSWORD="-p '$FREERDP_PASSWORD'"; fi
+if [ -n "$FREERDP_KEYMAP" ]; then KEYMAP="-k '$FREERDP_KEYMAP'"; fi
+
+if [ -n "$FREERDP_GEOMETRY" ]; then GEOMETRY="-g $FREERDP_GEOMETRY"; else GEOMETRY="-f"; fi
+
+#    
+if [ `make_caps "$FREERDP_SLOWLINK"` = "ON" ]; then
+    SLOW="-x m"
+fi
+#
+if [ `make_caps "$FREERDP_COMPRESSION"` = "ON" ]; then
+    COMPRESS="-z"
+fi
+#
+if [ `make_caps "$FREERDP_SOUND"` = "ON" ]; then
+    SOUND="--plugin rdpsnd --data alsa --"
+fi
+#
+if [ `make_caps "$FREERDP_CDROM"` = "ON" ]; then
+    CDROM="disk:cdrom:/mnt/cdrom"
+fi
+#
+if [ `make_caps "$FREERDP_FDD"` = "ON" ]; then
+    FDD="disk:floppy:/mnt/floppy"
+fi
+#
+if [ `make_caps "$FREERDP_HDD"` = "ON" ]; then
+    HDD="disk:hdd:/mnt/disc"
+fi
+#
+if [ `make_caps "$FREERDP_USB"` = "ON" ]; then
+    USB="disk:flash:/mnt/usbdevice"
+fi
+#
+if [ -n "$FREERDP_DOWNLOADS" ] ; then
+    DOWNLOADS="disk:Downloads:/root/Downloads"
+fi
+#
+if [ `make_caps "$FREERDP_COM3"` != "OFF" ]; then
+    if [ `make_caps "$FREERDP_COM3"` = "ON" ] ; then
+	COM3="/dev/ttyS0"
+    else
+    	COM3="serial:COM3:$FREERDP_COM3"
+    fi
+fi
+#
+if [ `make_caps "$FREERDP_COM4"` != "OFF" ]; then
+    if [ `make_caps "$FREERDP_COM4"` = "ON" ] ; then
+	FREERDP_COM4="/dev/ttyS1"
+    fi
+    COM4="serial:COM4:$FREERDP_COM4"
+fi
+#
+if [ `make_caps "$FREERDP_COM5"` != "OFF" ]; then
+    if [ `make_caps "$FREERDP_COM5"` = "ON" ] ; then
+	FREERDP_COM5="/dev/ttyS2"
+    fi
+    COM5="serial:COM5:$FREERDP_COM5"
+fi
+#
+if [ `make_caps "$FREERDP_COM6"` != "OFF" ]; then
+    if [ `make_caps "$FREERDP_COM6"` = "ON" ] ; then
+	FREERDP_COM6="/dev/ttyS3"
+    fi
+    COM6="serial:COM6:$FREERDP_COM6"
+fi
+#
+if [ `make_caps "$FREERDP_NO_TLS"` = "ON" ]; then
+    NO_TLS="--no-tls"
+fi
+#
+if [ `make_caps "$FREERDP_MICROPHONE"` = "ON" ]; then
+    MICROPHONE="--plugin drdynvc --data audin --"
+fi
+#
+
+DESKRUN_CMD="echo "y" | xfreerdp $GEOMETRY $KEYMAP $USER $DOMAIN $PASSWORD $COLOR_DEPTH \
+            $SLOW $COMPRESS $NO_TLS $SOUND --plugin cliprdr --plugin rdpdr --data $DOWNLOADS $CDROM $FDD $HDD \
+            $USB $COM3 $COM4 $COM5 $COM6 -- $MICROPHONE $FREERDP_OPTIONS $FREERDP_SERVER"

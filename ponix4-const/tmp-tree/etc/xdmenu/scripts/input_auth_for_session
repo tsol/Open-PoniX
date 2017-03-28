@@ -1,0 +1,40 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+if [ -z "$1" ] ; then
+	echo "Session number required!"
+	exit 1
+fi
+
+SN=$1
+
+VAR_NAME='SESSION_'$SN'_INPUT_USER'
+VAR_VALUE="`eval echo '$'$VAR_NAME`"
+
+VAR_NAME1='SESSION_'$SN'_INPUT_PASSWORD'
+
+SES_TITLE=`sesvar $SN TITLE`
+
+MENU_FILE=/tmp/input_auth.xd
+
+echo "
+XD_TYPE=AUTH
+XD_CLASSNAME=dialog_session$SN
+XD_TITLE=\"$LNG_INPUT_AUTH_TITLE\"
+XD_TEXT=\"$SES_TITLE\"
+XD_LABEL=\"$LNG_INPUT_AUTH_LABEL_USER\"
+XD_LABEL1=\"$LNG_INPUT_AUTH_LABEL_PASSWORD\"
+XD_WIDTH=64
+XD_HEIGHT=18
+XD_INPUT_DEFAULT=\"$VAR_VALUE\"
+XD_STORE_RESULT_AS=\"$VAR_NAME\"
+XD_STORE_RESULT_AS1=\"$VAR_NAME1\"
+" > $MENU_FILE
+
+/bin/xdmenu $MENU_FILE
+RET=$?
+
+exit $RET
+

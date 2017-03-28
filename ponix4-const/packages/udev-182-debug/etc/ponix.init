@@ -1,0 +1,175 @@
+#! /bin/sh
+#
+#init script
+#
+
+if [ -e /etc/ponix.env ] ; then . /etc/ponix.env ; fi
+if [ -e $TS_DEFAULTS ] ; then . $TS_DEFAULTS ; fi
+if [ -e $TS_FUNCTIONS ] ; then . $TS_FUNCTIONS ; fi
+
+INITLIST=/tmp/initlist
+KERNEL_VERSION=`uname -r`
+
+# Runs packages in init level
+
+init_packages()
+{
+(cat $INITLIST | sort) |
+while read package
+do
+	if [ -n "$DEBUG_BOOT" ]; then
+	    echo -n `echo "$package -" | cut -c4-`" "
+	fi
+	(
+	    trap - INT QUIT TSTP
+	    if [ -n "$DEBUG_BOOT" ]; then
+	        echo "$package" >> $LOGFILE
+            fi
+	    export CURRENTRC=$1
+	    if [ -z "$DEBUG_PACKAGES" ]; then
+	        /etc/rc$1.d/$package init >> $LOGFILE 2>&1
+	    else
+	        /etc/rc$1.d/$package init >> $LOGFILE
+		sleep 1
+	    fi
+	)
+done
+}
+
+umask 022
+
+# Mount Filesystems
+
+# Allow you to specify the tmpfs filesystem size
+if [ ! -z ${BOOTFSSIZE} ]; then
+        mount -t tmpfs -o size=${BOOTFSSIZE} tmpfs /mnt/dynamic
+else
+        mount -t tmpfs tmpfs /mnt/dynamic
+fi
+
+mount -t aufs -o dirs=/mnt/dynamic=rw:/=ro none /mnt/union
+cd /mnt/union
+mkdir oldroot
+pivot_root . /mnt/union/oldroot
+mount -t proc /proc /proc
+mount -t sysfs none /sys
+mount -t devtmpfs /dev /dev
+mkdir /tmp/ts
+
+clear
+
+cat /proc/cmdline | grep -qi splash
+if [ "$?" -eq "0" ] ; then SPLASH=ON ; fi
+
+if [ -d /proc/pvr/ ] && [ "`cat /sys/class/graphics/fb0/modes`" == "U:1920x1080p-0" ]; then 
+	mv /share/plymouth/plymouthd.text /share/plymouth/plymouthd.defaults
+fi
+
+if [ "$SPLASH" = "ON" ] ; then
+	plymouthd --tty=tty63 --pid-file=/run/plymouth/pid --kernel-command-line="quite splash"
+	plymouth show-splash
+	plymouth display-message --text="poniX version $TS_VERSION"
+fi
+
+cat /proc/cmdline | grep -qi console
+if [ "$?" -eq "0" ]; then CONSOLE=ON ; fi
+
+/bin/udevd --daemon --debug 2>> /var/log/udev.log
+udevadm trigger
+
+mkdir /dev/pts
+
+echo -e '\e[1;37m'""
+echo "|-------------------------------------|"
+echo "| Terminal Solutions Saint-Petersburg |"
+echo "|                                     |"
+echo "| http://www.t-sol.ru                 |"   
+echo "|-------------------------------------|"
+echo ""
+echo ""
+echo -e "" '\e[0;37m'
+
+
+echo "Loading poniX $TS_VERSION, please wait... "
+echo ""
+
+if [ "$CONSOLE" = "ON" ]; then echo -n "[."; fi
+
+if [ -e /etc/DEBUGLEVEL ] ; then
+	. /etc/DEBUGLEVEL
+fi
+get_debug_level $DEBUGLEVEL
+echo "DEBUG_BOOT=$DEBUG_BOOT
+DEBUG_NETWORK=$DEBUG_NETWORK
+DEBUG_INIT=$DEBUG_INIT
+DEBUG_KERNEL=$DEBUG_KERNEL
+DEBUG_MODULES=$DEBUG_MODULES
+DEBUG_PACKAGES=$DEBUG_PACKAGES
+DEBUG_EMAIL=$DEBUG_EMAIL" >> $TS_RUNTIME
+
+# Enable Verbose mode of Debug Package
+
+if [ -n "$DEBUG_BOOT" ] ; then
+	debug="-d"
+fi
+
+if [ -n "$DEBUG_INIT" ]; then
+	set -v
+	echo_log "\nDebug Mode Enabled, echoing commands to screen\n"
+	echo "set -v" >> $TS_RUNTIME
+	sleep 5
+fi
+
+if [ "$CONSOLE" = "ON" ]; then echo -n "."; fi
+
+depmod
+
+if [ "$CONSOLE" = "ON" ]; then echo -n "."; fi
+
+# Loop over every line in /etc/modules.
+echo_log -e '\nLoading modules: ' $debug
+(cat /etc/modules; echo) | # make sure there is a LF at the end
+while read module args
+do
+	case "$module" in
+		\#*|"") continue ;;
+	esac
+	
+	if [ "$CONSOLE" = "ON" ]; then echo -n "." ; fi
+		
+	if [ -n "$DEBUG_BOOT" ]; then
+	    echo -ne "$module - "
+        fi
+	if [ -z "$DEBUG_MODULES" ]; then
+	    if ! modprobe "$module" $args >> $LOGFILE 2>&1; then
+		echo "Device $module not Found, Removing" >> $LOGFILE
+		modprobe -r "$module" >> $LOGFILE
+	    fi
+        else 
+	    sleep 1
+	    if ! modprobe "$module" $args >> $LOGFILE; then
+		echo "Device $module not Found, Removing" >> $LOGFILE
+		modprobe -r "$module" >> $LOGFILE
+	    fi
+        fi
+done
+
+if [ "$CONSOLE" = "ON" ]; then 
+	echo -n ".]"
+	echo ""
+	echo ""
+fi
+
+mount -t devpts devpts /dev/pts
+
+# Packages init
+
+for x in 0 5; do
+	echo_log -e "\nInitializing rc$x packages... " $debug
+	ls /etc/rc$x.d > $INITLIST
+	init_packages $x
+	echo_log "" $debug
+done
+
+rm $INITLIST
+

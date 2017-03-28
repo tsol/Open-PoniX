@@ -1,0 +1,6 @@
+LNG_SE_SKYPE_USER="Логин"
+LNG_SE_SKYPE_PASSWORD="Пароль"
+LNG_SE_SKYPE_USER_TEXT="SKYPE логин пользователя"
+LNG_SE_SKYPE_PASSWORD_TEXT="Пароль пользователя"
+LNG_SKYPE_NO_WM="Skype требует оконный менеджер! Удалите WM_DISABLE из Ваших настроек!"
+LNG_SKYPE_NO_GTK="Skype требует graphics.px пакет!"

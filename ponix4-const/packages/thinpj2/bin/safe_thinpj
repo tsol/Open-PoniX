@@ -1,0 +1,37 @@
+#!/bin/sh
+
+. $TS_GLOBAL 
+
+MAXLOAD=90
+MAXLOADCOUNT=3
+LOADCOUNT=0
+
+
+while true; do
+
+	if [ -z "`pidof thinpj`" ] ; then
+		echo "Thinpj is not found. Running..."
+		/bin/thinpj $THINPJ_OPTIONS 2>&1 &
+	fi
+
+	HIGHLOAD=`top -b -n 1 | grep "/bin/thinpj" | grep -v grep | awk '{str=$8; gsub(/\.[0-9]+$/,"",str); print str;}'`
+
+	if [ "$HIGHLOAD" -gt "$MAXLOAD" ] ; then
+		let LOADCOUNT=LOADCOUNT+1	
+		echo "Thinpj HIGHLOAD detected ($LOADCOUNT times now)"
+
+		if [ "$LOADCOUNT" -gt "$MAXLOADCOUNT" ] ; then
+			echo "Thinpj LOADCOUNT exceeded $MAXLOADCOUNT, killing thinpj"
+			kill "`pidof thinpj`"
+			LOADCOUNT=0
+		fi
+	else
+		if [ "$LOADCOUNT" -gt "0" ] ; then
+			echo "Thinpj HIGHLOAD seems to drop. Flushing LOADCOUNTER."
+			LOADCOUNT=0
+		fi
+	fi
+	
+	sleep 3
+done
+

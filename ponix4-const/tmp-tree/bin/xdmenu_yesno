@@ -1,0 +1,39 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+XDMSGBOX_HEIGHT=12
+XDMSGBOX_WIDTH=60
+
+XDMENU_FOCUS_BIN=/bin/xdmenu_focus
+
+if [ "$1" = "" ] ; then
+	echo "Usage: xdmenu_yesno text"
+	exit
+fi
+
+if [ "$DISPLAY" = "" ] ; then
+	echo "DISPLAY is not set..."
+	exit
+fi
+
+CLASSNAME='xdmenu_yesno'
+
+# Running Xdialog #####################################
+
+WID=`xdotool search --class "$CLASSNAME"`
+
+if [ "$WID" != "" ] ; then
+	xdotool windowkill $WID
+fi
+
+if [ -n "$2" ] ; then
+	TIMEOUT="--timeout $2"
+fi
+
+$XDMENU_FOCUS_BIN $CLASSNAME &
+                                                                
+eval "/bin/Xdialog --rc-file /etc/gtkrc.fixedfont --title \"\" --wmclass $CLASSNAME --wrap $TIMEOUT --yesno \"$1\" $XDMSGBOX_HEIGHT $XDMSGBOX_WIDTH  2>>$LOGFILE"
+exit $?
+

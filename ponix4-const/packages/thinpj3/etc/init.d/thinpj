@@ -1,0 +1,31 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+        echo " * " >> /var/log/boot.log
+	echo " * Listing sound devices to use in THINPJ_OPTIONS (--playback-dev, --capture-dev or --ring-dev)" >> /var/log/boot.log
+        echo " * " >> /var/log/boot.log
+		
+	echo q | /bin/auddemo | grep ALSA >> /var/log/boot.log
+
+	(/bin/safe_thinpj >> /var/log/thinpj.log) &
+
+	pkg_set_init_flag $PACKAGE
+    fi
+    ;;
+stop)
+#    kill -SIGUSR2 `pidof thinpj`
+    ;;
+help)
+    echo "Usage: $0 init stop"
+    ;;
+*)
+    exit 1
+    ;;
+esac
+
+exit 0

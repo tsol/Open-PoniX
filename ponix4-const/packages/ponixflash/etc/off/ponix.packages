@@ -1,0 +1,184 @@
+#! /bin/sh
+
+. $TS_GLOBAL
+PID=$$
+
+if [ -e /etc/$PACKAGE.functions ] ; then
+	. /etc/$PACKAGE.functions
+fi
+if [ ! -e /etc/cmd/$PACKAGE.wm ] ; then
+	if [ -n "$WMNAME" ] ; then
+		. /etc/$WMNAME.functions
+	fi
+fi
+
+X_NUMLOCK="`make_caps $X_NUMLOCK`"
+
+pkg_set_init_flag $PACKAGE
+
+if [ -e /etc/cmd/$PACKAGE.console ] ; then . /etc/cmd/$PACKAGE.console ; fi
+if [ -e /etc/cmd/$PACKAGE.window ] ; then . /etc/cmd/$PACKAGE.window ; fi
+if [ -e /etc/cmd/$PACKAGE.menu ] ; then . /etc/cmd/$PACKAGE.menu ; fi
+if [ -e /etc/cmd/$PACKAGE.fullscreen ] ; then . /etc/cmd/$PACKAGE.fullscreen ; fi
+if [ -e /etc/cmd/$PACKAGE.global ] ; then . /etc/cmd/$PACKAGE.global ; fi
+
+if [ -z "$CMD_CONSOLE" ] ; then CMD_CONSOLE=$CMD_GLOBAL ; fi
+if [ -z "$CMD_WINDOW" ] ; then CMD_WINDOW=$CMD_GLOBAL ; fi
+if [ -z "$CMD_MENU" ] ; then CMD_MENU=$CMD_GLOBAL ; fi
+if [ -z "$CMD_FULLSCREEN" ] ; then CMD_FULLSCREEN=$CMD_GLOBAL ; fi
+
+if [ -e /etc/cmd/$PACKAGE.getip ] ; then CMD_GETIP=TRUE; fi
+if [ -e /etc/cmd/$PACKAGE.wm ] ; then wm_menu; fi
+if [ -e /etc/cmd/$PACKAGE.change_server_type ] ; then
+	SERVER="\"$2\""
+else
+	SERVER=$2
+fi
+
+if [ "$PACKAGE" = "xnest" ] ; then
+  # Hack to get parameters around the right way for xnest
+  if [ -n "$SERVER" ] ; then
+	set $1 $2 "$3 $SERVER"
+	SERVER=""
+  fi
+  if [ "$1" != "menu" ] ; then
+ 	getfreescreen
+  fi
+fi
+
+case "$1" in
+auto)
+    echo "Running $PACKAGE" >> $LOGFILE
+    CMD="$CMD_CONSOLE $SERVER $3"
+    wm_workspaces "$CMD" $4
+    echo $CMD >> $LOGFILE
+    echo $CMD > /tmp/CMD$PID
+    . /tmp/CMD$PID >> $LOGFILE 2>&1 &
+    echo "auto" >> $LOGFILE 2>&1 &
+    sleep 1
+    rm /tmp/CMD$PID
+    ;;
+menu)
+    echo "Running $PACKAGE" >> $LOGFILE
+
+    if [ -z "$SERVER" ] ; then
+          clear
+          chvt 1
+          replimenu -c $MENUCOLOUR -f $REPLIMENU/server.menu < /dev/tty1 > /dev/tty1
+          . /tmp/RM_SERVER
+          sleep 1
+          rm /tmp/RM_SERVER
+          SERVER=$RM_SERVER
+    fi
+
+    start_x
+    if [ `make_caps "$SETNUMLOCK"` = "ON" ]; then numlockx; fi
+    plymouth quit
+    
+    # Set flag to regenerate replimenu on session exit
+    CMD="$CMD_MENU $3 $SERVER"
+    echo $CMD >> $LOGFILE
+    echo $CMD > /tmp/CMD$PID
+    echo "chvt 1" >> /tmp/CMD$PID
+    echo "sleep 1" >> /tmp/CMD$PID
+    echo "kill `ps | grep -v grep | grep Xorg\ :$DISPLAY_NUMBER | awk '{print $1}'`" >> /tmp/CMD$PID
+    if [ "$PACKAGE" = "xnest" ] ; then
+        getfreescreen
+    fi
+    . /tmp/CMD$PID >> $LOGFILE 2>&1 &
+    sleep 1
+    loger menu
+    rm /tmp/CMD$PID
+    if [ -e /lib/kmaps/$KEYBOARD_MAP.xmod ] ; then
+	xmodmap /lib/kmaps/$KEYBOARD_MAP.xmod
+    fi
+    echo "menu" >> $LOGFILE 2>&1 &
+    ;;
+console)
+    echo "Running $PACKAGE" >> $LOGFILE
+    if [ "$0" = "/etc/init.d/ica" ] ; then
+        CMD="$CMD_CONSOLE $SERVER $3"         
+      else 
+        CMD="$CMD_CONSOLE $3 $SERVER"
+    fi
+    
+    if [ "$0" = "/etc/init.d/rxvt" ] ; then
+        CMD="$CMD_CONSOLE $3"
+    fi                
+    while [ -e /tmp/.X11-unix/X$DISPLAY_NUMBER ]; do
+	echo $CMD >> $LOGFILE
+	echo $CMD > /tmp/CMD$PID
+	export LANG=en_US.UTF-8
+	. /tmp/CMD$PID >> $LOGFILE 2>&1 &
+        sleep 2
+        loger console
+	rm /tmp/CMD$PID
+
+	# Add xmodmap modifications
+	if [ -e /lib/kmaps/$KEYBOARD_MAP.xmod ] ; then
+		xmodmap /lib/kmaps/$KEYBOARD_MAP.xmod
+	fi
+	wait
+	check_NX
+	check_xrunning
+	check_reboot
+	check_reconnect
+    done
+    echo "console" >> $LOGFILE 2>&1 &
+    ;;
+window)
+    echo "Running $PACKAGE" >> $LOGFILE
+    if [ -n "$CMD_GETIP" ] ; then
+      if [ -z "$SERVER" ]; then
+        dialog_get_server_address $PACKAGE |
+	    ( read SERVER_IP
+	    if [ "$SERVER_IP" != "0" ] ; then
+          	    echo "$CMD_WINDOW $SERVER_IP" > /tmp/CMD$PID
+	    fi )
+      else
+          echo "$CMD_WINDOW $SERVER $3" > /tmp/CMD$PID
+      fi
+    else
+      echo "$CMD_WINDOW $SERVER $3" > /tmp/CMD$PID
+    fi
+    if [ -e /tmp/CMD$PID ] ; then
+ 	cat /tmp/CMD$PID >> $LOGFILE
+   	. /tmp/CMD$PID >> $LOGFILE 2>&1 &
+	sleep 1
+    	rm /tmp/CMD$PID
+    fi
+    echo "window" >> $LOGFILE 2>&1 &
+    ;;
+fullscreen)
+    echo "Running $PACKAGE" >> $LOGFILE
+    if [ -n "$CMD_GETIP" ] ; then
+      if [ -z "$SERVER" ]; then
+        dialog_get_server_address $PACKAGE |
+	    ( read SERVER_IP
+	    if [ "$SERVER_IP" != "0" ] ; then
+          	    echo "$CMD_FULLSCREEN $SERVER_IP" > /tmp/CMD$PID
+	    fi )
+      else
+        echo "$CMD_FULLSCREEN $SERVER $3" > /tmp/CMD$PID
+      fi
+    else
+       echo "$CMD_FULLSCREEN $SERVER $3" > /tmp/CMD$PID
+    fi
+    if [ -e /tmp/CMD$PID ] ; then
+    	cat /tmp/CMD$PID >> $LOGFILE
+	. /tmp/CMD$PID >> $LOGFILE 2>&1 &
+	sleep 1
+	rm /tmp/CMD$PID
+    fi
+    echo "fullscreen" >> $LOGFILE 2>&1 & 
+    ;;
+    
+help)
+    echo "Usage: $0 {console|menu|window|fullscreen} [server] [options]"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

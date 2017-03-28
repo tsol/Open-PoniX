@@ -1,0 +1,103 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+SESID=$1
+INPUT_SERVER=$2
+
+if [ -z "$SESID" ]; then
+	echo "Session ID required as parameter!"
+	exit
+fi
+
+RDESKTOP_SERVER=`eval echo '$SESSION_'$SESID'_RDESKTOP_SERVER'`
+if [ -z "$RDESKTOP_SERVER" ]; then
+	RDESKTOP_SERVER=$INPUT_SERVER
+	if [ -z "$RDESKTOP_SERVER" ] ; then
+		echo "RDESKTOP_DESKRUN: No server given to me!" >> $LOGFILE
+		exit 1	
+	fi
+fi
+
+# session specific -> readable
+
+RDESKTOP_OPTIONS=`sestypevar_def $SESID OPTIONS`
+RDESKTOP_SLOWLINK=`sestypevar_def $SESID SLOWLINK OFF`
+RDESKTOP_SOUND=`sestypevar_def $SESID SOUND ON`
+RDESKTOP_CDROM=`sestypevar_def $SESID CDROM OFF`
+RDESKTOP_FDD=`sestypevar_def $SESID FDD OFF`
+RDESKTOP_HDD=`sestypevar_def $SESID HDD OFF`
+RDESKTOP_USB=`sestypevar_def $SESID USB ON`
+RDESKTOP_COM3=`sestypevar_def $SESID COM3 OFF`
+RDESKTOP_COM4=`sestypevar_def $SESID COM4 OFF`
+RDESKTOP_COM5=`sestypevar_def $SESID COM5 OFF`
+RDESKTOP_COM6=`sestypevar_def $SESID COM6 OFF`
+RDESKTOP_PORT=`sestypevar_def $SESID PORT 3389`
+RDESKTOP_COLOR_DEPTH=`sestypevar_def $SESID COLOR_DEPTH 16`
+RDESKTOP_USER=`sestypevar_def $SESID USER`
+RDESKTOP_DOMAIN=`sestypevar_def $SESID DOMAIN`
+RDESKTOP_PASSWORD=`sestypevar_def $SESID PASSWORD`
+RDESKTOP_KEYMAP=`sestypevar_def $SESID KEYMAP en-us`
+RDESKTOP_GEOMETRY=`sestypevar_def $SESID GEOMETRY`
+RDESKTOP_COMPRESSION=`sestypevar_def $SESID COMPRESSION ON`
+
+# param options
+
+USER="-u '$RDESKTOP_USER'"
+COLOR_DEPTH="-a $RDESKTOP_COLOR_DEPTH"
+
+if [ -n "$RDESKTOP_DOMAIN" ]; then DOMAIN="-d '$RDESKTOP_DOMAIN'"; fi
+if [ -n "$RDESKTOP_PASSWORD" ]; then PASSWORD="-p '$RDESKTOP_PASSWORD'"; fi
+if [ -n "$RDESKTOP_KEYMAP" ]; then KEYMAP="-k '$RDESKTOP_KEYMAP'"; fi
+
+if [ -n "$RDESKTOP_GEOMETRY" ]; then GEOMETRY="-g $RDESKTOP_GEOMETRY"; else GEOMETRY="-f -D"; fi
+
+if [ `make_caps "$RDESKTOP_SLOWLINK"` = "ON" ]; then
+    SLOW="-x m"
+fi
+#
+if [ `make_caps "$RDESKTOP_COMPRESSION"` = "ON" ]; then
+    COMPRESS="-z"
+fi
+#
+if [ `make_caps "$RDESKTOP_SOUND"` = "ON" ]; then
+    SOUND="-r sound:local"
+fi
+#
+if [ `make_caps "$RDESKTOP_CDROM"` = "ON" ]; then
+    CDROM="-r disk:cdrom=/mnt/cdrom"
+fi
+#
+if [ `make_caps "$RDESKTOP_FDD"` = "ON" ]; then
+    FDD="-r disk:floppy=/mnt/floppy"
+fi
+#
+if [ `make_caps "$RDESKTOP_HDD"` = "ON" ]; then
+    HDD="-r disk:hdd=/mnt/disc"
+fi
+#
+if [ `make_caps "$RDESKTOP_USB"` = "ON" ]; then
+    USB="-r disk:flash=/mnt/usbdevice"
+fi
+#
+if [ `make_caps "$RDESKTOP_COM3"` = "ON" ]; then
+    COM3="-r comport:COM3=/dev/ttyS0"
+fi
+#
+if [ `make_caps "$RDESKTOP_COM4"` = "ON" ]; then
+    COM4="-r comport:COM4=/dev/ttyS1"
+fi
+#
+if [ `make_caps "$RDESKTOP_COM5"` = "ON" ]; then
+    COM5="-r comport:COM5=/dev/ttyS2"
+fi
+#
+if [ `make_caps "$RDESKTOP_COM6"` = "ON" ]; then
+    COM6="-r comport:COM6=/dev/ttyS3"
+fi
+#
+
+echo "rdesktop171 packet at 03.04.2013" >> /var/log/boot.log
+
+DESKRUN_CMD="rdesktop -N -r clipboard $GEOMETRY $USER $DOMAIN $PASSWORD $COLOR_DEPTH \
+            $SLOW $COMPRESS $SOUND $CDROM $FDD $HDD \
+            $USB $COM3 $COM4 $COM5 $COM6 $RDESKTOP_OPTIONS $RDESKTOP_SERVER"

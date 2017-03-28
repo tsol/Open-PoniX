@@ -1,0 +1,58 @@
+#! /bin/sh
+
+. $TS_GLOBAL
+
+load_lang linphone
+
+TPL_PATH=/etc
+CONFIG_PATH=/root
+CONFIG_NAME=".linphonerc"
+
+SESID=$1
+if [ -z "$SESID" ]; then
+   echo "Session ID required as parameter!"
+   exit
+fi
+
+if ! pkg_require graphics ; then
+        xdmenu_errbox "$LNG_LINPHONE_NO_GRAPHICS"
+        exit 1
+fi
+                
+
+LINPHONE_SERVER=`sestypevar_def $SESID SERVER`
+LINPHONE_LOGIN=`sestypevar_def $SESID LOGIN`
+LINPHONE_PASSWORD=`sestypevar_def $SESID PASSWORD`
+LINPHONE_REALM=`sestypevar_def $SESID REALM asterisk`
+LINPHONE_PORT=`sestypevar_def $SESID PORT 5060`
+LINPHONE_AUTOANSWER=`sestypevar_def $SESID AUTOANSWER`
+LINPHONE_CONFIG=`sestypevar_def $SESID CONFIG ON`
+
+LINPHONE_ECHOCANCEL=`sestypevar_def $SESID ECHOCANCEL 1`
+LINPHONE_PLAYBACK_DEV=`sestypevar_def $SESID PLAYBACK_DEV`
+LINPHONE_RINGER_DEV=`sestypevar_def $SESID RINGER_DEV`
+LINPHONE_CAPTURE_DEV=`sestypevar_def $SESID CAPTURE_DEV`
+
+
+if [ `make_caps "$LINPHONE_AUTOANSWER"` = "ON" ]; then SP_AUTOANSWER="-a"; fi
+
+if [ `make_caps "$LINPHONE_CONFIG"` = "ON" ]; then
+ 
+        echo s/\$LINPHONE_SERVER/$LINPHONE_SERVER/g > /tmp/sipphone
+        echo s/\$LINPHONE_LOGIN/$LINPHONE_LOGIN/g >> /tmp/sipphone
+        echo s/\$LINPHONE_PASSWORD/$LINPHONE_PASSWORD/g >> /tmp/sipphone
+        echo s/\$LINPHONE_REALM/$LINPHONE_REALM/g >> /tmp/sipphone
+        echo s/\$LINPHONE_PORT/$LINPHONE_PORT/g >> /tmp/sipphone
+
+        echo s/\$LINPHONE_ECHOCANCEL/$LINPHONE_ECHOCANCEL/g >> /tmp/sipphone
+        echo s/\$LINPHONE_PLAYBACK_DEV/$LINPHONE_PLAYBACK_DEV/g >> /tmp/sipphone
+        echo s/\$LINPHONE_RINGER_DEV/$LINPHONE_RINGER_DEV/g >> /tmp/sipphone
+        echo s/\$LINPHONE_CAPTURE_DEV/$LINPHONE_CAPTURE_DEV/g >> /tmp/sipphone
+
+        cat $TPL_PATH/linphone.conf.tpl | sed -f /tmp/sipphone > $CONFIG_PATH/$CONFIG_NAME
+        rm /tmp/sipphone
+
+fi
+
+DESKRUN_CMD="/bin/linphone $SP_AUTOANSWER"
+

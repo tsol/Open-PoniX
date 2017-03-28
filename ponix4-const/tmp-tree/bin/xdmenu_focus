@@ -1,0 +1,37 @@
+#!/bin/sh
+
+if [ "$1" = "" ] ; then
+	echo "This is a helper script, should be run from main xdmenu script."
+	echo "Usage: xdmenu_focus [classname]"
+	exit
+fi
+
+# Do nothing if JWM takes care
+if [ -n "`pidof jwm`" ] ; then
+	exit
+fi
+
+CLASSNAME=$1
+
+if [ "$DISPLAY" = "" ] ; then
+	echo "DISPLAY is not set..."
+	exit
+fi
+
+WID=
+while [ "$WID" = "" ]; do
+
+	WID=`xdotool search --onlyvisible --sync --class "$CLASSNAME" 2>/dev/null`
+
+	if [ "$WID" = "" ] ; then
+#		echo "FOCUS: Didn't find window '$CLASSNAME', sleeping..."
+		sleep 1
+		continue
+	fi
+#	echo "FOCUS: Found window '$CLASSNAME', focusing..."
+	
+	xdotool windowraise $WID 2>/dev/null
+	xdotool windowfocus $WID 2>/dev/null
+done
+
+

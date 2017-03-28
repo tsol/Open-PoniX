@@ -1,0 +1,37 @@
+#!/bin/sh
+
+. /etc/ponix.env
+. $TS_GLOBAL
+
+run ()
+{	
+	/etc/init.d/x start
+
+	# TODO: shouldn't these two lines be transfered to x script ?
+	/bin/xrandr > $WKDIR/resolutions
+        /bin/xsetroot -cursor_name left_ptr
+        
+	
+	while [ ! -e /tmp/.X1-lock ]; do
+		echo "Waiting for X to start..." >> $LOGFILE
+		sleep 1
+	done
+
+    	if [ "$WAS_FIRST_RUN" != "1" ] ; then
+		plymouth quit
+		if [ `make_caps "$SETNUMLOCK"` = "ON" ]; then numlockx; fi
+		echo "WAS_FIRST_RUN=1" >> $TS_RUNTIME
+	fi
+
+	/etc/init.d/autostart start
+
+	# TODO: maybe replace with wait? I don't know
+	while [ -n "`pidof Xorg`" ] ; 
+	do
+		sleep 5	
+	done
+    
+}
+
+run
+

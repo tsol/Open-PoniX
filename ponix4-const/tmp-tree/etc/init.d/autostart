@@ -1,0 +1,74 @@
+#! /bin/sh
+
+# This script performs AUTORUN of sessions. It is Called from /bin/start-session
+
+. $TS_GLOBAL
+
+check_run_session()
+{
+	i=$1
+	SESSION_TYPE=`eval echo '$SESSION_'$i'_TYPE'`
+
+	if [ -n "$SESSION_TYPE" ] ; then
+		SESSION_TYPE=`make_lower $SESSION_TYPE`
+
+		echo_log "AUTOSTART_CHECK: $i, $SESSION_TYPE"
+		
+		SESSION_AUTOSTART=`eval echo '$SESSION_'$i'_AUTOSTART'`
+		if [ -z "$SESSION_AUTOSTART" ] ; then
+			SESSION_AUTOSTART=$AUTOSTART
+		fi
+		SESSION_AUTOSTART=`make_caps $SESSION_AUTOSTART`
+				
+		if [ "$SESSION_AUTOSTART" = "ON" ]; then
+				
+			SESSION_AUTOSTART_DELAY=`eval echo '$SESSION_'$i'_AUTOSTART_DELAY'`
+			if [ -n "$SESSION_AUTOSTART_DELAY" ] ; then
+				sleep $SESSION_AUTOSTART_DELAY				
+			fi
+				
+			/etc/cmd/deskrun $i $SESSION_TYPE &
+			return 0
+		fi
+	fi
+
+	return 1
+}
+
+case "$1" in  
+init)
+	exit 0
+  ;;
+start)
+	WAS_AUTOSTART=0
+	
+	if [ "`make_caps $AUTOSTART_REVERSE`" = "ON" ] ; then
+	
+		i=$MAX_SESSIONS
+		while [ $i -ge 0 ]; do                        
+			if check_run_session $i ; then WAS_AUTOSTART=1 ; fi
+			let i=i-1
+		done
+	else
+		i=0
+		while [ $i -lt $MAX_SESSIONS ]; do                        
+			if check_run_session $i ; then WAS_AUTOSTART=1 ; fi
+			let i=i+1
+		done	
+	fi
+	
+	if [ "$WAS_AUTOSTART" = "0" ] ; then
+		$CONNECTION_MANAGER &
+	fi
+
+	exit 1
+    ;;
+help)
+	echo "Usage: $0 {start}"
+    ;;
+*)
+	exit 1
+    ;;
+esac
+
+exit 0

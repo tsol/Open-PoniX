@@ -1,0 +1,30 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+if [ -z "$VMVIEW_QUIET" ]; then VMVIEW_QUIET=Off; fi
+
+let SN=$DISPLAY_NUMBER-1
+SESSION_OPTIONS=`eval echo '$SESSION_'$SN'_VMVIEW_OPTIONS'`
+
+USER="-u '$VMVIEW_USER'"
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-u\s\|\s-u\s'`" ]; then USER=""; fi
+ 
+DOMAIN=""
+ if [ -n "$VMVIEW_DOMAIN" ]; then DOMAIN="-d '$VMVIEW_DOMAIN'"; fi
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-d\s\|\s-d\s'`" ]; then DOMAIN=""; fi
+
+PASSWORD=""
+ if [ -n "$VMVIEW_PASSWORD" ]; then PASSWORD="-p '$VMVIEW_PASSWORD'"; fi
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-p\s\|\s-p\s'`" ]; then PASSWORD=""; fi
+ 
+VDNAME=""
+ if [ -n "$VMVIEW_VDNAME" ]; then VDNAME="-n '$VMVIEW_VDNAME'"; fi
+ if [ -n "`echo $SESSION_OPTIONS | grep -e '^-n\s\|\s-n\s'`" ]; then VDNAME=""; fi
+  
+if [ `make_caps "$VMVIEW_QUIET"` = "ON" ]; then
+    QUIET="-q"
+fi
+
+if [ -n "$VMVIEW_RDESKTOP" ]; then RDESKTOP="--rdesktopOptions $VMVIEW_RDESKTOP"; fi
+
+CMD_GLOBAL="vmware-view --fullscreen $QUIET $USER $DOMAIN $PASSWORD $VDNAME $RDESKTOP -s"

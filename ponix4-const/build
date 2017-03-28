@@ -1,0 +1,73 @@
+#! /bin/bash
+
+BASEVER=4.0
+
+USER=$PONIX_GOD
+if [ -z "$USER" ]; then
+        USER=kolyan
+fi
+
+COPYTO=/tftpboot/ponix4
+
+        
+if [ -z "$1" ]; then 
+	echo "Usage: $0 [build/nobuild]";
+	exit 1;
+fi
+
+
+# [prepare configs] ##############################################
+
+echo "SESSION_0_TYPE=freerdp" > ponix.conf.buildtime
+echo "FREERDP_SOUND=On" >> ponix.conf.buildtime
+echo "FREERDP_USB=On" >> ponix.conf.buildtime
+echo "NET_HOSTNAME=TS*" >> ponix.conf.buildtime
+echo "TIME_ZONE="UTC-00:00"" >> ponix.conf.buildtime
+echo "DAILY_REBOOT=Off" >> ponix.conf.buildtime
+echo "NET_TELNETD_ENABLED=On" >> ponix.conf.buildtime
+echo "RECONNECT_PROMPT=MENU01" >> ponix.conf.buildtime
+echo "NET_USE_DHCP=ON" >> ponix.conf.buildtime
+echo "PONIX_LANG=ru" >> ponix.conf.buildtime
+
+# [version control] ###############################################################
+        
+CURBUILD=`cat build.index`
+
+if [ -z $CURBUILD ]; then
+	echo WARNING, build version is empty! Setting it = 1!
+	CURBUILD=0
+fi
+
+VERSION=${BASEVER}.${CURBUILD}
+
+echo
+echo ============================================================
+echo Upload user: $USER, Building version: $VERSION
+echo ============================================================
+echo
+echo "type a few words describing change and hit enter:"
+
+read Z
+
+echo `date +"%F %R"` - $VERSION - $Z >> 'history.txt'
+echo "PoniX 4 v.$VERSION" > $COPYTO/version
+
+NEWVER=`expr $CURBUILD + 1`
+echo $NEWVER > build.index
+
+echo "export HDUPDATE_WS_VERSION=$VERSION" >> ponix.conf.buildtime
+echo "export HDUPDATE_SERVER_VERSION=$VERSION" >> ponix.conf.buildtime
+echo "export TS_VERSION=$VERSION" >> ponix.conf.buildtime
+
+# / version control
+
+# [build and copy] ###################################################################
+
+./build.default --savedir
+
+if [ -n "$COPYTO" ] ; then
+	cp ./boot-images/pxe/initrd $COPYTO
+	cp ./boot-images/pxe/bzImage $COPYTO
+fi
+
+

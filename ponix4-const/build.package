@@ -1,0 +1,35 @@
+#!/bin/sh
+
+INITDIR=boot-images/initrd
+PKGDIR=boot-images/pkg-packages
+DEVDIR=./packages/base/dev
+MODDIR=boot-images/module-packages
+PACDIR=./tmp-tree/packages
+MAXIMAGE=524288
+TOOLSDIR=./utils/tools
+KERNEL_PARAMETERS="ramdisk_size=$MAXIMAGE"
+CONFDIR=./conf
+
+. packages/base/etc/ponix.functions
+
+
+# Building PKG packages
+
+echo -e "\nBuilding PKG Packages\n"
+
+for filename in `ls -1 $PKGDIR/` ; do
+        cd $PKGDIR/$filename
+        if [ -e build ] ; then
+                rm -Rf build
+        fi
+        echo "Building $filename.pkg"
+        tar -cz * > ../$filename.pkg
+#       tar c --lzma * > ../$filename.pkg
+        cd ../../..
+        rm -Rf $PKGDIR/$filename
+        if [ -n "$PKGFILES" ] ; then
+                PKGFILES="$PKGFILES $filename"
+        else
+                PKGFILES="$filename"
+        fi
+done

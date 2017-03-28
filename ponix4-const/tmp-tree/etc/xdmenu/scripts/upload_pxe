@@ -1,0 +1,48 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+if [ -z "$2" ] ; then
+	echo "Usage: upload_pxe localfile remotefile"
+	exit 1
+fi
+
+MSG=/bin/xdmenu_errbox
+
+if [ -n "$3" ] ; then
+	MSG=$3
+fi
+
+T_FILE=/tmp/upload.$$
+L_FILE=$1
+R_FILE=$2
+
+if [ ! -e "$L_FILE" ] ; then
+	$MSG "$LNG_UPLOADPXE_NO_LFILE"
+	exit 1
+fi
+
+if [ -z "$CLIENT_IP" ] || [ -z "$CLIENT_MAC" ] ; then
+	$MSG "$LNG_UPLOADPXE_NET_IS_DOWN"
+	exit 1
+fi
+
+if [ -z "$SERVER_IP" ] ; then
+	$MSG "$LNG_UPLOADPXE_NO_SERVER_IP"
+	exit 1
+fi
+
+#echo "tftp -p -b 512 -r ${R_FILE} -l $L_FILE $SERVER_IP"
+RESULT=`tftp -p -b 512 -r ${R_FILE} -l $L_FILE $SERVER_IP 2>&1`
+CODE=$?
+#echo "Error code is: $CODE, RESULT='$RESULT'"
+
+if [ $CODE != 0 ]; then
+	$MSG "$LNG_UPLOADPXE_ERROR\n$RESULT"
+	exit 2
+fi
+
+exit 0
+
+

@@ -1,0 +1,124 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+SESSION_NUMBER=$1
+INPUT_SERVER=$2
+
+if [ -z "$SESSION_NUMBER" ]; then
+	echo "Session ID required as parameter!"
+	exit
+fi
+
+FREERDP_SERVER=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_SERVER'`
+if [ -z "$FREERDP_SERVER" ]; then
+	FREERDP_SERVER=$INPUT_SERVER
+fi
+
+# session specific -> readable
+
+FREERDP_OPTIONS=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_OPTIONS'`
+FREERDP_SLOWLINK=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_SLOWLINK'`
+FREERDP_SOUND=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_SOUND'`
+FREERDP_CDROM=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_CDROM'`
+FREERDP_FDD=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_FDD'`
+FREERDP_HDD=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_HDD'`
+FREERDP_USB=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_USB'`
+FREERDP_COM3=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_COM3'`
+FREERDP_COM4=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_COM4'`
+FREERDP_COM5=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_COM5'`
+FREERDP_COM6=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_COM6'`
+FREERDP_NO_TLS=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_NO_TLS'`
+FREERDP_PORT=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_PORT'`
+FREERDP_MICROPHONE=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_MICROPHONE'`
+FREERDP_COLOR_DEPTH=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_COLOR_DEPTH'`
+FREERDP_USER=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_USER'`
+FREERDP_DOMAIN=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_DOMAIN'`
+FREERDP_KEYMAP=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_KEYMAP'`
+FREERDP_GEOMETRY=`eval echo '$SESSION_'$SESSION_NUMBER'_FREERDP_GEOMETRY'`
+
+# defaults
+
+if [ -z "$FREERDP_SLOWLINK" ]; then FREERDP_SLOWLINK=Off; fi
+if [ -z "$FREERDP_COMPRESSION" ]; then FREERDP_COMPRESSION=Off; fi
+if [ -z "$FREERDP_SOUND" ]; then FREERDP_SOUND=Off; fi
+if [ -z "$FREERDP_CDROM" ]; then FREERDP_CDROM=Off; fi
+if [ -z "$FREERDP_FDD" ]; then FREERDP_FDD=Off; fi
+if [ -z "$FREERDP_HDD" ]; then FREERDP_HDD=Off; fi
+if [ -z "$FREERDP_USB" ]; then FREERDP_USB=Off; fi
+if [ -z "$FREERDP_COM3" ]; then FREERDP_COM3=Off; fi
+if [ -z "$FREERDP_COM4" ]; then FREERDP_COM4=Off; fi
+if [ -z "$FREERDP_COM5" ]; then FREERDP_COM5=Off; fi
+if [ -z "$FREERDP_COM6" ]; then FREERDP_COM6=Off; fi
+if [ -z "$FREERDP_NO_TLS" ]; then FREERDP_NO_TLS=Off; fi
+if [ -z "$FREERDP_PORT" ]; then FREERDP_PORT=3389; fi
+if [ -z "$FREERDP_MICROPHONE" ]; then FREERDP_MICROPHONE=Off; fi
+if [ -z "$FREERDP_COLOR_DEPTH" ]; then FREERDP_COLOR_DEPTH=16; fi
+if [ -z "$FREERDP_KEYMAP" ]; then FREERDP_KEYMAP="en"; fi
+
+# param options
+
+USER="-u '$FREERDP_USER'"
+COLOR_DEPTH="-a $FREERDP_COLOR_DEPTH"
+
+if [ -n "$FREERDP_DOMAIN" ]; then DOMAIN="-d '$FREERDP_DOMAIN'"; fi
+if [ -n "$FREERDP_KEYMAP" ]; then KEYMAP="-k '$FREERDP_KEYMAP'"; fi
+
+if [ -n "$FREERDP_GEOMETRY" ]; then GEOMETRY="-g $FREERDP_GEOMETRY"; else GEOMETRY="-f"; fi
+
+#    
+if [ `make_caps "$FREERDP_SLOWLINK"` = "ON" ]; then
+    SLOW="-x m"
+fi
+#
+if [ `make_caps "$FREERDP_COMPRESSION"` = "ON" ]; then
+    COMPRESS="-z"
+fi
+#
+if [ `make_caps "$FREERDP_SOUND"` = "ON" ]; then
+    SOUND="--plugin rdpsnd"
+fi
+#
+if [ `make_caps "$FREERDP_CDROM"` = "ON" ]; then
+    CDROM="disk:cdrom:/mnt/cdrom"
+fi
+#
+if [ `make_caps "$FREERDP_FDD"` = "ON" ]; then
+    FDD="disk:floppy:/mnt/floppy"
+fi
+#
+if [ `make_caps "$FREERDP_HDD"` = "ON" ]; then
+    HDD="disk:hdd:/mnt/disc"
+fi
+#
+if [ `make_caps "$FREERDP_USB"` = "ON" ]; then
+    USB="disk:flash:/mnt/usbdevice"
+fi
+#
+if [ `make_caps "$FREERDP_COM3"` = "ON" ]; then
+COM3="serial:COM3:/dev/ttyS0"
+fi
+#
+if [ `make_caps "$FREERDP_COM4"` = "ON" ]; then
+COM4="serial:COM4:/dev/ttyS1"
+fi
+#
+if [ `make_caps "$FREERDP_COM5"` = "ON" ]; then
+COM5="serial:COM5:/dev/ttyS2"
+fi
+#
+if [ `make_caps "$FREERDP_COM6"` = "ON" ]; then
+COM6="serial:COM6:/dev/ttyS3"
+fi
+#
+if [ `make_caps "$FREERDP_NO_TLS"` = "ON" ]; then
+NO_TLS="--no-tls"
+fi
+#
+if [ `make_caps "$FREERDP_MICROPHONE"` = "ON" ]; then
+MICROPHONE="--plugin drdynvc --data audin --"
+fi
+#
+
+DESKRUN_CMD="xfreerdp $GEOMETRY $KEYMAP $USER $DOMAIN $COLOR_DEPTH \
+            $SLOW $COMPRESS $NO_TLS $SOUND --plugin cliprdr --plugin rdpdr --data $CDROM $FDD $HDD \
+            $USB $COM3 $COM4 $COM5 $COM6 -- $MICROPHONE $FREERDP_OPTIONS $FREERDP_SERVER"

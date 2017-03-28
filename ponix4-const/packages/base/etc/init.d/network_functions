@@ -1,0 +1,276 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+net_common_begin()
+{
+	if [ -n "$DEBUG_NETWORK" ] ; then
+		debug="-d"
+	fi
+
+	echo_log "NET common begin" $debug
+
+	if [ -z "$NET_USE_DEVICE" ]; then
+		echo_log "NET_USE_DEVICE is empty! Forcing to eth0!" $debug
+		NET_USE_DEVICE=eth0
+		store_variable NET_USE_DEVICE "eth0"
+	fi
+
+	NET_DEVICE_MAC=`ifconfig -a $NET_USE_DEVICE | grep HWaddr | cut -c 39-40,42-43,45-46,48-49,51-52,54-55`
+
+	echo_log "NET current device='$NET_USE_DEVICE' with mac='$NET_DEVICE_MAC'" $debug
+
+	if [ -z "$NET_DEVICE_MAC" ]; then
+		echo_log "NET No Mac for device! Can't continue!" $debug	
+		exit
+	fi
+	
+}
+
+net_common_end()
+{
+	echo_log "NET common end" $debug
+}
+
+net_init()
+{
+	echo_log "NET init" $debug
+
+	sleep 3
+
+	#Localhost
+	ifconfig lo up 
+	ifconfig lo 127.0.0.1
+	route add -net 127.0.0.0 netmask 255.0.0.0 dev lo
+
+	# Kernel Network setting
+	echo 0 > /proc/sys/net/ipv4/tcp_retrans_collapse
+
+}
+
+net_stop()
+{
+
+	echo_log "NET stop" $debug	
+
+	cat /dev/null > /etc/resolv.conf
+
+	cat $TS_RUNTIME | grep -v "CLIENT_IP=" | grep -v "CLIENT_MAC" | grep -v "CLIENT_NAME" | grep -v "DEVICE=" > /tmp/runtime
+	mv /tmp/runtime $TS_RUNTIME
+
+	CLIENT_IP=
+	CLIENT_MAC=
+	CLIENT_NAME=
+	DEVICE=
+
+	(ifconfig -a | cut -c1-7 | grep -v '^ *$' | grep -v lo ) |
+	while read device
+	do
+	   ifconfig $device down
+	done
+
+	if [ -n "`pidof wpa_supplicant`" ]; then
+		kill `pidof wpa_supplicant`
+	fi
+	
+#	ifconfig $NET_USE_DEVICE down
+
+}
+
+
+get_net_hostname()
+{
+  if [ -n "`echo $NET_HOSTNAME | sed -n '/\*/p'`" ]; then
+    CLIENT_NAME=`echo $NET_HOSTNAME | sed "s/\*/$CLIENT_MAC/"`
+  else
+    CLIENT_NAME=$NET_HOSTNAME
+  fi
+}
+
+# Manual network configuration
+
+manual_config()
+{
+
+	if ifconfig $NET_USE_DEVICE $NET_IP_ADDRESS netmask $NET_MASK ; then
+
+		echo "nameserver $NET_DNS1" > /etc/resolv.conf
+		echo "nameserver $NET_DNS2" >> /etc/resolv.conf
+		echo "search $NET_DNS_SEARCH" >> /etc/resolv.conf
+	
+		CLIENT_MAC=$NET_DEVICE_MAC
+	    
+		if [ -n "$NET_HOSTNAME" ] ; then
+			get_net_hostname
+		else
+			CLIENT_NAME=$CLIENT_MAC
+		fi
+
+		echo "CLIENT_IP=$NET_IP_ADDRESS" >> $TS_RUNTIME
+		echo "CLIENT_MAC=$CLIENT_MAC" >> $TS_RUNTIME
+ 		echo "CLIENT_NAME=$CLIENT_NAME" >> $TS_RUNTIME
+  
+		route add default gw $NET_GATEWAY
+		hostname $CLIENT_NAME
+
+    	fi
+
+}
+
+dhcp_config()
+{
+	ifconfig $NET_USE_DEVICE up
+	sleep $NET_DHCP_DELAY
+
+ 	if udhcpc -n -i $NET_USE_DEVICE -x hostname:$NET_DEVICE_MAC -s /etc/init.d/network_script || udhcpc -n -i $NET_USE_DEVICE -x hostname:$NET_DEVICE_MAC -s /etc/init.d/network_script  ; then
+		echo "CLIENT_MAC=$NET_DEVICE_MAC" >> $TS_RUNTIME
+	fi
+
+}
+
+
+create_issue()
+{
+	# Create /etc/issue file
+
+	. $TS_RUNTIME
+	
+	echo s/\$CLIENT_MAC/$CLIENT_MAC/g >> /tmp/issue
+	echo s/\$CLIENT_IP/$CLIENT_IP/g >> /tmp/issue
+	echo s/\$TS_VERSION/$TS_VERSION/g >> /tmp/issue
+	cat /etc/issue.tpl | sed -f /tmp/issue > /etc/issue
+	rm /tmp/issue
+}
+
+
+
+wireless_config()
+{
+	device=$NET_USE_DEVICE
+	
+	echo_log "NET running wireless config for '$device'..." $debug
+
+	if [ -n "$WIRELESS_ESSID" ] && [ -n "$WIRELESS_WPAKEY_ENC" ] ; then
+		echo_log "NET wireless WPAKEY_ENC set, running wpa_supplicant..." $debug
+		echo s/\$WIRELESS_ESSID/$WIRELESS_ESSID/g >> /tmp/script.wpa
+		echo s/\$WIRELESS_WPAKEY_ENC/$WIRELESS_WPAKEY_ENC/g >> /tmp/script.wpa
+		cat /etc/wpa_config.tpl | sed -f /tmp/script.wpa > /etc/wpa_config
+		rm /tmp/script.wpa		
+		wpa_supplicant -B -Dwext -i$device -c/etc/wpa_config
+		sleep 1
+	fi
+
+    	# This appears to be a Wireless device (USB/PCI/PCMCIA). Set specific 
+    	# options. (Code ripped from pcmcia-cs wireless script)
+    	# Mode need to be first : some settings apply only in a specific mode !
+    	if [ -n "$WIRELESS_MODE" ] ; then
+    		iwconfig $device mode $WIRELESS_MODE
+    	fi
+    	# This is a bit hackish, but should do the job right...
+    	if [ ! -n "$WIRELESS_NICKNAME" ] ; then
+    		WIRELESS_NICKNAME=`hostname`
+    	fi
+    	if [ -n "$WIRELESS_ESSID" -o -n "$WIRELESS_MODE" ] ; then
+    		iwconfig $device nick "$WIRELESS_NICKNAME" >/dev/null 2>&1
+    	fi
+    	# Regular stuff...
+    	if [ -n "$WIRELESS_NWID" ] ; then
+    		iwconfig $device nwid $WIRELESS_NWID
+    	fi
+    	if [ -n "$WIRELESS_FREQ" ] ; then
+    		iwconfig $device freq $WIRELESS_FREQ
+    	elif [ -n "$WIRELESS_CHANNEL" ] ; then
+    		iwconfig $device channel $WIRELESS_CHANNEL
+    	fi
+    	if [ -n "$WIRELESS_SENS" ] ; then
+    		iwconfig $device sens $WIRELESS_SENS
+    	fi
+    	if [ -n "$WIRELESS_RATE" ] ; then
+    		iwconfig $device rate $WIRELESS_RATE
+    	fi
+    	if [ -n "$WIRELESS_KEY" ] && [ ! -n "$WIRELESS_WPAKEY" ] ; then
+    		iwconfig $device key $WIRELESS_KEY
+    	fi
+    	if [ -n "$WIRELESS_RTS" ] ; then
+    		iwconfig $device rts $WIRELESS_RTS
+    	fi
+    	if [ -n "$WIRELESS_FRAG" ] ; then
+    		iwconfig $device frag $WIRELESS_FRAG
+    	fi
+    	# More specific parameters
+    	if [ -n "$WIRELESS_IWCONFIG" ] ; then
+    		iwconfig $device $WIRELESS_IWCONFIG
+    	fi
+    	if [ -n "$WIRELESS_IWSPY" ] ; then
+    		iwspy $device $WIRELESS_IWSPY
+    	fi
+    	if [ -n "$WIRELESS_IWPRIV" ] ; then
+    		iwpriv $device $WIRELESS_IWPRIV
+    	fi
+   	# ESSID need to be last : most device re-perform the scanning/discovery
+    	# when this is set, and things like encryption keys are better be
+    	# defined if we want to discover the right set of APs/nodes.
+    	if [ -n "$WIRELESS_ESSID" ] ; then
+    		iwconfig $device essid "$WIRELESS_ESSID"
+    	fi
+
+}
+
+
+relist_interfaces_for_webpanel()
+{
+	RES_FILE=$NET_DEVICELIST
+
+	if [ -z "$RES_FILE" ] ; then
+		RES_FILE=/tmp/net_interfaces	
+		# just in case
+	fi
+		
+	cat /dev/null > $RES_FILE
+
+	(ifconfig -a | cut -c1-7 | grep -v '^ *$' | grep -v lo ) |
+	while read device
+	do
+		devicetype=`echo $device | cut -c1-2`
+		if [ "$devicetype" = "tr" ] ; then
+			client_mac=`ifconfig -a $device | grep HWaddr | cut -c 37-38,40-41,43-44,46-47,49-50,52-53,55-56,58-59,61-62,64-65,67-68,70-71,73-74,76-77,79-80,82-83`
+          	else
+              		client_mac=`ifconfig -a $device | grep HWaddr | cut -c 39-40,42-43,45-46,48-49,51-52,54-55`
+                fi
+                echo $device $client_mac >> $RES_FILE
+	done                  
+}
+
+net_start()
+{
+	echo_log "NET start" $debug
+
+	relist_interfaces_for_webpanel
+	
+	if [ -n "$CLIENT_IP" ]; then
+		echo_log "NET allready up with ip address='$CLIENT_IP'" $debug
+		return	
+	fi
+
+	echo "DEVICE=$NET_USE_DEVICE" >> $TS_RUNTIME
+
+	WIRELESS_DEV_LIST=`iwconfig 2>&1 | grep -v 'no wireless' | cut -c1-7 | grep -v '^ *$'`
+	IS_WIRELESS="`echo $WIRELESS_DEV_LIST | grep $NET_USE_DEVICE`"
+
+	if [ "$IS_WIRELESS" != "" ]; then
+		wireless_config	
+	fi
+
+	NET_USE_DHCP=`make_caps $NET_USE_DHCP`
+	
+	if [ "$NET_USE_DHCP" = "OFF" ] ; then
+		echo_log "NET bringing up with manual parameters..." $debug
+		manual_config
+	else
+		echo_log "NET bringing up with DHCP..." $debug
+		dhcp_config
+	fi
+
+	create_issue
+
+}
+

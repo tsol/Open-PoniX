@@ -1,0 +1,46 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+SESSION_NUMBER=$1
+if [ -z "$SESSION_NUMBER" ]; then
+	echo_log "DESKRUN: Session ID required as parameter!"
+	exit
+fi
+
+SESSION_TYPE=$2
+if [ -z "$SESSION_TYPE" ]; then
+	echo_log "DESKRUN: No valid Session Type specified!"
+	exit
+fi
+
+PID=$$
+
+echo "Desk-Running session $SESSION_NUMBER $SESSION_TYPE" >> $LOGFILE
+
+
+if [ -e /etc/cmd/$SESSION_TYPE.needs_server ]; then
+
+	. /etc/ponix.functions
+
+	SESSION_TYPE_CAPS=`make_caps $SESSION_TYPE`
+	SERVER_PARAM_NAME=`echo 'SESSION_'$SESSION_NUMBER'_'$SESSION_TYPE_CAPS'_SERVER'`
+
+	if [ -z "`eval echo '$'$SERVER_PARAM_NAME`" ]; then
+
+		dialog_get_server_address $SESSION_TYPE_CAPS | ( read INPUT_SERVER && echo "INPUT_SERVER=$INPUT_SERVER" > /tmp/input_server )
+		. /tmp/input_server
+		if [ "$INPUT_SERVER" = "0" ]; then
+			exit
+		fi
+		
+	fi
+fi
+
+. /etc/cmd/$SESSION_TYPE.deskrun $SESSION_NUMBER $INPUT_SERVER
+
+echo $DESKRUN_CMD >> $LOGFILE
+echo $DESKRUN_CMD > /tmp/CMD$PID
+chmod +x /tmp/CMD$PID
+/tmp/CMD$PID 2>&1 >> $LOGFILE
+sleep 1
+rm /tmp/CMD$PID

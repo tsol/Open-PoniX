@@ -1,0 +1,162 @@
+#!/bin/sh
+
+. /etc/ponix.env
+. $TS_GLOBAL
+        
+    parentdev=/dev/sda
+    dev=/dev/sda1
+    mount=/mnt/ponixsys/
+    server=$SERVER_IP
+    firmwarefile=ponix_firmware.tar.gz
+    tftpfile=/ponixflash/${firmwarefile}
+
+
+clear
+echo "Ponix flashing package"
+echo ""
+echo "|-------------------------------------|"
+echo "| Terminal Solutions Saint-Petersburg |"
+echo "|                                     |"
+echo "| www: http://www.t-sol.ru            |"
+echo "| phone: +7 (812) 458-7499            |"
+echo "|-------------------------------------|"
+echo ""
+echo "SERVER_IP     = $server"
+echo "FIRMWARE_FILE = $tftpfile"
+echo "DEST_DEVICE   = $dev"
+echo ""    
+
+over()
+{
+	read
+	exit
+}
+
+do_prepare()
+{
+	if [ -z "$SERVER_IP" ] ; then    
+	    echo -e '\e[0;31m'"-------------------------------------"
+	    echo -e '\e[0;31m'"| NO SERVER IP. Network is down!!   |"
+	    echo -e '\e[0;31m'"-------------------------------------"'\e[0;37m'
+	    over
+	fi
+
+	kill `pidof udevd` 1>/dev/null 2>/dev/null
+	umount $dev 1> /dev/null 2>/dev/null
+	sleep 2
+
+        (lsof | grep $dev | awk '{print $1}' ) |
+        while read proga
+        do
+		echo "Process '$proga' is using '$dev'. Killing."
+		kill -9 `pidof $proga` 1> /dev/null 2> /dev/null
+        done
+	sleep 2                                                      
+
+	if [ -n "`mount | grep $parentdev`" ] ; then    
+	    echo -e '\e[0;31m'"----------------------------------"
+	    echo -e '\e[0;31m'"| DEST DEVICE is still MOUNTED!  |"
+	    echo -e '\e[0;31m'"----------------------------------"'\e[0;37m'
+	    over
+	fi
+}
+
+do_part()
+{
+    echo -e '\e[0;32m'"Start creating new partition by parted utility" '\e[0;37m'
+    /bin/create_part > /dev/null
+    sleep 2
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""	
+}
+
+do_fat32()
+{
+         
+    echo -e '\e[0;32m'"Start creating FAT32 filesystem" '\e[0;31m'
+    mkfs.vfat -n PONIXSYS $dev
+    sleep 2
+    dd conv=notrunc bs=440 count=1 if=/etc/mbr.bin of=$parentdev > /dev/null
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+
+}
+
+do_syslinux()
+{
+    
+    echo -e '\e[0;32m'"Start syslinux preparing" '\e[0;31m'
+    syslinux $dev
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+}
+
+do_mount()
+{
+    
+    echo -e '\e[0;32m'"Start mounting disk" '\e[0;31m'
+    /bin/mkdir -p $mount
+    /bin/mount -o flush,relatime,utf8,gid=100,umask=002 $dev $mount
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+}
+
+do_download()
+{
+    
+    echo -e '\e[0;32m'"Start downloading firmware (this operation may take several minutes)" '\e[0;31m'
+    tftp -b 4096 -g -r $tftpfile -l /tmp/$firmwarefile $server
+    echo -e '\e[0;32m'"End" '\e[0;37m'
+    echo ""
+
+}
+
+do_unpack()
+{
+
+ 	    echo -e '\e[0;32m'"Start copying files to FLASHDRIVE" '\e[0;31m'
+	    cat /tmp/$firmwarefile | gunzip | tar xf - -C $mount
+	    echo -e '\e[0;32m'"End" '\e[0;37m'
+	    echo ""
+
+	    if [ -e "/mnt/ponixsys/ldlinux.sys" ] && [ -e "/mnt/ponixsys/initrd" ]; then
+	        echo -e '\e[0;32m'"----------------------------------" 
+	    	echo -e '\e[0;32m'"| FLASHDRIVE is ready to boot!!! |"
+	    	echo -e '\e[0;32m'"----------------------------------"'\e[0;37m'
+	    else
+	    	echo -e '\e[0;31m'"-------------------------------------"
+	    	echo -e '\e[0;31m'"| ERROR, FLASHDRIVE is not ready!!! |"
+	    	echo -e '\e[0;31m'"-------------------------------------"'\e[0;37m'
+	    fi
+
+}
+
+if [ -e "$parentdev" ]; then
+
+    do_prepare
+
+    do_part
+    do_fat32
+    do_syslinux
+    do_mount
+    do_download
+
+    if [ -e "/tmp/$firmwarefile" ]; then
+	do_unpack    
+    else
+    
+	    echo -e '\e[0;31m'"-------------------------------------"
+	    echo -e '\e[0;31m'"| Firmware could not be download!   |"
+	    echo -e '\e[0;31m'"-------------------------------------"'\e[0;37m'    
+
+    fi
+    
+else
+    echo -e '\e[0;31m'"-------------------------------------------------------"
+    echo -e '\e[0;31m'"| ERROR! Not found any properly installed FLASHDRIVE! |"
+    echo -e '\e[0;31m'"-------------------------------------------------------"'\e[0;37m'
+fi
+
+
+over
+

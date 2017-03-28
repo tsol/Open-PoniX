@@ -1,0 +1,109 @@
+#!/bin/sh
+
+# this is because we run from actkbd with no proper ENV
+. /etc/ponix.env
+
+. $TS_GLOBAL
+load_lang base
+
+CMMENU_FILE=/tmp/cmmenu.xd
+
+echo "
+XD_TYPE=MENU
+XD_CLASSNAME=connection_manager
+XD_TITLE=\"$LNG_MENU_CM_TITLE\"
+XD_TEXT=\"$LNG_MENU_CM_TEXT\"
+XD_WIDTH=54
+XD_MENU_EXIT=1
+XD_OK_LABEL=\"$LNG_MENU_SELECT_BUTTON\"
+XD_CANCEL_LABEL=\"$LNG_MENU_EXIT_BUTTON\"
+XDMENU_PADDING=
+XDMENU_MAXITEMS=15
+" > $CMMENU_FILE
+# todo: XDMENU_MAXITEMS should be MAX_SESIONS+8
+
+NO_RUNNING_SESSIONS=1
+INUM=0
+
+let i=0
+while [ $i -lt $MAX_SESSIONS ] ;
+do
+	ses_type=`eval echo '$SESSION_'$i'_TYPE'`
+	TYPE=`make_caps $ses_type`
+	
+	if [ -n "$TYPE" ] ; then
+		
+		TITLE=`eval echo '$SESSION_'$i'_TITLE'`
+		
+		if [ -z "$TITLE" ] ; then
+			TITLE=$TYPE
+			SERVER=`eval echo '$SESSION_'$i'_'$TYPE'_SERVER'`
+			if [ -n "$SERVER" ] ; then
+				TITLE=$TITLE" ($SERVER)"
+			fi
+		fi
+
+		TITLE="["$i"] $TITLE"
+				
+		if is_session_running $i ; then
+			NO_RUNNING_SESSIONS=0
+			echo "XD_ITEM$INUM=\"$TITLE [$LNG_MENU_CM_RUNNING]\"" >> $CMMENU_FILE
+			echo "XD_RUN$INUM=\"$XDMENU_SCRIPTS/bring_session_to_front $i\"" >> $CMMENU_FILE
+		else
+			echo "XD_ITEM$INUM=\"$TITLE\"" >> $CMMENU_FILE
+			echo "XD_RUN$INUM=\"/etc/cmd/deskrun $i $TYPE &\"" >> $CMMENU_FILE 
+		fi
+		let INUM=INUM+1	
+
+	fi
+
+
+	let i=i+1
+done
+
+
+echo "XD_ITEM$INUM=EMPTY" >> $CMMENU_FILE
+let INUM=INUM+1
+
+echo "XD_ITEM$INUM=\"$LNG_MENU_CM_ABOUT\"" >> $CMMENU_FILE
+echo "XD_RUN$INUM=\"\${XDMENU_SCRIPTS}/about_box\"" >> $CMMENU_FILE
+let INUM=INUM+1
+
+
+if [ "`make_caps $RESTRICT_CONFIG_MENU`" != "ON" ] ; then
+	echo "XD_ITEM$INUM=\"$LNG_MENU_CM_SETTINGS\"" >> $CMMENU_FILE
+
+	if [ -z "$RESTRICT_CONFIG_MENU" ] ; then
+		echo "XD_RUN$INUM=\"\$XDMENU_SCRIPTS/config_menu\"" >> $CMMENU_FILE
+	else
+		echo "XD_RUN$INUM=\"\$XDMENU_BIN input_config_menu_password.xd\"" >> $CMMENU_FILE
+	fi
+	let INUM=INUM+1
+fi
+
+echo "XD_ITEM$INUM=\"$LNG_MENU_CM_SHUTDOWN\"" >> $CMMENU_FILE
+echo "XD_RUN$INUM=\"\$XDMENU_BIN shutdown_confirm.xd\"" >> $CMMENU_FILE
+let INUM=INUM+1
+
+let INUM=INUM+8
+echo "XD_HEIGHT=$INUM" >> $CMMENU_FILE
+#echo "XD_MENU_HEIGHT=$INUM" >> $CMMENU_FILE
+
+# if no sessions running start a countdown for shutdown (processed in start-session cycle)
+
+if [ "${NO_RUNNING_SESSIONS}" = "1" ] ; then
+
+	prompt="`make_caps $RECONNECT_PROMPT | cut -c1-4`"
+
+        if [ "$prompt" = "MENU" ] ; then
+		prompt_time="`make_caps $RECONNECT_PROMPT | cut -c5-`"
+		if [ -n "$prompt_time" ] ; then
+			let prompt_time=prompt_time*60
+			echo $prompt_time > /tmp/countdown
+		fi
+	fi
+
+fi
+
+/bin/xdmenu $CMMENU_FILE
+if [ -e $CMMENU_FILE ] ; then rm $CMMENU_FILE ; fi

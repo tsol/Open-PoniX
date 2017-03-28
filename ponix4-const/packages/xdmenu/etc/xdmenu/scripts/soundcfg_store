@@ -1,0 +1,50 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang config
+
+#CONFIGFNAME=`/bin/tsol_get_mixfname.sh`
+CONFIGFNAME="mixer_"`get_hwid`".conf"
+
+if [ -z "$CONFIGFNAME" ]; then
+	echo "No soundcard!"
+	exit
+fi
+
+TMP_FILE=/tmp/soundcfg
+L_FILE=/var/lib/alsa/asound.state
+R_PATH="asound/"
+R_FILE=
+
+case "$1" in
+pxemac)
+	R_FILE=${R_PATH}${CLIENT_MAC}.conf
+	$XDMENU_SCRIPTS/upload_pxe "$L_FILE" "$R_FILE"
+	ERROR=$?
+	;;
+pxeall)
+	R_FILE=${R_PATH}${CONFIGFNAME}
+	$XDMENU_SCRIPTS/upload_pxe "$L_FILE" "$R_FILE"
+	ERROR=$?
+        ;;
+locally)
+	if [ -z "$STORAGE_PATH" ] ; then
+		/bin/xdmenu_errbox "$LNG_SOUNDSTORE_NO_STORAGE"
+		ERROR=1
+	else
+		cp $L_FILE $HOME/	
+		ERROR=0
+	fi
+
+        ;;
+*)
+	echo "Require pxemac/pxeall/locally param!"
+	exit 1
+	;;
+esac
+                
+if [ "$ERROR" = "0" ] ; then
+	/bin/xdmenu_msgbox "$LNG_SOUNDSTORE_STORED"
+fi
+
+

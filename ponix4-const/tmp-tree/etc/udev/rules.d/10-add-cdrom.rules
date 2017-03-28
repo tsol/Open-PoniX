@@ -1,0 +1,21 @@
+KERNEL!="sr[0-9]*", GOTO="disc_by_label_auto_mount_end"
+
+# Import FS infos
+IMPORT{program}="/bin/blkid -o udev -p %N"
+
+# Get a label if present, otherwise specify one
+ENV{dir_name}="%k"
+
+ACTION=="add", RUN+="/etc/udev/scripts/cdrominit.sh"
+
+# Mount the device
+ACTION=="add", RUN+="/bin/mkdir -p /mnt/cdrom/%E{dir_name}", RUN+="/bin/mount /dev/%k /mnt/cdrom/%E{dir_name}"
+ACTION=="change", ENV{ID_FS_USAGE}=="filesystem", PROGRAM!="/bin/test -d /mnt/cdrom/%k", RUN+="/bin/mkdir -p /mnt/cdrom/%E{dir_name}", RUN+="/bin/mount /dev/%k /mnt/cdrom/%E{dir_name}"
+
+# Clean up after removal
+ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l /mnt/cdrom/%E{dir_name}", RUN+="/bin/rmdir /mnt/cdrom/%E{dir_name}"
+ACTION=="change", ENV{dir_name}!="", ENV{ID_FS_USAGE}!="filesystem", PROGRAM=="/bin/test -d /mnt/cdrom/%k", RUN+="/bin/umount -l /mnt/cdrom/%E{dir_name}", RUN+="/bin/rmdir /mnt/cdrom/%E{dir_name}"
+
+# Exit
+LABEL="disc_by_label_auto_mount_end"
+

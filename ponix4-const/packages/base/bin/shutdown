@@ -1,0 +1,30 @@
+#! /bin/sh
+
+# save profile to sever if needed
+/etc/init.d/netprofile stop
+
+# kill DHCP client process
+UPID=`pidof udhcpc`
+if [ -n "$UPID" ] ; then
+	kill -SIGUSR2 $UPID
+	kill -SIGHUP $UPID
+fi
+
+# unmount everything
+/bin/umount -a -r 2> /dev/null
+
+# save current time to CMOS
+hwclock -w
+
+# small nap
+sleep 1
+
+# reboot if reboot
+if [ "$1" = "reboot" ] ; then
+	/bin/busybox reboot -f
+	exit
+fi
+
+# and off we go
+poweroff
+

@@ -1,0 +1,90 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+startup_checks()
+{
+
+	NET_STORE_PROFILE=`make_caps $NET_STORE_PROFILE`
+	
+	if [ "$NET_STORE_PROFILE" != "ON" ] ; then
+		echo_log "Net profile storing disabled... Not doing anything."
+		exit	
+	fi
+
+	if [ -z "$SERVER_IP" ] ; then
+		echo_log "Server IP unknown, not restoring profile..."
+		exit
+	fi
+
+	if [ -z "$CLIENT_MAC" ] ; then
+		echo_log "Client MAC is empty, can't save profile..."
+		exit
+	fi
+
+	if [ -e "/tmp/profile.tar.bz2" ] ; then
+		rm /tmp/profile.tar.bz2
+	fi
+
+}
+
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+	startup_checks
+	
+	echo_log "Restoring profile from network..."
+	
+	tftp -g -r "upload/profile_${CLIENT_MAC}.tar.bz2" -l /tmp/profile.tar.bz2 $SERVER_IP > /dev/null 2>&1
+	
+	if [ ! -e "/tmp/profile.tar.bz2" ] ; then
+		echo_log "No profile found on server, or could not download."
+		exit	
+	fi
+
+	cat /tmp/profile.tar.bz2 | bunzip2 | tar xf - -C /
+
+	echo_log "Profile restored OK."
+	
+	pkg_set_init_flag $PACKAGE
+    fi
+
+    ;;
+stop)
+	startup_checks
+
+	load_lang base
+	xdmenu_msgbox "$LNG_BASE_NETPROFILE_WAIT" &
+
+	echo_log "Saving profile to network..."
+
+	cd /
+	tar c root | bzip2 -c > /tmp/profile.tar.bz2
+	
+	if [ ! -e "/tmp/profile.tar.bz2" ] ; then
+		echo_log "Profile could not be packed!"
+		exit
+	fi
+
+	RESULT=`tftp -p -l "/tmp/profile.tar.bz2" -r "upload/profile_${CLIENT_MAC}.tar.bz2" $SERVER_IP 2>&1`
+	CODE=$?
+
+	if [ $CODE != 0 ]; then
+		echo_log "Error uploading profile via tftp! Check write restrictions on upload/"
+		exit
+        fi
+
+	echo_log "Profile stored OK."
+                		
+    ;;
+help)
+    echo "Usage: $0 init stop"
+    ;;
+*)
+    exit 1
+    ;;
+esac
+
+exit 0

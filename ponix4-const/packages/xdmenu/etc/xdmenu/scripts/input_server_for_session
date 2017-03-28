@@ -1,0 +1,32 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+if [ -z "$1" ] ; then
+	echo "Session number required!"
+	exit 1
+fi
+
+SN=$1
+
+VAR_NAME='SESSION_'$SN'_INPUT_SERVER'
+VAR_VALUE="`eval echo '$'$VAR_NAME`"
+MENU_FILE=/tmp/input_server.xd
+
+echo "
+XD_TYPE=INPUT
+XD_CLASSNAME=dialog_session$SN
+XD_TITLE=\"$LNG_INPUT_SERVER_TITLE\"
+XD_TEXT=\"$LNG_INPUT_SERVER_TEXT\"
+XD_WIDTH=64
+XD_HEIGHT=18
+XD_INPUT_DEFAULT=$VAR_VALUE
+XD_STORE_RESULT_AS=$VAR_NAME
+" > $MENU_FILE
+
+/bin/xdmenu $MENU_FILE
+RET=$?
+
+exit $RET
+

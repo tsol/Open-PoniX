@@ -1,0 +1,52 @@
+load_lang config
+
+SE_MENU_FILE=/tmp/cemenu.xd
+
+XD_TYPE=MENU
+XD_CLASSNAME=session_editor
+XD_TITLE="$LNG_MENU_SESSION_EDITOR_TITLE"
+XD_TEXT="$LNG_MENU_SESSION_EDITOR_TEXT"
+XD_WIDTH=54
+XD_OK_LABEL="$LNG_MENU_SELECT_BUTTON"
+XD_CANCEL_LABEL="$LNG_MENU_EXIT_BUTTON"
+
+let i=0
+while [ $i -lt $MAX_SESSIONS ] ;
+do
+	ses_type=`eval echo '$SESSION_'$i'_TYPE'`
+	TYPE=`make_caps $ses_type`
+	
+	if [ -n "$TYPE" ] ; then
+		
+		TITLE=`eval echo '$SESSION_'$i'_TITLE'`
+		
+		if [ -z "$TITLE" ] ; then
+			TITLE=$TYPE
+			SERVER=`eval echo '$SESSION_'$i'_'$TYPE'_SERVER'`
+			if [ -n "$SERVER" ] ; then
+				TITLE=$TITLE" ($SERVER)"
+			fi
+		fi
+
+		TITLE="["$i"] $TITLE"
+				
+		if is_session_running $i ; then
+			echo "XD_ITEM$i=\"$TITLE [$LNG_MENU_CM_RUNNING]\"" >> $SE_MENU_FILE
+		else
+			echo "XD_ITEM$i=\"$TITLE\"" >> $SE_MENU_FILE
+		fi
+
+	else
+		TITLE="["$i"] $LNG_MENU_SE_DISABLED"
+		echo "XD_ITEM$i=\"$TITLE\"" >> $SE_MENU_FILE
+	fi
+
+	echo "XD_RUN$i=\"$XDMENU_SCRIPTS/edit_session $i\"" >> $SE_MENU_FILE
+
+	let i=i+1
+done
+
+let i=i+8
+XD_HEIGHT=$i
+
+. $SE_MENU_FILE

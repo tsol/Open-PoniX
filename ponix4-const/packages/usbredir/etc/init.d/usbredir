@@ -1,0 +1,48 @@
+#! /bin/sh
+
+. /etc/ponix.global
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+	/bin/insmod /lib/modules/tusbd.ko
+	/bin/usbsrvd
+	                
+        if [ -n "$USBREDIR_DEV_1" ] && [ -z "$USBREDIR_DEV_2" ]  && [ -z "$USBREDIR_DEV_3" ] && [ -z "$USBREDIR_DEV_4" ]; then
+              sleep 2
+              usbsrv -s $USBREDIR_DEV_1
+          elif [ -n "$USBREDIR_DEV_1" ] && [ -n "$USBREDIR_DEV_2" ] && [ -z "$USBREDIR_DEV_3" ] && [ -z "$USBREDIR_DEV_4" ]; then
+              sleep 2
+              usbsrv -s $USBREDIR_DEV_1 
+              usbsrv -s $USBREDIR_DEV_2
+          elif [ -n "$USBREDIR_DEV_3" ] && [ -n "$USBREDIR_DEV_1" ]  && [ -n "$USBREDIR_DEV_2"  ] && [ -z "$USBREDIR_DEV_4" ]; then
+              sleep 2
+              usbsrv -s $USBREDIR_DEV_1 
+              usbsrv -s $USBREDIR_DEV_2 
+              usbsrv -s $USBREDIR_DEV_3
+          elif [ -n "$USBREDIR_DEV_4" ] && [ -n "$USBREDIR_DEV_3"  ] && [ -n "$USBREDIR_DEV_2"  ] && [ -n "$USBREDIR_DEV_1" ]; then
+              sleep 2
+              usbsrv -s $USBREDIR_DEV_1 
+              usbsrv -s $USBREDIR_DEV_2 
+              usbsrv -s $USBREDIR_DEV_3 
+              usbsrv -s $USBREDIR_DEV_4    
+        fi
+        
+        if [ -n "$USBREDIR_DEV" ]; then
+              sleep 2
+              usbsrv -s $USBREDIR_DEV
+        fi      
+	
+	pkg_set_init_flag $PACKAGE
+    fi
+    ;;
+help)
+    echo "Usage: $0 init"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

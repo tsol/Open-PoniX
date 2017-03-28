@@ -1,0 +1,212 @@
+#!/bin/sh
+
+# This script applies SCREEN_RESOLUTION, SCREEN1_RESOLUTION and SCREEN1_LEFT
+# options to Xorg using xrandr utility
+#
+# So it allows to set up resolution on single display, on two displays and by default
+# and arranges second display to be at right side of first (if SCREEN1_LEFT is not ON)
+#
+# First display is always one with greater resolution
+
+. $TS_GLOBAL
+load_lang base
+
+PLOG_NAME="APPLY_XRANDR"
+
+TMP_SORT=/tmp/xrandr_sort
+TMP_MODES=/var/run/xrandr_modes
+# this file^ is also used by xdmenu resolution_menu 
+
+# Function enlists all connected monitors, sorts them based on maximum resolution ensuring
+# That bigger monitors go first. 
+#
+# Result of this function is variables XRANDR_MON[N]=[NAME] written to /etc/ponix.runtime
+# for example XRANDR_MON0="VGA1"
+#
+enlist_monitors()
+{
+	store_variable "XRANDR_MON0" "" RUNTIME
+	store_variable "XRANDR_MON1" "" RUNTIME
+	
+	CURMON=''
+	WEIGHT=0	
+
+	if [ -e $TMP_SORT ] ; then rm $TMP_SORT ; fi
+	if [ -e $TMP_MODES ] ; then rm $TMP_MODES ; fi
+	
+	xrandr | while read line
+	do
+		if [ -n "`echo $line | grep connected`" ] ; then
+			if [ -z "`echo $line | grep disconnected`" ] ; then
+
+				if [ -n "`echo $line | grep LVDS`" ] ; then
+
+					LVDSMON=`echo $line | awk '{print $1}'`
+				
+					if [ "`make_caps $SCREEN_DISABLE_LVDS`" = "ON" ] ; then
+						plog "ignoring LVDS because SCREEN_DISABLE_LVDS=ON"
+						continue					
+					fi
+				
+					if  [ "`make_caps $SCREEN_DISABLE_LVDS`" != "OFF" ] && [ -n "`echo $line | grep 0mm`" ] ; then
+						plog "disabling connected LVDS with 0mm dimension, setting SCREEN_DISABLE_LVDS=ON"
+						store_variable SCREEN_DISABLE_LVDS ON RUNTIME						
+						xrandr --output $LVDSMON --off					
+						continue
+					fi
+				fi
+				
+				CURMON=`echo $line | awk '{print $1}'`
+				continue
+			fi
+		fi
+
+		if [ -z "$CURMON" ] ; then
+			continue
+		fi
+
+		if [ -n "`echo $line | grep -E "^[[:digit:]].+x[[:digit:]]+"`" ] ; then
+
+			echo "$CURMON $line" >> $TMP_MODES
+			NW=`echo $line | awk '{split($1,a,"x");print a[1]*a[2]}'`
+			if [ "$NW" -gt "$WEIGHT" ] ; then
+				WEIGHT=$NW
+				if [ "$WEIGHT" -gt 0 ] ; then
+					echo "$CURMON $WEIGHT" >> $TMP_SORT
+				fi
+			fi
+		fi		
+
+	done	
+
+	c=0
+	lastmon=''
+	cat $TMP_SORT | sort -n -r -k2 |
+	while read mon weight
+	do
+		if [ "$lastmon" != "$mon" ] ; then
+			store_variable "XRANDR_MON$c" "$mon" RUNTIME
+			plog "parsed monitors MON$c=$mon"
+			lastmon=$mon
+			let c=c+1
+		fi	
+	done
+
+	if [ -e "$TMP_SORT" ] ; then rm $TMP_SORT ; fi
+		
+}
+
+wait_for_xorg()
+{
+	WAITCOUNT=0
+	while [ ! -e /tmp/.X11-unix/X1 ] || [ -z "`pidof Xorg`" ] ; do
+		plog "Waiting for X to start..."
+		sleep 1
+		let WAITCOUNT=WAITCOUNT+1
+		if [ "$WAITCOUNT" -gt 5 ] ; then
+			plog "Tired of waiting!"
+			exit 1		
+		fi
+	done
+}
+
+run_xrandr()
+{
+	plog "'xrandr $1 $2 $3 $4 $5'"
+	xrandr $OUT0 $MODE0 $OUT1 $MODE1 $SIDE1 2>> /var/log/xrandr.log
+	RET=$?	
+
+	if [ "$RET" != "0" ] ;  then
+		xdmenu_errbox "$LNG_XRANDR_ERROR_APPLY"
+		plog "xrandr exited with errorlevel."
+		exit 1
+	fi
+}
+
+check_add_resolution()
+{
+	local MON=$1
+	local RES=$2
+	local REFRESH=$3
+
+	if [ -z "$REFRESH" ] ; then
+		REFRESH=60
+	fi
+
+	if [ -z "`echo $RES | grep -E '^[[:digit:]].+x[[:digit:]]+$'`" ] ; then
+		plog "invalid resolution '$RES'"
+		return	
+	fi
+
+	if [ -z "`cat $TMP_MODES | grep \"$MON $RES\"`" ] ; then
+		plog "resolution '$RES' is not known to xrandr for '$MON'. Adding..."
+
+		local SPACED_RES="`echo $RES | sed 's/x/ /'`"
+		
+		MODELINE=`gtf $SPACED_RES $REFRESH | grep Modeline | sed 's/.\+"//g'`
+		if [ -z "$MODELINE" ] ; then
+			plog "error adding new mode '$RES'"
+			return		
+		fi
+
+		plog "Modeline='$MODELINE'"
+		
+		xrandr --newmode $RES $MODELINE
+		xrandr --addmode $MON $RES
+		
+		return
+	fi
+	
+	plog "resolution '$RES' on '$MON' is OK."
+
+}
+
+wait_for_xorg
+
+enlist_monitors
+. /etc/ponix.runtime
+
+WAITCOUNT=0
+while [ -z "$XRANDR_MON0" ] ; do
+	sleep 1
+
+	enlist_monitors
+	. /etc/ponix.runtime
+
+	let WAITCOUNT=WAITCOUNT+1
+	if [ "$WAITCOUNT" -gt 5 ] ; then
+		plog "timeout waiting for monitor list!"
+		exit 1
+	fi	                                                                                            
+done
+
+if [ "$1" = "enlist_only" ] ; then
+	exit 0
+fi
+
+# monitor 0
+OUT0="--output $XRANDR_MON0"
+MODE0="--auto"
+if [ -n "$SCREEN_RESOLUTION" ] ; then
+	check_add_resolution $XRANDR_MON0 $SCREEN_RESOLUTION $SCREEN_VERTREFRESH
+	MODE0="--mode $SCREEN_RESOLUTION"
+fi
+
+run_xrandr $OUT0 $MODE0
+
+# monitor 1
+if [ -n "$XRANDR_MON1" ] ; then 
+	OUT1="--output $XRANDR_MON1"
+	MODE1="--auto"
+	SIDE1="--right-of $XRANDR_MON0"
+	if [ -n "$SCREEN1_RESOLUTION" ] ; then
+		check_add_resolution $XRANDR_MON1 $SCREEN1_RESOLUTION $SCREEN1_VERTREFRESH
+		MODE1="--mode $SCREEN1_RESOLUTION"	
+	fi
+	if [ "`make_caps $SCREEN1_LEFT`" = "ON" ] ; then
+		SIDE1="--left-of $XRANDR_MON0"	
+	fi
+	run_xrandr $OUT1 $MODE1 $SIDE1
+fi
+
+exit 0

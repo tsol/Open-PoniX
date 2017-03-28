@@ -1,0 +1,129 @@
+#! /bin/sh
+. $TS_GLOBAL
+
+SESID=$1
+INPUT_SERVER=$2
+
+if [ -z "$SESID" ]; then
+	echo "Session ID required as parameter!"
+	exit
+fi
+
+FREERDP_SERVER=`eval echo '$SESSION_'$SESID'_FREERDP_SERVER'`
+if [ -z "$FREERDP_SERVER" ]; then
+	FREERDP_SERVER=$INPUT_SERVER
+	if [ -z "$FREERDP_SERVER" ] ; then
+		echo "FREERDP_DESKRUN: No server given to me!" >> $LOGFILE
+		exit 1	
+	fi
+fi
+
+# session specific -> readable
+
+FREERDP_OPTIONS=`sestypevar_def $SESID OPTIONS`
+FREERDP_SLOWLINK=`sestypevar_def $SESID SLOWLINK OFF`
+FREERDP_SOUND=`sestypevar_def $SESID SOUND ON`
+FREERDP_CDROM=`sestypevar_def $SESID CDROM OFF`
+FREERDP_FDD=`sestypevar_def $SESID FDD OFF`
+FREERDP_HDD=`sestypevar_def $SESID HDD OFF`
+FREERDP_USB=`sestypevar_def $SESID USB ON`
+FREERDP_COM3=`sestypevar_def $SESID COM3 OFF`
+FREERDP_COM4=`sestypevar_def $SESID COM4 OFF`
+FREERDP_COM5=`sestypevar_def $SESID COM5 OFF`
+FREERDP_COM6=`sestypevar_def $SESID COM6 OFF`
+FREERDP_NO_TLS=`sestypevar_def $SESID NO_TLS OFF`
+FREERDP_USE_NLA=`sestypevar_def $SESID USE_NLA OFF`
+FREERDP_PORT=`sestypevar_def $SESID PORT 3389`
+FREERDP_MICROPHONE=`sestypevar_def $SESID MICROPHONE OFF`
+FREERDP_COLOR_DEPTH=`sestypevar_def $SESID COLOR_DEPTH 16`
+FREERDP_USER=`sestypevar_def $SESID USER`
+FREERDP_DOMAIN=`sestypevar_def $SESID DOMAIN`
+FREERDP_PASSWORD=`sestypevar_def $SESID PASSWORD`
+FREERDP_KEYMAP=`sestypevar_def $SESID KEYMAP`
+FREERDP_GEOMETRY=`sestypevar_def $SESID GEOMETRY`
+FREERDP_COMPRESSION=`sestypevar_def $SESID COMPRESSION OFF`
+
+# param options
+
+USER="/u:'$FREERDP_USER'"
+COLOR_DEPTH="/bpp:$FREERDP_COLOR_DEPTH"
+
+if [ -n "$FREERDP_DOMAIN" ]; then DOMAIN="/d:'$FREERDP_DOMAIN'"; fi
+if [ -n "$FREERDP_PASSWORD" ]; then PASSWORD="/p:'$FREERDP_PASSWORD'"; fi
+
+# if [ -n "$FREERDP_KEYMAP" ]; then KEYMAP="-k '$FREERDP_KEYMAP'"; fi
+
+if [ -n "$FREERDP_GEOMETRY" ]; then GEOMETRY="/s:$FREERDP_GEOMETRY"; else GEOMETRY="/f"; fi
+
+#    
+if [ `make_caps "$FREERDP_SLOWLINK"` = "ON" ]; then
+    SLOW="-fonts -aero -window-drag -menu-anims -themes -wallpaper"
+
+fi
+#
+if [ `make_caps "$FREERDP_COMPRESSION"` = "ON" ]; then
+    COMPRESS="+compression"
+fi
+#
+if [ `make_caps "$FREERDP_SOUND"` = "ON" ]; then
+    SOUND="/sound:sys:alsa"
+fi
+#
+if [ `make_caps "$FREERDP_CDROM"` = "ON" ]; then
+    CDROM="/drive:cdrom,/mnt/cdrom"
+fi
+#
+if [ `make_caps "$FREERDP_FDD"` = "ON" ]; then
+    FDD="/drive:floppy,/mnt/floppy"
+fi
+#
+if [ `make_caps "$FREERDP_HDD"` = "ON" ]; then
+    HDD="/drive:hdd,/mnt/disc"
+fi
+#
+if [ `make_caps "$FREERDP_USB"` = "ON" ]; then
+    USB="/drive:flash,/mnt/usbdevice"
+fi
+#
+if [ `make_caps "$FREERDP_COM3"` = "ON" ]; then
+    COM3="/serial:/dev/ttyS0"
+fi
+#
+if [ `make_caps "$FREERDP_COM4"` = "ON" ]; then
+    COM4="/serial:/dev/ttyS1"
+fi
+#
+if [ `make_caps "$FREERDP_COM5"` = "ON" ]; then
+    COM5="/serial:/dev/ttyS2"
+fi
+#
+if [ `make_caps "$FREERDP_COM6"` = "ON" ]; then
+    COM6="/serial:/dev/ttyS3"
+fi
+#
+if [ `make_caps "$FREERDP_NO_TLS"` = "ON" ]; then
+    NO_TLS="-sec-tls"
+fi
+#
+if [ `make_caps "$FREERDP_NO_TLS"` = "ON" ]; then
+    NO_TLS="-sec-tls"
+fi
+#
+if [ `make_caps "$FREERDP_USE_NLA"` = "ON" ]; then
+    USE_NLA="+sec-nla"
+else
+    USE_NLA="-sec-nla"	
+fi
+#
+if [ `make_caps "$FREERDP_MICROPHONE"` = "ON" ]; then
+    MICROPHONE="/microphone:sys:alsa"
+fi
+#
+if [ `make_caps "$FREERDP_PRINT_FOLDER"` = "ON" ]; then
+    PRINT_FOLDER="/drive:print,/mnt/print"
+fi
+    
+
+DESKRUN_CMD="echo "y" | xfreerdp /cert-ignore +clipboard $GEOMETRY $USER $DOMAIN $PASSWORD $COLOR_DEPTH \
+            $SLOW $COMPRESS $NO_TLS $USE_NLA $SOUND $CDROM $FDD $HDD $PRINT_FOLDER \
+            $USB $COM3 $COM4 $COM5 $COM6 $MICROPHONE $FREERDP_OPTIONS /v:$FREERDP_SERVER"

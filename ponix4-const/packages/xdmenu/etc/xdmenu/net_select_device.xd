@@ -1,0 +1,37 @@
+load_lang config
+
+XD_TYPE=MENU
+XD_CLASSNAME=net_select_device
+XD_TITLE=$LNG_MENU_NET_SELECT_DEVICE_TITLE
+XD_TEXT=$LNG_MENU_NET_SELECT_DEVICE_TEXT
+XD_WIDTH=54
+XD_HEIGHT=12
+XD_ITEM_HEIGHT=3
+
+XD_OK_LABEL=$LNG_MENU_SELECT_BUTTON
+XD_CANCEL_LABEL=$LNG_MENU_EXIT_BUTTON
+
+XD_MENU_EXIT=1
+XD_STORE_RESULT_AS=NET_USE_DEVICE
+
+
+# build interface items
+
+TMP=/tmp/net_select_device.tmp
+if [ -e $TMP ] ; then  rm $TMP ; fi
+
+i=0
+$XDMENU_SCRIPTS/list_net_devices |
+while read device mac
+do
+	if [ -n "$device" ] ; then
+		echo "XD_ITEM$i=\"$device ($mac)\"" >> $TMP
+		echo "XD_RESULT$i=\"$device\"" >> $TMP
+		i=`expr $i + 1`
+	fi
+
+done
+
+. $TMP
+rm $TMP
+

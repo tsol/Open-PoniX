@@ -1,0 +1,87 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+XDMENU_BIN=/bin/xdmenu
+XDMENU_FOCUS_BIN=/bin/xdmenu_focus
+XDMENU_PATH=/etc/xdmenu/
+
+if [ "$1" = "" ] ; then
+	echo "Usage: xdmenu_progress xdmenu.xd [classname]"
+	exit
+fi
+
+if [ "$DISPLAY" = "" ] ; then
+	echo "DISPLAY is not set..."
+	exit
+fi
+
+if [ ! -e "$XDMENU_PATH$1" ] ; then
+	echo "Couldn't open '$XDMENU_PATH$1'"
+	exit
+fi
+
+. $XDMENU_PATH$1
+
+CLASSNAME=$XD_CLASSNAME
+
+if [ -z "$CLASSNAME" ] ; then
+	CLASSNAME=$2
+fi
+
+if [ -z "$CLASSNAME" ] ; then
+	CLASSNAME='xdmenu'
+fi
+
+
+# Building param list #################################
+
+
+PARAMS=
+
+if [ "$XD_TITLE" != "" ] ; then
+	PARAMS=$PARAMS"--title \""$XD_TITLE"\" "
+else
+	echo "XD_TITLE not set"
+	exit
+fi
+
+if [ -z "$XD_TEXT" ] ; then
+	echo "XD_TEXT not set"
+	exit
+fi
+
+if [ -z "$XD_WIDTH" ] || [ -z "$XD_HEIGHT" ] ; then
+	echo "XD_WIDTH or XD_HEIGHT not set"
+	exit
+fi
+
+if [ "$XD_TYPE" = "PROGRESS" ] ; then
+	PARAMS=$PARAMS"--progress \""$XD_TEXT"\" "$XD_HEIGHT" "$XD_WIDTH" "$XD_PROGRESS_MAXDOTS" "
+else
+	echo "Unknown XD_TYPE='$XD_TYPE'"
+	exit
+fi
+
+if [ -z "$XD_PROGRESS_RUN" ] ; then
+	echo "XD_PROGRESS_RUN is not set!"
+	exit
+fi
+
+#echo "PARAMS='$PARAMS'"
+
+# Running Xdialog #####################################
+
+WID=`xdotool search --class "$CLASSNAME"`
+
+#echo "CLASSNAME='$CLASSNAME', WID='$WID'"
+
+if [ "$WID" != "" ] ; then
+	xdotool windowkill $WID
+fi
+
+$XDMENU_FOCUS_BIN $CLASSNAME &
+                                                                
+eval "$XD_PROGRESS_RUN | ( while read line ; do echo -n '.' ; done ) | /bin/Xdialog --rc-file /etc/gtkrc.fixedfont --wmclass $CLASSNAME $PARAMS 2>>$LOGFILE"
+

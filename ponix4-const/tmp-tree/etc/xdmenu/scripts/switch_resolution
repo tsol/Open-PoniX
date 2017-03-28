@@ -1,0 +1,66 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang config
+
+if [ -z "$2" ] ; then
+	echo "Require [output] [resolution] as parameters (Ex: VGA0 1024x768)!"
+	echo "It is a GUI program which asks user if new resolution is OK and waits 15 sec."
+	exit 1
+fi
+
+MON=$1
+RESOLUTION=$2
+
+PLOG_NAME="XD/switch_resolution"
+
+/bin/apply_xrandr enlist_only
+TMP_CURRENT_RESOLUTION=`cat /var/run/xrandr_modes | grep $MON | grep "*" | awk '{print $2}'`
+
+if [ -z "$TMP_CURRENT_RESOLUTION" ] ; then
+	plog "couldn't get current resolution for output '$MON'"
+	exit 1
+fi
+
+save_screen_resolution()
+{
+	local mon=$1
+	local res=$2
+	
+	if [ "$XRANDR_MON0" = "$mon" ] ; then
+		store_variable SCREEN_RESOLUTION "$res"
+		return 0
+	fi
+
+	if [ "$XRANDR_MON1" = "$mon" ] ; then
+		store_variable SCREEN1_RESOLUTION "$res"
+		return 0
+	fi
+	
+	plog "unable to find out which monitor is '$mon'"
+	return 1
+}
+
+
+xrandr --output $MON --mode $RESOLUTION 2>> /var/log/xrandr.log
+RET=$?
+
+if [ "$RET" = "0" ] ; then
+	xdmenu_yesno "$LNG_MENU_RESOLUTION_SAVE_CHANGE" 15
+	if [ "$?" = "0" ] ; then
+		plog "xrandr went ok and user accepted resolution '$RESOLUTION' for '$MON'"
+		save_screen_resolution $MON $RESOLUTION
+		kill `pidof jwm` 2>/dev/null
+		exit 0	
+	fi
+	
+	plog "xrandr went ok BUT user rejected resolution '$RESOLUTION' for '$MON'"
+	# fallback
+	xrandr --output $MON --mode $TMP_CURRENT_RESOLUTION
+	exit 1
+fi
+
+plog "xrandr gave error when setting '$RESOLUTION' for '$MON'"
+xdmenu_errbox "$LNG_MENU_RESOLUTION_CHANGE_FAILED"
+exit 1
+

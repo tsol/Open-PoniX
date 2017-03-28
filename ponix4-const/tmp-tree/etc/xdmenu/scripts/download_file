@@ -1,0 +1,38 @@
+#!/bin/sh
+. $TS_GLOBAL
+
+if [ -z "$1" ] ; then
+	echo "Usage: download_file remotefile localfile"
+	exit 1
+fi
+
+debug=-d
+
+R_FILE=$1
+L_FILE=$2
+
+if [ -z "$L_FILE" ] ; then
+	L_FILE=$R_FILE
+fi
+
+if [ -z "$CLIENT_IP" ] || [ -z "$CLIENT_MAC" ] ; then
+	echo_log "DOWNLOAD_FILE ($R_FILE): Net is down, won't download!" $debug
+	exit 1
+fi
+
+if [ -z "$SERVER_IP" ] ; then
+	echo_log "DOWNLOAD_FILE ($R_FILE): Server ip is empty won't download!" $debug
+	exit 1
+fi
+
+RESULT=`tftp -g -b 512 -r ${R_FILE} -l $L_FILE $SERVER_IP 2>&1`
+CODE=$?
+#echo "Error code is: $CODE, RESULT='$RESULT'"
+
+if [ $CODE != 0 ]; then
+	echo_log "DOWNLOAD_FILE ($R_FILE): TFTP failed '$RESULT'" $debug
+	exit 2
+fi
+
+exit 0
+

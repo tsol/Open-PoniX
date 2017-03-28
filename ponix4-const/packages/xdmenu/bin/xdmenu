@@ -1,0 +1,275 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+XDMENU_BIN=/bin/xdmenu
+XDMENU_PROGRESS_BIN=/bin/xdmenu_progress
+XDMENU_FOCUS_BIN=/bin/xdmenu_focus
+XDMENU_PATH=/etc/xdmenu/
+STORE_VAR_BIN=/bin/store_variable
+XDMENU_SCRIPTS=/etc/xdmenu/scripts
+
+XDMENU_MAXITEMS=35
+
+# these are for ___ padding:
+XDMENU_PADDING=24
+XDMENU_PADDING_CHAR="_"
+
+
+if [ "$1" = "" ] ; then
+	echo "Usage: xdmenu xdmenu.xd [classname]"
+	exit
+fi
+
+if [ "$DISPLAY" = "" ] ; then
+	echo "DISPLAY is not set..."
+	exit
+fi
+
+MENU_FILE=$1
+if [ ! -e "$MENU_FILE" ] ; then
+	MENU_FILE=$XDMENU_PATH$1
+	if [ ! -e "$MENU_FILE" ]; then
+		echo "Couldn't open '$1'"
+		exit
+	fi
+fi
+
+RETURN_CODE=0
+
+
+# This will append PARAMS variable with numbered items
+# only for 'menu' type
+
+gen_item_list ()
+{
+
+ # build items list (not for input)
+ 
+ i=-1
+ while test $i -le $XDMENU_MAXITEMS
+ do
+        i=`expr $i + 1`
+        ITEM=`eval echo '$XD_ITEM'$i`
+	if [ "$ITEM" != "" ] ; then
+
+		if [ "$ITEM" = "EMPTY" ] ; then
+			PARAMS=$PARAMS"\"\" \"\" "
+			continue
+		fi
+
+		if [ -z "$XDMENU_PADDING" ] ; then
+			TITLE=$ITEM
+		else
+	  		TITLE=`/bin/upadd "$ITEM" "$XDMENU_PADDING" "$XDMENU_PADDING_CHAR"`
+	  	fi
+
+		TAG=$i
+		INACT=`eval echo '$XD_INACT'$i`
+				
+		if [ "$INACT" != "" ] ; then
+			TAG=""		
+		fi
+
+		PARAMS=$PARAMS"\""$TAG"\" \""$TITLE"\" "
+		
+		if [ "$XD_TYPE" = "TREE" ] ; then
+			DEPTH=`eval echo '$XD_DEPTH'$i`
+			PARAMS=$PARAMS" on "$X" "$DEPTH" "
+		fi
+	fi
+	
+ done
+}
+
+# MAIN function. Build params, run Xdialog, perform actions #################################
+run_xdmenu ()
+{
+	# cleanup XD_ variables so to reflect changes when XD_ITEMS are dynamic
+
+	TMP=/tmp/xdmenu.tmp
+	(set | grep XD_) |
+	while read line
+	do
+		VARNAME=`echo $line | sed 's/=.*//g'`
+		echo "unset -v $VARNAME" >> $TMP
+	done
+	if [ -f $TMP ] ; then
+		. $TMP
+		rm $TMP
+	fi
+	
+	# (re)import current ponix.conf.user and menu file to reflect latest variable changes
+	. $TS_GLOBAL
+	. $MENU_FILE
+
+	CLASSNAME=$XD_CLASSNAME
+
+	if [ -z "$CLASSNAME" ] ; then
+		CLASSNAME=$2
+	fi
+
+	if [ -z "$CLASSNAME" ] ; then
+		CLASSNAME='xdmenu'
+	fi
+
+	PARAMS=
+
+	if [ -z "$XD_TITLE" ] ; then
+		XD_TITLE=$CLASSNAME	
+	fi
+
+	PARAMS=$PARAMS"--title \""$XD_TITLE"\""
+
+	if [ -z "$XD_WIDTH" ] ; then XD_WIDTH=0 ; fi
+	if [ -z "$XD_HEIGHT" ] ; then XD_HEIGHT=0 ; fi
+	if [ -z "$XD_ITEM_HEIGHT" ] ; then XD_ITEM_HEIGHT=0 ; fi
+
+	if [ -n "$XD_OK_LABEL" ] ; then PARAMS=$PARAMS" --ok-label \""$XD_OK_LABEL"\" " ; fi
+	if [ -n "$XD_CANCEL_LABEL" ] ; then PARAMS=$PARAMS" --cancel-label \""$XD_CANCEL_LABEL"\" " ; fi	
+
+	if [ "$XD_TYPE" = "MENU" ] ; then
+		PARAMS=$PARAMS" --no-tags --screen-center --menu \""$XD_TEXT"\" "$XD_HEIGHT" "$XD_WIDTH" "$XD_ITEM_HEIGHT" "
+	elif [ "$XD_TYPE" = "INPUT" ] ; then
+		PARAMS=$PARAMS" --inputbox \""$XD_TEXT"\" "$XD_HEIGHT" "$XD_WIDTH" \""$XD_INPUT_DEFAULT"\" "
+	elif [ "$XD_TYPE" = "PASSWORD" ] ; then
+		PARAMS=$PARAMS" --password --inputbox \""$XD_TEXT"\" "$XD_HEIGHT" "$XD_WIDTH" \""$XD_INPUT_DEFAULT"\" "
+	elif [ "$XD_TYPE" = "AUTH" ] ; then
+		PARAMS=$PARAMS" --separate-output --password --2inputsbox  \""$XD_TEXT"\" "$XD_HEIGHT" "$XD_WIDTH" \""$XD_LABEL"\" \""$XD_INPUT_DEFAULT"\" \""$XD_LABEL1"\" \""$XD_INPUT_DEFAULT1"\" "
+#		dialog --title "Auth" --separate-output --password --2inputsbox "Hello" 20 40 "Username" "" "Password" ""
+	else
+		echo "Unknown XD_TYPE='$XD_TYPE'"
+		exit
+	fi
+
+	if [ "$XD_TYPE" = "MENU" ] ; then
+		gen_item_list
+	fi
+                        
+#	echo "DIALOG '$CLASSNAME' RUNNING PARAMS='$PARAMS'"
+
+	# Running Xdialog #####################################
+
+	# cleanup focus daemons hangin from previous run
+	STALE_FOCUS=`pidof xdmenu_focus`
+	if [ -n "$STALE_FOCUS" ] ; then
+		kill $STALE_FOCUS
+		if [ -n "`pidof xdotool`" ] ; then
+			kill `pidof xdotool`	
+		fi
+	fi
+
+	# Find if same menu is opened now. If so - kill it!
+	WID=`xdotool search --class "$CLASSNAME"`
+	if [ "$WID" != "" ] ; then
+		xdotool windowkill $WID
+	fi
+
+	# Run focus daemon. It should wait for our window to pop up and then give it a focus!
+	$XDMENU_FOCUS_BIN $CLASSNAME &
+                                                                
+	# Run Xdialog and analyse results
+	eval "/bin/Xdialog --rc-file /etc/gtkrc.fixedfont --stdout --wrap --wmclass $CLASSNAME $PARAMS  >/tmp/xd.$CLASSNAME.$$.res 2>>$LOGFILE"
+
+	RET=$?
+	RES=`head -n 1 /tmp/xd.$CLASSNAME.$$.res`
+	RES1=`head -n 2 /tmp/xd.$CLASSNAME.$$.res | tail -1`	
+	rm /tmp/xd.$CLASSNAME.$$.*
+	
+#	echo "DIALOG '$CLASSNAME' CLOSED. RES='$RES' RET='$RET'"
+
+	if [ "$RET" = "134" ]; then
+		echo "DIALOG ERROR: Was killed or buggy..."
+		exit 1
+	fi
+
+	if [ "$RET" = "139" ]; then
+		echo "DIALOG ERROR: Exited with error..."
+		exit 1
+	fi
+
+	# Exited with OK (item choosen)
+	if [ "$RET" = "0" ] ; then
+
+		RETURN_CODE=0
+		
+		# if store variable set, then store variale (in ponix.conf.user) with specified name
+		if [ -n "$XD_STORE_RESULT_AS" ] ; then
+
+			if [ "$XD_TYPE" = "MENU" ] ; then
+				RESULT=`eval echo '$XD_RESULT'$RES`
+			else
+				RESULT=$RES
+			fi
+				
+#			echo "DIALOG store_variable '$XD_STORE_RESULT_AS'='$RESULT'"
+			eval "$STORE_VAR_BIN $XD_STORE_RESULT_AS \"$RESULT\""
+
+			# second line of result output (RES1) for username/password dialogue
+			if [ -n "$XD_STORE_RESULT_AS1" ] ; then
+				eval "$STORE_VAR_BIN $XD_STORE_RESULT_AS1 \"$RES1\""
+			fi
+
+		fi
+
+		# if process variable set, then process variable
+		if [ -n "$XD_PROCESS_RESULT_WITH" ] ; then
+	
+			if [ "$XD_TYPE" = "MENU" ] ; then
+				RESULT=`eval echo '$XD_RESULT'$RES`
+			else
+				RESULT=$RES
+			fi
+
+#			echo "DIALOG processing with '$XD_PROCESS_RESULT_WITH \"$RESULT\"'"
+			eval "$XD_PROCESS_RESULT_WITH \"$RESULT\""	
+		fi
+
+		# If menu option with RUN choosen, then RUN corresponding script
+		if [ "$XD_TYPE" = "MENU" ] ; then
+	
+			RUN=`eval echo '$XD_RUN'$RES`
+			if [ "$RUN" != "" ] ; then
+#				echo "DIALOG '$CLASSNAME' RUN='$RUN'"
+				eval $RUN
+			fi
+
+			ITEM_EXIT=`eval echo '$XD_EXIT'$RES`
+			if [ -n "$ITEM_EXIT" ] ; then
+				REQUEST_EXIT=1			
+			fi
+			
+			if [ -n "$XD_MENU_EXIT" ] ; then
+				REQUEST_EXIT=1
+			fi
+			
+		else
+			REQUEST_EXIT=1
+		fi
+
+	fi
+
+	# Cancel OR Close window is choosen
+	if [ "$RET" = "1" ] || [ "$RET" = "255" ] ; then
+		RETURN_CODE=1
+		REQUEST_EXIT=1
+	fi
+
+}	
+
+# disable shutdown countdown, if not running connection_manager
+if [ -e "/tmp/countdown" ] && [ "$1" != "/tmp/cmmenu.xd" ] ; then
+	rm /tmp/countdown
+fi
+        
+REQUEST_EXIT=0
+
+while [ "$REQUEST_EXIT" = "0" ] ;
+do
+	run_xdmenu
+done
+
+exit $RETURN_CODE
+
+                                               

@@ -1,0 +1,115 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+store_to_flash ()
+{
+	local NAME
+	local DST
+	local RESFILE
+	
+	NAME=$1
+	DST=$2
+	
+	if [ -d "/mnt/usbdevice/$DST" ] ; then
+
+		RESFILE=/mnt/usbdevice/$DST/$NAME.tar.bz2
+		
+		if [ -e $RESFILE ] ; then
+			rm $RESFILE
+		fi
+		
+		cp /tmp/$NAME.tar.bz2 $RESFILE
+
+		/bin/xdmenu_msgbox "$LNG_LOGGER_SUCCESS\n\n$RESFILE"
+
+	fi
+}
+
+create_log ()
+{
+
+local NAME=$1
+
+if [ -e "/var/log/$NAME" ] ; then
+	rm -rf /var/log/$NAME
+fi
+
+mkdir /var/log/$NAME
+cd /var/log/$NAME
+
+cp /var/log/boot.log . 2> /dev/null
+cp /var/log/messages . 2> /dev/null
+cp /etc/ponix.network . 2> /dev/null
+cp /etc/ponix.runtome . 2> /dev/null
+cp /etc/ponix.user . 2> /dev/null
+cp /etc/ponix.hosts .  2> /dev/null
+cp /var/log/xrandr.firsttime . 2> /dev/null
+
+lspci -vvv > ./lspci.log
+lsusb > ./lsusb.log
+dmesg > ./dmesg.log
+lsmod > ./lsmod.log
+top -n 1 > ./top.log
+ls -lR /dev > ./dev.listing
+dmidecode > ./system
+
+echo "PoniX version=$TS_VERSION" > ./info
+echo "" >> ./info
+echo "CMDLINE=`cat /proc/cmdline`" >> ./info
+echo "" >> ./info
+echo "KERNEL=`cat /proc/version`" >> ./info
+echo "" >> ./info
+echo "ALSA=`cat /proc/asound/version`" >> ./info	
+echo "" >> ./info
+echo "FREERDP=`xfreerdp --version`" >> ./info
+echo "" >> ./info
+echo "`cat /proc/cpuinfo`" >> ./info
+echo "" >> ./info
+echo "`cat /proc/meminfo`" >> ./info
+echo "" >> ./info
+echo "`df`" >> ./info
+
+if [ -e /tmp/.X11-unix ]; then
+	cp /var/log/Xorg.* . 2>/dev/null
+	cp /etc/X11/xorg.conf* . 2>/dev/null
+fi
+
+cd /var/log
+
+tar c $NAME | bzip2 -c > /tmp/$NAME.tar.bz2
+
+if [ -e "/tmp/$NAME.tar.bz2" ]; then
+	return 0
+fi
+return 1
+}
+
+
+################## START ######################
+
+LOGNAME=$CLIENT_MAC
+
+if [ -z "$CLIENT_MAC" ] ; then
+	xdmenu_errbox "$LNG_LOGGER_NO_MAC"
+	LOGNAME=ponixlogs
+fi
+
+if  create_log $LOGNAME ; then
+
+	if [ -n "$CLIENT_MAC" ] ; then
+		${XDMENU_SCRIPTS}/upload_pxe /tmp/$LOGNAME.tar.bz2 upload/$LOGNAME.tar.bz2
+		RES=$?
+		if [ "$RES" = "0" ] ; then
+			/bin/xdmenu_msgbox "$LNG_LOGGER_SUCCESS\n\n$SERVER_IP/upload/$LOGNAME.tar.bz2"	
+		fi
+	fi
+
+	store_to_flash $LOGNAME sda1
+	store_to_flash $LOGNAME sdb1	
+	store_to_flash $LOGNAME sdc1	
+
+	rm /tmp/$LOGNAME.tar.bz2
+fi
+

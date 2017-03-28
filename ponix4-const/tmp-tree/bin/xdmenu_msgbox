@@ -1,0 +1,60 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang base
+
+XDMSGBOX_HEIGHT=16
+XDMSGBOX_WIDTH=64
+
+XDMENU_FOCUS_BIN=/bin/xdmenu_focus
+
+if [ "$1" = "" ] ; then
+	echo "Usage: xdmenu_msgbox text [height (16)]"
+	exit
+fi
+
+if [ "$XD_USE_CONSOLE" = "ON" ] ; then
+        echo -e $1
+        exit
+fi
+                
+
+if [ -z "`pidof Xorg`" ] ; then
+	/bin/repli_msgbox "$1"
+	exit
+fi
+
+if [ "$DISPLAY" = "" ] ; then
+	echo "DISPLAY is not set..."
+	exit
+fi
+
+if [ -n "$2" ] ; then
+	XDMSGBOX_HEIGHT=$2
+fi
+
+# this is for 'bring_session_to_front' script to correctly
+# bring up dialogs from the session which runs them in .deskrun
+# (all because Xdialog doesn't set _WM_PID)
+if [ -n "$SESSION_ID" ] ; then
+	CLASSNAME='dialog_session'$SESSION_ID
+else
+	CLASSNAME='xdmenu_msgbox'
+fi
+
+# Running Xdialog #####################################
+
+#export XDIALOG_HIGH_DIALOG_COMPAT=true
+#export XDIALOG_FORCE_AUTOSIZE=true
+
+WID=`xdotool search --class "$CLASSNAME"`
+
+if [ "$WID" != "" ] ; then
+	xdotool windowkill $WID
+fi
+
+$XDMENU_FOCUS_BIN $CLASSNAME &
+                                                                
+eval "/bin/Xdialog --rc-file /etc/gtkrc.fixedfont --title \"\" --wmclass $CLASSNAME  --wrap --msgbox \"$1\" $XDMSGBOX_HEIGHT $XDMSGBOX_WIDTH 2>>$LOGFILE"
+exit $?
+

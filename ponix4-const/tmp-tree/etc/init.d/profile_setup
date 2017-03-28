@@ -1,0 +1,68 @@
+#! /bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in  
+init)
+  if ! pkg_initialized $PACKAGE; then
+    if [ ! -z "$STORAGE_PATH" ] ; then
+	if [ ! -z "$STORAGE_PREFIX" ] ; then
+		STORAGE_PREFIX=`make_caps $STORAGE_PREFIX`
+		if [ "$STORAGE_PREFIX" = "M" ] ; then
+			PREFIX=$CLIENT_MAC
+		elif [ "$STORAGE_PREFIX" = "H" ] ; then
+		   if [ "`hostname`" = "(none)" ] ; then
+			PREFIX="profile"
+		   else
+			PREFIX=`hostname`
+		   fi
+		else
+			PREFIX=`hostname -i`
+		fi
+	else
+		PREFIX="profile"
+	fi
+	echo "PREFIX=$PREFIX" >> $TS_RUNTIME
+	if [ -e $STORAGE_PATH ] ; then
+	    if [ ! -e $STORAGE_PATH/ponix.$PREFIX ] ; then
+	      if ! mkdir $STORAGE_PATH/ponix.$PREFIX ; then
+	        echo_log "Error setting up profile!"
+		echo_log "Make sure the path to your profile directory"
+		echo_log "$STORAGE_PATH/ponix.$PREFIX folder is writable and exists."
+	        echo_log "Aborting Bootup and starting shell."
+	        ash
+	      fi
+	    fi
+	    ln -s $STORAGE_PATH/ponix.$PREFIX /root
+    	 else
+       	    mkdir /root
+	 fi
+    else
+        mkdir /root
+    fi
+    
+    for config in "$STORAGE_CONFIG1" "$STORAGE_CONFIG2" "$STORAGE_CONFIG3" "$STORAGE_CONFIG4" "$STORAGE_CONFIG5" "$STORAGE_CONFIG6" "$STORAGE_CONFIG7" "$STORAGE_CONFIG8"
+    do
+	filename=$config/ponix.$PREFIX/ponix.conf.user
+	if [ -e "$filename" ] ; then
+		cat $filename >> $TS_USER 2> /dev/null
+		# Fixes any lines which haven't a CR/LF at end
+		echo >> $TS_USER
+		cleanup
+		echo_log "Configuration read from $config"
+	fi
+    done
+
+    pkg_set_init_flag $PACKAGE
+    
+  fi
+  ;;
+help)
+    echo "Usage: $0 init"
+    ;;
+*)
+    exit 1
+    ;;
+esac
+
+exit 0

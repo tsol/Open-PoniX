@@ -1,0 +1,39 @@
+#! /bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in
+init)
+    
+    DAEMON=/bin/openct-control
+    STATUS_DIR="/var/run/openct"
+
+    test -x $DAEMON || exit 0
+
+    if ! test -e "$STATUS_DIR"
+    then
+        mkdir -p "$STATUS_DIR"
+    fi
+
+    set -e
+
+    $DAEMON init
+
+    /bin/udevadm trigger
+
+    /bin/pcscd
+
+    ;;
+stop)
+    ;;
+help)
+    echo "Usage: $0 init stop"
+    ;;
+*)
+    exit 1
+    ;;
+esac
+
+exit 0
+
+

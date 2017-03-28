@@ -1,0 +1,68 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+if [ -z "$1" ] ; then
+	echo "Require session number!"
+	exit
+fi
+
+SESID=$1
+
+list_procs_and_raise_windows ()
+{
+	for proc in $1
+	do
+		if [ -n "$2" ] ; then
+			WIDS=`xdotool search --classname "$2"`
+		else
+			WIDS=`xdotool search --pid $proc --classname "\*+"`
+		fi
+
+		WIDS=`echo $WIDS | sed 's/\n+/ /g'`
+#		echo "PROC: '$proc', WIDS: '$WIDS'"
+
+		if [ -n "$WIDS" ] ; then
+			for WID in $WIDS
+			do
+#				echo "RAISING WID: $WID"
+#				xdotool windowmap $WID
+				xdotool windowraise $WID
+				xdotool windowfocus $WID
+			done
+
+			if [ -n "$2" ]; then
+				return 0			
+			fi
+
+		fi
+		KIDS=`pgrep -P $proc`
+		if [ -n "$KIDS" ] ; then
+			list_procs_and_raise_windows "$KIDS"
+		fi		
+	done
+
+}
+
+PID=`eval echo '$SESSION'$SESID'_PID'`
+
+if [ -z "$PID" ] ; then
+	echo "Session '$SESID' has no PID!"
+	exit 1
+fi
+
+if [ "`ps | awk '{print $1}' | grep \"^$PID$\"`" != "$PID" ] ; then
+	echo "Session '$SESID' PID expired!"
+	exit 1
+fi
+
+list_procs_and_raise_windows $PID
+
+# If window doesn't set PID property (as xdialog does), find it by classname.
+# For current time it is done to correctly bring up INPUT_SERVER dialog of session.
+if [ -z "$WID" ] ; then
+#	echo "TRYING BY CLASSNAME!"
+	list_procs_and_raise_windows $PID "dialog_session${SESID}"
+fi
+
+

@@ -1,0 +1,87 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+    if [ ! -z "$SER2NET_DEVICE" ] || [ ! -z "$SER2NET_DEVICE1" ] || [ ! -z "$SER2NET_DEVICE2" ] || [ ! -z "$SER2NET_DEVICE3" ] || [ ! -z "$SER2NET_DEVICE4" ] ; then
+        pkg_set_init_flag $PACKAGE
+
+	if [ ! -z "$SER2NET_DEVICE" ]; then
+            if [ -z "$SER2NET_TCPPORT" ]; then SER2NET_TCPPORT=2001; fi
+            if [ -z "$SER2NET_STATE" ]; then SER2NET_STATE=raw; fi
+            if [ -z "$SER2NET_TIMEOUT" ]; then SER2NET_TIMEOUT=600; fi
+            if [ -z "$SER2NET_OPTIONS" ]; then SER2NET_OPTIONS="9600 NONE 1STOPBIT 8DATABITS"; fi
+            echo -e "s:\$SER2NET_TCPPORT0:$SER2NET_TCPPORT:g\n \
+                     s:\$SER2NET_STATE0:$SER2NET_STATE:g\n \
+                     s:\$SER2NET_TIMEOUT0:$SER2NET_TIMEOUT:g\n \
+                     s:\$SER2NET_DEVICE0:$SER2NET_DEVICE:g\n \
+                     s:\$SER2NET_OPTIONS0:$SER2NET_OPTIONS:g" >> /tmp/script
+            let x=1
+        fi
+	if [ ! -z "$SER2NET_DEVICE1" ]; then
+	    if [ -z "$SER2NET_TCPPORT1" ]; then SER2NET_TCPPORT1=2002; fi
+	    if [ -z "$SER2NET_STATE1" ]; then SER2NET_STATE1=raw; fi
+	    if [ -z "$SER2NET_TIMEOUT1" ]; then SER2NET_TIMEOUT1=600; fi
+	    if [ -z "$SER2NET_OPTIONS1" ]; then SER2NET_OPTIONS1="9600 NONE 1STOPBIT 8DATABITS"; fi
+	    echo -e "s:\$SER2NET_TCPPORT1:$SER2NET_TCPPORT1:g\n \
+	             s:\$SER2NET_STATE1:$SER2NET_STATE1:g\n \
+		     s:\$SER2NET_TIMEOUT1:$SER2NET_TIMEOUT1:g\n \
+	             s:\$SER2NET_DEVICE1:$SER2NET_DEVICE1:g\n \
+		     s:\$SER2NET_OPTIONS1:$SER2NET_OPTIONS1:g" >> /tmp/script
+	    let x=x+1
+	fi
+	if [ ! -z "$SER2NET_DEVICE2" ]; then
+	    if [ -z "$SER2NET_TCPPORT2" ]; then SER2NET_TCPPORT2=2003; fi
+	    if [ -z "$SER2NET_STATE2" ]; then SER2NET_STATE2=raw; fi
+	    if [ -z "$SER2NET_TIMEOUT2" ]; then SER2NET_TIMEOUT2=600; fi
+	    if [ -z "$SER2NET_OPTIONS2" ]; then SER2NET_OPTIONS2="9600 NONE 1STOPBIT 8DATABITS"; fi
+	    echo -e "s:\$SER2NET_TCPPORT2:$SER2NET_TCPPORT2:g\n \
+	             s:\$SER2NET_STATE2:$SER2NET_STATE2:g\n \
+		     s:\$SER2NET_TIMEOUT2:$SER2NET_TIMEOUT2:g\n \
+	             s:\$SER2NET_DEVICE2:$SER2NET_DEVICE2:g\n \
+		     s:\$SER2NET_OPTIONS2:$SER2NET_OPTIONS2:g" >> /tmp/script
+	    let x=x+1
+	fi
+	if [ ! -z "$SER2NET_DEVICE3" ]; then
+	    if [ -z "$SER2NET_TCPPORT3" ]; then SER2NET_TCPPORT3=2004; fi
+	    if [ -z "$SER2NET_STATE3" ]; then SER2NET_STATE3=raw; fi
+	    if [ -z "$SER2NET_TIMEOUT3" ]; then SER2NET_TIMEOUT3=600; fi
+	    if [ -z "$SER2NET_OPTIONS3" ]; then SER2NET_OPTIONS3="9600 NONE 1STOPBIT 8DATABITS"; fi
+	    echo -e "s:\$SER2NET_TCPPORT3:$SER2NET_TCPPORT3:g\n \
+	             s:\$SER2NET_STATE3:$SER2NET_STATE3:g\n \
+		     s:\$SER2NET_TIMEOUT3:$SER2NET_TIMEOUT3:g\n \
+	             s:\$SER2NET_DEVICE3:$SER2NET_DEVICE3:g\n \
+		     s:\$SER2NET_OPTIONS3:$SER2NET_OPTIONS3:g" >> /tmp/script
+	    let x=x+1
+	fi
+	if [ ! -z "$SER2NET_DEVICE4" ]; then
+	    if [ -z "$SER2NET_TCPPORT4" ]; then SER2NET_TCPPORT4=2005; fi
+	    if [ -z "$SER2NET_STATE4" ]; then SER2NET_STATE4=raw; fi
+	    if [ -z "$SER2NET_TIMEOUT4" ]; then SER2NET_TIMEOUT4=600; fi
+	    if [ -z "$SER2NET_OPTIONS4" ]; then SER2NET_OPTIONS4="9600 NONE 1STOPBIT 8DATABITS"; fi
+	    echo -e "s:\$SER2NET_TCPPORT4:$SER2NET_TCPPORT4:g\n \
+	             s:\$SER2NET_STATE4:$SER2NET_STATE4:g\n \
+		     s:\$SER2NET_TIMEOUT4:$SER2NET_TIMEOUT4:g\n \
+	             s:\$SER2NET_DEVICE4:$SER2NET_DEVICE4:g\n \
+		     s:\$SER2NET_OPTIONS4:$SER2NET_OPTIONS4:g" >> /tmp/script
+	    let x=x+1
+	fi
+	    cat /etc/ser2net.tpl | sed ${x}q | sed -f /tmp/script | grep -v ^\$ > /etc/ser2net.conf
+	    rm /tmp/script
+	    /bin/ser2net
+    fi
+
+    fi
+    ;;
+help)
+    echo "Usage: $0 init"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

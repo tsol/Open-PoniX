@@ -1,0 +1,85 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+
+PONIX_MNT="/mnt/ponixsys"
+PKGDIR=/tmp/pkg
+
+if [ -n "$DEBUG_NETWORK" ] ; then
+	debug="-d"
+fi
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+     if [ -d $PONIX_MNT ] ; then
+	echo "export STORAGE_PATH=/mnt/ponixsys" >> $TS_RUNTIME
+        echo "export PKG_PATH=/mnt/ponixsys" >> $TS_RUNTIME
+        echo "export PKG_PREFIX=pkg" >> $TS_RUNTIME
+     else
+	pkg_set_init_flag $PACKAGE
+	exit 1          
+     fi
+
+     if [ -e $PONIX_MNT/pkg/wireless.px ]; then
+    
+	if [ ! -e $PKGDIR ]; then
+        	mkdir $PKGDIR
+        fi
+        
+	echo_log '\nPreloading wireless.px drivers... ' $debug
+
+        . $TS_RUNTIME
+        
+ 	pkg load wireless px pkg
+ 	
+        if [ -e $PKGDIR/dependencies ] ; then
+		$PKGDIR/dependencies
+        fi
+
+	depmod
+
+	echo_log '\nInstalling wireless modules...' $debug
+
+	if [ -e /etc/wireless.modules ]; then
+		(cat /etc/wireless.modules; echo) | # make sure there is a LF at the end
+		while read module args
+                  do
+                        case "$module" in
+                                \#*|"") continue ;;
+                        esac
+                        echo -n "$module - " >> $LOGFILE
+                        if ! modprobe "$module" $args >> $LOGFILE 2>&1; then
+                                echo "Device $module not Found, Removing" >> $LOGFILE
+                                modprobe -r "$module" >> $LOGFILE
+                        fi
+                  done
+
+#		echo_log 'Reloading udev rules...' $debug
+	
+		/bin/udevadm control --reload-rules
+
+		pkg_set_init_flag $PACKAGE
+		# let scripts now, that wifi loaded:
+		pkg_set_init_flag wireless
+	
+	else
+		echo_log "Package wireless was not loaded!" $debug
+	fi
+
+
+     fi
+    fi
+    ;;
+stop)
+    ;;
+help)
+    echo "Usage: $0 init stop"
+    ;;
+*)
+    exit 1
+    ;;
+esac
+
+exit 0

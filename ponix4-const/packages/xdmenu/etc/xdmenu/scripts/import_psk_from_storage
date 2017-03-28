@@ -1,0 +1,25 @@
+#!/bin/sh
+
+. $TS_GLOBAL
+load_lang config
+
+if [ ! -e "$STORAGE_PATH/key.txt" ] ; then
+	/bin/xdmenu_msgbox "$LNG_MENU_NET_WIRELESS_IMPORTKEY_STORAGE_FAIL"
+	exit
+fi
+
+KEY=`cat $STORAGE_PATH/key.txt`
+
+if [ -z "$KEY" ] ; then
+	 /bin/xdmenu_msgbox "$LNG_MENU_NET_WIRELESS_IMPORTKEY_STORAGE_FAIL"
+	exit
+fi
+
+$XDMENU_SCRIPTS/store_wireless_psk "$KEY"
+
+if [ "$?" = "0" ] ; then 
+	/bin/xdmenu_msgbox "$LNG_MENU_NET_WIRELESS_IMPORTKEY_STORAGE_SUCCESS"
+else
+	echo_log "Package wireless not loaded!"
+fi
+

@@ -1,0 +1,30 @@
+#! /bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+    
+	insmod /lib/modules/elok_s.ko
+	/bin/loadelo
+	/bin/eloser ttyS0 
+	plog "Start eloxevent for touchscreen support"
+	
+	if [ ! -z `pidof Xorg` ]; then 
+		plog "Start eloxevent for touchscreen support"
+		/bin/eloxevent --xwarppointer 
+	fi
+
+	pkg_set_init_flag $PACKAGE
+    fi
+    ;;
+help)
+    echo "Usage: $0 init"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

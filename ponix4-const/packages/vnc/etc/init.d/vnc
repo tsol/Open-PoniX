@@ -1,0 +1,44 @@
+#! /bin/sh
+
+. /etc/ponix.global
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+
+    VNC_SERVER=`make_caps $VNC_SERVER`
+    
+    if [ "$VNC_SERVER" == "ON" ]; then
+
+#		Default password is "password"
+		if [ -n "$VNC_PASSWORD" ]; then
+			x11vnc -storepasswd $VNC_PASSWORD /etc/vnc_password
+		fi
+
+		if [ -z "$VNC_REMOTE_ACCESS_FROM" ] ; then
+			if [ -z "$NETMASK_SIZE" ] ; then
+				NETMASK_SIZE=24
+			fi
+			store_variable VNC_REMOTE_ACCESS_FROM "$CLIENT_IP/$NETMASK_SIZE" RUNTIME
+		fi
+			
+		/bin/replacetpl /etc/x11vnc
+		mv /etc/x11vnc /etc/xinetd.d/
+		
+		if [ -n "`pidof xinetd`" ] ; then
+			kill -HUP `pidof xinetd`
+		fi
+		                               
+    fi	
+	pkg_set_init_flag $PACKAGE
+    fi
+    ;;
+help)
+    echo "Usage: $0 init"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0

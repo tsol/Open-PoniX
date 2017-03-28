@@ -1,0 +1,42 @@
+#! /bin/sh
+
+. $TS_GLOBAL
+
+case "$1" in  
+init)
+    if ! pkg_initialized $PACKAGE; then
+      SANE_ENABLED=`make_caps $SANE_ENABLE`
+
+      if [ "$SANE_ENABLE" != "OFF" ] ; then
+	if [ -n "$SANE_SCANNER" ] ; then
+	    echo $SANE_SCANNER > /etc/sane.d/dll.conf
+	fi
+        if [ -n "$NETMASK_SIZE" ]; then
+            echo $CLIENT_IP/$NETMASK_SIZE >> /etc/sane.d/saned.conf
+	fi
+        if [ -n "$SANE_REMOTE_ACCESS_FROM" ] ; then
+            echo $SANE_REMOTE_ACCESS_FROM >> /etc/sane.d/saned.conf
+        fi
+
+        if [ ! -d /var/lock/sane ] ; then
+	    mkdir -p /var/lock/sane
+        fi
+
+	if [ -n "`pidof xinetd`" ] ; then
+		kill -HUP `pidof xinetd`	
+	fi
+
+      fi
+
+      pkg_set_init_flag $PACKAGE
+    fi
+    ;;
+help)
+    echo "Usage: $0 init"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0
