@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/compat/compat.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/compat-wireless-3.2.5-1/compat/compat.ko /source/compat-wireless-3.2.5-1/compat/compat.o /source/compat-wireless-3.2.5-1/compat/compat.mod.o

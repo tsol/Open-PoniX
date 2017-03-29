@@ -1,0 +1,1 @@
+cmd_drivers/staging/wlags49_h2/wlags49_h2_cs.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/wlags49_h2/wlags49_h2_cs.ko drivers/staging/wlags49_h2/wlags49_h2_cs.o drivers/staging/wlags49_h2/wlags49_h2_cs.mod.o

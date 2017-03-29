@@ -1,0 +1,1 @@
+cmd_drivers/media/platform/marvell-ccic/cafe_ccic.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/media/platform/marvell-ccic/cafe_ccic.ko drivers/media/platform/marvell-ccic/cafe_ccic.o drivers/media/platform/marvell-ccic/cafe_ccic.mod.o

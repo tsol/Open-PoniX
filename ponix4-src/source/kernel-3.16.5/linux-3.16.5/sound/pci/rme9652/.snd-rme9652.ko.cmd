@@ -1,0 +1,1 @@
+cmd_sound/pci/rme9652/snd-rme9652.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/pci/rme9652/snd-rme9652.ko sound/pci/rme9652/snd-rme9652.o sound/pci/rme9652/snd-rme9652.mod.o

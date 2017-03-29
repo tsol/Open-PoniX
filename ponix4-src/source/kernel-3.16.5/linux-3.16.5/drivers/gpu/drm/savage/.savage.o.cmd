@@ -1,0 +1,1 @@
+cmd_drivers/gpu/drm/savage/savage.o := ld -m elf_i386   -r -o drivers/gpu/drm/savage/savage.o drivers/gpu/drm/savage/savage_drv.o drivers/gpu/drm/savage/savage_bci.o drivers/gpu/drm/savage/savage_state.o 

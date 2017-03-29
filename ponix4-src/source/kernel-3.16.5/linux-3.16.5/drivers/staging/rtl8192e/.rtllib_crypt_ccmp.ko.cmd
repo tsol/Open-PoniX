@@ -1,0 +1,1 @@
+cmd_drivers/staging/rtl8192e/rtllib_crypt_ccmp.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/rtl8192e/rtllib_crypt_ccmp.ko drivers/staging/rtl8192e/rtllib_crypt_ccmp.o drivers/staging/rtl8192e/rtllib_crypt_ccmp.mod.o

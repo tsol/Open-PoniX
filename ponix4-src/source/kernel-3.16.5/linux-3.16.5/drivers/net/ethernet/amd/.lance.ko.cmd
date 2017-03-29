@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/amd/lance.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/amd/lance.ko drivers/net/ethernet/amd/lance.o drivers/net/ethernet/amd/lance.mod.o

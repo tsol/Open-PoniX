@@ -1,0 +1,1 @@
+cmd_drivers/char/hw_random/rng-core.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/char/hw_random/rng-core.ko drivers/char/hw_random/rng-core.o drivers/char/hw_random/rng-core.mod.o

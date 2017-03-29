@@ -1,0 +1,1 @@
+cmd_sound/isa/sb/snd-emu8000-synth.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/isa/sb/snd-emu8000-synth.ko sound/isa/sb/snd-emu8000-synth.o sound/isa/sb/snd-emu8000-synth.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/atheros/atl1c/atl1c.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/atheros/atl1c/atl1c.ko drivers/net/ethernet/atheros/atl1c/atl1c.o drivers/net/ethernet/atheros/atl1c/atl1c.mod.o

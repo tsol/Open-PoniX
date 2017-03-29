@@ -1,0 +1,1 @@
+cmd_sound/isa/sb/snd-emu8000-synth.o := ld -m elf_i386   -r -o sound/isa/sb/snd-emu8000-synth.o sound/isa/sb/emu8000_synth.o sound/isa/sb/emu8000_callback.o sound/isa/sb/emu8000_patch.o sound/isa/sb/emu8000_pcm.o 

@@ -1,0 +1,1 @@
+cmd_sound/usb/usx2y/snd-usb-us122l.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/usb/usx2y/snd-usb-us122l.ko sound/usb/usx2y/snd-usb-us122l.o sound/usb/usx2y/snd-usb-us122l.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/staging/usbip/vhci-hcd.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/usbip/vhci-hcd.ko drivers/staging/usbip/vhci-hcd.o drivers/staging/usbip/vhci-hcd.mod.o

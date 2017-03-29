@@ -1,0 +1,1 @@
+cmd_drivers/i2c/busses/i2c-ocores.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/i2c/busses/i2c-ocores.ko drivers/i2c/busses/i2c-ocores.o drivers/i2c/busses/i2c-ocores.mod.o

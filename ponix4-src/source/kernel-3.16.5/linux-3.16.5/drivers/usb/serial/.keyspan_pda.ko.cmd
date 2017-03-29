@@ -1,0 +1,1 @@
+cmd_drivers/usb/serial/keyspan_pda.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/usb/serial/keyspan_pda.ko drivers/usb/serial/keyspan_pda.o drivers/usb/serial/keyspan_pda.mod.o

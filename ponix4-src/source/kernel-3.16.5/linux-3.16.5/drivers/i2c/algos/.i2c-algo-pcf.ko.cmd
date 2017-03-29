@@ -1,0 +1,1 @@
+cmd_drivers/i2c/algos/i2c-algo-pcf.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/i2c/algos/i2c-algo-pcf.ko drivers/i2c/algos/i2c-algo-pcf.o drivers/i2c/algos/i2c-algo-pcf.mod.o

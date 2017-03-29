@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/broadcom/tg3.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/broadcom/tg3.ko drivers/net/ethernet/broadcom/tg3.o drivers/net/ethernet/broadcom/tg3.mod.o

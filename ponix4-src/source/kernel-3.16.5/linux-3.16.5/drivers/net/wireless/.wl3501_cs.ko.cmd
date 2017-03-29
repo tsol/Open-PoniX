@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/wl3501_cs.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/wl3501_cs.ko drivers/net/wireless/wl3501_cs.o drivers/net/wireless/wl3501_cs.mod.o

@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/rfcomm.o := ld -m elf_i386   -r -o /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/rfcomm.o /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/core.o /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/sock.o /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/tty.o 

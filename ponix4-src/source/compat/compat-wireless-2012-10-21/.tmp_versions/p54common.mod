@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/p54/p54common.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/p54/eeprom.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/p54/fwio.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/p54/txrx.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/p54/main.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/p54/led.o

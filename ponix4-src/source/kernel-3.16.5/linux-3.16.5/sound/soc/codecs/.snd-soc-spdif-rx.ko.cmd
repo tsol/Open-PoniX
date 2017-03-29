@@ -1,0 +1,1 @@
+cmd_sound/soc/codecs/snd-soc-spdif-rx.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/codecs/snd-soc-spdif-rx.ko sound/soc/codecs/snd-soc-spdif-rx.o sound/soc/codecs/snd-soc-spdif-rx.mod.o

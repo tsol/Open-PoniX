@@ -1,0 +1,1 @@
+cmd_sound/pci/echoaudio/snd-indigodj.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/pci/echoaudio/snd-indigodj.ko sound/pci/echoaudio/snd-indigodj.o sound/pci/echoaudio/snd-indigodj.mod.o

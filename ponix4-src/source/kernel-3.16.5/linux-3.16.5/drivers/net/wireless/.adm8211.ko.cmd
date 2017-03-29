@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/adm8211.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/adm8211.ko drivers/net/wireless/adm8211.o drivers/net/wireless/adm8211.mod.o

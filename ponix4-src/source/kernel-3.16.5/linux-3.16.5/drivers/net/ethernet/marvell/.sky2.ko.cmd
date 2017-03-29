@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/marvell/sky2.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/marvell/sky2.ko drivers/net/ethernet/marvell/sky2.o drivers/net/ethernet/marvell/sky2.mod.o

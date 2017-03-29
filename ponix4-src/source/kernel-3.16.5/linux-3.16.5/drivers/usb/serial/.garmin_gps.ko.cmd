@@ -1,0 +1,1 @@
+cmd_drivers/usb/serial/garmin_gps.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/usb/serial/garmin_gps.ko drivers/usb/serial/garmin_gps.o drivers/usb/serial/garmin_gps.mod.o

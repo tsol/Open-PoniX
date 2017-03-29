@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/realtek/atp.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/realtek/atp.ko drivers/net/ethernet/realtek/atp.o drivers/net/ethernet/realtek/atp.mod.o

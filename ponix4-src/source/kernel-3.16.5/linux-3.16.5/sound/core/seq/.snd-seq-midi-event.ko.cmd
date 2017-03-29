@@ -1,0 +1,1 @@
+cmd_sound/core/seq/snd-seq-midi-event.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/core/seq/snd-seq-midi-event.ko sound/core/seq/snd-seq-midi-event.o sound/core/seq/snd-seq-midi-event.mod.o

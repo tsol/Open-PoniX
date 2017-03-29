@@ -1,0 +1,1 @@
+cmd_sound/isa/wavefront/snd-wavefront.o := ld -m elf_i386   -r -o sound/isa/wavefront/snd-wavefront.o sound/isa/wavefront/wavefront.o sound/isa/wavefront/wavefront_fx.o sound/isa/wavefront/wavefront_synth.o sound/isa/wavefront/wavefront_midi.o 

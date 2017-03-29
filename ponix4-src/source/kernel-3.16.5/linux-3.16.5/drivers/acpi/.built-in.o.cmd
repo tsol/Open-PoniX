@@ -1,0 +1,1 @@
+cmd_drivers/acpi/built-in.o :=  ld -m elf_i386   -r -o drivers/acpi/built-in.o drivers/acpi/tables.o drivers/acpi/blacklist.o drivers/acpi/acpi.o drivers/acpi/acpica/built-in.o drivers/acpi/button.o drivers/acpi/video.o drivers/acpi/container.o drivers/acpi/acpi_memhotplug.o 

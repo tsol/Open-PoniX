@@ -1,0 +1,1 @@
+cmd_drivers/staging/rtl8192ee/r8192ee.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/rtl8192ee/r8192ee.ko drivers/staging/rtl8192ee/r8192ee.o drivers/staging/rtl8192ee/r8192ee.mod.o

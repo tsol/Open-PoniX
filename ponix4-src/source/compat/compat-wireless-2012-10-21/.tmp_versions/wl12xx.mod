@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/ti/wl12xx/wl12xx.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/ti/wl12xx/main.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/ti/wl12xx/cmd.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/ti/wl12xx/acx.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/ti/wl12xx/debugfs.o

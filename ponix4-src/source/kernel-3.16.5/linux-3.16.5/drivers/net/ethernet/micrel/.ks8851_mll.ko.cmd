@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/micrel/ks8851_mll.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/micrel/ks8851_mll.ko drivers/net/ethernet/micrel/ks8851_mll.o drivers/net/ethernet/micrel/ks8851_mll.mod.o

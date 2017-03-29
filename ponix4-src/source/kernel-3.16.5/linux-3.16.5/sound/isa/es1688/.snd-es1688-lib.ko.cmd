@@ -1,0 +1,1 @@
+cmd_sound/isa/es1688/snd-es1688-lib.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/isa/es1688/snd-es1688-lib.ko sound/isa/es1688/snd-es1688-lib.o sound/isa/es1688/snd-es1688-lib.mod.o

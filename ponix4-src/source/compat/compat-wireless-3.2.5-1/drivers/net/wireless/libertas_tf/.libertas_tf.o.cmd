@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas_tf/libertas_tf.o := ld -m elf_i386   -r -o /source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas_tf/libertas_tf.o /source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas_tf/main.o /source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas_tf/cmd.o 

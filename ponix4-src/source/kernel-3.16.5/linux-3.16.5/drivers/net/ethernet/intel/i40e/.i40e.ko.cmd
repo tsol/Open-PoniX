@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/intel/i40e/i40e.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/intel/i40e/i40e.ko drivers/net/ethernet/intel/i40e/i40e.o drivers/net/ethernet/intel/i40e/i40e.mod.o

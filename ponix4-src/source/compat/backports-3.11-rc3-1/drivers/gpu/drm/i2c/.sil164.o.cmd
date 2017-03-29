@@ -1,0 +1,1 @@
+cmd_/source/compat/backports-3.11-rc3-1/drivers/gpu/drm/i2c/sil164.o := ld -m elf_i386   -r -o /source/compat/backports-3.11-rc3-1/drivers/gpu/drm/i2c/sil164.o /source/compat/backports-3.11-rc3-1/drivers/gpu/drm/i2c/sil164_drv.o 

@@ -1,0 +1,1 @@
+cmd_drivers/scsi/scsi_transport_spi.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/scsi/scsi_transport_spi.ko drivers/scsi/scsi_transport_spi.o drivers/scsi/scsi_transport_spi.mod.o

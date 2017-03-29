@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/calxeda/xgmac.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/calxeda/xgmac.ko drivers/net/ethernet/calxeda/xgmac.o drivers/net/ethernet/calxeda/xgmac.mod.o

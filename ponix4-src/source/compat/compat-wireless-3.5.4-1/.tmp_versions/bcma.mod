@@ -1,0 +1,2 @@
+/source/compat-wireless-3.5.4-1/drivers/bcma/bcma.ko
+/source/compat-wireless-3.5.4-1/drivers/bcma/main.o /source/compat-wireless-3.5.4-1/drivers/bcma/scan.o /source/compat-wireless-3.5.4-1/drivers/bcma/core.o /source/compat-wireless-3.5.4-1/drivers/bcma/sprom.o /source/compat-wireless-3.5.4-1/drivers/bcma/driver_chipcommon.o /source/compat-wireless-3.5.4-1/drivers/bcma/driver_chipcommon_pmu.o /source/compat-wireless-3.5.4-1/drivers/bcma/driver_pci.o /source/compat-wireless-3.5.4-1/drivers/bcma/host_pci.o

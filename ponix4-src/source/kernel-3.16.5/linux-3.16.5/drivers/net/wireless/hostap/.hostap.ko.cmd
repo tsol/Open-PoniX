@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/hostap/hostap.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/hostap/hostap.ko drivers/net/wireless/hostap/hostap.o drivers/net/wireless/hostap/hostap.mod.o

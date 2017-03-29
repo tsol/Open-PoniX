@@ -1,0 +1,1 @@
+cmd_sound/isa/ad1816a/snd-ad1816a.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/isa/ad1816a/snd-ad1816a.ko sound/isa/ad1816a/snd-ad1816a.o sound/isa/ad1816a/snd-ad1816a.mod.o

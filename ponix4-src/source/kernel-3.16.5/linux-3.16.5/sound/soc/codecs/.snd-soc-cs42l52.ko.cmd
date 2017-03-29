@@ -1,0 +1,1 @@
+cmd_sound/soc/codecs/snd-soc-cs42l52.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/codecs/snd-soc-cs42l52.ko sound/soc/codecs/snd-soc-cs42l52.o sound/soc/codecs/snd-soc-cs42l52.mod.o

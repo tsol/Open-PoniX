@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8187/rtl8187.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8187/dev.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8187/rtl8225.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8187/leds.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8187/rfkill.o

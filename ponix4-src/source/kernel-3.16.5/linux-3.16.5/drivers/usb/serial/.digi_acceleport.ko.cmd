@@ -1,0 +1,1 @@
+cmd_drivers/usb/serial/digi_acceleport.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/usb/serial/digi_acceleport.ko drivers/usb/serial/digi_acceleport.o drivers/usb/serial/digi_acceleport.mod.o

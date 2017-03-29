@@ -1,0 +1,1 @@
+cmd_sound/pci/cs46xx/snd-cs46xx.o := ld -m elf_i386   -r -o sound/pci/cs46xx/snd-cs46xx.o sound/pci/cs46xx/cs46xx.o sound/pci/cs46xx/cs46xx_lib.o sound/pci/cs46xx/dsp_spos.o sound/pci/cs46xx/dsp_spos_scb_lib.o 

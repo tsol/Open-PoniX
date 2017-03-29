@@ -1,0 +1,1 @@
+cmd_/source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btmrvl.o := ld -m elf_i386   -r -o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btmrvl.o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btmrvl_main.o 

@@ -1,0 +1,1 @@
+cmd_drivers/staging/winbond/w35und.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/winbond/w35und.ko drivers/staging/winbond/w35und.o drivers/staging/winbond/w35und.mod.o

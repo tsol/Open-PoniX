@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/neterion/vxge/vxge.o := ld -m elf_i386   -r -o drivers/net/ethernet/neterion/vxge/vxge.o drivers/net/ethernet/neterion/vxge/vxge-config.o drivers/net/ethernet/neterion/vxge/vxge-traffic.o drivers/net/ethernet/neterion/vxge/vxge-ethtool.o drivers/net/ethernet/neterion/vxge/vxge-main.o 

@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/drivers/net/wireless/at76c50x-usb.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/compat-wireless-3.2.5-1/drivers/net/wireless/at76c50x-usb.ko /source/compat-wireless-3.2.5-1/drivers/net/wireless/at76c50x-usb.o /source/compat-wireless-3.2.5-1/drivers/net/wireless/at76c50x-usb.mod.o

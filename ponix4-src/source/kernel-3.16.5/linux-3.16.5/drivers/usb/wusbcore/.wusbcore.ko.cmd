@@ -1,0 +1,1 @@
+cmd_drivers/usb/wusbcore/wusbcore.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/usb/wusbcore/wusbcore.ko drivers/usb/wusbcore/wusbcore.o drivers/usb/wusbcore/wusbcore.mod.o

@@ -1,0 +1,1 @@
+cmd_sound/pci/oxygen/snd-virtuoso.o := ld -m elf_i386   -r -o sound/pci/oxygen/snd-virtuoso.o sound/pci/oxygen/virtuoso.o sound/pci/oxygen/xonar_lib.o sound/pci/oxygen/xonar_pcm179x.o sound/pci/oxygen/xonar_cs43xx.o sound/pci/oxygen/xonar_wm87x6.o sound/pci/oxygen/xonar_hdmi.o 

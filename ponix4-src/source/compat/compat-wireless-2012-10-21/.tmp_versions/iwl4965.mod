@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/iwlegacy/iwl4965.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/iwlegacy/4965.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/iwlegacy/4965-mac.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/iwlegacy/4965-rs.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/iwlegacy/4965-calib.o

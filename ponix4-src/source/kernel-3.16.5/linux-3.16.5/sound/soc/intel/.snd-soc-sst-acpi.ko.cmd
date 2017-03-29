@@ -1,0 +1,1 @@
+cmd_sound/soc/intel/snd-soc-sst-acpi.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/intel/snd-soc-sst-acpi.ko sound/soc/intel/snd-soc-sst-acpi.o sound/soc/intel/snd-soc-sst-acpi.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/natsemi/natsemi.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/natsemi/natsemi.ko drivers/net/ethernet/natsemi/natsemi.o drivers/net/ethernet/natsemi/natsemi.mod.o

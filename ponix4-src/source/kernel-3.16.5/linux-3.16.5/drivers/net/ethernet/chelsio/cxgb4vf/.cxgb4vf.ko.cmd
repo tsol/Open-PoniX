@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf.ko drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf.o drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf.mod.o

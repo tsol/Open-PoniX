@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/8390/wd.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/8390/wd.ko drivers/net/ethernet/8390/wd.o drivers/net/ethernet/8390/wd.mod.o

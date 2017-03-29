@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/broadcom/bnx2x/bnx2x.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/broadcom/bnx2x/bnx2x.ko drivers/net/ethernet/broadcom/bnx2x/bnx2x.o drivers/net/ethernet/broadcom/bnx2x/bnx2x.mod.o

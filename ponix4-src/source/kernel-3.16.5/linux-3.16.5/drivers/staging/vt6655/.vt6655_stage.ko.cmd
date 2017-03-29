@@ -1,0 +1,1 @@
+cmd_drivers/staging/vt6655/vt6655_stage.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/vt6655/vt6655_stage.ko drivers/staging/vt6655/vt6655_stage.o drivers/staging/vt6655/vt6655_stage.mod.o

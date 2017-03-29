@@ -1,0 +1,2 @@
+sound/isa/sb/snd-emu8000-synth.ko
+sound/isa/sb/emu8000_synth.o sound/isa/sb/emu8000_callback.o sound/isa/sb/emu8000_patch.o sound/isa/sb/emu8000_pcm.o

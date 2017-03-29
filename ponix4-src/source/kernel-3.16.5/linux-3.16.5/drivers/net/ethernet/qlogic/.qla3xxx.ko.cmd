@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/qlogic/qla3xxx.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/qlogic/qla3xxx.ko drivers/net/ethernet/qlogic/qla3xxx.o drivers/net/ethernet/qlogic/qla3xxx.mod.o

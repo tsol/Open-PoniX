@@ -1,0 +1,1 @@
+cmd_drivers/mmc/host/built-in.o :=  ld -m elf_i386   -r -o drivers/mmc/host/built-in.o drivers/mmc/host/sdhci.o drivers/mmc/host/sdhci-pci.o drivers/mmc/host/sdhci-pci-data.o drivers/mmc/host/sdhci-pci-o2micro.o drivers/mmc/host/wbsd.o drivers/mmc/host/cb710-mmc.o drivers/mmc/host/via-sdmmc.o drivers/mmc/host/sdhci-pltfm.o 

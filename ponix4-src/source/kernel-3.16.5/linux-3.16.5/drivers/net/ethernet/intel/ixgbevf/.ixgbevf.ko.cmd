@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/intel/ixgbevf/ixgbevf.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/intel/ixgbevf/ixgbevf.ko drivers/net/ethernet/intel/ixgbevf/ixgbevf.o drivers/net/ethernet/intel/ixgbevf/ixgbevf.mod.o

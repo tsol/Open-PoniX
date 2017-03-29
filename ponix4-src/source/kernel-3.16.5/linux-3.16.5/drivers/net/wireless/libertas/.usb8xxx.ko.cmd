@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/libertas/usb8xxx.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/libertas/usb8xxx.ko drivers/net/wireless/libertas/usb8xxx.o drivers/net/wireless/libertas/usb8xxx.mod.o

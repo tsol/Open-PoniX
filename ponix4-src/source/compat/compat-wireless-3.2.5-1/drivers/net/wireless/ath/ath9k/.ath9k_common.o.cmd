@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/drivers/net/wireless/ath/ath9k/ath9k_common.o := ld -m elf_i386   -r -o /source/compat-wireless-3.2.5-1/drivers/net/wireless/ath/ath9k/ath9k_common.o /source/compat-wireless-3.2.5-1/drivers/net/wireless/ath/ath9k/common.o 

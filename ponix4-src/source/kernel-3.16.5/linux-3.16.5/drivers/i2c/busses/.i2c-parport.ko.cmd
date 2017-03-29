@@ -1,0 +1,1 @@
+cmd_drivers/i2c/busses/i2c-parport.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/i2c/busses/i2c-parport.ko drivers/i2c/busses/i2c-parport.o drivers/i2c/busses/i2c-parport.mod.o

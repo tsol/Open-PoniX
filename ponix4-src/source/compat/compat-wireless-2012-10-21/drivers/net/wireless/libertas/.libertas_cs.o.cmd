@@ -1,0 +1,1 @@
+cmd_/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/libertas/libertas_cs.o := ld -m elf_i386   -r -o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/libertas/libertas_cs.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/libertas/if_cs.o 

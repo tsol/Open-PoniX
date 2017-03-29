@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/bluetooth/hci_uart.ko
+/source/compat/compat-wireless-2012-10-21/drivers/bluetooth/hci_ldisc.o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/hci_h4.o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/hci_bcsp.o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/hci_ll.o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/hci_ath.o

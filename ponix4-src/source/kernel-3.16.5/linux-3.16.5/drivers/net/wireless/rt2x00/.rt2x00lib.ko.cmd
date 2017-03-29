@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/rt2x00/rt2x00lib.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/rt2x00/rt2x00lib.ko drivers/net/wireless/rt2x00/rt2x00lib.o drivers/net/wireless/rt2x00/rt2x00lib.mod.o

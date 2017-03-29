@@ -1,0 +1,1 @@
+cmd_/source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btusb.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btusb.ko /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btusb.o /source/compat/compat-wireless-2012-10-21/drivers/bluetooth/btusb.mod.o

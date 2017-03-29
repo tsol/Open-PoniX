@@ -1,0 +1,1 @@
+cmd_drivers/media/common/tveeprom.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/media/common/tveeprom.ko drivers/media/common/tveeprom.o drivers/media/common/tveeprom.mod.o

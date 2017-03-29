@@ -1,0 +1,2 @@
+obj-$(CONFIG_COMPAT_ZD1211RW)		+= zd1211rw/
+obj-$(CONFIG_ATH_COMMON)	+= ath/

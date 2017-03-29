@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/3com/3c509.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/3com/3c509.ko drivers/net/ethernet/3com/3c509.o drivers/net/ethernet/3com/3c509.mod.o

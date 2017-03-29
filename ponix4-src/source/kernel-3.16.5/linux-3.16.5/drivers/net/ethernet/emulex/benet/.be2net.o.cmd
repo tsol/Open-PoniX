@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/emulex/benet/be2net.o := ld -m elf_i386   -r -o drivers/net/ethernet/emulex/benet/be2net.o drivers/net/ethernet/emulex/benet/be_main.o drivers/net/ethernet/emulex/benet/be_cmds.o drivers/net/ethernet/emulex/benet/be_ethtool.o drivers/net/ethernet/emulex/benet/be_roce.o 

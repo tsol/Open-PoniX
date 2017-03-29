@@ -1,0 +1,2 @@
+drivers/net/ethernet/cisco/enic/enic.ko
+drivers/net/ethernet/cisco/enic/enic_main.o drivers/net/ethernet/cisco/enic/vnic_cq.o drivers/net/ethernet/cisco/enic/vnic_intr.o drivers/net/ethernet/cisco/enic/vnic_wq.o drivers/net/ethernet/cisco/enic/enic_res.o drivers/net/ethernet/cisco/enic/enic_dev.o drivers/net/ethernet/cisco/enic/enic_pp.o drivers/net/ethernet/cisco/enic/vnic_dev.o drivers/net/ethernet/cisco/enic/vnic_rq.o drivers/net/ethernet/cisco/enic/vnic_vic.o drivers/net/ethernet/cisco/enic/enic_ethtool.o drivers/net/ethernet/cisco/enic/enic_api.o

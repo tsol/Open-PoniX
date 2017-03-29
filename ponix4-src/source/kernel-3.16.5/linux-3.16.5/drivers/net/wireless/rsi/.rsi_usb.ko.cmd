@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/rsi/rsi_usb.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/rsi/rsi_usb.ko drivers/net/wireless/rsi/rsi_usb.o drivers/net/wireless/rsi/rsi_usb.mod.o

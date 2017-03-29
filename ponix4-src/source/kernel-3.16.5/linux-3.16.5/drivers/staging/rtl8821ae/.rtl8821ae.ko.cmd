@@ -1,0 +1,1 @@
+cmd_drivers/staging/rtl8821ae/rtl8821ae.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/rtl8821ae/rtl8821ae.ko drivers/staging/rtl8821ae/rtl8821ae.o drivers/staging/rtl8821ae/rtl8821ae.mod.o

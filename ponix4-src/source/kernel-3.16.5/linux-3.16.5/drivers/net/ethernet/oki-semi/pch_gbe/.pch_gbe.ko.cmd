@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.ko drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.o drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.mod.o

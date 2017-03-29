@@ -1,0 +1,1 @@
+cmd_drivers/staging/rtl8188eu/r8188eu.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/staging/rtl8188eu/r8188eu.ko drivers/staging/rtl8188eu/r8188eu.o drivers/staging/rtl8188eu/r8188eu.mod.o

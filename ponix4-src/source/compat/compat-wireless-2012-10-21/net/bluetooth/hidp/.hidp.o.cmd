@@ -1,0 +1,1 @@
+cmd_/source/compat/compat-wireless-2012-10-21/net/bluetooth/hidp/hidp.o := ld -m elf_i386   -r -o /source/compat/compat-wireless-2012-10-21/net/bluetooth/hidp/hidp.o /source/compat/compat-wireless-2012-10-21/net/bluetooth/hidp/core.o /source/compat/compat-wireless-2012-10-21/net/bluetooth/hidp/sock.o 

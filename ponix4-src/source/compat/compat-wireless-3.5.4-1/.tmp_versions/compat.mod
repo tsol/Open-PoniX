@@ -1,0 +1,2 @@
+/source/compat-wireless-3.5.4-1/compat/compat.ko
+/source/compat-wireless-3.5.4-1/compat/main.o /source/compat-wireless-3.5.4-1/compat/compat-3.3.o /source/compat-wireless-3.5.4-1/compat/compat-3.4.o /source/compat-wireless-3.5.4-1/compat/cordic.o /source/compat-wireless-3.5.4-1/compat/crc8.o /source/compat-wireless-3.5.4-1/compat/compat_atomic.o

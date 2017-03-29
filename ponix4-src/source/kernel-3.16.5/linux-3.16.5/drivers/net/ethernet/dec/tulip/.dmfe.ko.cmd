@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/dec/tulip/dmfe.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/dec/tulip/dmfe.ko drivers/net/ethernet/dec/tulip/dmfe.o drivers/net/ethernet/dec/tulip/dmfe.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/8390/8390p.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/8390/8390p.ko drivers/net/ethernet/8390/8390p.o drivers/net/ethernet/8390/8390p.mod.o

@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtlwifi/rtl8192c/rtl8192c-common.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtlwifi/rtl8192c/main.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtlwifi/rtl8192c/dm_common.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtlwifi/rtl8192c/fw_common.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtlwifi/rtl8192c/phy_common.o

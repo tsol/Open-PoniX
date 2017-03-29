@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/drivers/bluetooth/btmrvl.o := ld -m elf_i386   -r -o /source/compat-wireless-3.2.5-1/drivers/bluetooth/btmrvl.o /source/compat-wireless-3.2.5-1/drivers/bluetooth/btmrvl_main.o 

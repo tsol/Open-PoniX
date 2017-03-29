@@ -1,0 +1,1 @@
+cmd_sound/core/oss/snd-mixer-oss.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/core/oss/snd-mixer-oss.ko sound/core/oss/snd-mixer-oss.o sound/core/oss/snd-mixer-oss.mod.o

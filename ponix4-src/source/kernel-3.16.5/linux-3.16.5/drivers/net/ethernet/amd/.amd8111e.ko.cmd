@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/amd/amd8111e.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/amd/amd8111e.ko drivers/net/ethernet/amd/amd8111e.o drivers/net/ethernet/amd/amd8111e.mod.o

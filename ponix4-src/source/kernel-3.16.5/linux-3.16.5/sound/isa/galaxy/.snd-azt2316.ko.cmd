@@ -1,0 +1,1 @@
+cmd_sound/isa/galaxy/snd-azt2316.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/isa/galaxy/snd-azt2316.ko sound/isa/galaxy/snd-azt2316.o sound/isa/galaxy/snd-azt2316.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/sun/sunhme.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/sun/sunhme.ko drivers/net/ethernet/sun/sunhme.o drivers/net/ethernet/sun/sunhme.mod.o

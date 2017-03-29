@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/rt2x00/rt2500usb.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/rt2x00/rt2500usb.ko drivers/net/wireless/rt2x00/rt2500usb.o drivers/net/wireless/rt2x00/rt2500usb.mod.o

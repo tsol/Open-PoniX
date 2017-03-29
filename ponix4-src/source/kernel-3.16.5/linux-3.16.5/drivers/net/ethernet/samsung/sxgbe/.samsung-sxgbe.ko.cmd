@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/samsung/sxgbe/samsung-sxgbe.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/samsung/sxgbe/samsung-sxgbe.ko drivers/net/ethernet/samsung/sxgbe/samsung-sxgbe.o drivers/net/ethernet/samsung/sxgbe/samsung-sxgbe.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/rt2x00/rt2400pci.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/rt2x00/rt2400pci.ko drivers/net/wireless/rt2x00/rt2400pci.o drivers/net/wireless/rt2x00/rt2400pci.mod.o

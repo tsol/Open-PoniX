@@ -1,0 +1,1 @@
+cmd_sound/pci/hda/snd-hda-controller.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/pci/hda/snd-hda-controller.ko sound/pci/hda/snd-hda-controller.o sound/pci/hda/snd-hda-controller.mod.o

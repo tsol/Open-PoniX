@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/drivers/net/wireless/brcm80211/brcmutil/brcmutil.o := ld -m elf_i386   -r -o /source/compat-wireless-3.2.5-1/drivers/net/wireless/brcm80211/brcmutil/brcmutil.o /source/compat-wireless-3.2.5-1/drivers/net/wireless/brcm80211/brcmutil/utils.o 

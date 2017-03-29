@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/tehuti/tehuti.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/tehuti/tehuti.ko drivers/net/ethernet/tehuti/tehuti.o drivers/net/ethernet/tehuti/tehuti.mod.o

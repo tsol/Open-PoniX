@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/rtl818x/rtl8180/rtl818x_pci.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/rtl818x/rtl8180/rtl818x_pci.ko drivers/net/wireless/rtl818x/rtl8180/rtl818x_pci.o drivers/net/wireless/rtl818x/rtl8180/rtl818x_pci.mod.o

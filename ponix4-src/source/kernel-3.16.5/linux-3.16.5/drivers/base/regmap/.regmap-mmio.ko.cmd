@@ -1,0 +1,1 @@
+cmd_drivers/base/regmap/regmap-mmio.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/base/regmap/regmap-mmio.ko drivers/base/regmap/regmap-mmio.o drivers/base/regmap/regmap-mmio.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/via/via-velocity.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/via/via-velocity.ko drivers/net/ethernet/via/via-velocity.o drivers/net/ethernet/via/via-velocity.mod.o

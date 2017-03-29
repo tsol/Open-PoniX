@@ -1,0 +1,1 @@
+cmd_drivers/char/hw_random/geode-rng.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/char/hw_random/geode-rng.ko drivers/char/hw_random/geode-rng.o drivers/char/hw_random/geode-rng.mod.o

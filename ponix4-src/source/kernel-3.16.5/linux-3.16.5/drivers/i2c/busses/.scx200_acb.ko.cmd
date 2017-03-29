@@ -1,0 +1,1 @@
+cmd_drivers/i2c/busses/scx200_acb.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/i2c/busses/scx200_acb.ko drivers/i2c/busses/scx200_acb.o drivers/i2c/busses/scx200_acb.mod.o

@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/rfcomm.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/rfcomm.ko /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/rfcomm.o /source/compat-wireless-3.2.5-1/net/bluetooth/rfcomm/rfcomm.mod.o

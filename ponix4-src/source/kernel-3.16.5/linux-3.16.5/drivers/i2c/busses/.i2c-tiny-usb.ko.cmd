@@ -1,0 +1,1 @@
+cmd_drivers/i2c/busses/i2c-tiny-usb.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/i2c/busses/i2c-tiny-usb.ko drivers/i2c/busses/i2c-tiny-usb.o drivers/i2c/busses/i2c-tiny-usb.mod.o

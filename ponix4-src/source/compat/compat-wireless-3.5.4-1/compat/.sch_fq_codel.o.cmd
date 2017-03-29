@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.5.4-1/compat/sch_fq_codel.o := ld -m elf_i386   -r -o /source/compat-wireless-3.5.4-1/compat/sch_fq_codel.o /source/compat-wireless-3.5.4-1/compat/sch_fq_codel_core.o /source/compat-wireless-3.5.4-1/compat/flow_dissector.o 

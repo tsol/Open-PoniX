@@ -1,0 +1,1 @@
+cmd_drivers/bcma/bcma.o := ld -m elf_i386   -r -o drivers/bcma/bcma.o drivers/bcma/main.o drivers/bcma/scan.o drivers/bcma/core.o drivers/bcma/sprom.o drivers/bcma/driver_chipcommon.o drivers/bcma/driver_chipcommon_pmu.o drivers/bcma/driver_pci.o drivers/bcma/host_pci.o 

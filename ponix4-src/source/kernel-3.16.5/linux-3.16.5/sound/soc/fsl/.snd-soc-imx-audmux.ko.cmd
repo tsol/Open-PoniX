@@ -1,0 +1,1 @@
+cmd_sound/soc/fsl/snd-soc-imx-audmux.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/fsl/snd-soc-imx-audmux.ko sound/soc/fsl/snd-soc-imx-audmux.o sound/soc/fsl/snd-soc-imx-audmux.mod.o

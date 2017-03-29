@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/net/wireless/lib80211.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/compat-wireless-3.2.5-1/net/wireless/lib80211.ko /source/compat-wireless-3.2.5-1/net/wireless/lib80211.o /source/compat-wireless-3.2.5-1/net/wireless/lib80211.mod.o

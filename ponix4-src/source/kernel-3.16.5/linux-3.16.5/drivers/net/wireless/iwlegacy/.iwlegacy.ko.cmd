@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/iwlegacy/iwlegacy.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/iwlegacy/iwlegacy.ko drivers/net/wireless/iwlegacy/iwlegacy.o drivers/net/wireless/iwlegacy/iwlegacy.mod.o

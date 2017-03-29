@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/alteon/acenic.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/alteon/acenic.ko drivers/net/ethernet/alteon/acenic.o drivers/net/ethernet/alteon/acenic.mod.o

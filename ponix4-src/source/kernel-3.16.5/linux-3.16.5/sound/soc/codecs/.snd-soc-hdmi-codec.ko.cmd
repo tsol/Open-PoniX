@@ -1,0 +1,1 @@
+cmd_sound/soc/codecs/snd-soc-hdmi-codec.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/codecs/snd-soc-hdmi-codec.ko sound/soc/codecs/snd-soc-hdmi-codec.o sound/soc/codecs/snd-soc-hdmi-codec.mod.o

@@ -1,0 +1,2 @@
+drivers/staging/wlags49_h2/wlags49_h2_cs.ko
+drivers/staging/wlags49_h2/sta_h2.o drivers/staging/wlags49_h2/wl_profile.o drivers/staging/wlags49_h2/wl_wext.o drivers/staging/wlags49_h2/wl_priv.o drivers/staging/wlags49_h2/wl_main.o drivers/staging/wlags49_h2/wl_enc.o drivers/staging/wlags49_h2/wl_util.o drivers/staging/wlags49_h2/wl_netdev.o drivers/staging/wlags49_h2/wl_cs.o drivers/staging/wlags49_h2/mmd.o drivers/staging/wlags49_h2/hcf.o drivers/staging/wlags49_h2/dhf.o

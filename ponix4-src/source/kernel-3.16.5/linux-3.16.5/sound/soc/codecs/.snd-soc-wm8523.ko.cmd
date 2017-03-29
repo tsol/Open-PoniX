@@ -1,0 +1,1 @@
+cmd_sound/soc/codecs/snd-soc-wm8523.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/codecs/snd-soc-wm8523.ko sound/soc/codecs/snd-soc-wm8523.o sound/soc/codecs/snd-soc-wm8523.mod.o

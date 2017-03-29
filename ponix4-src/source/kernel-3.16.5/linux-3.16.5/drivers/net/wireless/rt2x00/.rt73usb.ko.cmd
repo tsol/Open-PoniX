@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/rt2x00/rt73usb.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/rt2x00/rt73usb.ko drivers/net/wireless/rt2x00/rt73usb.o drivers/net/wireless/rt2x00/rt73usb.mod.o

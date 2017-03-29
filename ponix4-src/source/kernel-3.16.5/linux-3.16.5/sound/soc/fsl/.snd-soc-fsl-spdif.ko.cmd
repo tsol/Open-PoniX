@@ -1,0 +1,1 @@
+cmd_sound/soc/fsl/snd-soc-fsl-spdif.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/fsl/snd-soc-fsl-spdif.ko sound/soc/fsl/snd-soc-fsl-spdif.o sound/soc/fsl/snd-soc-fsl-spdif.mod.o

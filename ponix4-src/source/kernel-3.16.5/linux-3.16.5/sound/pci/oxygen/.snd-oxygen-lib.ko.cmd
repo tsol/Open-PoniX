@@ -1,0 +1,1 @@
+cmd_sound/pci/oxygen/snd-oxygen-lib.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/pci/oxygen/snd-oxygen-lib.ko sound/pci/oxygen/snd-oxygen-lib.o sound/pci/oxygen/snd-oxygen-lib.mod.o

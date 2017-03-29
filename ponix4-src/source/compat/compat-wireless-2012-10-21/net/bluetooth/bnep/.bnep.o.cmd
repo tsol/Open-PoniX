@@ -1,0 +1,1 @@
+cmd_/source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/bnep.o := ld -m elf_i386   -r -o /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/bnep.o /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/core.o /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/sock.o /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/netdev.o 

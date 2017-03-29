@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas/libertas_sdio.o := ld -m elf_i386   -r -o /source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas/libertas_sdio.o /source/compat-wireless-3.2.5-1/drivers/net/wireless/libertas/if_sdio.o 

@@ -1,0 +1,1 @@
+cmd_drivers/i2c/busses/i2c-pca-isa.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/i2c/busses/i2c-pca-isa.ko drivers/i2c/busses/i2c-pca-isa.o drivers/i2c/busses/i2c-pca-isa.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/uwb/i1480/dfu/i1480-dfu-usb.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/uwb/i1480/dfu/i1480-dfu-usb.ko drivers/uwb/i1480/dfu/i1480-dfu-usb.o drivers/uwb/i1480/dfu/i1480-dfu-usb.mod.o

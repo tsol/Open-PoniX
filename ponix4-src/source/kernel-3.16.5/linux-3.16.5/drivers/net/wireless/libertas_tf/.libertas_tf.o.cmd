@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/libertas_tf/libertas_tf.o := ld -m elf_i386   -r -o drivers/net/wireless/libertas_tf/libertas_tf.o drivers/net/wireless/libertas_tf/main.o drivers/net/wireless/libertas_tf/cmd.o 

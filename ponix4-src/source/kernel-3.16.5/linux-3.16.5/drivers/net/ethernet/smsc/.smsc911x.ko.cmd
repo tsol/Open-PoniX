@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/smsc/smsc911x.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/smsc/smsc911x.ko drivers/net/ethernet/smsc/smsc911x.o drivers/net/ethernet/smsc/smsc911x.mod.o

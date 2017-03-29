@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/compat/compat.ko
+/source/compat/compat-wireless-2012-10-21/compat/main.o /source/compat/compat-wireless-2012-10-21/compat/compat-3.3.o /source/compat/compat-wireless-2012-10-21/compat/compat-3.4.o /source/compat/compat-wireless-2012-10-21/compat/compat-3.5.o /source/compat/compat-wireless-2012-10-21/compat/user_namespace.o /source/compat/compat-wireless-2012-10-21/compat/compat-3.7.o /source/compat/compat-wireless-2012-10-21/compat/compat_atomic.o

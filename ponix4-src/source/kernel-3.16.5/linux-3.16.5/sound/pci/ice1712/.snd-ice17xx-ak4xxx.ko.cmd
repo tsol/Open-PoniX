@@ -1,0 +1,1 @@
+cmd_sound/pci/ice1712/snd-ice17xx-ak4xxx.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/pci/ice1712/snd-ice17xx-ak4xxx.ko sound/pci/ice1712/snd-ice17xx-ak4xxx.o sound/pci/ice1712/snd-ice17xx-ak4xxx.mod.o

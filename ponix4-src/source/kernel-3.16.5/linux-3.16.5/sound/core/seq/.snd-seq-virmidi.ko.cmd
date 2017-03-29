@@ -1,0 +1,1 @@
+cmd_sound/core/seq/snd-seq-virmidi.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/core/seq/snd-seq-virmidi.ko sound/core/seq/snd-seq-virmidi.o sound/core/seq/snd-seq-virmidi.mod.o

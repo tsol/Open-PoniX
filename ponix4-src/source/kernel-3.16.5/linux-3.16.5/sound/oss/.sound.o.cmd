@@ -1,0 +1,1 @@
+cmd_sound/oss/sound.o := ld -m elf_i386   -r -o sound/oss/sound.o sound/oss/dev_table.o sound/oss/soundcard.o sound/oss/audio.o sound/oss/dmabuf.o sound/oss/midi_synth.o sound/oss/midibuf.o sound/oss/sequencer.o sound/oss/sound_timer.o sound/oss/sys_timer.o 

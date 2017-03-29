@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/renesas/sh_eth.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/renesas/sh_eth.ko drivers/net/ethernet/renesas/sh_eth.o drivers/net/ethernet/renesas/sh_eth.mod.o

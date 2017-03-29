@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/cw1200/cw1200_core.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/wireless/cw1200/cw1200_core.ko drivers/net/wireless/cw1200/cw1200_core.o drivers/net/wireless/cw1200/cw1200_core.mod.o

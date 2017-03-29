@@ -1,0 +1,1 @@
+cmd_arch/x86/realmode/rm/realmode.elf := ld -m elf_i386   --emit-relocs -T arch/x86/realmode/rm/realmode.lds arch/x86/realmode/rm/header.o arch/x86/realmode/rm/trampoline_32.o arch/x86/realmode/rm/stack.o arch/x86/realmode/rm/reboot.o -o arch/x86/realmode/rm/realmode.elf

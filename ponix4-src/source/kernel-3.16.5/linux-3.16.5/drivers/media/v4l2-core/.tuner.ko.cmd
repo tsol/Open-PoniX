@@ -1,0 +1,1 @@
+cmd_drivers/media/v4l2-core/tuner.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/media/v4l2-core/tuner.ko drivers/media/v4l2-core/tuner.o drivers/media/v4l2-core/tuner.mod.o

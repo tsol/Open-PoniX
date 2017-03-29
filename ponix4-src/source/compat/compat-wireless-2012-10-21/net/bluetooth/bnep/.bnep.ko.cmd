@@ -1,0 +1,1 @@
+cmd_/source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/bnep.ko := ld -r -m elf_i386 -T /source/kernel-3.2.12/linux-3.2.12/scripts/module-common.lds --build-id  -o /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/bnep.ko /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/bnep.o /source/compat/compat-wireless-2012-10-21/net/bluetooth/bnep/bnep.mod.o

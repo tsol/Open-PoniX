@@ -1,0 +1,1 @@
+cmd_sound/soc/codecs/snd-soc-pcm1681.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/codecs/snd-soc-pcm1681.ko sound/soc/codecs/snd-soc-pcm1681.o sound/soc/codecs/snd-soc-pcm1681.mod.o

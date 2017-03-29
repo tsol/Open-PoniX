@@ -1,0 +1,1 @@
+#define CONFIG_FEATURE_SGI_LABEL 1

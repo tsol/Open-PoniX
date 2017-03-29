@@ -1,0 +1,1 @@
+cmd_/source/compat-wireless-3.5.4-1/drivers/net/wireless/ath/ath6kl/ath6kl_usb.o := ld -m elf_i386   -r -o /source/compat-wireless-3.5.4-1/drivers/net/wireless/ath/ath6kl/ath6kl_usb.o /source/compat-wireless-3.5.4-1/drivers/net/wireless/ath/ath6kl/usb.o 

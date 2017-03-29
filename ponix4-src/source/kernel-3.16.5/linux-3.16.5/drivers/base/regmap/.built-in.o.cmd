@@ -1,0 +1,1 @@
+cmd_drivers/base/regmap/built-in.o :=  ld -m elf_i386   -r -o drivers/base/regmap/built-in.o drivers/base/regmap/regmap.o drivers/base/regmap/regcache.o drivers/base/regmap/regcache-rbtree.o drivers/base/regmap/regcache-lzo.o drivers/base/regmap/regcache-flat.o 

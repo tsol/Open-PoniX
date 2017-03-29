@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/iwlegacy/iwl3945.o := ld -m elf_i386   -r -o drivers/net/wireless/iwlegacy/iwl3945.o drivers/net/wireless/iwlegacy/3945-mac.o drivers/net/wireless/iwlegacy/3945.o drivers/net/wireless/iwlegacy/3945-rs.o 

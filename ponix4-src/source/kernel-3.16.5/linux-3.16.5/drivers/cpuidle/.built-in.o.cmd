@@ -1,0 +1,1 @@
+cmd_drivers/cpuidle/built-in.o :=  ld -m elf_i386   -r -o drivers/cpuidle/built-in.o drivers/cpuidle/cpuidle.o drivers/cpuidle/driver.o drivers/cpuidle/governor.o drivers/cpuidle/sysfs.o drivers/cpuidle/governors/built-in.o 

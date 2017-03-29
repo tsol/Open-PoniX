@@ -1,0 +1,1 @@
+cmd_sound/usb/6fire/snd-usb-6fire.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/usb/6fire/snd-usb-6fire.ko sound/usb/6fire/snd-usb-6fire.o sound/usb/6fire/snd-usb-6fire.mod.o

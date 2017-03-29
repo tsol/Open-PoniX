@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8180/rtl8180.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8180/dev.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8180/rtl8225.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8180/sa2400.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8180/max2820.o /source/compat/compat-wireless-2012-10-21/drivers/net/wireless/rtl818x/rtl8180/grf5101.o

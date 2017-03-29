@@ -1,0 +1,1 @@
+cmd_drivers/staging/usbip/vhci-hcd.o := ld -m elf_i386   -r -o drivers/staging/usbip/vhci-hcd.o drivers/staging/usbip/vhci_sysfs.o drivers/staging/usbip/vhci_tx.o drivers/staging/usbip/vhci_rx.o drivers/staging/usbip/vhci_hcd.o 

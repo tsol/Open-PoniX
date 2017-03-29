@@ -1,0 +1,1 @@
+cmd_drivers/media/usb/uvc/uvcvideo.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/media/usb/uvc/uvcvideo.ko drivers/media/usb/uvc/uvcvideo.o drivers/media/usb/uvc/uvcvideo.mod.o

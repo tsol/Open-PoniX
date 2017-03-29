@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/marvell/skge.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/marvell/skge.ko drivers/net/ethernet/marvell/skge.o drivers/net/ethernet/marvell/skge.mod.o

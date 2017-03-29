@@ -1,0 +1,265 @@
+#!/bin/bash
+#
+# Copyright (C) 2012, Luis R. Rodriguez <mcgrof@frijolero.org>
+# Copyright (C) 2012, Hauke Mehrtens <hauke@hauke-m.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# You can use this to compile a module accross all installed kernels
+# found. This relies on distribution specific kernels, but can handle
+# your own custom list of target kernels. Log is setnt to LOG variable.
+
+
+#export KCFLAGS="-Wno-unused-but-set-variable"
+KERNEL_DIR="/lib/modules"
+KLIBS=""
+LOG="ckmake.log"
+LOG_TMP="ckmake-tmp.log"
+REPORT="ckmake-report.log"
+TIME="0"
+DEBUG="0"
+NOCOLOR="0"
+ARGS=""
+QUIET=""
+RET_FILE="ret-tmp.txt"
+
+# First and last kernels to use
+FIRST=""
+LAST=""
+RANGE=""
+
+RET=""
+
+# If $HOME/compat-ksrc is found use that, otherwise use system-wide
+# sources in /usr/src.
+KSRC_PREFIX=
+if [[ -d "$HOME/compat-ksrc" ]]; then
+	KSRC_PREFIX="$HOME/compat-ksrc"
+fi
+
+# Colorify output if NOCOLOR != 1 or -n is not given
+function prettify()
+{
+	if [[ $NOCOLOR == "1" ]]; then
+		echo -n "$2"
+	else
+		ANSI_CODE=
+		NORMAL="\033[00m"
+		case $1 in
+			"green")
+				ANSI_CODE="\033[01;32m"
+				;;
+			"yellow")
+				ANSI_CODE="\033[01;33m"
+				;;
+			"blue")
+				ANSI_CODE="\033[34m"
+				;;
+			"red")
+				ANSI_CODE="\033[31m"
+				;;
+			"purple")
+				ANSI_CODE="\033[35m"
+				;;
+			"cyan")
+				ANSI_CODE="\033[36m"
+				;;
+			"underline")
+				ANSI_CODE="\033[02m"
+				;;
+		esac
+
+		echo -e -n "${ANSI_CODE}$2${NORMAL}"
+	fi
+}
+
+function tee_color_split()
+{
+	while read; do
+		echo -e $REPLY | perl -pe 's|(\e)\[(\d+)(;*)(\d*)(\w)||g' >> $1
+		echo -e $REPLY
+	done
+}
+
+function log_try_kernel()
+{
+	printf "Trying kernel %40s\t" "$(prettify blue $1)"
+}
+
+function usage()
+{
+	echo -e "Usage: $0 [-t] <optional-target> <first_kernel..last_kernel>"
+	echo -e "-t   will run: 'time ckmake; time ckmake' account for"
+	echo -e "     benchmark how long it takes to compile without ccache"
+	echo -e "     and a run after cache kicks in"
+	echo -e "-n   Do not use colors in the output"
+	echo -e "-q   will ask ckmake to run make with -s to only output errors"
+	echo
+	echo -e "<optional-target>  is the arguments you want to pass to the"
+	echo -e "child make call that ckmake will use. For example if you have"
+	echo -e "a target 'linux' on your Makefile you can run 'cmake linux'"
+	echo -e ""
+	echo -e "<first_kernel..last_kernel> are the kernels you want to test"
+	echo -e "compile against. This consists of a range. The third extraversion"
+	echo -e "number is ignored"
+}
+
+for i in $@ ; do
+	case $1 in
+		"-h")
+			usage
+			exit 1
+			;;
+		"--help")
+			usage
+			exit 1
+			;;
+		"-t")
+			TIME="1"
+			shift
+			;;
+		"-n")
+			NOCOLOR="1"
+			shift
+			;;
+		"-s")
+			QUIET="-s"
+			shift
+			;;
+		"-d")
+			DEBUG="1"
+			shift
+			;;
+		*)
+			echo $i | grep "\.\." 2>&1 > /dev/null
+			if [[ $? -eq 0 ]]; then
+				FIRST=$(echo $i | sed 's|\.\.|-|' | awk -F"-" '{print $1}')
+				LAST=$(echo $i | sed 's|\.\.|-|' | awk -F"-" '{print $2}')
+				RANGE="${FIRST}..${LAST}"
+				echo -e "Going to use kernel ranges: $(prettify blue $FIRST)..$(prettify blue $LAST)"
+				shift
+			fi
+
+			ARGS="${ARGS} $1"
+			shift
+	esac
+done
+
+function run_ckmake()
+{
+	for i in $KLIBS; do
+		KERNEL=$(basename $i)
+		DIR=${i}/build/
+		echo -e "--------------------------------------------" >> $LOG
+
+		if [[ ! -d $DIR ]]; then
+			continue
+		fi
+
+		NOCOLOR="1" log_try_kernel $KERNEL >> $LOG
+		log_try_kernel $KERNEL
+
+		#ionice -c 3 nice -n 20 make $QUIET KLIB=$DIR KLIB_BUILD=$DIR -j6 -Wunused-but-set-variable $ARGS &>> $LOG
+		ionice -c 3 nice -n 20 make $QUIET KLIB=$DIR KLIB_BUILD=$DIR -j6 $ARGS &>> $LOG
+		CUR_RET=$?
+
+		if [[ $RET = "" ]]; then
+			RET=$CUR_RET
+		fi
+
+		if [[ $CUR_RET -eq 0 ]]; then
+			echo -e "$(prettify green [OK])" | tee_color_split $LOG
+		else
+			echo -e "$(prettify red [FAILED])" | tee_color_split $LOG
+			RET=$CUR_RET
+		fi
+
+		nice make clean KLIB=$DIR KLIB_BUILD=$DIR 2>&1 >> $LOG
+	done
+	# Bash doesn't do what we expect with the variables...
+	# and using return $RET here won't work here either given
+	# that we end up piping the result anyway.
+	echo $RET > $RET_FILE
+}
+
+# This mimic's the kernel's own algorithm:
+#
+# KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+function kernel_version_orig {
+	echo "$@" | awk -F. '{ printf("%d\n", lshift($1,16) + lshift($2, 8) + $3); }'
+}
+
+function kernel_version_26 {
+	kernel_version_orig $@
+}
+
+# Ignores the last extraversion number
+function kernel_version_30 {
+	echo "$@" | awk -F. '{ printf("%d\n", lshift($1,16) + lshift($2, 8) ); }'
+}
+
+# If we're using 3.0 kernels we do not require an extraversion,
+# although one could be supplied. For purposes of this script
+# though the 2.6.29..3.1 ranges are acceptable. If we forced usage
+# of kernel_version_orig() for 3.0 it means we'd have to require a user
+# to be very specific and specific 2.6.29..3.1.0 or whatever. Lets
+# instead be flexible.
+function kernel_version {
+	if [[ $(kernel_version_orig $@ ) -lt $(kernel_version_orig "3.0") ]] ; then
+		echo $(kernel_version_26 $@)
+	else
+		echo $(kernel_version_30 $@)
+	fi
+}
+
+for i in $(find $KSRC_PREFIX/lib/modules/ -type d -name \*generic\* | sort -n -r | grep -v -E '\-[[:alnum:]]{1,2}\-'); do
+	KERNEL=$(echo ${i} | awk -F"/" '{print $NF}' | awk -F"-" '{print $1}')
+
+	if [[ ! -z $FIRST && ! -z $LAST ]]; then
+		if [[ $(kernel_version $KERNEL ) -lt $(kernel_version $FIRST) ]] ; then
+			continue;
+		fi
+
+		if [[ $(kernel_version $KERNEL ) -gt $(kernel_version $LAST) ]] ; then
+			continue;
+		fi
+
+		if [[ ! -z $DEBUG ]]; then
+			echo -e "$(prettify cyan $FIRST) $(kernel_version $FIRST) <= $(prettify green $KERNEL) $(kernel_version $KERNEL) <= $(prettify cyan $LAST) $(kernel_version $LAST)"
+		fi
+	fi
+
+	KLIBS="$KLIBS $i"
+done
+
+for i in $LOG $LOG_TMP $REPORT; do
+	echo > $i
+done
+
+nice make clean 2>&1 > $LOG
+
+if [[ $TIME != "1" ]]; then
+	run_ckmake | tee_color_split $REPORT
+
+	cat $LOG $REPORT > $LOG_TMP
+	mv $LOG_TMP $LOG
+	rm -f $LOG_TMP
+
+	RET=$(cat $RET_FILE)
+	exit $RET
+fi
+
+time $0 $QUIET ${RANGE} $ARGS | tee_color_split $REPORT
+time $0 $QUIET ${RANGE} $ARGS | egrep "real|user|sys" | tee_color_split $REPORT
+
+cat $LOG $REPORT > $LOG_TMP
+mv $LOG_TMP $LOG
+
+rm -f $LOG_TMP
+
+RET=$(cat $RET_FILE)
+rm -f $RET_FILE
+
+exit $RET

@@ -1,0 +1,837 @@
+/*
+ * Copyright (c) 2012 Qualcomm Atheros, Inc.
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#ifndef __WMI_H__
+#define __WMI_H__
+/* WMI API */
+
+/*
+ * List of Commnands
+ */
+enum WMI_COMMAND_ID {
+	WMI_CONNECT_CMDID = 0x0001,
+	WMI_RECONNECT_CMDID,
+	WMI_DISCONNECT_CMDID,
+	WMI_SYNCHRONIZE_CMDID,
+	WMI_CREATE_PSTREAM_CMDID,
+	WMI_DELETE_PSTREAM_CMDID,
+	WMI_START_SCAN_CMDID,
+	WMI_SET_SCAN_PARAMS_CMDID,
+	WMI_SET_BSS_FILTER_CMDID,
+	WMI_SET_PROBED_SSID_CMDID, /* 10 */
+	WMI_SET_LISTEN_INT_CMDID,
+	WMI_SET_BMISS_TIME_CMDID,
+	WMI_SET_DISC_TIMEOUT_CMDID,
+	WMI_GET_CHANNEL_LIST_CMDID,
+	WMI_SET_BEACON_INT_CMDID,
+	WMI_GET_STATISTICS_CMDID,
+	WMI_SET_CHANNEL_PARAMS_CMDID,
+	WMI_SET_POWER_MODE_CMDID,
+	WMI_SET_IBSS_PM_CAPS_CMDID,
+	WMI_SET_POWER_PARAMS_CMDID, /* 20 */
+	WMI_SET_POWERSAVE_TIMERS_POLICY_CMDID,
+	WMI_ADD_CIPHER_KEY_CMDID,
+	WMI_DELETE_CIPHER_KEY_CMDID,
+	WMI_ADD_KRK_CMDID,
+	WMI_DELETE_KRK_CMDID,
+	WMI_SET_PMKID_CMDID,
+	WMI_SET_TX_PWR_CMDID,
+	WMI_GET_TX_PWR_CMDID,
+	WMI_SET_ASSOC_INFO_CMDID,
+	WMI_ADD_BAD_AP_CMDID, /* 30 */
+	WMI_DELETE_BAD_AP_CMDID,
+	WMI_SET_TKIP_COUNTERMEASURES_CMDID,
+	WMI_RSSI_THRESHOLD_PARAMS_CMDID,
+	WMI_TARGET_ERROR_REPORT_BITMASK_CMDID,
+	WMI_SET_ACCESS_PARAMS_CMDID,
+	WMI_SET_RETRY_LIMITS_CMDID,
+	WMI_SET_OPT_MODE_CMDID,
+	WMI_OPT_TX_FRAME_CMDID,
+	WMI_SET_VOICE_PKT_SIZE_CMDID,
+	WMI_SET_MAX_SP_LEN_CMDID, /* 40 */
+	WMI_SET_ROAM_CTRL_CMDID,
+	WMI_GET_ROAM_TBL_CMDID,
+	WMI_GET_ROAM_DATA_CMDID,
+	WMI_ENABLE_RM_CMDID,
+	WMI_SET_MAX_OFFHOME_DURATION_CMDID,
+	WMI_EXTENSION_CMDID, /* Non-wireless extensions */
+	WMI_SNR_THRESHOLD_PARAMS_CMDID,
+	WMI_LQ_THRESHOLD_PARAMS_CMDID,
+	WMI_SET_LPREAMBLE_CMDID,
+	WMI_SET_RTS_CMDID, /* 50 */
+	WMI_CLR_RSSI_SNR_CMDID,
+	WMI_SET_FIXRATES_CMDID,
+	WMI_GET_FIXRATES_CMDID,
+	WMI_SET_AUTH_MODE_CMDID,
+	WMI_SET_REASSOC_MODE_CMDID,
+	WMI_SET_WMM_CMDID,
+	WMI_SET_WMM_TXOP_CMDID,
+	WMI_TEST_CMDID,
+	/* COEX AR6002 only*/
+	WMI_SET_BT_STATUS_CMDID,
+	WMI_SET_BT_PARAMS_CMDID, /* 60 */
+
+	WMI_SET_KEEPALIVE_CMDID,
+	WMI_GET_KEEPALIVE_CMDID,
+	WMI_SET_APPIE_CMDID,
+	WMI_GET_APPIE_CMDID,
+	WMI_SET_WSC_STATUS_CMDID,
+
+	/* Wake on Wireless */
+	WMI_SET_HOST_SLEEP_MODE_CMDID,
+	WMI_SET_WOW_MODE_CMDID,
+	WMI_GET_WOW_LIST_CMDID,
+	WMI_ADD_WOW_PATTERN_CMDID,
+	WMI_DEL_WOW_PATTERN_CMDID, /* 70 */
+
+	WMI_SET_FRAMERATES_CMDID,
+	WMI_SET_AP_PS_CMDID,
+	WMI_SET_QOS_SUPP_CMDID,
+
+	/* WILOCITY types */
+	WMI_MEM_READ_CMDID = 0x0800, /* WILOCITY types */
+	WMI_MEM_WR_CMDID = 0x0801,
+	WMI_FAST_MEM_ACC_MODE_CMDID = 0x0300,
+	WMI_ECHO_CMDID = 0x0803,
+	WMI_DEEP_ECHO_CMDID = 0x0804,
+	WMI_CONFIG_MAC_CMDID = 0x0805,
+	WMI_CONFIG_PHY_DEBUG_CMDID = 0x0806,
+	WMI_ADD_STATION_CMDID = 0x0807,
+	WMI_ADD_DEBUG_TX_PCKT_CMDID = 0x0808,
+	WMI_PHY_GET_STATISTICS_CMDID = 0x0809,
+	WMI_FS_TUNE_CMDID = 0x080A,
+	WMI_CORR_MEASURE_CMDID = 0x080B,
+	WMI_TEMP_SENSE_CMDID = 0x080E,
+	WMI_DC_CALIB_CMDID = 0x080F,
+	WMI_SEND_TONE_CMDID = 0x0810,
+	WMI_IQ_TX_CALIB_CMDID = 0x0811,
+	WMI_IQ_RX_CALIB_CMDID = 0x0812,
+	WMI_SET_UCODE_IDLE_CMDID = 0x0813,
+	WMI_SET_CHANNEL_IND_CMDID = 0x0814,
+	WMI_SET_WORK_MODE_CMDID = 0x0815,
+	WMI_LO_LEAKAGE_CALIB_CMDID = 0x0816,
+	WMI_WIL6210_R_ACTIVATE_CMDID = 0x0817,
+	WMI_WIL6210_R_READ_CMDID = 0x0818,
+	WMI_WIL6210_R_WRITE_CMDID = 0x0819,
+	WMI_WIL6210_R_TXRX_SEL_CMDID = 0x081A,
+	MAC_IO_STATIC_PARAMS_CMD = 0x081B,
+	MAC_IO_DYNAMIC_PARAMS_CMD = 0x081C,
+	WMI_SILENT_RSSI_CALIB_CMDID = 0x081D,
+
+	WMI_CFG_RX_CHAIN_CMDID = 0x0820,
+	WMI_VRING_CFG_CMDID = 0x0821,
+	WMI_RN_ON_CMDID = 0x0822,
+	WMI_VRING_BA_EN_CMDID = 0x0823,
+	WMI_VRING_BA_DIS_CMDID = 0x0824,
+	WMI_RCP_ADDBA_RESP_CMDID = 0x0825,
+	WMI_RCP_DELBA_CMDID = 0x0826,
+
+	WMI_READ_MAC_RXQ_CMDID = 0x0830,
+	WMI_READ_MAC_TXQ_CMDID = 0x0831,
+	WMI_WRITE_MAC_RXQ_CMDID = 0x0832,
+	WMI_WRITE_MAC_TXQ_CMDID = 0x0833,
+	WMI_WRITE_MAC_XQ_FIELD_CMDID = 0x0834,
+
+	WMI_MLME_PUSH_CMDID = 0x0835,
+	WMI_BF_START_TXSS_CMDID = 0x0836,
+	WMI_BF_TXSS_MGMT_CMDID = 0x0837,
+	WMI_BF_SM_MGMT_CMDID = 0x0838,
+	WMI_BF_RXSS_MGMT_CMDID = 0x0839,
+	WMI_RS_MGMT_CMDID = 0x0852,
+
+	WMI_LINK_START_CMDID = 0x0850,
+	WMI_LINK_STOP_CMDID = 0x0851,
+
+	/* Performance monitoring commands */
+	WMI_BF_CTRL_CMDID = 0x0862,
+	WMI_NOTIFY_REQ_CMDID = 0x0863,
+
+	WMI_UNIT_TEST_CMD_ID = 0x0900,
+	WMI_HICCUP_CMD_ID = 0x0901,
+
+#if 0
+	WMI_TXRX_SEND_CMDID				= 0x0810,
+#endif
+	/* WMI_THIN_RESERVED_... mark the start and end
+	 * values for WMI_THIN_RESERVED command IDs. These
+	 * command IDs can be found in wmi_thin.h */
+	WMI_THIN_RESERVED_START = 0x8000,
+	WMI_THIN_RESERVED_END = 0x8fff,
+	/*
+	 * Developer commands starts at 0xF000
+	 */
+	WMI_SET_BITRATE_CMDID = 0xF000,
+	WMI_GET_BITRATE_CMDID,
+	WMI_SET_WHALPARAM_CMDID,
+
+	/*Should add the new command to the tail for compatible with
+	 * etna.
+	 */
+	WMI_SET_MAC_ADDRESS_CMDID,
+	WMI_SET_AKMP_PARAMS_CMDID,
+	WMI_SET_PMKID_LIST_CMDID,
+	WMI_GET_PMKID_LIST_CMDID,
+	WMI_ABORT_SCAN_CMDID,
+	WMI_SET_TARGET_EVENT_REPORT_CMDID,
+
+	/* Unused */
+	WMI_UNUSED1,
+	WMI_UNUSED2,
+
+	/*
+	 * AP mode commands
+	 */
+	WMI_AP_HIDDEN_SSID_CMDID, /* F00B */
+	WMI_AP_SET_NUM_STA_CMDID,
+	WMI_AP_ACL_POLICY_CMDID,
+	WMI_AP_ACL_MAC_LIST_CMDID,
+	WMI_AP_CONFIG_COMMIT_CMDID,
+	WMI_AP_SET_MLME_CMDID, /* F010 */
+	WMI_AP_SET_PVB_CMDID,
+	WMI_AP_CONN_INACT_CMDID,
+	WMI_AP_PROT_SCAN_TIME_CMDID,
+	WMI_AP_SET_COUNTRY_CMDID,
+	WMI_AP_SET_DTIM_CMDID,
+	WMI_AP_MODE_STAT_CMDID,
+
+	WMI_SET_IP_CMDID, /* F017 */
+	WMI_SET_PARAMS_CMDID,
+	WMI_SET_MCAST_FILTER_CMDID,
+	WMI_DEL_MCAST_FILTER_CMDID,
+
+	WMI_ALLOW_AGGR_CMDID, /* F01B */
+	WMI_ADDBA_REQ_CMDID,
+	WMI_DELBA_REQ_CMDID,
+	WMI_SET_HT_CAP_CMDID,
+	WMI_SET_HT_OP_CMDID,
+	WMI_SET_TX_SELECT_RATES_CMDID,
+	WMI_SET_TX_SGI_PARAM_CMDID,
+	WMI_SET_RATE_POLICY_CMDID,
+
+	WMI_HCI_CMD_CMDID, /* F023 */
+	WMI_RX_FRAME_FORMAT_CMDID,
+	WMI_SET_THIN_MODE_CMDID,
+	WMI_SET_BT_WLAN_CONN_PRECEDENCE_CMDID,
+
+	WMI_AP_SET_11BG_RATESET_CMDID, /* F027 */
+	WMI_SET_PMK_CMDID,
+	WMI_MCAST_FILTER_CMDID,
+	/* COEX CMDID AR6003*/
+	WMI_SET_BTCOEX_FE_ANT_CMDID, /* F02A */
+	WMI_SET_BTCOEX_COLOCATED_BT_DEV_CMDID,
+	WMI_SET_BTCOEX_SCO_CONFIG_CMDID,
+	WMI_SET_BTCOEX_A2DP_CONFIG_CMDID,
+	WMI_SET_BTCOEX_ACLCOEX_CONFIG_CMDID,
+	WMI_SET_BTCOEX_BTINQUIRY_PAGE_CONFIG_CMDID,
+	WMI_SET_BTCOEX_DEBUG_CMDID,
+	WMI_SET_BTCOEX_BT_OPERATING_STATUS_CMDID,
+	WMI_GET_BTCOEX_STATS_CMDID,
+	WMI_GET_BTCOEX_CONFIG_CMDID,
+
+	WMI_SET_DFS_ENABLE_CMDID, /* F034 */
+	WMI_SET_DFS_MINRSSITHRESH_CMDID,
+	WMI_SET_DFS_MAXPULSEDUR_CMDID,
+	WMI_DFS_RADAR_DETECTED_CMDID,
+
+	/* P2P CMDS */
+	WMI_P2P_SET_CONFIG_CMDID, /* F038 */
+	WMI_WPS_SET_CONFIG_CMDID,
+	WMI_SET_REQ_DEV_ATTR_CMDID,
+	WMI_P2P_FIND_CMDID,
+	WMI_P2P_STOP_FIND_CMDID,
+	WMI_P2P_GO_NEG_START_CMDID,
+	WMI_P2P_LISTEN_CMDID,
+
+	WMI_CONFIG_TX_MAC_RULES_CMDID, /* F040 */
+	WMI_SET_PROMISCUOUS_MODE_CMDID,
+	WMI_RX_FRAME_FILTER_CMDID,
+	WMI_SET_CHANNEL_CMDID,
+
+	/* WAC commands */
+	WMI_ENABLE_WAC_CMDID,
+	WMI_WAC_SCAN_REPLY_CMDID,
+	WMI_WAC_CTRL_REQ_CMDID,
+	WMI_SET_DIV_PARAMS_CMDID,
+
+	WMI_GET_PMK_CMDID,
+	WMI_SET_PASSPHRASE_CMDID,
+	WMI_SEND_ASSOC_RES_CMDID,
+	WMI_SET_ASSOC_REQ_RELAY_CMDID,
+};
+
+/*
+ * List of Events (target to host)
+ */
+enum WMI_EVENT_ID {
+	WMI_READY_EVENTID = 0x1001,
+	WMI_CONNECT_EVENTID,
+	WMI_DISCONNECT_EVENTID,
+	WMI_BSSINFO_EVENTID,
+	WMI_CMDERROR_EVENTID,
+	WMI_REGDOMAIN_EVENTID,
+	WMI_PSTREAM_TIMEOUT_EVENTID,
+	WMI_NEIGHBOR_REPORT_EVENTID,
+	WMI_TKIP_MICERR_EVENTID,
+	WMI_SCAN_COMPLETE_EVENTID, /* 0x100a */
+	WMI_REPORT_STATISTICS_EVENTID,
+	WMI_RSSI_THRESHOLD_EVENTID,
+	WMI_ERROR_REPORT_EVENTID,
+	WMI_OPT_RX_FRAME_EVENTID,
+	WMI_REPORT_ROAM_TBL_EVENTID,
+	WMI_EXTENSION_EVENTID,
+	WMI_CAC_EVENTID,
+	WMI_SNR_THRESHOLD_EVENTID,
+	WMI_LQ_THRESHOLD_EVENTID,
+	WMI_TX_RETRY_ERR_EVENTID, /* 0x1014 */
+	WMI_REPORT_ROAM_DATA_EVENTID,
+	WMI_TEST_EVENTID,
+	WMI_APLIST_EVENTID,
+	WMI_GET_WOW_LIST_EVENTID,
+	WMI_GET_PMKID_LIST_EVENTID,
+	WMI_CHANNEL_CHANGE_EVENTID,
+	WMI_PEER_NODE_EVENTID,
+	WMI_PSPOLL_EVENTID,
+	WMI_DTIMEXPIRY_EVENTID,
+	WMI_WLAN_VERSION_EVENTID,
+	WMI_SET_PARAMS_REPLY_EVENTID,
+	WMI_ADDBA_REQ_EVENTID, /*0x1020 */
+	WMI_ADDBA_RESP_EVENTID,
+	WMI_DELBA_REQ_EVENTID,
+	WMI_TX_COMPLETE_EVENTID,
+	WMI_HCI_EVENT_EVENTID,
+	WMI_ACL_DATA_EVENTID,
+	WMI_REPORT_SLEEP_STATE_EVENTID,
+	WMI_REPORT_BTCOEX_STATS_EVENTID,
+	WMI_REPORT_BTCOEX_CONFIG_EVENTID,
+	WMI_GET_PMK_EVENTID,
+
+	/* DFS Events */
+	WMI_DFS_HOST_ATTACH_EVENTID,
+	WMI_DFS_HOST_INIT_EVENTID,
+	WMI_DFS_RESET_DELAYLINES_EVENTID,
+	WMI_DFS_RESET_RADARQ_EVENTID,
+	WMI_DFS_RESET_AR_EVENTID,
+	WMI_DFS_RESET_ARQ_EVENTID,
+	WMI_DFS_SET_DUR_MULTIPLIER_EVENTID,
+	WMI_DFS_SET_BANGRADAR_EVENTID,
+	WMI_DFS_SET_DEBUGLEVEL_EVENTID,
+	WMI_DFS_PHYERR_EVENTID,
+	/* CCX Evants */
+	WMI_CCX_RM_STATUS_EVENTID,
+
+	/* P2P Events */
+	WMI_P2P_GO_NEG_RESULT_EVENTID,
+
+	WMI_WAC_SCAN_DONE_EVENTID,
+	WMI_WAC_REPORT_BSS_EVENTID,
+	WMI_WAC_START_WPS_EVENTID,
+	WMI_WAC_CTRL_REQ_REPLY_EVENTID,
+	WMI_REPORT_WMM_PARAMS_EVENTID,
+
+	/* WILOCITY types */
+	WMI_IMM_RSP_EVENTID = 0x0000,
+	WMI_RD_MEM_RSP_EVENTID = 0x1800,
+	WMI_FW_READY_EVENTID = 0x1801,
+	WMI_EXIT_FAST_MEM_ACC_MODE_EVENTID = 0x0200,
+	WMI_ECHO_RSP_EVENTID = 0x1803,
+	WMI_CONFIG_MAC_DONE_EVENTID = 0x1805,
+	WMI_CONFIG_PHY_DEBUG_DONE_EVENTID = 0x1806,
+	WMI_ADD_STATION_DONE_EVENTID = 0x1807,
+	WMI_ADD_DEBUG_TX_PCKT_DONE_EVENTID = 0x1808,
+	WMI_PHY_GET_STATISTICS_EVENTID = 0x1809,
+	WMI_FS_TUNE_DONE_EVENTID = 0x180A,
+	WMI_CORR_MEASURE_DONE_EVENTID = 0x180B,
+	WMI_TEMP_SENSE_DONE_EVENTID = 0x180E,
+	WMI_DC_CALIB_DONE_EVENTID = 0x180F,
+	WMI_IQ_TX_CALIB_DONE_EVENTID = 0x1811,
+	WMI_IQ_RX_CALIB_DONE_EVENTID = 0x1812,
+	WMI_SET_CHANNEL_DONE_EVENTID = 0x1814,
+	WMI_SET_WORK_MODE_DONE_EVENTID = 0x1815,
+	WMI_LO_LEAKAGE_CALIB_DONE_EVENTID = 0x1816,
+	WMI_WIL6210_R_ACTIVATE_DONE_EVENTID = 0x1817,
+	WMI_WIL6210_R_READ_DONE_EVENTID = 0x1818,
+	WMI_WIL6210_R_WRITE_DONE_EVENTID = 0x1819,
+	WMI_WIL6210_R_TXRX_SEL_DONE_EVENTID = 0x181A,
+	WMI_SILENT_RSSI_CALIB_DONE_EVENTID = 0x181D,
+
+	WMI_CFG_RX_CHAIN_DONE_EVENTID = 0x1820,
+	WMI_VRING_CFG_DONE_EVENTID = 0x1821,
+	WMI_RX_ON_EVENTID = 0x1822,
+	WMI_BA_STATUS_EVENTID = 0x1823,
+	WMI_RCP_ADDBA_REQ_EVENTID = 0x1824,
+	WMI_ADDBA_RESP_SENT_EVENTID = 0x1825,
+	WMI_DELBA_EVENTID = 0x1826,
+
+	WMI_READ_MAC_RXQ_EVENTID = 0x1830,
+	WMI_READ_MAC_TXQ_EVENTID = 0x1831,
+	WMI_WRITE_MAC_RXQ_EVENTID = 0x1832,
+	WMI_WRITE_MAC_TXQ_EVENTID = 0x1833,
+	WMI_WRITE_MAC_XQ_FIELD_EVENTID = 0x1834,
+
+	WMI_BF_START_TXSS_DONE_EVENTID = 0x1836,
+	WMI_BF_TXSS_MGMT_DONE_EVENTID = 0x1837,
+	WMI_BF_RXSS_MGMT_DONE_EVENTID = 0x1839,
+	WMI_RS_MGMT_DONE_EVENTID = 0x1852,
+	WMI_BF_SM_MGMT_DONE_EVENTID = 0x1838,
+	WMI_RX_MGMT_PACKET_EVENTID = 0x1840,
+	WMI_LINK_START_DONE_EVENTID = 0x1850,
+	WMI_LINK_STOP_DONE_EVENTID = 0x1851,
+
+	/* Performance monitoring events */
+	WMI_WBE_LINKUP_EVENTID = 0x1860,
+	WMI_WBE_LINKDOWN_EVENTID = 0x1861,
+
+	WMI_BF_CTRL_DONE_EVENTID = 0x1862,
+	WMI_NOTIFY_REQ_DONE_EVENTID = 0x1863,
+
+	WMI_UNIT_TEST_EVENTID = 0x1900,
+
+	WMI_THIN_RESERVED_START_EVENTID = 0x8000,
+	/* Events in this range are reserved for thinmode
+	 * See wmi_thin.h for actual definitions */
+	WMI_THIN_RESERVED_END_EVENTID = 0x8fff,
+
+	WMI_SET_CHANNEL_EVENTID,
+	WMI_ASSOC_REQ_EVENTID
+};
+
+/*
+ * WMI_READY_EVENTID
+ */
+struct WMI_READY_EVENT {
+	u32 sw_version;
+	u32 abi_version;
+	u8 macaddr[ETH_ALEN];
+	u8 phyCapability; /* WMI_PHY_CAPABILITY */
+} __packed;
+
+enum WMI_NETWORK_TYPE {
+	INFRA_NETWORK = 0x01,
+	ADHOC_NETWORK = 0x02,
+	ADHOC_CREATOR = 0x04,
+	AP_NETWORK = 0x10,
+	P2P_NETWORK = 0x20,
+	WBE_NETWORK = 0x40,
+};
+
+enum DOT11_AUTH_MODE {
+	OPEN_AUTH = 0x01,
+	SHARED_AUTH = 0x02,
+	LEAP_AUTH = 0x04, /* different from IEEE_AUTH_MODE definitions */
+};
+
+enum AUTH_MODE {
+	NONE_AUTH = 0x01,
+	WPA_AUTH = 0x02,
+	WPA2_AUTH = 0x04,
+	WPA_PSK_AUTH = 0x08,
+	WPA2_PSK_AUTH = 0x10,
+	WPA_AUTH_CCKM = 0x20,
+	WPA2_AUTH_CCKM = 0x40,
+};
+
+enum CRYPTO_TYPE {
+	NONE_CRYPT = 0x01,
+	WEP_CRYPT = 0x02,
+	TKIP_CRYPT = 0x04,
+	AES_CRYPT = 0x08,
+#ifdef WAPI_ENABLE
+	WAPI_CRYPT = 0x10,
+#endif /*WAPI_ENABLE*/
+};
+
+#define WMI_MIN_CRYPTO_TYPE NONE_CRYPT
+#define WMI_MAX_CRYPTO_TYPE (AES_CRYPT + 1)
+
+#ifdef WAPI_ENABLE
+#undef WMI_MAX_CRYPTO_TYPE
+#define WMI_MAX_CRYPTO_TYPE (WAPI_CRYPT + 1)
+#endif /* WAPI_ENABLE */
+
+#ifdef WAPI_ENABLE
+#define IW_ENCODE_ALG_SM4       0x20
+#define IW_AUTH_WAPI_ENABLED    0x20
+#endif
+
+#define WMI_MIN_KEY_INDEX   0
+#define WMI_MAX_KEY_INDEX   3
+
+#ifdef WAPI_ENABLE
+#undef WMI_MAX_KEY_INDEX
+#define WMI_MAX_KEY_INDEX   7 /* wapi grpKey 0-3, prwKey 4-7 */
+#endif /* WAPI_ENABLE */
+
+enum WMI_CONNECT_CTRL_FLAGS_BITS {
+	CONNECT_ASSOC_POLICY_USER = 0x0001,
+	CONNECT_SEND_REASSOC = 0x0002,
+	CONNECT_IGNORE_WPAx_GROUP_CIPHER = 0x0004,
+	CONNECT_PROFILE_MATCH_DONE = 0x0008,
+	CONNECT_IGNORE_AAC_BEACON = 0x0010,
+	CONNECT_CSA_FOLLOW_BSS = 0x0020,
+	CONNECT_DO_WPA_OFFLOAD = 0x0040,
+	CONNECT_DO_NOT_DEAUTH = 0x0080,
+};
+#define DEFAULT_CONNECT_CTRL_FLAGS    (CONNECT_CSA_FOLLOW_BSS)
+
+/*
+ * WMI_CONNECT_CMDID
+ */
+struct WMI_CONNECT_CMD {
+	u8 networkType;
+	u8 dot11AuthMode;
+	u8 authMode;
+	u8 pairwiseCryptoType;
+	u8 pairwiseCryptoLen;
+	u8 groupCryptoType;
+	u8 groupCryptoLen;
+	u8 ssidLength;
+	u8 ssid[32];
+	u16 channel;
+	u8 bssid[ETH_ALEN];
+	u32 ctrl_flags;
+	u8 destMacAddr[ETH_ALEN];
+	u16 reserved;
+} __packed;
+
+/*
+ * WMI_CONNECT_EVENTID
+ */
+struct WMI_CONNECT_EVENT {
+	u16 channel;
+	u8 bssid[ETH_ALEN];
+	u16 listenInterval;
+	u16 beaconInterval;
+	u32 networkType;
+	u8 beaconIeLen;
+	u8 assocReqLen;
+	u8 assocRespLen;
+	u8 cid;
+	u8 reserved0;
+	u16 reserved1;
+	u8 assocInfo[0];
+} __packed;
+
+/*
+ * WMI_DISCONNECT_EVENTID
+ */
+enum WMI_DISCONNECT_REASON {
+	NO_NETWORK_AVAIL = 0x01,
+	LOST_LINK = 0x02, /* bmiss */
+	DISCONNECT_CMD = 0x03,
+	BSS_DISCONNECTED = 0x04,
+	AUTH_FAILED = 0x05,
+	ASSOC_FAILED = 0x06,
+	NO_RESOURCES_AVAIL = 0x07,
+	CSERV_DISCONNECT = 0x08,
+	INVALID_PROFILE = 0x0a,
+	DOT11H_CHANNEL_SWITCH = 0x0b,
+	PROFILE_MISMATCH = 0x0c,
+	CONNECTION_EVICTED = 0x0d,
+	IBSS_MERGE = 0xe,
+};
+
+struct WMI_DISCONNECT_EVENT {
+	u16 protocolReasonStatus; /* reason code, see 802.11 spec. */
+	u8 bssid[ETH_ALEN]; /* set if known */
+	u8 disconnectReason; /* see WMI_DISCONNECT_REASON */
+	u8 assocRespLen;
+	u8 assocInfo[0];
+} __packed;
+
+/*
+ * WMI_START_SCAN_CMDID
+ */
+enum WMI_SCAN_TYPE {
+	WMI_LONG_SCAN = 0, WMI_SHORT_SCAN = 1,
+};
+
+struct WMI_START_SCAN_CMD {
+	u32 forceFgScan;
+	u32 isLegacy; /* For Legacy Cisco AP compatibility */
+	u32 homeDwellTime; /* Maximum duration in the home channel(msec) */
+	u32 forceScanInterval; /* Time interval between scans (milliseconds)*/
+	u8 scanType; /* WMI_SCAN_TYPE */
+	u8 numChannels; /* how many channels follow */
+	u16 channelList[0]; /* channels in Mhz */
+} __packed;
+
+/*
+ * WMI_SET_SCAN_PARAMS_CMDID
+ */
+#define WMI_SHORTSCANRATIO_DEFAULT      3
+/*
+ *  Warning: ScanCtrlFlag value of 0xFF is used
+ *  to disable all flags in WMI_SCAN_PARAMS_CMD
+ *  Do not add any more flags to WMI_SCAN_CTRL_FLAG_BITS
+ */
+enum WMI_SCAN_CTRL_FLAGS_BITS {
+	CONNECT_SCAN_CTRL_FLAGS = 0x01, /* set if can scan in the Connect cmd */
+	SCAN_CONNECTED_CTRL_FLAGS = 0x02, /* set if scan for the SSID it is */
+					/* already connected to */
+	ACTIVE_SCAN_CTRL_FLAGS = 0x04, /* set if enable active scan */
+	ROAM_SCAN_CTRL_FLAGS = 0x08, /* set if enable roam scan */
+					/* when bmiss and lowrssi */
+	REPORT_BSSINFO_CTRL_FLAGS = 0x10, /* set if follows customer */
+					/* BSSINFO reporting rule */
+	ENABLE_AUTO_CTRL_FLAGS = 0x20, /* if disabled, target doesn't */
+					/* scan after a disconnect event  */
+	ENABLE_SCAN_ABORT_EVENT = 0x40, /* Scan complete event with canceled */
+					/* status will be generated */
+					/* when a scan is prempted */
+					/* before it gets completed */
+};
+
+#define CAN_SCAN_IN_CONNECT(flags)      (flags & CONNECT_SCAN_CTRL_FLAGS)
+#define CAN_SCAN_CONNECTED(flags)       (flags & SCAN_CONNECTED_CTRL_FLAGS)
+#define ENABLE_ACTIVE_SCAN(flags)       (flags & ACTIVE_SCAN_CTRL_FLAGS)
+#define ENABLE_ROAM_SCAN(flags)         (flags & ROAM_SCAN_CTRL_FLAGS)
+#define CONFIG_REPORT_BSSINFO(flags)     (flags & REPORT_BSSINFO_CTRL_FLAGS)
+#define IS_AUTO_SCAN_ENABLED(flags)      (flags & ENABLE_AUTO_CTRL_FLAGS)
+#define SCAN_ABORT_EVENT_ENABLED(flags) (flags & ENABLE_SCAN_ABORT_EVENT)
+
+#define DEFAULT_SCAN_CTRL_FLAGS         (CONNECT_SCAN_CTRL_FLAGS | \
+		SCAN_CONNECTED_CTRL_FLAGS | ACTIVE_SCAN_CTRL_FLAGS | \
+		ROAM_SCAN_CTRL_FLAGS | ENABLE_AUTO_CTRL_FLAGS)
+
+struct WMI_SET_SCAN_PARAMS_CMD {
+	u16 fg_start_period; /* seconds */
+	u16 fg_end_period; /* seconds */
+	u16 bg_period; /* seconds */
+	u16 maxact_chdwell_time; /* msec */
+	u16 pas_chdwell_time; /* msec */
+	u8 shortScanRatio; /* how many shorts scan for one long */
+	u8 scanCtrlFlags;
+	u16 minact_chdwell_time; /* msec */
+	u16 maxact_scan_per_ssid; /* max active scans per ssid */
+	u32 max_dfsch_act_time; /* msecs */
+} __packed;
+
+/*
+ * WMI_SET_BSS_FILTER_CMDID
+ */
+enum WMI_BSS_FILTER {
+	NONE_BSS_FILTER = 0x0, /* no beacons forwarded */
+	ALL_BSS_FILTER, /* all beacons forwarded */
+	PROFILE_FILTER, /* only beacons matching profile */
+	ALL_BUT_PROFILE_FILTER, /* all but beacons matching profile */
+	CURRENT_BSS_FILTER, /* only beacons matching current BSS */
+	ALL_BUT_BSS_FILTER, /* all but beacons matching BSS */
+	PROBED_SSID_FILTER, /* beacons matching probed ssid */
+	LAST_BSS_FILTER, /* marker only */
+};
+
+struct WMI_SET_BSS_FILTER_CMD {
+	u8 bssFilter; /* see WMI_BSS_FILTER */
+	u8 reserved1; /* For alignment */
+	u16 reserved2; /* For alignment */
+	u32 ieMask;
+} __packed;
+
+/*
+ * WMI_SCAN_COMPLETE_EVENTID - status parameter
+ */
+struct WMI_SCAN_COMPLETE_EVENT {
+	u32 status;
+} __packed;
+
+/*
+ * WMI_RX_MGMT_PACKET_EVENTID
+ */
+struct WMI_RX_MGMT_PACKET_EVENT {
+	u16 mcs;
+	u16 rssi;
+	u32 status;
+	u32 length;
+	u8 qid; /* Not resolved when == 0xFFFFFFFF  ==> Broadcast to all MIDS */
+	u8 mid; /* Not resolved when == 0xFFFFFFFF  ==> Broadcast to all MIDS */
+	u8 cid;
+	u8 channel; /* From Radio MNGR */
+	u8 payload[0]; /* struct ieee80211_mgmt */
+} __packed;
+
+/* DMA rings */
+
+struct wmi_sw_ring_cfg {
+	u64 ring_mem_base; /* 48 bit; upper 16 bits reserved */
+	u16 ring_size;
+	u16 max_mpdu_size;
+} __packed;
+
+enum wmi_cfg_rx_chain_cmd_action {
+	ADD_RX_CHAIN = 0x0, DELETE_RX_CHAIN = 0x1,
+};
+
+enum wmi_cfg_rx_chain_cmd_decap_trans_type {
+	DECAP_TYPE_802_3 = 0x0, DECAP_TYPE_NATIVE_WIFI = 0x1,
+};
+
+enum wmi_cfg_rx_chain_cmd_nwifi_ds_trans_type {
+	NWIFI_RX_NO_TRANS_MODE = 0x0,
+	NWIFI_RX_PBSS2AP_TRANS_MODE = 0x1,
+	NWIFI_RX_PBSS2STA_TRANS_MODE = 0x2,
+};
+
+/*
+ * WMI_CFG_RX_CHAIN_CMDID
+ */
+struct WMI_CFG_RX_CHAIN_CMD {
+	u32 action; /* enum wmi_cfg_rx_chain_cmd_action */
+	struct wmi_sw_ring_cfg sw_ring;
+	u8 mid;
+	u8 decap_trans_type; /* enum wmi_cfg_rx_chain_cmd_decap_trans_type */
+	u8 l2_802_3_offload_ctrl;
+	u8 l2_nwifi_offload_ctrl;
+	u8 vlan_id;
+	u8 nwifi_ds_trans_type;
+	/* enum wmi_cfg_rx_chain_cmd_nwifi_ds_trans_type */
+	u8 l3_l4_ctrl;
+	u8 ring_ctrl;
+	u16 prefetch_thrsh;
+	u16 wb_thrsh;
+	u32 itr_value;
+	u16 host_thrsh;
+	u16 reserved;
+	/* added for sniffer mode */
+	u32 sniffer_mode; /* 0/1, other sniffer fields ignored if 0 */
+	u32 sniffer_phy_info; /* 0/1, should phy_info be included? */
+	u32 sniffer_phy; /* 0 - CP; 1 - DP */
+	u32 sniffer_channel; /* channel index 0..2 */
+} __packed;
+
+enum wmi_cfg_rx_chain_done_event_status {
+	CFG_RX_CHAIN_SUCCESS = 0x1,
+};
+
+/*
+ * WMI_CFG_RX_CHAIN_DONE_EVENTID
+ */
+struct WMI_CFG_RX_CHAIN_DONE_EVENT {
+	u32 rx_ring_tail_ptr; /* Rx V-Ring Tail pointer */
+	u32 status; /* enum wmi_cfg_rx_chain_done_event_status */
+} __packed;
+
+/*
+ * WMI_VRING_CFG_CMDID
+ */
+enum wmi_vring_cfg_cmd_action {
+	ADD_VRING = 0x0,
+	MODIFY_VRING = 0x1,
+	DELETE_VRING = 0x2,
+};
+
+enum wmi_vring_cfg_encap_trans_type {
+	ENC_TYPE_802_3 = 0x0,
+	ENC_TYPE_NATIVE_WIFI = 0x1,
+};
+
+enum wmi_vring_cfg_ds_cfg {
+	PBSS_MODE = 0x0,
+	STATION_MODE = 0x1,
+	AP_MODE = 0x2,
+	ADDR4_MODE = 0x3,
+};
+
+enum wmi_vring_cfg_nwifi_ds_trans_type {
+	NWIFI_TX_NO_TRANS_MODE = 0x0,
+	NWIFI_TX_AP2PBSS_TRANS_MODE = 0x1,
+	NWIFI_TX_STA2PBSS_TRANS_MODE = 0x2,
+};
+
+enum wmi_vring_cfg_schd_params_priority {
+	REGULAR = 0x0,
+	HIGH = 0x1,
+};
+
+struct WMI_VRING_CFG_CMD {
+	u32 action; /* enum wmi_vring_cfg_cmd_action */
+	struct wmi_sw_ring_cfg sw_ring;
+	u8 ringid; /* 0-23 */
+	u8 cidxtid; /* 0..3: cid; 4..7: tid */
+	u8 encap_trans_type; /* enum wmi_vring_cfg_encap_trans_type */
+	u8 ds_cfg; /* enum wmi_vring_cfg_ds_cfg - 802.3 DS cfg */
+	u8 nwifi_ds_trans_type; /* enum wmi_vring_cfg_nwifi_ds_trans_type */
+	u8 mac_ctrl; /* 0: lifetime_en; 1: aggr_en */
+#define VRING_CFG_MAC_CTRL_LIFETIME_EN BIT(0)
+#define VRING_CFG_MAC_CTRL_AGGR_EN     BIT(1)
+	u8 to_resolution; /* 0..5: value; 6..7: reserved */
+	u8 agg_max_wsize;
+	/* schd_params */
+	u16 priority; /* enum wmi_vring_cfg_schd_params_priority */
+	u16 timeslot_us;
+} __packed;
+
+/*
+ * WMI_VRING_CFG_DONE_EVENTID
+ */
+enum wmi_vring_cfg_done_event_status {
+	VRING_CFG_SUCCESS = 0x0, VRING_CFG_FAILURE = 0x1,
+};
+
+struct WMI_VRING_CFG_DONE_EVENT {
+	u8 ringid;
+	u8 status;
+	u16 reserved;
+	u32 tx_vring_tail_ptr; /* Tx vring tail pointer */
+} __packed;
+
+/*
+ * WMI_SET_MAC_ADDRESS_CMDID
+ */
+struct WMI_SET_MAC_ADDRESS_CMD {
+	u8 macaddr[ETH_ALEN];
+	u16 reserved;
+} __packed;
+
+/*
+ * WMI_SET_BEACON_INT_CMDID
+ */
+struct WMI_SET_BEACON_INT_CMD {
+	u16 bcon_interval;
+	u16 frag_num;
+	u32 ss_mask_low;
+	u32 ss_mask_high;
+	u16 network_type;
+	u16 reserved;
+} __packed;
+
+/*
+ * WMI_NOTIFY_REQ_CMDID
+ */
+struct WMI_NOTIFY_REQ_CMD {
+	u32 cid;
+	u32 interval_usec;
+} __packed;
+
+/*
+ * WMI_NOTIFY_REQ_DONE_EVENTID
+ */
+struct WMI_NOTIFY_REQ_DONE_EVENT {
+	u32 bf_status;
+	u32 tsf_hi;
+	u32 tsf_lo;
+	u32 bf_metric;
+	u32 tx_tpt;
+	u32 tx_gput;
+	u32 rx_gput;
+	u16 bf_mcs;
+	u16 my_rx_sector;
+	u16 my_tx_sector;
+	u16 peer_rx_sector;
+	u16 peer_tx_sector;
+	u16 reserved;
+} __packed;
+
+#endif /* __WMI_H__ */

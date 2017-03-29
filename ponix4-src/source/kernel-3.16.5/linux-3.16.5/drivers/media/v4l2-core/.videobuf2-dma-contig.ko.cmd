@@ -1,0 +1,1 @@
+cmd_drivers/media/v4l2-core/videobuf2-dma-contig.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/media/v4l2-core/videobuf2-dma-contig.ko drivers/media/v4l2-core/videobuf2-dma-contig.o drivers/media/v4l2-core/videobuf2-dma-contig.mod.o

@@ -1,0 +1,1 @@
+cmd_sound/soc/codecs/snd-soc-sgtl5000.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/codecs/snd-soc-sgtl5000.ko sound/soc/codecs/snd-soc-sgtl5000.o sound/soc/codecs/snd-soc-sgtl5000.mod.o

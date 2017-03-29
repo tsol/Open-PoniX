@@ -1,0 +1,1 @@
+cmd_sound/isa/gus/snd-gusextreme.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/isa/gus/snd-gusextreme.ko sound/isa/gus/snd-gusextreme.o sound/isa/gus/snd-gusextreme.mod.o

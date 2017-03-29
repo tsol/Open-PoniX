@@ -1,0 +1,2 @@
+/source/compat/compat-wireless-2012-10-21/drivers/net/ethernet/atheros/atl1e/atl1e.ko
+/source/compat/compat-wireless-2012-10-21/drivers/net/ethernet/atheros/atl1e/atl1e_main.o /source/compat/compat-wireless-2012-10-21/drivers/net/ethernet/atheros/atl1e/atl1e_hw.o /source/compat/compat-wireless-2012-10-21/drivers/net/ethernet/atheros/atl1e/atl1e_ethtool.o /source/compat/compat-wireless-2012-10-21/drivers/net/ethernet/atheros/atl1e/atl1e_param.o

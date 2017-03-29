@@ -1,0 +1,1 @@
+cmd_sound/soc/fsl/snd-soc-fsl-utils.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/soc/fsl/snd-soc-fsl-utils.ko sound/soc/fsl/snd-soc-fsl-utils.o sound/soc/fsl/snd-soc-fsl-utils.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/brcm80211/brcmutil/brcmutil.o := ld -m elf_i386   -r -o drivers/net/wireless/brcm80211/brcmutil/brcmutil.o drivers/net/wireless/brcm80211/brcmutil/utils.o drivers/net/wireless/brcm80211/brcmutil/d11.o 

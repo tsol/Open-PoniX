@@ -1,0 +1,1 @@
+cmd_sound/pci/cs5535audio/snd-cs5535audio.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o sound/pci/cs5535audio/snd-cs5535audio.ko sound/pci/cs5535audio/snd-cs5535audio.o sound/pci/cs5535audio/snd-cs5535audio.mod.o

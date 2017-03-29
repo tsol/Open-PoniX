@@ -1,0 +1,1 @@
+cmd_drivers/net/ethernet/icplus/ipg.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/net/ethernet/icplus/ipg.ko drivers/net/ethernet/icplus/ipg.o drivers/net/ethernet/icplus/ipg.mod.o

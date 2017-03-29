@@ -1,0 +1,1 @@
+cmd_drivers/usb/serial/cypress_m8.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o drivers/usb/serial/cypress_m8.ko drivers/usb/serial/cypress_m8.o drivers/usb/serial/cypress_m8.mod.o
