@@ -48,8 +48,8 @@ best to prepare it for giving away to comunity.
 We do not know much about git culture or licensing restriction, we just
 want to give users using ponix to be able to continue using it.
 
+## Screenshots
 
-
-
+Here https://github.com/tsol/Open-PoniX/wiki/PoniX
 
 
